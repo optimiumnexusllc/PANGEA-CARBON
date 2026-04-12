@@ -1,0 +1,90 @@
+'use client';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+const NAV = [
+  { href: '/dashboard',          label: 'Vue d\'ensemble',  icon: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v2h-2zm0 4h2v2h-2zm4-4h2v6h-2z' },
+  { href: '/dashboard/projects', label: 'Projets',          icon: 'M3 3h18v4H3zm0 6h11v12H3zm13 6h6v6h-6z' },
+  { href: '/dashboard/readings', label: 'Données MRV',      icon: 'M3 3v18h18M7 16l4-4 4 4 4-6' },
+  { href: '/dashboard/reports',  label: 'Rapports',         icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8' },
+  { href: '/dashboard/mrv',      label: 'Calculateur MRV',  icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
+];
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const u = localStorage.getItem('user');
+    if (!u || !localStorage.getItem('accessToken')) { router.push('/auth/login'); return; }
+    setUser(JSON.parse(u));
+  }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    router.push('/auth/login');
+  };
+
+  return (
+    <div className="flex min-h-screen">
+      {/* Scan line FX */}
+      <div className="scan-line" />
+
+      {/* SIDEBAR */}
+      <aside className="sidebar" style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'auto' }}>
+        {/* Logo */}
+        <div className="p-5 border-b" style={{ borderColor: '#1E2D3D' }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(0,255,148,0.15)', border: '1px solid rgba(0,255,148,0.3)' }}>
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z" stroke="#00FF94" strokeWidth="1.5"/>
+              </svg>
+            </div>
+            <div>
+              <div className="text-sm font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>PANGEA CARBON</div>
+              <div className="text-xs" style={{ color: '#4A6278' }}>Africa Platform</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 py-3">
+          {NAV.map(item => (
+            <Link key={item.href} href={item.href}
+              className={`nav-item ${pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)) ? 'active' : ''}`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d={item.icon}/>
+              </svg>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* User */}
+        <div className="p-4 border-t" style={{ borderColor: '#1E2D3D' }}>
+          {user && (
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0"
+                style={{ background: 'rgba(0,255,148,0.15)', color: '#00FF94', border: '1px solid rgba(0,255,148,0.2)' }}>
+                {user.name?.[0]?.toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-medium truncate" style={{ color: '#E8EFF6' }}>{user.name}</div>
+                <div className="text-xs truncate" style={{ color: '#4A6278' }}>{user.role}</div>
+              </div>
+            </div>
+          )}
+          <button onClick={logout} className="btn-ghost w-full text-xs justify-center" style={{ padding: '6px 12px' }}>
+            Déconnexion
+          </button>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <main className="main-content">{children}</main>
+    </div>
+  );
+}

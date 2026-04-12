@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  AUDITOR
+  CLIENT
+}
+
+enum ProjectType {
+  SOLAR
+  WIND
+  HYDRO
+  BIOMASS
+  HYBRID
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  MONITORING
+  VERIFIED
+  CREDITED
+  ARCHIVED
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  READY
+  FAILED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  name         String
+  role         Role      @default(ANALYST)
+  organization String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  projects     Project[]
+  reports      Report[]
+  auditLogs    AuditLog[]
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  name            String
+  description     String?
+  type            ProjectType
+  status          ProjectStatus @default(DRAFT)
+  country         String
+  countryCode     String
+  latitude        Float?
+  longitude       Float?
+  installedMW     Float
+  startDate       DateTime
+  endDate         DateTime?
+  methodology     String        @default("ACM0002")
+  standard        String        @default("Verra VCS")
+  baselineEF      Float         // tCO2e/MWh - facteur d'émission de la grille
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  readings        EnergyReading[]
+  mrvRecords      MRVRecord[]
+  reports         Report[]
+  auditLogs       AuditLog[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([country])
+  @@index([status])
+}
+
+model EnergyReading {
+  id              String    @id @default(cuid())
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  periodStart     DateTime
+  periodEnd       DateTime
+  energyMWh       Float     // Production réelle (MWh)
+  peakPowerMW     Float?    // Puissance de pointe
+  availabilityPct Float?    // Taux de disponibilité (%)
+  source          String    @default("MANUAL") // MANUAL, API, CSV
+  verified        Boolean   @default(false)
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([periodStart])
+}
+
+model MRVRecord {
+  id                    String    @id @default(cuid())
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  year                  Int
+  totalEnergyMWh        Float     // Production totale (MWh)
+  baselineEF            Float     // tCO2e/MWh utilisé
+  emissionReductions    Float     // tCO2e évitées
+  leakageDeduction      Float     @default(0) // Fuites (%)
+  netCarbonCredits      Float     // Crédits carbone nets (tCO2e)
+  marketPriceUSD        Float     @default(12.0) // Prix marché $/tCO2e
+  revenueUSD            Float     // Revenus estimés ($)
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([projectId, year])
+  @@index([projectId])
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  type        String       // ANNUAL_MRV, VERIFICATION, MONITORING
+  year        Int
+  status      ReportStatus @default(PENDING)
+  filePath    String?
+  fileSize    Int?
+  generatedAt DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([projectId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  before    Json?
+  after     Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
+}

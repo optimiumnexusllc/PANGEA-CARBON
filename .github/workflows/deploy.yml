@@ -1,0 +1,55 @@
+name: Deploy RenewMRV Africa
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            cd /opt/renewmrv
+
+            echo "→ Pull du code..."
+            git pull origin main
+
+            echo "→ Rebuild des images..."
+            docker compose build --no-cache
+
+            echo "→ Redémarrage zero-downtime..."
+            docker compose up -d --remove-orphans
+
+            echo "→ Migrations DB..."
+            sleep 5
+            docker compose exec -T backend npx prisma migrate deploy
+
+            echo "→ Nettoyage images obsolètes..."
+            docker image prune -f
+
+            echo "✓ Déploiement terminé"
+
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Vérification API
+        run: |
+          sleep 10
+          curl -f https://${{ secrets.DOMAIN }}/api/health || exit 1
+          echo "✓ API en ligne"
