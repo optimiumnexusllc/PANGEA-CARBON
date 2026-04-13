@@ -45,7 +45,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
     <>
       {/* Logo */}
       <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid #1E2D3D', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', cursor: 'pointer' }}>
           <div style={{ width: 26, height: 26, borderRadius: 6, background: 'rgba(0,255,148,0.15)', border: '1px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z" stroke="#00FF94" strokeWidth="1.5"/></svg>
           </div>
@@ -53,7 +53,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
             <div style={{ fontSize: 13, fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#E8EFF6', lineHeight: 1.1 }}>PANGEA CARBON</div>
             <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>Africa Platform</div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Main Nav */}

@@ -40,6 +40,7 @@ const CATEGORIES = [
     ],
     settings: [
       { key: 'anthropic_api_key',    label: 'Claude AI API Key',   placeholder: 'sk-ant-api03-...', encrypted: true },
+      { key: 'contact_email',         label: 'Email contact Enterprise', placeholder: 'contact@pangea-carbon.com', encrypted: false },
       { key: 'mapbox_token',         label: 'Mapbox Token',        placeholder: 'pk.eyJ1...',       encrypted: false },
       { key: 'carbon_market_api_key',label: 'Carbon Market API',   placeholder: 'API key...',       encrypted: true },
     ],
