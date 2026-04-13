@@ -25,9 +25,9 @@ const inputStyle = (disabled: boolean) => ({
   color: disabled ? '#4A6278' : '#E8EFF6',
   padding: '10px 12px',
   fontSize: 13,
-  boxSizing: 'border-box' as 'border-box',
+  boxSizing: 'border-box',
   outline: 'none',
-  cursor: disabled ? 'default' as 'default' : 'text' as 'text',
+  cursor: disabled ? 'default' : 'text',
   marginBottom: 16,
 });
 
