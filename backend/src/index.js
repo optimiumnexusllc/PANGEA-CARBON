@@ -46,6 +46,7 @@ app.use('/api/projects', readingRoutes);
 app.use('/api/projects', mrvRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/billing', billingRoutes);
+app.use('/api/admin', require('./routes/admin'));
 app.use('/api/dashboard', dashboardRoutes);
 
 // 404

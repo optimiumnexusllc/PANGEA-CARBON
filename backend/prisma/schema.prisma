@@ -8,10 +8,12 @@ datasource db {
 }
 
 enum Role {
+  SUPER_ADMIN
   ADMIN
   ANALYST
   AUDITOR
   CLIENT
+  VIEWER
 }
 
 enum ProjectType {
@@ -38,83 +40,194 @@ enum ReportStatus {
   FAILED
 }
 
+enum PlanTier {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+  CUSTOM
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+  CHURNED
+}
+
+model Organization {
+  id               String       @id @default(cuid())
+  name             String
+  slug             String       @unique
+  domain           String?
+  plan             PlanTier     @default(TRIAL)
+  status           OrgStatus    @default(TRIAL)
+  maxProjects      Int          @default(5)
+  maxMW            Float        @default(100)
+  maxUsers         Int          @default(3)
+  stripeCustomerId String?
+  stripeSubId      String?
+  trialEndsAt      DateTime?
+  billingEmail     String?
+  country          String?
+  logoUrl          String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  users            User[]
+  projects         Project[]
+  invoices         Invoice[]
+  featureAccess    OrgFeature[]
+}
+
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  password     String
-  name         String
-  role         Role      @default(ANALYST)
-  organization String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  projects     Project[]
-  reports      Report[]
-  auditLogs    AuditLog[]
+  id             String        @id @default(cuid())
+  email          String        @unique
+  password       String
+  name           String
+  role           Role          @default(ANALYST)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  isActive       Boolean       @default(true)
+  lastLoginAt    DateTime?
+  loginCount     Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  projects       Project[]
+  reports        Report[]
+  auditLogs      AuditLog[]
+  apiKeys        ApiKey[]
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  encrypted   Boolean  @default(false)
+  category    String   @default("general")
+  description String?
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model FeatureFlag {
+  id          String       @id @default(cuid())
+  key         String       @unique
+  name        String
+  description String?
+  enabled     Boolean      @default(false)
+  rolloutPct  Int          @default(100)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  orgAccess   OrgFeature[]
+}
+
+model OrgFeature {
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id])
+  featureId String
+  feature   FeatureFlag  @relation(fields: [featureId], references: [id])
+  enabled   Boolean      @default(true)
+  createdAt DateTime     @default(now())
+
+  @@unique([orgId, featureId])
+}
+
+model Invoice {
+  id              String       @id @default(cuid())
+  orgId           String
+  org             Organization @relation(fields: [orgId], references: [id])
+  stripeInvoiceId String?
+  amount          Float
+  currency        String       @default("usd")
+  status          String       @default("pending")
+  plan            PlanTier
+  periodStart     DateTime
+  periodEnd       DateTime
+  paidAt          DateTime?
+  createdAt       DateTime     @default(now())
 }
 
 model Project {
-  id              String        @id @default(cuid())
-  name            String
-  description     String?
-  type            ProjectType
-  status          ProjectStatus @default(DRAFT)
-  country         String
-  countryCode     String
-  latitude        Float?
-  longitude       Float?
-  installedMW     Float
-  startDate       DateTime
-  endDate         DateTime?
-  methodology     String        @default("ACM0002")
-  standard        String        @default("Verra VCS")
-  baselineEF      Float         // tCO2e/MWh - facteur d'émission de la grille
-  userId          String
-  user            User          @relation(fields: [userId], references: [id])
-  readings        EnergyReading[]
-  mrvRecords      MRVRecord[]
-  reports         Report[]
-  auditLogs       AuditLog[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  name           String
+  description    String?
+  type           ProjectType
+  status         ProjectStatus @default(DRAFT)
+  country        String
+  countryCode    String
+  latitude       Float?
+  longitude      Float?
+  installedMW    Float
+  startDate      DateTime
+  endDate        DateTime?
+  methodology    String        @default("ACM0002")
+  standard       String        @default("Verra VCS")
+  baselineEF     Float
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  readings       EnergyReading[]
+  mrvRecords     MRVRecord[]
+  reports        Report[]
+  auditLogs      AuditLog[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([country])
   @@index([status])
+  @@index([organizationId])
 }
 
 model EnergyReading {
-  id              String    @id @default(cuid())
+  id              String   @id @default(cuid())
   projectId       String
-  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   periodStart     DateTime
   periodEnd       DateTime
-  energyMWh       Float     // Production réelle (MWh)
-  peakPowerMW     Float?    // Puissance de pointe
-  availabilityPct Float?    // Taux de disponibilité (%)
-  source          String    @default("MANUAL") // MANUAL, API, CSV
-  verified        Boolean   @default(false)
+  energyMWh       Float
+  peakPowerMW     Float?
+  availabilityPct Float?
+  source          String   @default("MANUAL")
+  verified        Boolean  @default(false)
   notes           String?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime @default(now())
 
   @@index([projectId])
   @@index([periodStart])
 }
 
 model MRVRecord {
-  id                    String    @id @default(cuid())
-  projectId             String
-  project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  year                  Int
-  totalEnergyMWh        Float     // Production totale (MWh)
-  baselineEF            Float     // tCO2e/MWh utilisé
-  emissionReductions    Float     // tCO2e évitées
-  leakageDeduction      Float     @default(0) // Fuites (%)
-  netCarbonCredits      Float     // Crédits carbone nets (tCO2e)
-  marketPriceUSD        Float     @default(12.0) // Prix marché $/tCO2e
-  revenueUSD            Float     // Revenus estimés ($)
-  verifiedAt            DateTime?
-  verifiedBy            String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  projectId          String
+  project            Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  year               Int
+  totalEnergyMWh     Float
+  baselineEF         Float
+  emissionReductions Float
+  leakageDeduction   Float     @default(0)
+  netCarbonCredits   Float
+  marketPriceUSD     Float     @default(12.0)
+  revenueUSD         Float
+  verifiedAt         DateTime?
+  verifiedBy         String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@unique([projectId, year])
   @@index([projectId])
@@ -126,7 +239,7 @@ model Report {
   project     Project      @relation(fields: [projectId], references: [id])
   userId      String
   user        User         @relation(fields: [userId], references: [id])
-  type        String       // ANNUAL_MRV, VERIFICATION, MONITORING
+  type        String
   year        Int
   status      ReportStatus @default(PENDING)
   filePath    String?
@@ -149,9 +262,11 @@ model AuditLog {
   before    Json?
   after     Json?
   ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now())
 
-  @@index([projectId])
   @@index([userId])
+  @@index([projectId])
   @@index([createdAt])
+  @@index([action])
 }

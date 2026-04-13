@@ -78,7 +78,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </div>
           )}
-          <button onClick={logout} className="btn-ghost w-full text-xs justify-center" style={{ padding: '6px 12px' }}>
+          {(user?.role === "SUPER_ADMIN" || user?.role === "ADMIN") && (
+            <a href="/dashboard/admin" style={{ display:"flex",alignItems:"center",gap:6,padding:"6px 12px",marginBottom:6,borderRadius:6,background:pathname.startsWith("/dashboard/admin")?"rgba(248,113,113,0.08)":"transparent",color:"#F87171",fontSize:12,textDecoration:"none",border:pathname.startsWith("/dashboard/admin")?"1px solid rgba(248,113,113,0.2)":"1px solid transparent" }}>
+              🛡️ Admin Console
+            </a>
+          )}
+          <button onClick={logout} className="btn-ghost w-full text-xs justify-center" style={{ padding: "6px 12px" }}>
             Déconnexion
           </button>
         </div>
