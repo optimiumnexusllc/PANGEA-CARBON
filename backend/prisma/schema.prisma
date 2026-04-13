@@ -42,6 +42,7 @@ enum ReportStatus {
 
 enum PlanTier {
   FREE
+  TRIAL
   STARTER
   PRO
   ENTERPRISE
