@@ -1,11 +1,8 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
+import { fetchAuth } from '@/lib/fetch-auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const hdrs = () => ({
-  'Content-Type': 'application/json',
-  Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}`,
-});
 
 const CATEGORIES = [
   {
@@ -196,7 +193,7 @@ export default function AdminSettingsPage() {
     setLoading(true);
     setLoadError('');
     try {
-      const res = await fetch(`${API}/admin/settings`, { headers: hdrs() });
+      const res = await fetchAuth('/admin/settings');
       if (!res.ok) {
         const e = await res.json().catch(() => ({}));
         throw new Error(e.error || `Erreur ${res.status}`);
@@ -220,9 +217,9 @@ export default function AdminSettingsPage() {
 
   const saveSetting = async (key: string, value: string): Promise<{ success: boolean; masked?: string; error?: string }> => {
     try {
-      const res = await fetch(`${API}/admin/settings/${key}`, {
+      const res = await fetchAuth(\'/admin/settings/${key}\', {
         method: 'PUT',
-        headers: hdrs(),
+        ,
         body: JSON.stringify({ value }),
       });
       const data = await res.json();
@@ -245,7 +242,7 @@ export default function AdminSettingsPage() {
     setTestLoading(true);
     setTestResult(null);
     try {
-      const res = await fetch(`${API}/admin/settings/test-smtp`, { method: 'POST', headers: hdrs() });
+      const res = await fetchAuth(\'/admin/settings/test-smtp\', { method: 'POST',  });
       const data = await res.json();
       if (res.ok) setTestResult({ msg: `✓ ${data.message || 'Email de test envoyé'}`, ok: true });
       else setTestResult({ msg: `✗ ${data.error || 'Erreur SMTP'}`, ok: false });
