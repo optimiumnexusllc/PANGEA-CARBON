@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLang } from '@/lib/lang-context';
-import LangToggle from '@/components/LangToggle';
+// i18n placeholder
 
 /* -
    PANGEA CARBON — Landing Page
@@ -80,7 +79,7 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
 export default function LandingPage() {
   const router = useRouter();
-  const { t } = useLang();
+  const t = (key) => key;
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
@@ -112,7 +111,7 @@ export default function LandingPage() {
   const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
 
   const doSend = async () => {
-    if (!cName || !cEmail) { setCerr(t('contact_err_required')); return; }
+    if (!cName || !cEmail) { setCerr('Nom et email requis'); return; }
     setCsending(true); setCerr('');
     try {
       const r = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/email-composer/contact', {
@@ -122,7 +121,7 @@ export default function LandingPage() {
       });
       if (r.ok) setCsent(true);
       else setCerr('Erreur envoi');
-    } catch { setCerr(t('contact_err_send')); }
+    } catch { setCerr('Erreur envoi'); }
     finally { setCsending(false); }
   };
 
@@ -140,10 +139,10 @@ export default function LandingPage() {
           </a>
 
           <div className="pgc-nav__links">
-            <a href="#features" className="pgc-nav__link">{t('nav_features')}</a>
-            <a href="#how" className="pgc-nav__link">{t('nav_how')}</a>
-            <a href="#pricing" className="pgc-nav__link">{t('nav_pricing')}</a>
-            <a href="#contact" className="pgc-nav__link">{t('nav_contact')}</a>
+            <a href="#features" className="pgc-nav__link">{'Fonctionnalités'}</a>
+            <a href="#how" className="pgc-nav__link">{'Comment'}</a>
+            <a href="#pricing" className="pgc-nav__link">{'Tarifs'}</a>
+            <a href="#contact" className="pgc-nav__link">{'Contact'}</a>
           </div>
 
           <div className="pgc-nav__actions">
@@ -191,13 +190,13 @@ export default function LandingPage() {
           </p>
           <div className="pgc-hero__cta">
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--lg">
-              {t('hero_cta')}
+              {'Commencer gratuitement →'}
             </a>
             <a href="/auth/login" className="pgc-btn pgc-btn--outline pgc-btn--lg">
               Voir la démo
             </a>
           </div>
-          <p className="pgc-hero__note">{t('hero_sub')}</p>
+          <p className="pgc-hero__note">{'14 jours gratuits · Pas de carte bancaire · Setup en 10 min'}</p>
 
           {/* Standards */}
           <div className="pgc-standards">
@@ -328,7 +327,7 @@ export default function LandingPage() {
         <div className="pgc-container">
           <div className="pgc-section__header">
             <div className="pgc-eyebrow">TARIFS</div>
-            <h2 className="pgc-section__title">{t('pricing_title')}</h2>
+            <h2 className="pgc-section__title">{'Commencez gratuitement, scalez sans limites'}</h2>
             <div className="pgc-toggle">
               <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>Mensuel</button>
               <button onClick={() => setAnnual(true)} className={`pgc-toggle__btn ${annual ? 'active' : ''}`}>
@@ -416,11 +415,11 @@ export default function LandingPage() {
         <div className="pgc-cta__glow"/>
         <div className="pgc-container pgc-cta__content">
           <div className="pgc-eyebrow" style={{ justifyContent: 'center' }}>WITH AFRICA FOR AFRICA 🌍</div>
-          <h2 className="pgc-cta__title">{t('cta_title')}</h2>
-          <p className="pgc-cta__desc">{t('cta_sub')}</p>
+          <h2 className="pgc-cta__title">{'Prêt à monétiser votre carbone africain ?'}</h2>
+          <p className="pgc-cta__desc">{'14 jours gratuits · Pas de carte bancaire · Premier projet en 10 minutes'}</p>
           <div className="pgc-hero__cta">
-            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">{t('cta_btn')}</a>
-            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>{t('pricing_cta_contact')}</button>
+            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">{'Créer mon compte gratuit →'}</a>
+            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>{'Nous contacter'}</button>
           </div>
         </div>
       </section>
@@ -438,7 +437,7 @@ export default function LandingPage() {
             </div>
             <div className="pgc-footer__links-group">
               <div className="pgc-footer__col">
-                <div className="pgc-footer__col-title">{t('footer_platform')}</div>
+                <div className="pgc-footer__col-title">{'Plateforme'}</div>
                 {[['Fonctionnalités','#features'],['Tarifs','#pricing'],['API Docs','/dashboard/api-keys'],['Carbon Hub','/dashboard/standards']].map(([l,h]) => (
                   <a key={l} href={h} className="pgc-footer__link">{l}</a>
                 ))}
@@ -848,8 +847,8 @@ export default function LandingPage() {
                   <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: '#E8EFF6' }}>PANGEA CARBON</span>
                 </div>
                 <div style={{ fontSize: 9, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>{t('contact_title')}</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>{t('contact_sub')}</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>{'Parlons de votre projet'}</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>{'Un expert vous rappelle sous 24h.'}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
                     <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>NOM *</div>
@@ -874,17 +873,17 @@ export default function LandingPage() {
                 </div>
                 {cErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{cErr}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>{t('contact_cancel')}</button>
+                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>{'Annuler'}</button>
                   <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
-                    {cSending ? {t('contact_sending')} : {t('contact_send')}}
+                    {cSending ? {'Envoi...'} : {'Envoyer ma demande'}}
                   </button>
                 </div>
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>{t('contact_sent_title')}</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>{t('contact_sent_sub')}</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>{'Demande envoyée !'}</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>{'Réponse garantie sous 24h.'}</p>
                 <button onClick={() => { setShowContact(false); setCsent(false); setCName(''); setCEmail(''); setCCompany(''); setCMsg(''); }}
                   style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 24px', fontWeight: 700, cursor: 'pointer' }}>
                   Fermer
