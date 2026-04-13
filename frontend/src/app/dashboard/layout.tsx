@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 const NAV = [
   { href: '/dashboard',          label: 'Vue d\'ensemble',  icon: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v2h-2zm0 4h2v2h-2zm4-4h2v6h-2z' },
   { href: '/dashboard/projects', label: 'Projets',          icon: 'M3 3h18v4H3zm0 6h11v12H3zm13 6h6v6h-6z' },
-  { href: '/dashboard/readings', label: 'Données MRV',      icon: 'M3 3v18h18M7 16l4-4 4 4 4-6' },
-  { href: '/dashboard/reports',  label: 'Rapports',         icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8' },
   { href: '/dashboard/mrv',      label: 'Calculateur MRV',  icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
+  { href: '/dashboard/reports',  label: 'Rapports',         icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8' },
+  { href: '/dashboard/settings', label: 'Paramètres',       icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
