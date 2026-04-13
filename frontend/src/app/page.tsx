@@ -69,32 +69,6 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
     return () => observer.disconnect();
   }, [target]);
 
-  async function sendContact() {
-    if (!contactForm.name || !contactForm.email || !contactForm.message) {
-      setContactErr('Nom, email et message requis');
-      return;
-    }
-    setContactSending(true);
-    setContactErr('');
-    try {
-      await fetch(process.env.NEXT_PUBLIC_API_URL + '/email-composer/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: 'contact@pangea-carbon.com',
-          subject: 'Demande Enterprise — ' + (contactForm.company || contactForm.name),
-          body: 'Nom: ' + contactForm.name + '\nEmail: ' + contactForm.email + '\nEntreprise: ' + contactForm.company + '\n\nMessage:\n' + contactForm.message,
-          templateId: 'custom',
-        }),
-      });
-      setContactSent(true);
-    } catch (e) {
-      setContactErr('Erreur envoi — contactez contact@pangea-carbon.com');
-    } finally {
-      setContactSending(false);
-    }
-  }
-
   return (
     <div ref={ref} style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 48px)', color: '#00FF94', lineHeight: 1 }}>
       {target < 10 ? count.toFixed(1) : Math.floor(count)}{suffix}
@@ -130,6 +104,32 @@ export default function LandingPage() {
   );
 
   const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
+
+  async function sendContact() {
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      setContactErr('Nom, email et message requis');
+      return;
+    }
+    setContactSending(true);
+    setContactErr('');
+    try {
+      await fetch(process.env.NEXT_PUBLIC_API_URL + '/email-composer/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'contact@pangea-carbon.com',
+          subject: 'Demande Enterprise — ' + (contactForm.company || contactForm.name),
+          body: 'Nom: ' + contactForm.name + '\nEmail: ' + contactForm.email + '\nEntreprise: ' + contactForm.company + '\n\nMessage:\n' + contactForm.message,
+          templateId: 'custom',
+        }),
+      });
+      setContactSent(true);
+    } catch (e) {
+      setContactErr('Erreur envoi — contactez contact@pangea-carbon.com');
+    } finally {
+      setContactSending(false);
+    }
+  }
 
   return (
     <div className="pangea-landing">
