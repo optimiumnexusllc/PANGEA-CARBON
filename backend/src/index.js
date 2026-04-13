@@ -103,6 +103,7 @@ app.use('/api/assistant', [auth, checkFeature('ai_assistant')], require('./route
 app.use('/api/2fa', require('./routes/twofa'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/email-composer', require('./routes/emailcomposer'));
 app.use('/api/marketplace', require('./routes/marketplace'));
 app.use('/api/optimization', require('./routes/optimization'));
 app.use('/api/projection', require('./routes/projection'));
