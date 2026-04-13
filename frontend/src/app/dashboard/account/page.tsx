@@ -3,18 +3,18 @@ import { useEffect, useState } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 
 const PLAN_DETAILS: Record<string, { label: string; color: string; price: string; limits: string }> = {
-  FREE:       { label: 'Free',       color: '#4A6278', price: '$0',     limits: '1 projet · 10 MW' },
-  TRIAL:      { label: 'Trial 14j',  color: '#38BDF8', price: '$0',     limits: 'Toutes features · 14 jours' },
-  STARTER:    { label: 'Starter',    color: '#38BDF8', price: '$299',   limits: '5 projets · 50 MW · 2 users' },
-  PRO:        { label: 'Pro',        color: '#00FF94', price: '$799',   limits: 'Illimité · Equipment API · AI' },
-  ENTERPRISE: { label: 'Enterprise', color: '#A78BFA', price: 'Custom', limits: 'White-label · SSO · SLA 99.9%' },
+  FREE:       { label: 'Free',       color: '#4A6278', price: '$0',     limits: '1 projet - 10 MW' },
+  TRIAL:      { label: 'Trial 14j',  color: '#38BDF8', price: '$0',     limits: 'Toutes features - 14 jours' },
+  STARTER:    { label: 'Starter',    color: '#38BDF8', price: '$299',   limits: '5 projets - 50 MW - 2 users' },
+  PRO:        { label: 'Pro',        color: '#00FF94', price: '$799',   limits: 'Illimite - Equipment API - AI' },
+  ENTERPRISE: { label: 'Enterprise', color: '#A78BFA', price: 'Custom', limits: 'White-label - SSO - SLA 99.9%' },
 };
 
 const TABS = [
-  { id: 'profile',  label: 'Profil',           icon: '👤' },
-  { id: 'plan',     label: 'Plan & Facturation', icon: '💳' },
-  { id: 'notifs',   label: 'Notifications',     icon: '🔔' },
-  { id: 'security', label: 'Sécurité',          icon: '🔐' },
+  { id: 'profile',  label: 'Profil',           icon: 'U' },
+  { id: 'plan',     label: 'Plan & Facturation', icon: '$' },
+  { id: 'notifs',   label: 'Notifications',     icon: 'N' },
+  { id: 'security', label: 'Securite',          icon: 'S' },
 ];
 
 const inputStyle = (disabled: boolean) => ({
