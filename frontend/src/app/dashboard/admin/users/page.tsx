@@ -81,9 +81,7 @@ export default function AdminUsersPage() {
     if (!deleteUser) return;
     setDeleting(true);
     try {
-      const res = await fetch(`${API}/admin/users/${deleteUser.id}`, {
-        method: 'DELETE', headers: h()
-      });
+      const res = await fetch(API + '/admin/users/' + deleteUser.id, { method: 'DELETE', headers: h() });
       if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
       setUsers(prev => prev.filter(u => u.id !== deleteUser.id));
       setTotal(prev => prev - 1);
@@ -239,12 +237,12 @@ export default function AdminUsersPage() {
                 <td style={{ padding: '10px 14px' }}>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     <button onClick={() => updateUser(u.id, { isActive: !u.isActive })}
-                      style={{ fontSize: 11, background: 'transparent', border: `1px solid ${u.isActive ? 'rgba(248,113,113,0.3)' : 'rgba(0,255,148,0.3)'}`, borderRadius: 5, color: u.isActive ? '#F87171' : '#00FF94', padding: '4px 9px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      {u.isActive ? 'Désactiver' : 'Activer'}
+                      style={{ fontSize: 11, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 5, color: u.isActive ? '#F87171' : '#00FF94', padding: '4px 9px', cursor: 'pointer' }}>
+                      {u.isActive ? 'Desactiver' : 'Activer'}
                     </button>
                     <button onClick={() => setDeleteUser(u)}
-                      style={{ fontSize: 11, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, color: '#F87171', padding: '4px 9px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      🗑 Supprimer
+                      style={{ fontSize: 11, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, color: '#F87171', padding: '4px 9px', cursor: 'pointer' }}>
+                      Supprimer
                     </button>
                   </div>
                 </td>
@@ -315,22 +313,15 @@ export default function AdminUsersPage() {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
 
-      {/* Modal suppression utilisateur */}
       {deleteUser && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 28, maxWidth: 420, width: '90%' }}>
-            <div style={{ fontSize: 26, marginBottom: 12 }}>👤</div>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 8 }}>Supprimer cet utilisateur ?</h2>
             <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 16 }}>
-              <strong style={{ color: '#E8EFF6' }}>{deleteUser.name}</strong> ({deleteUser.email}) sera supprimé définitivement.
+              <strong style={{ color: '#E8EFF6' }}>{deleteUser && deleteUser.name}</strong> ({deleteUser && deleteUser.email}) sera supprime.
             </p>
-            <div style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 7, padding: 10, marginBottom: 18, fontSize: 11, color: '#F87171' }}>
-              ⚠️ Ses projets resteront dans le système mais seront désassociés.
-            </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setDeleteUser(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>
-                Annuler
-              </button>
+              <button onClick={() => setDeleteUser(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
               <button onClick={deleteUserFn} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {deleting ? '...' : 'Supprimer'}
               </button>
