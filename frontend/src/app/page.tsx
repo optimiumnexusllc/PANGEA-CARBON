@@ -79,22 +79,7 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
 export default function LandingPage() {
   const router = useRouter();
-  const [lang, setLangState] = useState('fr');
-  const TR = {
-    fr: { nav_features: 'Fonctionnalites', nav_how: 'Comment', nav_pricing: 'Tarifs', nav_contact: 'Contact', nav_login: 'Connexion', nav_trial: 'Essai gratuit', hero_cta: 'Commencer gratuitement', hero_demo: 'Voir la demo', hero_sub: '14 jours gratuits · Pas de carte bancaire · Setup en 10 min', pricing_title: 'Commencez gratuitement, scalez sans limites', pricing_cta_start: 'Demarrer maintenant', pricing_cta_contact: 'Nous contacter', pricing_rs: 'Revenue Share', cta_title: 'Pret a monetiser votre carbone africain ?', cta_sub: '14 jours gratuits · Pas de carte bancaire · Premier projet en 10 minutes', cta_btn: 'Creer mon compte gratuit', contact_title: 'Parlons de votre projet', contact_sub: 'Un expert vous rappelle sous 24h.', contact_name: 'NOM *', contact_email: 'EMAIL *', contact_company: 'ENTREPRISE', contact_message: 'VOTRE BESOIN', contact_send: 'Envoyer ma demande', contact_sending: 'Envoi...', contact_sent_title: 'Demande envoyee !', contact_sent_sub: 'Reponse garantie sous 24h.', contact_close: 'Fermer', contact_cancel: 'Annuler', contact_err_required: 'Nom et email requis', contact_err_send: 'Erreur envoi' },
-    en: { nav_features: 'Features', nav_how: 'How it works', nav_pricing: 'Pricing', nav_contact: 'Contact', nav_login: 'Login', nav_trial: 'Free trial', hero_cta: 'Get started for free', hero_demo: 'Watch demo', hero_sub: '14-day free trial · No credit card · Setup in 10 min', pricing_title: 'Start free, scale without limits', pricing_cta_start: 'Get started', pricing_cta_contact: 'Contact us', pricing_rs: 'Revenue Share', cta_title: 'Ready to monetize your African carbon?', cta_sub: '14-day free trial · No credit card · First project in 10 minutes', cta_btn: 'Create my free account', contact_title: "Let's talk about your project", contact_sub: 'An expert will call you back within 24h.', contact_name: 'NAME *', contact_email: 'EMAIL *', contact_company: 'COMPANY', contact_message: 'YOUR NEEDS', contact_send: 'Send my request', contact_sending: 'Sending...', contact_sent_title: 'Request sent!', contact_sent_sub: 'Guaranteed response within 24h.', contact_close: 'Close', contact_cancel: 'Cancel', contact_err_required: 'Name and email required', contact_err_send: 'Send error' }
-  };
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem('pgc_lang');
-      if (s === 'en' || s === 'fr') setLangState(s);
-    } catch(e) {}
-  }, []);
-  const t = (key) => (TR[lang] && TR[lang][key]) || TR.fr[key] || key;
-  const setLang = (l) => {
-    setLangState(l);
-    try { localStorage.setItem('pgc_lang', l); } catch(e) {}
-  };
+
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
@@ -154,23 +139,16 @@ export default function LandingPage() {
           </a>
 
           <div className="pgc-nav__links">
-            <a href="#features" className="pgc-nav__link">{t('nav_features')}</a>
-            <a href="#how" className="pgc-nav__link">{t('nav_how')}</a>
-            <a href="#pricing" className="pgc-nav__link">{t('nav_pricing')}</a>
-            <a href="#contact" className="pgc-nav__link">{t('nav_contact')}</a>
+            <a href="#features" className="pgc-nav__link">{'Fonctionnalites'}</a>
+            <a href="#how" className="pgc-nav__link">{'Comment'}</a>
+            <a href="#pricing" className="pgc-nav__link">{'Tarifs'}</a>
+            <a href="#contact" className="pgc-nav__link">{'Contact'}</a>
           </div>
 
           <div className="pgc-nav__actions">
-            <a href="/auth/login" className="pgc-btn pgc-btn--ghost">{t('nav_login')}</a>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: 'rgba(30,45,61,0.6)', borderRadius: 6, padding: '3px 4px', border: '1px solid #1E2D3D', marginRight: 6 }}>
-              {['fr', 'en'].map(l => (
-                <button key={l} onClick={() => setLang(l)}
-                  style={{ padding: '3px 8px', borderRadius: 4, border: 'none', cursor: 'pointer', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: lang === l ? 700 : 400, background: lang === l ? '#00FF94' : 'transparent', color: lang === l ? '#080B0F' : '#4A6278' }}>
-                  {l.toUpperCase()}
-                </button>
-              ))}
-            </div>
-            <a href="/signup" className="pgc-btn pgc-btn--primary">{t('nav_trial')}</a>
+            <a href="/auth/login" className="pgc-btn pgc-btn--ghost">{'Connexion'}</a>
+            
+            <a href="/signup" className="pgc-btn pgc-btn--primary">{'Essai gratuit'}</a>
           </div>
 
           <button className="pgc-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
@@ -213,13 +191,13 @@ export default function LandingPage() {
           </p>
           <div className="pgc-hero__cta">
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--lg">
-              {t('hero_cta')}
+              {'Commencer gratuitement'}
             </a>
             <a href="/auth/login" className="pgc-btn pgc-btn--outline pgc-btn--lg">
-              {t('hero_demo')}
+              {'Voir la demo'}
             </a>
           </div>
-          <p className="pgc-hero__note">{t('hero_sub')}</p>
+          <p className="pgc-hero__note">{'14 jours gratuits'}</p>
 
           {/* Standards */}
           <div className="pgc-standards">
@@ -350,7 +328,7 @@ export default function LandingPage() {
         <div className="pgc-container">
           <div className="pgc-section__header">
             <div className="pgc-eyebrow">TARIFS</div>
-            <h2 className="pgc-section__title">{'{t('pricing_title')}'}</h2>
+            <h2 className="pgc-section__title">{'{'Commencez gratuitement, scalez sans limites'}'}</h2>
             <div className="pgc-toggle">
               <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>Mensuel</button>
               <button onClick={() => setAnnual(true)} className={`pgc-toggle__btn ${annual ? 'active' : ''}`}>
@@ -390,7 +368,7 @@ export default function LandingPage() {
                   </button>
                 ) : (
                   <a href="/signup" className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
-                    {t('pricing_cta_start')}
+                    {'Demarrer maintenant'}
                   </a>
                 )}
               </div>
@@ -399,7 +377,7 @@ export default function LandingPage() {
 
           <div className="pgc-revenue-share">
             <div>
-              <span className="pgc-revenue-share__title">{t('pricing_rs').split('—')[0].trim() || 'Revenue Share'}</span>
+              <span className="pgc-revenue-share__title">{'pricing_rs'.spli'—'[0].trim() || 'Revenue Share'}</span>
               <span className="pgc-revenue-share__price"> — $0/mois</span>
               <span className="pgc-revenue-share__desc"> · Payez uniquement 3% sur vos revenus carbone générés</span>
             </div>
@@ -438,10 +416,10 @@ export default function LandingPage() {
         <div className="pgc-cta__glow"/>
         <div className="pgc-container pgc-cta__content">
           <div className="pgc-eyebrow" style={{ justifyContent: 'center' }}>WITH AFRICA FOR AFRICA 🌍</div>
-          <h2 className="pgc-cta__title">{t('cta_title')}</h2>
-          <p className="pgc-cta__desc">{'{t('cta_sub')}'}</p>
+          <h2 className="pgc-cta__title">{'Pret a monetiser votre carbone africain'}</h2>
+          <p className="pgc-cta__desc">{'{'14 jours gratuits'}'}</p>
           <div className="pgc-hero__cta">
-            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">{t('cta_btn')}</a>
+            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">{'Creer mon compte gratuit'}</a>
             <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>{'Nous contacter'}</button>
           </div>
         </div>
@@ -870,46 +848,46 @@ export default function LandingPage() {
                   <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: '#E8EFF6' }}>PANGEA CARBON</span>
                 </div>
                 <div style={{ fontSize: 9, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>{t('contact_title')}</h2>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>{'Parlons de votre projet'}</h2>
                 <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>{'Un expert vous rappelle sous 24h.'}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
-                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{t('contact_name')}</div>
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'NOM'}</div>
                     <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Votre nom"
                       style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{t('contact_email')}</div>
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'EMAIL'}</div>
                     <input type="email" value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="vous@company.com"
                       style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
                 </div>
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{t('contact_company')}</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'ENTREPRISE'}</div>
                   <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="SIEPA, CIE, Fonds vert..."
                     style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{t('contact_message')}</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'VOTRE BESOIN'}</div>
                   <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} placeholder="Projets, pays, volume carbone..." rows={3}
                     style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none' }} />
                 </div>
                 {cErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{cErr}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>{t('contact_cancel')}</button>
+                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>{'Annuler'}</button>
                   <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
-                    {cSending ? {t('contact_sending')} : {t('contact_send')}}
+                    {cSending ? {'Envoi'} : {'Envoyer ma demande'}}
                   </button>
                 </div>
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>{t('contact_sent_title')}</h2>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>{'Demande envoyee'}</h2>
                 <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>{'Réponse garantie sous 24h.'}</p>
                 <button onClick={() => { setShowContact(false); setCsent(false); setCName(''); setCEmail(''); setCCompany(''); setCMsg(''); }}
                   style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 24px', fontWeight: 700, cursor: 'pointer' }}>
-                  {t('contact_close')}
+                  {'Fermer'}
                 </button>
               </div>
             )}
