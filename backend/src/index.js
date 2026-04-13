@@ -9,12 +9,16 @@ const projectRoutes = require('./routes/projects');
 const readingRoutes = require('./routes/readings');
 const mrvRoutes = require('./routes/mrv');
 const reportRoutes = require('./routes/reports');
+const billingRoutes = require('./routes/billing');
 const dashboardRoutes = require('./routes/dashboard');
 const { errorHandler } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
 
 const app = express();
 const prisma = new PrismaClient();
+
+// Stripe webhook needs raw body BEFORE express.json()
+app.use('/api/billing/webhook', require('express').raw({ type: 'application/json' }));
 
 // Middleware
 app.use(helmet());
@@ -41,6 +45,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/projects', readingRoutes);
 app.use('/api/projects', mrvRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/billing', billingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // 404

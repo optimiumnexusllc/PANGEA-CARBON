@@ -75,9 +75,22 @@ export default function ReportsPage() {
                   <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#38BDF8' }}>${fmt(p.revenueUSD)}</td>
                   <td><span className="badge badge-amber">Prêt</span></td>
                   <td>
-                    <button onClick={() => alert('Génération PDF — Fonctionnalité Pro\n\nLe rapport PDF certifiable Verra ACM0002 sera disponible dans la version Pro de PANGEA CARBON.')}
+                    <button onClick={async () => {
+                        const token = localStorage.getItem('accessToken');
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reports/${p.projectId}/${p.year}/pdf`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (!res.ok) { alert('Erreur génération PDF'); return; }
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `PANGEA-CARBON-MRV-${p.countryCode}-${p.year}.pdf`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
                       className="btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }}>
-                      📄 Générer PDF
+                      📄 Télécharger PDF
                     </button>
                   </td>
                 </tr>

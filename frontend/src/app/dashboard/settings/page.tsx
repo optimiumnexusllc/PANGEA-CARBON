@@ -82,7 +82,20 @@ export default function SettingsPage() {
               ))}
             </div>
             <button className={plan.highlight ? 'btn-primary' : 'btn-ghost'} style={{ width: '100%', justifyContent: 'center' }}
-              onClick={() => alert(`Contactez-nous : contact@pangea-carbon.com\nPlan ${plan.name} — ${plan.price}${plan.period}`)}>
+              onClick={async () => {
+                if (plan.name === 'Enterprise') { window.location.href = 'mailto:contact@pangea-carbon.com?subject=Plan Enterprise PANGEA CARBON'; return; }
+                try {
+                  const token = localStorage.getItem('accessToken');
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ plan: plan.name.toLowerCase() }),
+                  });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                  else alert('Stripe non configuré — contactez contact@pangea-carbon.com');
+                } catch { alert('contactez contact@pangea-carbon.com'); }
+              }}>
               {plan.cta}
             </button>
           </div>
