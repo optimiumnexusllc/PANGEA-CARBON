@@ -22,7 +22,7 @@ const TABS = [
 function Field({ label, value, onChange, type = 'text', disabled = false }: any) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' as const }}>
+      <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>
         {label}
       </label>
       <input
@@ -30,7 +30,7 @@ function Field({ label, value, onChange, type = 'text', disabled = false }: any)
         value={value || ''}
         onChange={onChange}
         disabled={disabled}
-        style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: disabled ? '#4A6278' : '#E8EFF6', padding: '10px 12px', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none', cursor: disabled ? 'default' : 'text' }}
+        style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: disabled ? '#4A6278' : '#E8EFF6', padding: '10px 12px', fontSize: 13, boxSizing: 'border-box', outline: 'none', cursor: disabled ? 'default' : 'text' }}
         onFocus={e => !disabled && (e.target.style.borderColor = 'rgba(0,255,148,0.35)')}
         onBlur={e => (e.target.style.borderColor = '#1E2D3D')}
       />
