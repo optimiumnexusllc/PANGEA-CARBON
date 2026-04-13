@@ -1,10 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-export default function VerifyEmailPage() {
+function VerifyEmailInner() {
   const router = useRouter();
   const params = useSearchParams();
   const token = params.get('token');
@@ -128,4 +128,8 @@ function ResendForm() {
       </div>
     </div>
   );
+}
+
+export default function VerifyEmailPage() {
+  return <Suspense fallback={null}><VerifyEmailInner /></Suspense>;
 }

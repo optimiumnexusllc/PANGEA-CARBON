@@ -1,10 +1,11 @@
 'use client';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-export default function CheckEmailPage() {
+function CheckEmailInner() {
   const params = useSearchParams();
   const email = params.get('email') || '';
   const [resent, setResent] = useState(false);
@@ -85,4 +86,8 @@ export default function CheckEmailPage() {
       </div>
     </div>
   );
+}
+
+export default function CheckEmailPage() {
+  return <Suspense fallback={null}><CheckEmailInner /></Suspense>;
 }
