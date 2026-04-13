@@ -241,7 +241,7 @@ export default function AdminSettingsPage() {
     setTestLoading(true);
     setTestResult(null);
     try {
-      const res = await fetchAuth(\'/admin/settings/test-smtp\', { method: 'POST',  });
+      const res = await fetchAuth(`/admin/settings/test-smtp`, { method: 'POST',  });
       const data = await res.json();
       if (res.ok) setTestResult({ msg: `✓ ${data.message || 'Email de test envoyé'}`, ok: true });
       else setTestResult({ msg: `✗ ${data.error || 'Erreur SMTP'}`, ok: false });
