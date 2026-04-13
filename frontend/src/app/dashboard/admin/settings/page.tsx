@@ -217,9 +217,8 @@ export default function AdminSettingsPage() {
 
   const saveSetting = async (key: string, value: string): Promise<{ success: boolean; masked?: string; error?: string }> => {
     try {
-      const res = await fetchAuth(\'/admin/settings/${key}\', {
+      const res = await fetchAuth(`/admin/settings/${key}`, {
         method: 'PUT',
-        ,
         body: JSON.stringify({ value }),
       });
       const data = await res.json();
