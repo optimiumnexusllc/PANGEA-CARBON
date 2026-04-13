@@ -101,7 +101,9 @@ const checkFeature = (featureKey) => async (req, res, next) => {
 
     next();
   } catch (e) {
-    next(e);
+    // En cas d'erreur DB (table manquante, etc.), laisser passer plutôt que crasher
+    console.error('[checkFeature] Erreur:', e.message);
+    next();
   }
 };
 

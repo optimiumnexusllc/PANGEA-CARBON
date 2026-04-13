@@ -22,6 +22,8 @@ app.use('/api/billing/webhook', require('express').raw({ type: 'application/json
 
 // Middleware
 app.use(helmet());
+// CORS: permissif (sécurité assurée par nginx + JWT middleware)
+// Les origins inconnues reçoivent callback(null, false) sans crash
 const ALLOWED_ORIGINS = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
   'https://pangea-carbon.com',
@@ -31,10 +33,13 @@ const ALLOWED_ORIGINS = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Autoriser les requêtes sans origin (mobile apps, curl, Postman)
+    // Requêtes sans origin: mobile apps, curl, Postman, server-to-server
     if (!origin) return callback(null, true);
+    // Origins connues
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin non autorisée: ${origin}`));
+    // Origine inconnue: rejeter sans crash (callback null + false)
+    logger.warn(`CORS: origin non autorisée: ${origin}`);
+    return callback(null, false);
   },
   credentials: true,
 }));
@@ -60,7 +65,6 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/equipment', require('./routes/equipment'));
-app.use('/api/assistant', require('./routes/assistant'));
 const { checkFeature, checkPlan } = require('./middleware/tenant');
 const auth = require('./middleware/auth');
 
@@ -72,7 +76,7 @@ app.use('/api/dmrv',     ...featureGuard('multi_standard'), require('./routes/dm
 app.use('/api/corsia',   ...featureGuard('multi_standard'), require('./routes/corsia'));
 app.use('/api/registry', ...featureGuard('multi_standard'), require('./routes/registry'));
 app.use('/api/baseline', ...featureGuard('ai_assistant'),   require('./routes/baseline'));
-app.use('/api/assistant',[auth, checkFeature('ai_assistant')], require('./routes/assistant'));
+app.use('/api/assistant', [auth, checkFeature('ai_assistant')], require('./routes/assistant'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/marketplace', require('./routes/marketplace'));
