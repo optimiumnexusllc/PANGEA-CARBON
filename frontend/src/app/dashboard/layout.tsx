@@ -24,6 +24,13 @@ const ELITE_MODULES = [
   { href: '/dashboard/baseline', label: 'AI Baseline',      icon: '🤖', color: '#EF9F27', badge: 'AI' },
 ];
 
+const INTELLIGENCE_MODULES = [
+  { href: '/dashboard/analytics',    label: 'Analyse détaillée', icon: '🔬', color: '#38BDF8', badge: 'Causal' },
+  { href: '/dashboard/optimization', label: 'Optimisation MRV',  icon: '⚙️', color: '#00FF94', badge: 'ROI' },
+  { href: '/dashboard/projection',   label: 'Projection 10 ans', icon: '📈', color: '#A78BFA', badge: 'Monte Carlo' },
+  { href: '/dashboard/benchmark',    label: 'Benchmark Afrique', icon: '🏆', color: '#FCD34D', badge: 'IRENA 2024' },
+];
+
 function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
   const pathname = usePathname();
   const flags = useFeatureFlags();
@@ -72,6 +79,34 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
           </Link>
 
           {ELITE_MODULES.map(mod => (
+            <Link key={mod.href} href={mod.href}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px 5px 16px', borderRadius: 6, textDecoration: 'none', marginBottom: 2, transition: 'all 0.15s',
+                background: pathname.startsWith(mod.href) ? `${mod.color}10` : 'transparent',
+                borderLeft: pathname.startsWith(mod.href) ? `2px solid ${mod.color}` : '2px solid transparent' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 12 }}>{mod.icon}</span>
+                <span style={{ fontSize: 11, color: pathname.startsWith(mod.href) ? mod.color : '#4A6278', fontWeight: pathname.startsWith(mod.href) ? 600 : 400 }}>
+                  {mod.label}
+                </span>
+              </div>
+              <span style={{ fontSize: 8, background: `${mod.color}15`, color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* ─── INTELLIGENCE ─────────────────── */}
+        <div style={{ margin: '6px 8px 0', padding: '8px 6px 4px', borderTop: '1px solid #1E2D3D' }}>
+          <Link href="/dashboard/analytics"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderRadius: 7, textDecoration: 'none', marginBottom: 4,
+              background: ['/dashboard/analytics','/dashboard/optimization','/dashboard/projection','/dashboard/benchmark'].some(p => pathname.startsWith(p)) ? 'rgba(252,211,77,0.08)' : 'transparent',
+              border: ['/dashboard/analytics','/dashboard/optimization','/dashboard/projection','/dashboard/benchmark'].some(p => pathname.startsWith(p)) ? '1px solid rgba(252,211,77,0.2)' : '1px solid transparent' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 13 }}>📊</span>
+              <span style={{ fontSize: 11, color: '#FCD34D', fontWeight: 600 }}>Intelligence</span>
+            </div>
+            <span style={{ fontSize: 8, background: 'rgba(252,211,77,0.15)', color: '#FCD34D', borderRadius: 3, padding: '2px 5px', fontFamily: 'JetBrains Mono, monospace' }}>4 MODULES</span>
+          </Link>
+          {INTELLIGENCE_MODULES.map(mod => (
             <Link key={mod.href} href={mod.href}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px 5px 16px', borderRadius: 6, textDecoration: 'none', marginBottom: 2, transition: 'all 0.15s',
                 background: pathname.startsWith(mod.href) ? `${mod.color}10` : 'transparent',

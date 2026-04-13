@@ -55,6 +55,10 @@ app.use('/api/dmrv', require('./routes/dmrv'));
 app.use('/api/corsia', require('./routes/corsia'));
 app.use('/api/registry', require('./routes/registry'));
 app.use('/api/baseline', require('./routes/baseline'));
+app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/optimization', require('./routes/optimization'));
+app.use('/api/projection', require('./routes/projection'));
+app.use('/api/benchmark', require('./routes/benchmark'));
 app.use('/api/dashboard', dashboardRoutes);
 
 // 404
