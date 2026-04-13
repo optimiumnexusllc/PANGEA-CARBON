@@ -385,7 +385,7 @@ router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
 module.exports = router;
 
 // DELETE /api/admin/orgs/:id — Supprimer une organisation (avec ses users)
-router.delete('/orgs/:id', auth, requireRole('SUPER_ADMIN'), async (req, res, next) => {
+router.delete('/orgs/:id', auth, adminOnly, async (req, res, next) => {
   try {
     const org = await prisma.organization.findUnique({
       where: { id: req.params.id },
@@ -416,7 +416,7 @@ router.delete('/orgs/:id', auth, requireRole('SUPER_ADMIN'), async (req, res, ne
 });
 
 // PUT /api/admin/orgs/:id/full — Mise à jour complète d'une organisation
-router.put('/orgs/:id/full', auth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req, res, next) => {
+router.put('/orgs/:id/full', auth, adminOnly, async (req, res, next) => {
   try {
     const { name, plan, status, maxProjects, maxMW, maxUsers, domain, trialEndsAt } = req.body;
     const org = await prisma.organization.update({
