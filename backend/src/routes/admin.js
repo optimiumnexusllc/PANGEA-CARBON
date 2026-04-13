@@ -164,6 +164,7 @@ const SETTING_DEFS = [
   { key: 'smtp_user',                category: 'smtp',         encrypted: false, description: 'Email SMTP' },
   { key: 'smtp_password',            category: 'smtp',         encrypted: true,  description: 'Mot de passe SMTP' },
   { key: 'carbon_market_api_key',    category: 'integrations', encrypted: true,  description: 'API prix carbone temps réel' },
+  { key: 'anthropic_api_key',        category: 'integrations', encrypted: true,  description: 'Claude AI API key (Assistant IA)' },
   { key: 'mapbox_token',             category: 'integrations', encrypted: false, description: 'Mapbox token (carte avancée)' },
   { key: 'platform_name',            category: 'general',      encrypted: false, description: 'Nom de la plateforme' },
   { key: 'support_email',            category: 'general',      encrypted: false, description: 'Email de support' },
@@ -251,7 +252,7 @@ router.get('/features', auth, adminOnly, async (req, res, next) => {
   try {
     // Seed features si absent
     for (const f of DEFAULT_FEATURES) {
-      await prisma.featureFlag.upsert({ where: { key: f.key }, update: {}, create: { ...f, enabled: ['pdf_reports', 'africa_map', 'mrv_calculator'].includes(f.key) } });
+      await prisma.featureFlag.upsert({ where: { key: f.key }, update: {}, create: { ...f, enabled: ['pdf_reports', 'africa_map', 'mrv_calculator', 'bulk_import', 'ai_assistant'].includes(f.key) } });
     }
     const features = await prisma.featureFlag.findMany({ orderBy: { key: 'asc' } });
     res.json(features);
