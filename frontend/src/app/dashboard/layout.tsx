@@ -1,21 +1,23 @@
 'use client';
 import Link from 'next/link';
+import { useLang } from '@/lib/lang-context';
+import LangToggle from '@/components/LangToggle';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FeatureFlagsProvider, useFeatureFlags } from '@/lib/features';
 
 const MAIN_NAV = [
-  { href: '/dashboard',           label: "Vue d'ensemble",    icon: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v2h-2zm0 4h2v2h-2zm4-4h2v6h-2z', feature: null },
-  { href: '/dashboard/projects',  label: 'Projets',           icon: 'M3 3h18v4H3zm0 6h11v12H3zm13 6h6v6h-6z', feature: null },
-  { href: '/dashboard/map',       label: 'Carte Afrique',     icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7', feature: 'africa_map' },
-  { href: '/dashboard/upload',    label: 'Import CSV',        icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12', feature: 'bulk_import' },
-  { href: '/dashboard/mrv',       label: 'Calculateur MRV',   icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18', feature: 'mrv_calculator' },
-  { href: '/dashboard/assistant', label: 'Assistant IA',      icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z', feature: 'ai_assistant' },
-  { href: '/dashboard/reports',   label: 'Rapports PDF',      icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8', feature: 'pdf_reports' },
-  { href: '/dashboard/marketplace', label: 'Marketplace',       icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z', feature: 'carbon_marketplace' },
-  { href: '/dashboard/certification', label: 'Certification Lab', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z', feature: null },
-  { href: '/dashboard/notifications', label: 'Email Composer', icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', feature: null },
-  { href: '/dashboard/api-keys',   label: 'API & Équipements', icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', feature: null },
+  { href: '/dashboard',           label: t('dash_overview'),    icon: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v2h-2zm0 4h2v2h-2zm4-4h2v6h-2z', feature: null },
+  { href: '/dashboard/projects',  label: t('dash_projects'),           icon: 'M3 3h18v4H3zm0 6h11v12H3zm13 6h6v6h-6z', feature: null },
+  { href: '/dashboard/map',       label: t('dash_map'),     icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7', feature: 'africa_map' },
+  { href: '/dashboard/upload',    label: t('dash_import'),        icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12', feature: 'bulk_import' },
+  { href: '/dashboard/mrv',       label: t('dash_mrv'),   icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18', feature: 'mrv_calculator' },
+  { href: '/dashboard/assistant', label: t('dash_assistant'),      icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z', feature: 'ai_assistant' },
+  { href: '/dashboard/reports',   label: t('dash_reports'),      icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8', feature: 'pdf_reports' },
+  { href: '/dashboard/marketplace', label: t('dash_marketplace'),       icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z', feature: 'carbon_marketplace' },
+  { href: '/dashboard/certification', label: t('dash_certification'), icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z', feature: null },
+  { href: '/dashboard/notifications', label: t('dash_email'), icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', feature: null },
+  { href: '/dashboard/api-keys',   label: t('dash_api'), icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', feature: null },
 ];
 
 const ELITE_MODULES = [
@@ -35,6 +37,7 @@ const INTELLIGENCE_MODULES = [
 ];
 
 function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
+  const { t } = useLang();
   const pathname = usePathname();
   const flags = useFeatureFlags();
   const visibleNav = MAIN_NAV.filter(item => item.feature === null || flags[item.feature] === true);
@@ -159,6 +162,9 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
             🛡️ Admin Console
           </Link>
         )}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+          <LangToggle />
+        </div>
         <button onClick={logout} style={{ width: '100%', background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 5, color: '#4A6278', padding: '5px', cursor: 'pointer', fontSize: 11 }}>
           Déconnexion
         </button>

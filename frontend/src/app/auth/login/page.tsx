@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import { useLang } from '@/lib/lang-context';
+import LangToggle from '@/components/LangToggle';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -7,6 +9,7 @@ import { api } from '@/lib/api';
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function LoginPage() {
+  const { t } = useLang();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +45,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard');
     } catch {
-      setError('Erreur réseau. Réessayez.');
+      setError('{t('auth_network_err')}');
     } finally {
       setLoading(false);
     }
@@ -77,11 +80,12 @@ export default function LoginPage() {
             <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#E8EFF6' }}>PANGEA CARBON</span>
           </Link>
           <p className="text-sm" style={{ color: '#4A6278' }}>Carbon Credit Intelligence · Africa</p>
+          <div style={{ marginTop: 8 }}><LangToggle /></div>
         </div>
 
         <div className="card" style={{ padding: '28px' }}>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: 20, color: '#E8EFF6', marginBottom: 4 }}>Connexion</h1>
-          <p className="text-sm mb-6" style={{ color: '#4A6278' }}>Accès sécurisé à la plateforme MRV</p>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: 20, color: '#E8EFF6', marginBottom: 4 }}>{t('auth_login_title')}</h1>
+          <p className="text-sm mb-6" style={{ color: '#4A6278' }}>{t('auth_login_sub')}</p>
 
           {error && (
             <div style={{ background: pendingVerif ? 'rgba(56,189,248,0.08)' : 'rgba(248,113,113,0.08)',
@@ -108,7 +112,7 @@ export default function LoginPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <label style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', fontSize: 10 }}>MOT DE PASSE</label>
-                <a href="/auth/forgot-password" style={{ fontSize: 11, color: '#4A6278', textDecoration: 'none' }}>Mot de passe oublié ?</a>
+                <a href="/auth/forgot-password" style={{ fontSize: 11, color: '#4A6278', textDecoration: 'none' }}>{t('auth_forgot')}</a>
               </div>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                 className="input-dark" placeholder="••••••••" required autoComplete="current-password"/>
