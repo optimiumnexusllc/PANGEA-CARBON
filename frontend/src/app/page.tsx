@@ -2,12 +2,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-
-/* -
+/* ─────────────────────────────────────────────
    PANGEA CARBON — Landing Page
    Elite Palantir God+++ · Fully Responsive
    Mobile / Tablet / Desktop / Ultrawide
-- */
+───────────────────────────────────────────── */
 
 const STATS = [
   { value: 697, suffix: 'K+', label: 'tCO₂e certifiés', sub: 'Verra ACM0002' },
@@ -79,11 +78,11 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
 export default function LandingPage() {
   const router = useRouter();
-
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [lang, setLang] = useState('fr');
   const [showContact, setShowContact] = useState(false);
   const [cName, setCName] = useState('');
   const [cEmail, setCEmail] = useState('');
@@ -94,6 +93,10 @@ export default function LandingPage() {
   const [cErr, setCerr] = useState('');
 
   useEffect(() => {
+    try { const s = localStorage.getItem('pgc_lang'); if (s === 'en' || s === 'fr') setLang(s); } catch(e) {}
+  }, []);
+
+  useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) { router.push('/dashboard'); return; }
     setChecked(true);
@@ -101,6 +104,14 @@ export default function LandingPage() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  if (!checked) return (
+    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
+    </div>
+  );
+
+  const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
 
   const doSend = async () => {
     if (!cName || !cEmail) { setCerr('Nom et email requis'); return; }
@@ -113,21 +124,13 @@ export default function LandingPage() {
       });
       if (r.ok) setCsent(true);
       else setCerr('Erreur envoi');
-    } catch(err) { setCerr('Erreur envoi'); }
+    } catch { setCerr('Erreur reseau'); }
     finally { setCsending(false); }
   };
 
-  if (!checked) return (
-    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-    </div>
-  );
-
-  const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
-
   return (
     <div className="pangea-landing">
-      {/* - NAVBAR - */}
+      {/* ── NAVBAR ─────────────────────────────── */}
       <nav className={`pgc-nav ${scrolled ? 'pgc-nav--scrolled' : ''}`}>
         <div className="pgc-nav__inner">
           <a href="/" className="pgc-logo">
@@ -139,16 +142,18 @@ export default function LandingPage() {
           </a>
 
           <div className="pgc-nav__links">
-            <a href="#features" className="pgc-nav__link">{'Fonctionnalites'}</a>
-            <a href="#how" className="pgc-nav__link">{'Comment'}</a>
-            <a href="#pricing" className="pgc-nav__link">{'Tarifs'}</a>
-            <a href="#contact" className="pgc-nav__link">{'Contact'}</a>
+            <a href="#features" className="pgc-nav__link">Fonctionnalités</a>
+            <a href="#how" className="pgc-nav__link">Comment</a>
+            <a href="#pricing" className="pgc-nav__link">Tarifs</a>
+            <a href="#contact" className="pgc-nav__link">Contact</a>
           </div>
 
           <div className="pgc-nav__actions">
-            <a href="/auth/login" className="pgc-btn pgc-btn--ghost">{'Connexion'}</a>
-            
-            <a href="/signup" className="pgc-btn pgc-btn--primary">{'Essai gratuit'}</a>
+            <a href="/auth/login" className="pgc-btn pgc-btn--ghost">Connexion</a>
+            <span style={{display:'flex',alignItems:'center',gap:2,background:'rgba(30,45,61,.6)',borderRadius:6,padding:'3px 4px',border:'1px solid #1E2D3D',marginRight:6}}>
+              {['fr','en'].map(l=><button key={l} onClick={()=>{setLang(l);try{localStorage.setItem('pgc_lang',l)}catch(e){}}} style={{padding:'3px 8px',borderRadius:4,border:'none',cursor:'pointer',fontSize:11,fontWeight:lang===l?700:400,background:lang===l?'#00FF94':'transparent',color:lang===l?'#080B0F':'#4A6278'}}>{l.toUpperCase()}</button>)}
+            </span>
+            <a href="/signup" className="pgc-btn pgc-btn--primary">Essai gratuit →</a>
           </div>
 
           <button className="pgc-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
@@ -172,7 +177,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* - HERO - */}
+      {/* ── HERO ───────────────────────────────── */}
       <section className="pgc-hero">
         <div className="pgc-hero__glow"/>
         <div className="pgc-hero__grid-pattern"/>
@@ -191,13 +196,13 @@ export default function LandingPage() {
           </p>
           <div className="pgc-hero__cta">
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--lg">
-              {'Commencer gratuitement'}
+              Commencer gratuitement →
             </a>
             <a href="/auth/login" className="pgc-btn pgc-btn--outline pgc-btn--lg">
-              {'Voir la demo'}
+              Voir la démo
             </a>
           </div>
-          <p className="pgc-hero__note">{'14 jours gratuits'}</p>
+          <p className="pgc-hero__note">14 jours gratuits · Pas de carte bancaire · Setup en 10 min</p>
 
           {/* Standards */}
           <div className="pgc-standards">
@@ -211,7 +216,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - STATS - */}
+      {/* ── STATS ──────────────────────────────── */}
       <section className="pgc-stats">
         <div className="pgc-container">
           <div className="pgc-stats__grid">
@@ -226,7 +231,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - FEATURES - */}
+      {/* ── FEATURES ───────────────────────────── */}
       <section id="features" className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -249,7 +254,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - HOW IT WORKS - */}
+      {/* ── HOW IT WORKS ───────────────────────── */}
       <section id="how" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -271,7 +276,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - API SHOWCASE - */}
+      {/* ── API SHOWCASE ───────────────────────── */}
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-api-showcase">
@@ -323,12 +328,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - PRICING - */}
+      {/* ── PRICING ────────────────────────────── */}
       <section id="pricing" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
             <div className="pgc-eyebrow">TARIFS</div>
-            <h2 className="pgc-section__title">{'{'Commencez gratuitement, scalez sans limites'}'}</h2>
+            <h2 className="pgc-section__title">Commencez gratuitement, scalez sans limites</h2>
             <div className="pgc-toggle">
               <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>Mensuel</button>
               <button onClick={() => setAnnual(true)} className={`pgc-toggle__btn ${annual ? 'active' : ''}`}>
@@ -368,7 +373,7 @@ export default function LandingPage() {
                   </button>
                 ) : (
                   <a href="/signup" className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
-                    {'Demarrer maintenant'}
+                    Demarrer maintenant
                   </a>
                 )}
               </div>
@@ -377,7 +382,7 @@ export default function LandingPage() {
 
           <div className="pgc-revenue-share">
             <div>
-              <span className="pgc-revenue-share__title">{'pricing_rs'.spli'—'[0].trim() || 'Revenue Share'}</span>
+              <span className="pgc-revenue-share__title">Revenue Share</span>
               <span className="pgc-revenue-share__price"> — $0/mois</span>
               <span className="pgc-revenue-share__desc"> · Payez uniquement 3% sur vos revenus carbone générés</span>
             </div>
@@ -386,7 +391,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - TESTIMONIALS - */}
+      {/* ── TESTIMONIALS ───────────────────────── */}
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -411,21 +416,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - CTA - */}
+      {/* ── CTA ────────────────────────────────── */}
       <section id="contact" className="pgc-cta">
         <div className="pgc-cta__glow"/>
         <div className="pgc-container pgc-cta__content">
           <div className="pgc-eyebrow" style={{ justifyContent: 'center' }}>WITH AFRICA FOR AFRICA 🌍</div>
-          <h2 className="pgc-cta__title">{'Pret a monetiser votre carbone africain'}</h2>
-          <p className="pgc-cta__desc">{'{'14 jours gratuits'}'}</p>
+          <h2 className="pgc-cta__title">Prêt à monétiser votre carbone africain ?</h2>
+          <p className="pgc-cta__desc">14 jours gratuits · Pas de carte bancaire · Premier projet en 10 minutes</p>
           <div className="pgc-hero__cta">
-            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">{'Creer mon compte gratuit'}</a>
-            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>{'Nous contacter'}</button>
+            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">Créer mon compte gratuit →</a>
+            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>Nous contacter</button>
           </div>
         </div>
       </section>
 
-      {/* - FOOTER - */}
+      {/* ── FOOTER ─────────────────────────────── */}
       <footer className="pgc-footer">
         <div className="pgc-container">
           <div className="pgc-footer__top">
@@ -438,7 +443,7 @@ export default function LandingPage() {
             </div>
             <div className="pgc-footer__links-group">
               <div className="pgc-footer__col">
-                <div className="pgc-footer__col-title">{'Plateforme'}</div>
+                <div className="pgc-footer__col-title">Plateforme</div>
                 {[['Fonctionnalités','#features'],['Tarifs','#pricing'],['API Docs','/dashboard/api-keys'],['Carbon Hub','/dashboard/standards']].map(([l,h]) => (
                   <a key={l} href={h} className="pgc-footer__link">{l}</a>
                 ))}
@@ -463,7 +468,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* - GLOBAL STYLES - */}
+      {/* ── GLOBAL STYLES ──────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -482,7 +487,7 @@ export default function LandingPage() {
           overflow-x: hidden;
         }
 
-        /* - CONTAINER - */
+        /* ── CONTAINER ── */
         .pgc-container {
           width: 100%;
           max-width: 1200px;
@@ -490,7 +495,7 @@ export default function LandingPage() {
           padding: 0 clamp(16px, 5vw, 48px);
         }
 
-        /* - NAV - */
+        /* ── NAV ── */
         .pgc-nav {
           position: sticky; top: 0; z-index: 200;
           border-bottom: 1px solid transparent;
@@ -539,7 +544,7 @@ export default function LandingPage() {
         .pgc-mobile-menu__link { color:#8FA3B8; font-size:15px; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(30,45,61,0.4); }
         .pgc-mobile-menu__actions { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
 
-        /* - BUTTONS - */
+        /* ── BUTTONS ── */
         .pgc-btn {
           display:inline-flex; align-items:center; justify-content:center;
           gap:6px; font-size:13px; font-weight:600; text-decoration:none;
@@ -557,7 +562,7 @@ export default function LandingPage() {
         .pgc-btn--sm { padding:6px 14px; font-size:12px; }
         .pgc-btn--full { width:100%; }
 
-        /* - HERO - */
+        /* ── HERO ── */
         .pgc-hero {
           position:relative; overflow:hidden;
           padding: clamp(72px,10vw,120px) 0 clamp(60px,8vw,100px);
@@ -611,7 +616,7 @@ export default function LandingPage() {
         }
         .pgc-standard-badge__dot { width:5px; height:5px; border-radius:50%; background:var(--badge-color); }
 
-        /* - STATS - */
+        /* ── STATS ── */
         .pgc-stats {
           border-top:1px solid #1E2D3D; border-bottom:1px solid #1E2D3D;
           padding:clamp(24px,4vw,36px) 0; background:#0A0F14;
@@ -621,7 +626,7 @@ export default function LandingPage() {
         .pgc-stat__label { font-size:clamp(12px,1.8vw,14px); color:#E8EFF6; font-weight:500; margin-top:6px; }
         .pgc-stat__sub { font-size:clamp(9px,1.3vw,11px); color:#4A6278; margin-top:2px; font-family:'JetBrains Mono',monospace; }
 
-        /* - SECTIONS - */
+        /* ── SECTIONS ── */
         .pgc-section { padding:clamp(60px,8vw,96px) 0; }
         .pgc-section--dark { background:#0A0F14; border-top:1px solid #1E2D3D; border-bottom:1px solid #1E2D3D; }
         .pgc-section__header { text-align:center; margin-bottom:clamp(36px,5vw,56px); }
@@ -638,7 +643,7 @@ export default function LandingPage() {
         }
         .pgc-section__sub { font-size:clamp(13px,2vw,16px); color:#4A6278; }
 
-        /* - FEATURES - */
+        /* ── FEATURES ── */
         .pgc-features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,18px); }
         .pgc-feature-card {
           background:#0D1117; border:1px solid #1E2D3D; border-radius:14px;
@@ -655,7 +660,7 @@ export default function LandingPage() {
         .pgc-feature-card__title { font-size:clamp(13px,2vw,15px); font-weight:600; color:#E8EFF6; margin-bottom:8px; }
         .pgc-feature-card__desc { font-size:clamp(12px,1.6vw,13px); color:#4A6278; line-height:1.65; }
 
-        /* - FLOW - */
+        /* ── FLOW ── */
         .pgc-flow-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(16px,3vw,24px); position:relative; }
         .pgc-flow-step { text-align:center; position:relative; }
         .pgc-flow-step__num {
@@ -671,7 +676,7 @@ export default function LandingPage() {
         .pgc-flow-step__title { font-size:clamp(13px,1.8vw,15px); font-weight:600; color:#E8EFF6; margin-bottom:8px; }
         .pgc-flow-step__desc { font-size:clamp(11px,1.5vw,13px); color:#4A6278; line-height:1.6; }
 
-        /* - API SHOWCASE - */
+        /* ── API SHOWCASE ── */
         .pgc-api-showcase { display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,5vw,56px); align-items:center; }
         .pgc-api-integrations { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:20px; }
         .pgc-api-integration {
@@ -698,7 +703,7 @@ export default function LandingPage() {
           font-family:'JetBrains Mono',monospace;
         }
 
-        /* - PRICING - */
+        /* ── PRICING ── */
         .pgc-toggle {
           display:inline-flex; background:#0D1117; border:1px solid #1E2D3D;
           border-radius:22px; padding:3px; gap:2px; margin-top:16px;
@@ -740,7 +745,7 @@ export default function LandingPage() {
         .pgc-revenue-share__price { font-size:clamp(13px,2vw,15px); color:#00FF94; }
         .pgc-revenue-share__desc { font-size:clamp(12px,1.8vw,14px); color:#4A6278; }
 
-        /* - TESTIMONIALS - */
+        /* ── TESTIMONIALS ── */
         .pgc-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,18px); }
         .pgc-testi-card { background:#0D1117; border:1px solid #1E2D3D; border-radius:14px; padding:clamp(18px,3vw,24px); }
         .pgc-testi-card__quote { font-size:36px; color:#00FF94; line-height:1; margin-bottom:10px; font-family:'Syne',sans-serif; }
@@ -753,7 +758,7 @@ export default function LandingPage() {
         .pgc-testi-card__name { font-size:13px; font-weight:600; color:#E8EFF6; }
         .pgc-testi-card__role { font-size:11px; color:#4A6278; }
 
-        /* - CTA - */
+        /* ── CTA ── */
         .pgc-cta { position:relative; overflow:hidden; padding:clamp(72px,10vw,120px) 0; text-align:center; }
         .pgc-cta__glow {
           position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -768,7 +773,7 @@ export default function LandingPage() {
         }
         .pgc-cta__desc { font-size:clamp(13px,2vw,16px); color:#4A6278; margin-bottom:32px; }
 
-        /* - FOOTER - */
+        /* ── FOOTER ── */
         .pgc-footer { border-top:1px solid #1E2D3D; padding:clamp(40px,6vw,60px) 0 clamp(20px,4vw,32px); background:#0A0F14; }
         .pgc-footer__top { display:grid; grid-template-columns:1fr 2fr; gap:clamp(28px,5vw,60px); margin-bottom:clamp(28px,4vw,40px); }
         .pgc-footer__tagline { font-size:12px; color:#4A6278; line-height:1.7; margin-top:12px; }
@@ -778,9 +783,9 @@ export default function LandingPage() {
         .pgc-footer__link:hover { color:#8FA3B8; }
         .pgc-footer__bottom { display:flex; justify-content:space-between; align-items:center; border-top:1px solid #1E2D3D; padding-top:clamp(16px,3vw,20px); font-size:11px; color:#2A3F55; flex-wrap:wrap; gap:8px; }
 
-        /* -
+        /* ═══════════════════════════════════════
            RESPONSIVE BREAKPOINTS
-        - */
+        ═══════════════════════════════════════ */
 
         /* TABLET — 768px to 1023px */
         @media (max-width: 1023px) {
@@ -848,46 +853,46 @@ export default function LandingPage() {
                   <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: '#E8EFF6' }}>PANGEA CARBON</span>
                 </div>
                 <div style={{ fontSize: 9, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>{'Parlons de votre projet'}</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>{'Un expert vous rappelle sous 24h.'}</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>Parlons de votre projet</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>Un expert vous rappelle sous 24h.</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
-                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'NOM'}</div>
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>NOM *</div>
                     <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Votre nom"
                       style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'EMAIL'}</div>
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>EMAIL *</div>
                     <input type="email" value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="vous@company.com"
                       style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
                 </div>
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'ENTREPRISE'}</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ENTREPRISE</div>
                   <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="SIEPA, CIE, Fonds vert..."
                     style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{'VOTRE BESOIN'}</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>VOTRE BESOIN</div>
                   <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} placeholder="Projets, pays, volume carbone..." rows={3}
                     style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none' }} />
                 </div>
                 {cErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{cErr}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>{'Annuler'}</button>
+                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>Annuler</button>
                   <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
-                    {cSending ? {'Envoi'} : {'Envoyer ma demande'}}
+                    {cSending ? 'Envoi...' : 'Envoyer ma demande'}
                   </button>
                 </div>
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>{'Demande envoyee'}</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>{'Réponse garantie sous 24h.'}</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>Demande envoyee !</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>Reponse garantie sous 24h.</p>
                 <button onClick={() => { setShowContact(false); setCsent(false); setCName(''); setCEmail(''); setCCompany(''); setCMsg(''); }}
                   style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 24px', fontWeight: 700, cursor: 'pointer' }}>
-                  {'Fermer'}
+                  Fermer
                 </button>
               </div>
             )}
