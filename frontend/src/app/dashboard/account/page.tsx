@@ -75,7 +75,9 @@ export default function AccountPage() {
       const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
       if (stored) localStorage.setItem('user', JSON.stringify({ ...JSON.parse(stored), name: editName }));
       flash('Profil mis a jour');
-    } catch (e: any) { flash(e.message, false); }
+    } catch (err) {
+      flash(String(err), false);
+    }
     finally { setSaving(false); }
   };
 
@@ -87,7 +89,9 @@ export default function AccountPage() {
       await fetchAuthJson('/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword: pw.current, newPassword: pw.newPw }) });
       setPw({ current: '', newPw: '', confirm: '' });
       flash('Mot de passe modifie');
-    } catch (e: any) { flash(e.message, false); }
+    } catch (err) {
+      flash(String(err), false);
+    }
     finally { setSaving(false); }
   };
 
@@ -103,7 +107,9 @@ export default function AccountPage() {
       setTwofaQR(d.qrCode);
       setTwofaSecret(d.secret);
       setTwofaStep('setup');
-    } catch (e: any) { flash(e.message, false); }
+    } catch (err) {
+      flash(String(err), false);
+    }
   };
 
   const verify2FA = async () => {
@@ -114,7 +120,9 @@ export default function AccountPage() {
       setTwofaStep('backup');
       setTwofaCode('');
       flash('2FA active');
-    } catch (e: any) { flash(e.message, false); }
+    } catch (err) {
+      flash(String(err), false);
+    }
   };
 
   const disable2FA = async () => {
@@ -124,7 +132,9 @@ export default function AccountPage() {
       setTwofaStep('idle');
       setTwofaCode('');
       flash('2FA desactive');
-    } catch (e: any) { flash(e.message, false); }
+    } catch (err) {
+      flash(String(err), false);
+    }
   };
 
   const planInfo = PLAN_DETAILS[org?.plan || 'FREE'] || PLAN_DETAILS.FREE;
