@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useLang } from '@/lib/lang-context';
 import LangToggle from '@/components/LangToggle';
 
-/* ─────────────────────────────────────────────
+/* -
    PANGEA CARBON — Landing Page
    Elite Palantir God+++ · Fully Responsive
    Mobile / Tablet / Desktop / Ultrawide
-───────────────────────────────────────────── */
+- */
 
 const STATS = [
   { value: 697, suffix: 'K+', label: 'tCO₂e certifiés', sub: 'Verra ACM0002' },
@@ -128,7 +128,7 @@ export default function LandingPage() {
 
   return (
     <div className="pangea-landing">
-      {/* ── NAVBAR ─────────────────────────────── */}
+      {/* - NAVBAR - */}
       <nav className={`pgc-nav ${scrolled ? 'pgc-nav--scrolled' : ''}`}>
         <div className="pgc-nav__inner">
           <a href="/" className="pgc-logo">
@@ -172,7 +172,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── HERO ───────────────────────────────── */}
+      {/* - HERO - */}
       <section className="pgc-hero">
         <div className="pgc-hero__glow"/>
         <div className="pgc-hero__grid-pattern"/>
@@ -211,7 +211,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── STATS ──────────────────────────────── */}
+      {/* - STATS - */}
       <section className="pgc-stats">
         <div className="pgc-container">
           <div className="pgc-stats__grid">
@@ -226,7 +226,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FEATURES ───────────────────────────── */}
+      {/* - FEATURES - */}
       <section id="features" className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -249,7 +249,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ───────────────────────── */}
+      {/* - HOW IT WORKS - */}
       <section id="how" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -271,7 +271,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── API SHOWCASE ───────────────────────── */}
+      {/* - API SHOWCASE - */}
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-api-showcase">
@@ -323,7 +323,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── PRICING ────────────────────────────── */}
+      {/* - PRICING - */}
       <section id="pricing" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -386,7 +386,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ───────────────────────── */}
+      {/* - TESTIMONIALS - */}
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -411,7 +411,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────── */}
+      {/* - CTA - */}
       <section id="contact" className="pgc-cta">
         <div className="pgc-cta__glow"/>
         <div className="pgc-container pgc-cta__content">
@@ -425,7 +425,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FOOTER ─────────────────────────────── */}
+      {/* - FOOTER - */}
       <footer className="pgc-footer">
         <div className="pgc-container">
           <div className="pgc-footer__top">
@@ -463,7 +463,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* ── GLOBAL STYLES ──────────────────────── */}
+      {/* - GLOBAL STYLES - */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -482,7 +482,7 @@ export default function LandingPage() {
           overflow-x: hidden;
         }
 
-        /* ── CONTAINER ── */
+        /* - CONTAINER - */
         .pgc-container {
           width: 100%;
           max-width: 1200px;
@@ -490,7 +490,7 @@ export default function LandingPage() {
           padding: 0 clamp(16px, 5vw, 48px);
         }
 
-        /* ── NAV ── */
+        /* - NAV - */
         .pgc-nav {
           position: sticky; top: 0; z-index: 200;
           border-bottom: 1px solid transparent;
@@ -539,7 +539,7 @@ export default function LandingPage() {
         .pgc-mobile-menu__link { color:#8FA3B8; font-size:15px; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(30,45,61,0.4); }
         .pgc-mobile-menu__actions { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
 
-        /* ── BUTTONS ── */
+        /* - BUTTONS - */
         .pgc-btn {
           display:inline-flex; align-items:center; justify-content:center;
           gap:6px; font-size:13px; font-weight:600; text-decoration:none;
@@ -557,7 +557,7 @@ export default function LandingPage() {
         .pgc-btn--sm { padding:6px 14px; font-size:12px; }
         .pgc-btn--full { width:100%; }
 
-        /* ── HERO ── */
+        /* - HERO - */
         .pgc-hero {
           position:relative; overflow:hidden;
           padding: clamp(72px,10vw,120px) 0 clamp(60px,8vw,100px);
@@ -611,7 +611,7 @@ export default function LandingPage() {
         }
         .pgc-standard-badge__dot { width:5px; height:5px; border-radius:50%; background:var(--badge-color); }
 
-        /* ── STATS ── */
+        /* - STATS - */
         .pgc-stats {
           border-top:1px solid #1E2D3D; border-bottom:1px solid #1E2D3D;
           padding:clamp(24px,4vw,36px) 0; background:#0A0F14;
@@ -621,7 +621,7 @@ export default function LandingPage() {
         .pgc-stat__label { font-size:clamp(12px,1.8vw,14px); color:#E8EFF6; font-weight:500; margin-top:6px; }
         .pgc-stat__sub { font-size:clamp(9px,1.3vw,11px); color:#4A6278; margin-top:2px; font-family:'JetBrains Mono',monospace; }
 
-        /* ── SECTIONS ── */
+        /* - SECTIONS - */
         .pgc-section { padding:clamp(60px,8vw,96px) 0; }
         .pgc-section--dark { background:#0A0F14; border-top:1px solid #1E2D3D; border-bottom:1px solid #1E2D3D; }
         .pgc-section__header { text-align:center; margin-bottom:clamp(36px,5vw,56px); }
@@ -638,7 +638,7 @@ export default function LandingPage() {
         }
         .pgc-section__sub { font-size:clamp(13px,2vw,16px); color:#4A6278; }
 
-        /* ── FEATURES ── */
+        /* - FEATURES - */
         .pgc-features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,18px); }
         .pgc-feature-card {
           background:#0D1117; border:1px solid #1E2D3D; border-radius:14px;
@@ -655,7 +655,7 @@ export default function LandingPage() {
         .pgc-feature-card__title { font-size:clamp(13px,2vw,15px); font-weight:600; color:#E8EFF6; margin-bottom:8px; }
         .pgc-feature-card__desc { font-size:clamp(12px,1.6vw,13px); color:#4A6278; line-height:1.65; }
 
-        /* ── FLOW ── */
+        /* - FLOW - */
         .pgc-flow-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(16px,3vw,24px); position:relative; }
         .pgc-flow-step { text-align:center; position:relative; }
         .pgc-flow-step__num {
@@ -671,7 +671,7 @@ export default function LandingPage() {
         .pgc-flow-step__title { font-size:clamp(13px,1.8vw,15px); font-weight:600; color:#E8EFF6; margin-bottom:8px; }
         .pgc-flow-step__desc { font-size:clamp(11px,1.5vw,13px); color:#4A6278; line-height:1.6; }
 
-        /* ── API SHOWCASE ── */
+        /* - API SHOWCASE - */
         .pgc-api-showcase { display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,5vw,56px); align-items:center; }
         .pgc-api-integrations { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:20px; }
         .pgc-api-integration {
@@ -698,7 +698,7 @@ export default function LandingPage() {
           font-family:'JetBrains Mono',monospace;
         }
 
-        /* ── PRICING ── */
+        /* - PRICING - */
         .pgc-toggle {
           display:inline-flex; background:#0D1117; border:1px solid #1E2D3D;
           border-radius:22px; padding:3px; gap:2px; margin-top:16px;
@@ -740,7 +740,7 @@ export default function LandingPage() {
         .pgc-revenue-share__price { font-size:clamp(13px,2vw,15px); color:#00FF94; }
         .pgc-revenue-share__desc { font-size:clamp(12px,1.8vw,14px); color:#4A6278; }
 
-        /* ── TESTIMONIALS ── */
+        /* - TESTIMONIALS - */
         .pgc-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,18px); }
         .pgc-testi-card { background:#0D1117; border:1px solid #1E2D3D; border-radius:14px; padding:clamp(18px,3vw,24px); }
         .pgc-testi-card__quote { font-size:36px; color:#00FF94; line-height:1; margin-bottom:10px; font-family:'Syne',sans-serif; }
@@ -753,7 +753,7 @@ export default function LandingPage() {
         .pgc-testi-card__name { font-size:13px; font-weight:600; color:#E8EFF6; }
         .pgc-testi-card__role { font-size:11px; color:#4A6278; }
 
-        /* ── CTA ── */
+        /* - CTA - */
         .pgc-cta { position:relative; overflow:hidden; padding:clamp(72px,10vw,120px) 0; text-align:center; }
         .pgc-cta__glow {
           position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -768,7 +768,7 @@ export default function LandingPage() {
         }
         .pgc-cta__desc { font-size:clamp(13px,2vw,16px); color:#4A6278; margin-bottom:32px; }
 
-        /* ── FOOTER ── */
+        /* - FOOTER - */
         .pgc-footer { border-top:1px solid #1E2D3D; padding:clamp(40px,6vw,60px) 0 clamp(20px,4vw,32px); background:#0A0F14; }
         .pgc-footer__top { display:grid; grid-template-columns:1fr 2fr; gap:clamp(28px,5vw,60px); margin-bottom:clamp(28px,4vw,40px); }
         .pgc-footer__tagline { font-size:12px; color:#4A6278; line-height:1.7; margin-top:12px; }
@@ -778,9 +778,9 @@ export default function LandingPage() {
         .pgc-footer__link:hover { color:#8FA3B8; }
         .pgc-footer__bottom { display:flex; justify-content:space-between; align-items:center; border-top:1px solid #1E2D3D; padding-top:clamp(16px,3vw,20px); font-size:11px; color:#2A3F55; flex-wrap:wrap; gap:8px; }
 
-        /* ═══════════════════════════════════════
+        /* -
            RESPONSIVE BREAKPOINTS
-        ═══════════════════════════════════════ */
+        - */
 
         /* TABLET — 768px to 1023px */
         @media (max-width: 1023px) {

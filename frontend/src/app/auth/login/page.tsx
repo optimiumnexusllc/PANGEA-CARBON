@@ -45,7 +45,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard');
     } catch {
-      setError('{t('auth_network_err')}');
+      setError(t('auth_network_err'));
     } finally {
       setLoading(false);
     }
