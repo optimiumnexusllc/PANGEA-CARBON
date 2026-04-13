@@ -97,7 +97,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <a href="/dashboard/projects/new" className="btn-primary">
+          <a href="/dashboard/projects" className="btn-primary">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 5v14M5 12h14"/>
             </svg>
