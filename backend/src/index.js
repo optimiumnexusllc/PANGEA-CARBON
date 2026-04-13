@@ -49,6 +49,12 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/equipment', require('./routes/equipment'));
 app.use('/api/assistant', require('./routes/assistant'));
+app.use('/api/article6', require('./routes/article6'));
+app.use('/api/sdg', require('./routes/sdg'));
+app.use('/api/dmrv', require('./routes/dmrv'));
+app.use('/api/corsia', require('./routes/corsia'));
+app.use('/api/registry', require('./routes/registry'));
+app.use('/api/baseline', require('./routes/baseline'));
 app.use('/api/dashboard', dashboardRoutes);
 
 // 404

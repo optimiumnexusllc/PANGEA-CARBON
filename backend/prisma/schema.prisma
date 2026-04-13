@@ -188,7 +188,14 @@ model Project {
   readings       EnergyReading[]
   mrvRecords     MRVRecord[]
   reports        Report[]
-  auditLogs      AuditLog[]
+  auditLogs         AuditLog[]
+  itmoRecords       ITMORecord[]
+  sdgScores         SDGScore[]
+  satelliteReadings SatelliteReading[]
+  iotReadings       IoTReading[]
+  corsiaEligibility CORSIAEligibility?
+  creditIssuances   CreditIssuance[]
+  baselineAssessments BaselineAssessment[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -272,4 +279,169 @@ model AuditLog {
   @@index([projectId])
   @@index([createdAt])
   @@index([action])
+}
+
+// ─── ARTICLE 6 / ITMO ─────────────────────────────────────────────────────
+model ITMORecord {
+  id              String   @id @default(cuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id])
+  year            Int
+  hostCountry     String
+  buyingCountry   String
+  itmoQuantity    Float    // tCO2e autorisées comme ITMO
+  pricePerTonne   Float    // $/tCO2e
+  totalValueUSD   Float
+  authorizationRef String? // Référence autorisation souveraine
+  correspondingAdj Boolean @default(false) // Ajustement correspondant appliqué
+  status          String   @default("PENDING") // PENDING AUTHORIZED TRANSFERRED
+  transferDate    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+// ─── GOLD STANDARD SDG SCORING ────────────────────────────────────────────
+model SDGScore {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  year        Int
+  // 17 SDG scores (0-10 chacun)
+  sdg1  Float @default(0) // No poverty
+  sdg2  Float @default(0) // Zero hunger
+  sdg3  Float @default(0) // Good health
+  sdg4  Float @default(0) // Quality education
+  sdg5  Float @default(0) // Gender equality
+  sdg6  Float @default(0) // Clean water
+  sdg7  Float @default(0) // Clean energy
+  sdg8  Float @default(0) // Decent work
+  sdg9  Float @default(0) // Industry innovation
+  sdg10 Float @default(0) // Reduced inequalities
+  sdg11 Float @default(0) // Sustainable cities
+  sdg12 Float @default(0) // Responsible consumption
+  sdg13 Float @default(0) // Climate action
+  sdg14 Float @default(0) // Life below water
+  sdg15 Float @default(0) // Life on land
+  sdg16 Float @default(0) // Peace justice
+  sdg17 Float @default(0) // Partnerships
+  totalScore      Float    @default(0)
+  premiumUSD      Float    @default(0) // Premium $/tCO2e généré
+  gsStarRating    Int      @default(0) // 0-5 étoiles Gold Standard
+  jobsCreated     Int      @default(0)
+  householdsElectrified Int @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([projectId, year])
+  @@index([projectId])
+}
+
+// ─── dMRV — DIGITAL MRV ENGINE ────────────────────────────────────────────
+model SatelliteReading {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  captureDate   DateTime
+  satellite     String   @default("SENTINEL-2") // SENTINEL-2 LANDSAT-9 MODIS
+  cloudCoverPct Float    @default(0)
+  ndviScore     Float?   // Vegetation index (for biomass)
+  irradianceMWh Float?   // Irradiance estimée (MWh/m²)
+  estimatedMWh  Float?   // Production estimée via satellite
+  actualMWh     Float?   // Production mesurée (si disponible)
+  confidence    Float    @default(0.85) // 0-1 confidence score
+  rawData       Json?    // Données brutes satellite
+  verified      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([projectId])
+  @@index([captureDate])
+}
+
+model IoTReading {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  deviceId    String
+  deviceType  String   // PYRANOMETER ANEMOMETER IRRADIANCE METER POWER_ANALYZER
+  timestamp   DateTime
+  value       Float
+  unit        String   // W/m2 m/s kWh kW
+  quality     String   @default("GOOD") // GOOD SUSPECT BAD
+  createdAt   DateTime @default(now())
+
+  @@index([projectId])
+  @@index([deviceId])
+  @@index([timestamp])
+}
+
+// ─── CORSIA ELIGIBILITY ───────────────────────────────────────────────────
+model CORSIAEligibility {
+  id                  String   @id @default(cuid())
+  projectId           String   @unique
+  project             Project  @relation(fields: [projectId], references: [id])
+  eligible            Boolean  @default(false)
+  eligibilityScore    Float    @default(0) // 0-100
+  phase               String?  // CORSIA Phase (PILOT 2021-2023, PHASE1 2024-2026...)
+  verraApproved       Boolean  @default(false)
+  gsApproved          Boolean  @default(false)
+  additionalityMet    Boolean  @default(false)
+  permanenceMet       Boolean  @default(false)
+  noDoubleCounting    Boolean  @default(false)
+  failureReasons      String[] @default([])
+  estimatedPremiumUSD Float    @default(0)
+  lastChecked         DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([eligible])
+}
+
+// ─── BLOCKCHAIN CREDIT REGISTRY ──────────────────────────────────────────
+model CreditIssuance {
+  id              String   @id @default(cuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id])
+  vintage         Int      // Année de génération
+  quantity        Float    // tCO2e
+  standard        String   // VERRA_VCS GOLD_STANDARD ARTICLE6 CORSIA
+  serialFrom      String   // Numéro de série début
+  serialTo        String   // Numéro de série fin
+  status          String   @default("ISSUED") // ISSUED RETIRED TRANSFERRED CANCELLED
+  previousHash    String   // Hash du bloc précédent (blockchain)
+  blockHash       String   @unique // SHA-256 de ce bloc
+  blockNumber     Int      // Numéro séquentiel du bloc
+  merkleRoot      String?  // Merkle root des données
+  buyerEntity     String?
+  retiredFor      String?  // Raison de la retraite
+  transferredTo   String?
+  issuedAt        DateTime @default(now())
+  retiredAt       DateTime?
+  metadata        Json?
+
+  @@index([projectId])
+  @@index([status])
+  @@index([vintage])
+}
+
+// ─── AI BASELINE SETTER ──────────────────────────────────────────────────
+model BaselineAssessment {
+  id                  String   @id @default(cuid())
+  projectId           String
+  project             Project  @relation(fields: [projectId], references: [id])
+  assessmentDate      DateTime @default(now())
+  methodology         String   // ACM0002 AMS-I.D etc
+  baselineEF          Float    // tCO2/MWh calculé
+  confidenceInterval  Float    @default(0.9) // 90% CI
+  dataSourcesUsed     String[] // UNFCCC IEA NATIONAL_GRID SATELLITE
+  satelliteValidated  Boolean  @default(false)
+  aiAnalysis          String?  // Analyse textuelle par Claude
+  gridEmissionsData   Json?    // Données grille utilisées
+  adjustmentFactor    Float    @default(1.0)
+  recommendedActions  String[] @default([])
+  validUntil          DateTime
+  createdAt           DateTime @default(now())
+
+  @@index([projectId])
 }
