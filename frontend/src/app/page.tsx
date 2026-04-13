@@ -842,7 +842,6 @@ export default function LandingPage() {
           .pgc-container { max-width: 1600px; }
         }
       `}</style>
-    </div>
 
       {showContact && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(8,11,15,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 20 }}
