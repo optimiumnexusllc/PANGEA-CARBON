@@ -114,13 +114,13 @@ router.get('/alerts', auth, async (req, res, next) => {
       id: a.id,
       type: a.action.replace('ALERT_', '').toLowerCase(),
       projectId: a.entityId,
-      message: (a.after as any)?.message || a.action,
-      severity: (a.after as any)?.severity || 'info',
+      message: a.after?.message || a.action,
+      severity: a.after?.severity || 'info',
       createdAt: a.createdAt,
     }));
 
     const unread = formatted.filter(a => {
-      const lastSeen = req.query.since ? new Date(req.query.since as string) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const lastSeen = req.query.since ? new Date(req.query.since) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       return new Date(a.createdAt) > lastSeen;
     }).length;
 

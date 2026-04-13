@@ -100,7 +100,7 @@ router.get('/:projectId', auth, async (req, res, next) => {
     const { year } = req.query;
     const project = await prisma.project.findUnique({ where: { id: req.params.projectId } });
     const scores = await prisma.sDGScore.findMany({
-      where: { projectId: req.params.projectId, ...(year && { year: parseInt(year as string) }) },
+      where: { projectId: req.params.projectId, ...(year && { year: parseInt(year) }) },
       orderBy: { year: 'desc' }
     });
 

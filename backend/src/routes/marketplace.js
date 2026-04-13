@@ -48,7 +48,7 @@ router.get('/listings', auth, async (req, res, next) => {
       where: {
         status: 'ISSUED',
         ...(standard && { standard }),
-        quantity: { gte: parseFloat(minQty as string) || 1 },
+        quantity: { gte: parseFloat(minQty) || 1 },
       },
       include: { project: { select: { name: true, type: true, countryCode: true, installedMW: true } } },
       orderBy: { issuedAt: 'desc' },
@@ -57,7 +57,7 @@ router.get('/listings', auth, async (req, res, next) => {
 
     // Si pas de crédits réels, générer des listings démo
     const listings = issuances.length > 0 ? issuances.map(iss => {
-      const price = LIVE_PRICES[iss.standard as keyof typeof LIVE_PRICES];
+      const price = LIVE_PRICES[iss.standard];
       return {
         id: iss.id, standard: iss.standard, vintage: iss.vintage,
         quantity: iss.quantity, availableQty: iss.quantity,
@@ -72,7 +72,7 @@ router.get('/listings', auth, async (req, res, next) => {
       };
     }) : generateDemoListings();
 
-    const filtered = listings.filter(l => !maxPrice || l.askPrice <= parseFloat(maxPrice as string))
+    const filtered = listings.filter(l => !maxPrice || l.askPrice <= parseFloat(maxPrice))
       .filter(l => !country || l.project?.countryCode === country);
 
     res.json({
