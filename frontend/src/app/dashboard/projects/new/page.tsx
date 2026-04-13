@@ -136,7 +136,22 @@ export default function NewProjectPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <Label>Latitude (optionnel)</Label>
-                <input className="input-dark" type="number" step="any" placeholder="5.3600" value={form.latitude} onChange={e => set('latitude', e.target.value)}/>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                  <input className="input-dark" type="number" step="any" placeholder="5.3600" value={form.latitude} onChange={e => set('latitude', e.target.value)} style={{ flex: 1 }}/>
+                  {form.countryCode && (
+                    <button type="button" onClick={async () => {
+                      try {
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/meta/geocode/${form.countryCode}`, {
+                          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+                        });
+                        if (res.ok) { const d = await res.json(); set('latitude', d.lat); set('longitude', d.lng); }
+                      } catch {}
+                    }}
+                      style={{ background: 'rgba(0,255,148,0.1)', border: '1px solid rgba(0,255,148,0.3)', borderRadius: 7, color: '#00FF94', padding: '8px 12px', cursor: 'pointer', fontSize: 11, whiteSpace: 'nowrap', fontFamily: 'JetBrains Mono, monospace' }}>
+                      📍 Auto
+                    </button>
+                  )}
+                </div>
               </div>
               <div>
                 <Label>Longitude (optionnel)</Label>

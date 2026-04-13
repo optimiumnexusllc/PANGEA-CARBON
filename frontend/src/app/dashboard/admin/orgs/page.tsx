@@ -11,6 +11,11 @@ export default function AdminOrgsPage() {
   const [orgs, setOrgs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [editOrg, setEditOrg] = useState<any>(null);
+  const [deleteOrg, setDeleteOrg] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [msg, setMsg] = useState<any>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: '', plan: 'TRIAL', country: '', billingEmail: '', maxProjects: 5, maxMW: 100, maxUsers: 3 });
   const [saving, setSaving] = useState(false);
@@ -41,6 +46,37 @@ export default function AdminOrgsPage() {
       setForm({ name: '', plan: 'TRIAL', country: '', billingEmail: '', maxProjects: 5, maxMW: 100, maxUsers: 3 });
       load();
     } finally { setSaving(false); }
+  };
+
+  const flash = (text: string, ok = true) => { setMsg({text, ok}); setTimeout(() => setMsg(null), 4000); };
+
+  const saveOrg = async () => {
+    setSaving(true);
+    try {
+      const res = await fetchAuth(`/admin/orgs/${editOrg.id}/full`, {
+        method: 'PUT',
+        body: JSON.stringify(editOrg),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      setOrgs((prev: any[]) => prev.map((o: any) => o.id === editOrg.id ? { ...o, ...d } : o));
+      setEditOrg(null);
+      flash('Organisation mise à jour');
+    } catch (e: any) { flash(e.message, false); }
+    finally { setSaving(false); }
+  };
+
+  const deleteOrgFn = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetchAuth(`/admin/orgs/${deleteOrg.id}?force=true`, { method: 'DELETE' });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      setOrgs((prev: any[]) => prev.filter((o: any) => o.id !== deleteOrg.id));
+      setDeleteOrg(null);
+      flash('Organisation supprimée');
+    } catch (e: any) { flash(e.message, false); }
+    finally { setDeleting(false); }
   };
 
   return (
@@ -131,5 +167,79 @@ export default function AdminOrgsPage() {
         </div>
       )}
     </div>
+
+      {msg && (
+        <div style={{ position: 'fixed', bottom: 24, right: 24, background: msg.ok ? 'rgba(0,255,148,0.15)' : 'rgba(248,113,113,0.15)', border: '1px solid', borderColor: msg.ok ? 'rgba(0,255,148,0.4)' : 'rgba(248,113,113,0.4)', borderRadius: 10, padding: '12px 20px', color: msg.ok ? '#00FF94' : '#F87171', fontSize: 13, fontWeight: 600, zIndex: 9999 }}>
+          {msg.text}
+        </div>
+      )}
+
+      {deleteOrg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 28, maxWidth: 420, width: '90%' }}>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 10 }}>Supprimer cette organisation ?</h2>
+            <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 16 }}>
+              <strong style={{ color: '#E8EFF6' }}>{deleteOrg.name}</strong> sera supprimée. Les utilisateurs seront conservés mais désassociés.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setDeleteOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={deleteOrgFn} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
+                {deleting ? '...' : 'Supprimer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editOrg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 14, padding: 28, maxWidth: 520, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', margin: 0 }}>Modifier l organisation</h2>
+              <button onClick={() => setEditOrg(null)} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 18 }}>x</button>
+            </div>
+            {[
+              { label: 'Nom', key: 'name' }, { label: 'Domaine', key: 'domain' },
+            ].map(f => (
+              <div key={f.key} style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
+                <input value={editOrg[f.key] || ''} onChange={e => setEditOrg((o: any) => ({ ...o, [f.key]: e.target.value }))}
+                  style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 12px', fontSize: 13, boxSizing: 'border-box' as 'border-box', outline: 'none' }}/>
+              </div>
+            ))}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+              {[{ label: 'Max projets', key: 'maxProjects' }, { label: 'Max MW', key: 'maxMW' }, { label: 'Max users', key: 'maxUsers' }].map(f => (
+                <div key={f.key}>
+                  <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
+                  <input type="number" value={editOrg[f.key] || ''} onChange={e => setEditOrg((o: any) => ({ ...o, [f.key]: e.target.value }))}
+                    style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13, boxSizing: 'border-box' as 'border-box', outline: 'none' }}/>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
+              <div>
+                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>PLAN</label>
+                <select value={editOrg.plan || 'FREE'} onChange={e => setEditOrg((o: any) => ({ ...o, plan: e.target.value }))}
+                  style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13 }}>
+                  {['FREE','TRIAL','STARTER','PRO','ENTERPRISE','CUSTOM'].map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>STATUT</label>
+                <select value={editOrg.status || 'ACTIVE'} onChange={e => setEditOrg((o: any) => ({ ...o, status: e.target.value }))}
+                  style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13 }}>
+                  {['ACTIVE','SUSPENDED','TRIAL','CHURNED'].map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setEditOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={saveOrg} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
+                {saving ? '...' : 'Sauvegarder'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }

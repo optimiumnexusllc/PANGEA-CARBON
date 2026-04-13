@@ -383,3 +383,58 @@ router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
 });
 
 module.exports = router;
+
+// DELETE /api/admin/orgs/:id — Supprimer une organisation (avec ses users)
+router.delete('/orgs/:id', auth, requireRole('SUPER_ADMIN'), async (req, res, next) => {
+  try {
+    const org = await prisma.organization.findUnique({
+      where: { id: req.params.id },
+      include: { users: { select: { id: true } }, _count: true }
+    });
+    if (!org) return res.status(404).json({ error: 'Organisation introuvable' });
+    if (org._count.users > 0 && !req.query.force) {
+      return res.status(409).json({
+        error: `Cette organisation a ${org._count.users} utilisateur(s). Utilisez ?force=true pour forcer.`,
+        userCount: org._count.users,
+      });
+    }
+    // Détacher les users (ne pas supprimer leurs comptes)
+    await prisma.user.updateMany({
+      where: { organizationId: req.params.id },
+      data: { organizationId: null }
+    });
+    // Supprimer les projets et leurs données
+    const projects = await prisma.project.findMany({ where: { user: { organizationId: req.params.id } } });
+    // Supprimer l'org
+    await prisma.organization.delete({ where: { id: req.params.id } });
+
+    await prisma.auditLog.create({
+      data: { userId: req.user.userId, action: 'ORG_DELETED', entity: 'Organization', entityId: req.params.id, after: { name: org.name } }
+    });
+    res.json({ success: true, deleted: org.name, usersDetached: org._count.users });
+  } catch (e) { next(e); }
+});
+
+// PUT /api/admin/orgs/:id/full — Mise à jour complète d'une organisation
+router.put('/orgs/:id/full', auth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req, res, next) => {
+  try {
+    const { name, plan, status, maxProjects, maxMW, maxUsers, domain, trialEndsAt } = req.body;
+    const org = await prisma.organization.update({
+      where: { id: req.params.id },
+      data: {
+        ...(name && { name }),
+        ...(plan && { plan }),
+        ...(status && { status }),
+        ...(maxProjects !== undefined && { maxProjects: parseInt(maxProjects) }),
+        ...(maxMW !== undefined && { maxMW: parseFloat(maxMW) }),
+        ...(maxUsers !== undefined && { maxUsers: parseInt(maxUsers) }),
+        ...(domain !== undefined && { domain }),
+        ...(trialEndsAt !== undefined && { trialEndsAt: trialEndsAt ? new Date(trialEndsAt) : null }),
+      }
+    });
+    await prisma.auditLog.create({
+      data: { userId: req.user.userId, action: 'ORG_UPDATED', entity: 'Organization', entityId: req.params.id, after: req.body }
+    });
+    res.json(org);
+  } catch (e) { next(e); }
+});
