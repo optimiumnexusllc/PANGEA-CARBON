@@ -69,6 +69,32 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
     return () => observer.disconnect();
   }, [target]);
 
+  async function sendContact() {
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      setContactErr('Nom, email et message requis');
+      return;
+    }
+    setContactSending(true);
+    setContactErr('');
+    try {
+      await fetch(process.env.NEXT_PUBLIC_API_URL + '/email-composer/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'contact@pangea-carbon.com',
+          subject: 'Demande Enterprise — ' + (contactForm.company || contactForm.name),
+          body: 'Nom: ' + contactForm.name + '\nEmail: ' + contactForm.email + '\nEntreprise: ' + contactForm.company + '\n\nMessage:\n' + contactForm.message,
+          templateId: 'custom',
+        }),
+      });
+      setContactSent(true);
+    } catch (e) {
+      setContactErr('Erreur envoi — contactez contact@pangea-carbon.com');
+    } finally {
+      setContactSending(false);
+    }
+  }
+
   return (
     <div ref={ref} style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 48px)', color: '#00FF94', lineHeight: 1 }}>
       {target < 10 ? count.toFixed(1) : Math.floor(count)}{suffix}
@@ -81,6 +107,11 @@ export default function LandingPage() {
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
+  const [contactSending, setContactSending] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [contactErr, setContactErr] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -336,10 +367,18 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <a href={plan.name === 'Enterprise' ? 'mailto:contact@pangea-carbon.com?subject=Enterprise' : '/signup'}
-                  className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
-                  {plan.name === 'Enterprise' ? 'Nous contacter →' : 'Démarrer maintenant →'}
-                </a>
+                {plan.name === 'Enterprise' ? (
+                  <button onClick={() => setShowContact(true)}
+                    className="pgc-btn pgc-btn--full pgc-btn--outline"
+                    style={{ cursor: 'pointer', background: 'transparent' }}>
+                    Nous contacter →
+                  </button>
+                ) : (
+                  <a href="/signup"
+                    className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
+                    Démarrer maintenant →
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -389,7 +428,7 @@ export default function LandingPage() {
           <p className="pgc-cta__desc">14 jours gratuits · Pas de carte bancaire · Premier projet en 10 minutes</p>
           <div className="pgc-hero__cta">
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">Créer mon compte gratuit →</a>
-            <a href="mailto:contact@pangea-carbon.com" className="pgc-btn pgc-btn--ghost pgc-btn--xl">Nous contacter</a>
+            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>Nous contacter</button>
           </div>
         </div>
       </section>
@@ -804,5 +843,90 @@ export default function LandingPage() {
         }
       `}</style>
     </div>
+
+      {showContact && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(8,11,15,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 20 }}
+          onClick={e => { if (e.target === e.currentTarget) setShowContact(false); }}>
+          <div style={{ background: '#0D1117', border: '1px solid rgba(252,211,77,0.25)', borderRadius: 18, padding: 36, maxWidth: 520, width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
+            <button onClick={() => setShowContact(false)}
+              style={{ position: 'absolute', top: 16, right: 20, background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>
+              ×
+            </button>
+            {!contactSent ? (
+              <>
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(0,255,148,0.12)', border: '1px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z" stroke="#00FF94" strokeWidth="1.5"/></svg>
+                    </div>
+                    <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: '#E8EFF6' }}>PANGEA CARBON</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE · SUR DEVIS</div>
+                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: '#E8EFF6', margin: 0, marginBottom: 8 }}>Parlons de votre projet</h2>
+                  <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7 }}>Un expert PANGEA CARBON vous rappelle sous 24h pour construire votre offre sur mesure.</p>
+                </div>
+                <div style={{ background: 'rgba(252,211,77,0.05)', border: '1px solid rgba(252,211,77,0.15)', borderRadius: 10, padding: 14, marginBottom: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {['White-label', 'SSO SAML', 'SLA 99.9%', 'CSM dédié', 'API custom', 'Utilisateurs illimités'].map(f => (
+                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#FCD34D' }}>
+                      <span>✓</span> {f}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                  <div>
+                    <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>NOM COMPLET *</label>
+                    <input value={contactForm.name} onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))}
+                      placeholder="Dayiri Esdras"
+                      style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>EMAIL PRO *</label>
+                    <input type="email" value={contactForm.email} onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))}
+                      placeholder="vous@company.com"
+                      style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+                  </div>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>ENTREPRISE / ORGANISATION</label>
+                  <input value={contactForm.company} onChange={e => setContactForm(p => ({ ...p, company: e.target.value }))}
+                    placeholder="SIEPA, CIE, CIPREL, Fonds vert..."
+                    style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>VOTRE BESOIN *</label>
+                  <textarea value={contactForm.message} onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
+                    placeholder="Décrivez vos projets, pays, volume de crédits visé, contraintes..."
+                    rows={4}
+                    style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none', resize: 'vertical', lineHeight: 1.7 }} />
+                </div>
+                {contactErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 12 }}>{contactErr}</div>}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => setShowContact(false)}
+                    style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 9, color: '#4A6278', padding: 12, cursor: 'pointer', fontSize: 13 }}>
+                    Annuler
+                  </button>
+                  <button onClick={sendContact} disabled={contactSending}
+                    style={{ flex: 2, background: contactSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14, cursor: contactSending ? 'wait' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                    {contactSending ? 'Envoi en cours...' : 'Envoyer ma demande →'}
+                  </button>
+                </div>
+                <p style={{ fontSize: 11, color: '#2A3F55', textAlign: 'center', marginTop: 12, fontFamily: 'JetBrains Mono, monospace' }}>
+                  Réponse garantie sous 24h · contact@pangea-carbon.com
+                </p>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,255,148,0.12)', border: '2px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 28 }}>✓</div>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 10 }}>Demande envoyée !</h2>
+                <p style={{ fontSize: 14, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 24 }}>Notre équipe vous contactera sous 24h pour construire votre offre Enterprise personnalisée.</p>
+                <button onClick={() => { setShowContact(false); setContactSent(false); setContactForm({ name: '', email: '', company: '', message: '' }); }}
+                  style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 9, padding: '10px 28px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                  Fermer
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
   );
 }
