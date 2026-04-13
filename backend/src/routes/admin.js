@@ -106,7 +106,7 @@ router.post('/users', auth, adminOnly, async (req, res, next) => {
     const { name, email, password, role, organizationId } = req.body;
     const hashed = await bcrypt.hash(password || 'ChangeMe@2026!', 12);
     const user = await prisma.user.create({
-      data: { name, email, password: hashed, role: role || 'ANALYST', organizationId },
+      data: { name, email, password: hashed, role: role || 'ANALYST', organizationId, isActive: true, emailVerified: true },
       select: { id: true, name: true, email: true, role: true }
     });
     await prisma.auditLog.create({ data: { userId: req.user.userId, action: 'CREATE_USER', entity: 'User', entityId: user.id, after: { name, email, role }, ipAddress: req.ip } });

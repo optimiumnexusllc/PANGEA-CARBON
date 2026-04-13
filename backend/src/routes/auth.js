@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
+const { sendVerificationEmail, sendAdminNotification, sendWelcomeEmail } = require('../services/email.service');
 const prisma = new PrismaClient();
 
 const generateTokens = (user) => {
@@ -28,13 +30,123 @@ router.post('/register', [
     if (exists) return res.status(409).json({ error: 'Email déjà utilisé' });
 
     const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Token de vérification (expire dans 24h)
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name, organization, role: 'ANALYST' },
+      data: {
+        email, password: hashedPassword, name,
+        role: 'ANALYST',
+        isActive: false,         // Inactif jusqu'à vérification email
+        emailVerified: false,
+        verifyToken,
+        verifyExpires,
+      },
+      select: { id: true, email: true, name: true, role: true }
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'https://pangea-carbon.com';
+    const verifyUrl = `${frontendUrl}/auth/verify?token=${verifyToken}`;
+
+    // 1. Email de vérification à l'utilisateur
+    await sendVerificationEmail({ to: email, name, verifyUrl }).catch(e =>
+      console.error('[Email] Erreur envoi vérification:', e.message)
+    );
+
+    // 2. Notification aux admins
+    const admins = await prisma.user.findMany({
+      where: { role: { in: ['SUPER_ADMIN', 'ADMIN'] }, isActive: true },
+      select: { email: true }
+    });
+    for (const admin of admins) {
+      await sendAdminNotification({
+        adminEmail: admin.email,
+        newUser: { name, email },
+        orgName: organization,
+        plan: req.body.plan || 'Trial',
+        verifyUrl,
+      }).catch(e => console.error('[Email] Erreur notif admin:', e.message));
+    }
+
+    // Log audit
+    await prisma.auditLog.create({
+      data: { action: 'REGISTER', entity: 'User', entityId: user.id, after: { email, name }, ipAddress: req.ip }
+    });
+
+    res.status(201).json({
+      message: 'Compte créé. Vérifiez votre email pour activer votre compte.',
+      email,
+      pendingVerification: true,
+    });
+  } catch (e) { next(e); }
+});
+
+// GET /api/auth/verify?token=xxx
+router.get('/verify', async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: 'Token manquant' });
+
+    const user = await prisma.user.findFirst({
+      where: { verifyToken: token, verifyExpires: { gt: new Date() } }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Lien de vérification invalide ou expiré. Demandez un nouveau lien.' });
+    }
+
+    // Activer le compte
+    const activated = await prisma.user.update({
+      where: { id: user.id },
+      data: { isActive: true, emailVerified: true, verifyToken: null, verifyExpires: null, lastLoginAt: new Date() },
       select: { id: true, email: true, name: true, role: true, organization: true }
     });
 
-    const tokens = generateTokens(user);
-    res.status(201).json({ user, ...tokens });
+    // Email de bienvenue
+    await sendWelcomeEmail({
+      to: activated.email,
+      name: activated.name,
+      dashboardUrl: `${process.env.FRONTEND_URL || 'https://pangea-carbon.com'}/dashboard`,
+    }).catch(e => console.error('[Email] Erreur bienvenue:', e.message));
+
+    // Log audit
+    await prisma.auditLog.create({
+      data: { action: 'EMAIL_VERIFIED', entity: 'User', entityId: user.id, ipAddress: req.ip }
+    });
+
+    // Générer les tokens et connecter directement
+    const tokens = generateTokens(activated);
+    res.json({
+      success: true,
+      message: 'Email vérifié ! Votre compte est maintenant actif.',
+      user: activated,
+      ...tokens,
+    });
+  } catch (e) { next(e); }
+});
+
+// POST /api/auth/resend-verification
+router.post('/resend-verification', [
+  body('email').isEmail().normalizeEmail(),
+], async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) return res.status(404).json({ error: 'Email introuvable' });
+    if (user.emailVerified) return res.status(400).json({ error: 'Email déjà vérifié' });
+
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await prisma.user.update({ where: { id: user.id }, data: { verifyToken, verifyExpires } });
+
+    const verifyUrl = `${process.env.FRONTEND_URL || 'https://pangea-carbon.com'}/auth/verify?token=${verifyToken}`;
+    await sendVerificationEmail({ to: email, name: user.name, verifyUrl });
+
+    res.json({ message: 'Email de vérification renvoyé.' });
   } catch (e) { next(e); }
 });
 
@@ -54,6 +166,26 @@ router.post('/login', [
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Identifiants invalides' });
 
+    // Vérifier si l'email est validé
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        error: 'Email non vérifié',
+        message: 'Vérifiez votre boîte email et cliquez sur le lien d\'activation.',
+        pendingVerification: true,
+        email,
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ error: 'Compte désactivé. Contactez le support.' });
+    }
+
+    // Mettre à jour dernière connexion
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date(), loginCount: { increment: 1 } }
+    });
+
     const { password: _, ...userSafe } = user;
     const tokens = generateTokens(userSafe);
     res.json({ user: userSafe, ...tokens });
@@ -69,9 +201,9 @@ router.post('/refresh', async (req, res, next) => {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, role: true, name: true }
+      select: { id: true, email: true, role: true, name: true, isActive: true }
     });
-    if (!user) return res.status(401).json({ error: 'Utilisateur introuvable' });
+    if (!user || !user.isActive) return res.status(401).json({ error: 'Compte invalide' });
 
     const tokens = generateTokens(user);
     res.json({ user, ...tokens });
@@ -86,7 +218,7 @@ router.get('/me', require('../middleware/auth'), async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      select: { id: true, email: true, name: true, role: true, organization: true, createdAt: true }
+      select: { id: true, email: true, name: true, role: true, organization: true, createdAt: true, emailVerified: true, lastLoginAt: true }
     });
     res.json(user);
   } catch (e) { next(e); }

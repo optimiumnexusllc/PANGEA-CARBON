@@ -78,7 +78,7 @@ export default function SignupPage() {
         if (url) { window.location.href = url; return; }
       }
 
-      router.push('/dashboard');
+      router.push(`/auth/check-email?email=${encodeURIComponent(form.email)}`);
     } catch (e: any) { setError(e.message); }
     finally { setLoading(false); }
   };

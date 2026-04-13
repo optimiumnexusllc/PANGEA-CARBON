@@ -13,6 +13,8 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const forceRefresh = () => setRefreshKey(k => k + 1);
   const [creating, setCreating] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'ANALYST' });
   const [saving, setSaving] = useState(false);
@@ -24,11 +26,11 @@ export default function AdminUsersPage() {
       .then(r => r.json()).then(d => { setUsers(d.users || []); setTotal(d.total || 0); })
       .catch(console.error).finally(() => setLoading(false));
   };
-  useEffect(() => { load(); }, [search, roleFilter]);
+  useEffect(() => { load(); }, [search, roleFilter, refreshKey]);
 
   const updateUser = async (id: string, data: any) => {
     await fetch(`${API}/admin/users/${id}`, { method: 'PATCH', headers: h(), body: JSON.stringify(data) });
-    load();
+    forceRefresh();
   };
 
   const createUser = async () => {
@@ -38,7 +40,7 @@ export default function AdminUsersPage() {
       if (!res.ok) { const e = await res.json(); alert(e.error); return; }
       setCreating(false);
       setNewUser({ name: '', email: '', password: '', role: 'ANALYST' });
-      load();
+      forceRefresh();
     } finally { setSaving(false); }
   };
 

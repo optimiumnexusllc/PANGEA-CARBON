@@ -87,7 +87,10 @@ model User {
   role           Role          @default(ANALYST)
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
-  isActive       Boolean       @default(true)
+  isActive       Boolean       @default(false)
+  emailVerified  Boolean       @default(false)
+  verifyToken    String?       @unique
+  verifyExpires  DateTime?
   lastLoginAt    DateTime?
   loginCount     Int           @default(0)
   createdAt      DateTime      @default(now())
