@@ -65,10 +65,9 @@ router.get('/users', auth, adminOnly, async (req, res, next) => {
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
-        where, skip: (page - 1) * limit, take: parseInt(limit),
+        where, skip: (parseInt(page) - 1) * parseInt(limit), take: parseInt(limit),
         include: { organization: { select: { name: true, plan: true } }, _count: { select: { projects: true } } },
         orderBy: { createdAt: 'desc' },
-        select: { id: true, name: true, email: true, role: true, isActive: true, loginCount: true, lastLoginAt: true, createdAt: true, organization: true, _count: true }
       }),
       prisma.user.count({ where }),
     ]);
