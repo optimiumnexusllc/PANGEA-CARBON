@@ -355,4 +355,24 @@ router.delete('/apikeys/:id', auth, adminOnly, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+
+// POST /api/admin/settings/test-smtp
+router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
+  try {
+    const { sendVerificationEmail } = require('../services/email.service');
+    const admin = await prisma.user.findFirst({
+      where: { role: { in: ['SUPER_ADMIN', 'ADMIN'] }, id: req.user.userId },
+      select: { email: true, name: true }
+    });
+    await sendVerificationEmail({
+      to: admin.email,
+      name: admin.name,
+      verifyUrl: 'https://pangea-carbon.com/dashboard/admin/settings',
+    });
+    res.json({ success: true, message: `Email de test envoyé à ${admin.email}` });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
