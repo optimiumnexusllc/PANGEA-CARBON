@@ -98,8 +98,8 @@ EOF
 chmod 600 .env
 ok ".env généré et sécurisé"
 
-# --- nginx.conf : remplacer ${DOMAIN} ---
-sed -i "s/\${DOMAIN}/$DOMAIN/g" nginx/nginx.conf
+
+
 
 # --- SSL - Certbot pré-déploiement ---
 log "Configuration SSL Let's Encrypt..."
