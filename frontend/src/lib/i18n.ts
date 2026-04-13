@@ -1,4 +1,4 @@
-export type Lang = 'fr' | 'en';
+// type Lang = 'fr' | 'en';
 
 export const translations = {
   fr: {
@@ -171,10 +171,8 @@ export const translations = {
     footer_account: 'Account',
     footer_contact: 'Contact',
   }
-} as const;
+};
 
-export type TranslationKey = keyof typeof translations.fr;
-
-export function t(lang: Lang, key: TranslationKey): string {
+export function t(lang, key) {
   return translations[lang][key] || translations.fr[key] || key;
 }

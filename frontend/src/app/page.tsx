@@ -80,7 +80,7 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
 export default function LandingPage() {
   const router = useRouter();
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);

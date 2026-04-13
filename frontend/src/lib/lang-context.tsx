@@ -1,30 +1,26 @@
 'use client';
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { Lang } from './i18n';
-import { t as translate, TranslationKey } from './i18n';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { translations } from './i18n';
 
-interface LangCtx {
-  lang: Lang;
-  setLang: (l: Lang) => void;
-  t: (key: TranslationKey) => string;
-}
+const LangContext = createContext({ lang: 'fr', setLang: (l) => {}, t: (key) => key });
 
-const LangContext = createContext<LangCtx>({ lang: 'fr', setLang: () => {}, t: (k) => k });
-
-export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('fr');
+export function LangProvider({ children }) {
+  const [lang, setLangState] = useState('fr');
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('pgc_lang') as Lang : null;
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('pgc_lang');
     if (stored === 'en' || stored === 'fr') setLangState(stored);
   }, []);
 
-  const setLang = (l: Lang) => {
+  function setLang(l) {
     setLangState(l);
     if (typeof window !== 'undefined') localStorage.setItem('pgc_lang', l);
-  };
+  }
 
-  const t = (key: TranslationKey) => translate(lang, key);
+  function t(key) {
+    return (translations[lang] && translations[lang][key]) || (translations.fr && translations.fr[key]) || key;
+  }
 
   return <LangContext.Provider value={{ lang, setLang, t }}>{children}</LangContext.Provider>;
 }
