@@ -445,3 +445,14 @@ model BaselineAssessment {
 
   @@index([projectId])
 }
+
+// ─── 2FA TOTP ─────────────────────────────────────────────────────────────
+model TwoFactorAuth {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  secret      String   // Chiffré AES-256
+  enabled     Boolean  @default(false)
+  backupCodes String[] // Codes de secours hashés
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

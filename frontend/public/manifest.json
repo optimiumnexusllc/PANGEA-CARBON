@@ -1,0 +1,24 @@
+{
+  "name": "PANGEA CARBON — Carbon Credit MRV",
+  "short_name": "PANGEA",
+  "description": "Carbon Credit Intelligence Platform for Africa",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#080B0F",
+  "theme_color": "#00FF94",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshot-dashboard.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide" }
+  ],
+  "shortcuts": [
+    { "name": "Nouveau projet", "url": "/dashboard/projects/new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Marketplace", "url": "/dashboard/marketplace", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Import données", "url": "/dashboard/upload", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

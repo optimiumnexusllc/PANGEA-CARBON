@@ -23,8 +23,15 @@ export default function AccountPage() {
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [editName, setEditName] = useState('');
   const [pwData, setPwData] = useState({ current: '', newPw: '', confirm: '' });
+  const [twofa, setTwofa] = useState<any>(null);
+  const [twofaStep, setTwofaStep] = useState<'idle'|'setup'|'verify'|'backup'>('idle');
+  const [twofaCode, setTwofaCode] = useState('');
+  const [twofaQR, setTwofaQR] = useState('');
+  const [twofaSecret, setTwofaSecret] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
 
   useEffect(() => {
+    fetchAuthJson('/2fa/status').then(setTwofa).catch(() => {});
     Promise.all([
       fetchAuthJson('/auth/me'),
       fetchAuthJson('/notifications/preferences'),
@@ -62,6 +69,35 @@ export default function AccountPage() {
       showMsg('✓ Mot de passe modifié');
     } catch (e: any) { showMsg('✗ ' + e.message, false); }
     finally { setSaving(false); }
+  };
+
+  const setup2FA = async () => {
+    const data = await fetchAuthJson('/2fa/setup', { method: 'POST' });
+    setTwofaQR(data.qrCode);
+    setTwofaSecret(data.secret);
+    setTwofaStep('setup');
+  };
+
+  const verify2FA = async () => {
+    try {
+      const data = await fetchAuthJson('/2fa/verify', { method: 'POST', body: JSON.stringify({ code: twofaCode }) });
+      setBackupCodes(data.backupCodes || []);
+      setTwofa({ enabled: true });
+      setTwofaStep('backup');
+      setTwofaCode('');
+      showMsg('✓ 2FA activé avec succès');
+    } catch (e: any) { showMsg('✗ ' + e.message, false); }
+  };
+
+  const disable2FA = async () => {
+    if (!twofaCode) { showMsg('✗ Code requis pour désactiver', false); return; }
+    try {
+      await fetchAuthJson('/2fa/disable', { method: 'DELETE', body: JSON.stringify({ code: twofaCode }) });
+      setTwofa({ enabled: false });
+      setTwofaStep('idle');
+      setTwofaCode('');
+      showMsg('✓ 2FA désactivé');
+    } catch (e: any) { showMsg('✗ ' + e.message, false); }
   };
 
   const savePrefs = async (newPrefs: any) => {
@@ -177,7 +213,8 @@ export default function AccountPage() {
                 </div>
               ))}
 
-              <div style={{ marginTop: 20, padding: 14, background: '#121920', borderRadius: 8, fontSize: 12, color: '#4A6278' }}>
+              </div>
+              <div style={{ padding: 14, background: '#121920', borderRadius: 8, fontSize: 12, color: '#4A6278' }}>
                 💡 Pour les factures et l'historique de paiement, visitez le <a href="/dashboard/settings" style={{ color: '#38BDF8', textDecoration: 'none' }}>portail de facturation Stripe →</a>
               </div>
             </div>
@@ -211,6 +248,98 @@ export default function AccountPage() {
           {/* SÉCURITÉ */}
           {activeTab === 'security' && (
             <div>
+              {/* 2FA Section */}
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6', marginBottom: 14 }}>Authentification à deux facteurs (2FA)</div>
+              <div style={{ background: twofa?.enabled ? 'rgba(0,255,148,0.06)' : '#121920', border: `1px solid ${twofa?.enabled ? 'rgba(0,255,148,0.25)' : '#1E2D3D'}`, borderRadius: 10, padding: 18, marginBottom: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 18 }}>{twofa?.enabled ? '🛡️' : '⚠️'}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: twofa?.enabled ? '#00FF94' : '#FCD34D' }}>
+                        {twofa?.enabled ? '2FA Activé' : '2FA Non activé'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#4A6278' }}>
+                      {twofa?.enabled
+                        ? `Compatible Google Authenticator · ${twofa.backupCodesRemaining} codes de secours restants`
+                        : 'Protégez vos crédits carbone avec une double vérification'}
+                    </div>
+                  </div>
+                  {twofaStep === 'idle' && !twofa?.enabled && (
+                    <button onClick={setup2FA} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '8px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                      Activer 2FA →
+                    </button>
+                  )}
+                </div>
+
+                {/* Étape 1: QR Code */}
+                {twofaStep === 'setup' && twofaQR && (
+                  <div style={{ marginTop: 16, borderTop: '1px solid #1E2D3D', paddingTop: 16 }}>
+                    <div style={{ fontSize: 12, color: '#8FA3B8', marginBottom: 12 }}>
+                      1. Scannez ce QR code avec <strong style={{ color: '#E8EFF6' }}>Google Authenticator</strong> ou <strong style={{ color: '#E8EFF6' }}>Authy</strong>
+                    </div>
+                    <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                      <img src={twofaQR} alt="QR Code 2FA" style={{ width: 160, height: 160, borderRadius: 8, border: '2px solid rgba(0,255,148,0.3)' }}/>
+                      <div style={{ flex: 1, minWidth: 200 }}>
+                        <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 6 }}>Ou saisissez manuellement :</div>
+                        <div style={{ background: '#0D1117', borderRadius: 6, padding: '8px 12px', fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#00FF94', letterSpacing: '0.1em', wordBreak: 'break-all' }}>
+                          {twofaSecret}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#4A6278', marginTop: 10, marginBottom: 6 }}>2. Entrez le code à 6 chiffres :</div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <input value={twofaCode} onChange={e => setTwofaCode(e.target.value.replace(/\D/g,'').slice(0,6))}
+                            placeholder="000000" maxLength={6}
+                            style={{ flex: 1, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px', fontSize: 20, textAlign: 'center', fontFamily: 'JetBrains Mono, monospace', outline: 'none', letterSpacing: '0.3em' }}
+                            onKeyDown={e => e.key === 'Enter' && verify2FA()}/>
+                          <button onClick={verify2FA} disabled={twofaCode.length !== 6}
+                            style={{ background: twofaCode.length === 6 ? '#00FF94' : '#1E2D3D', color: twofaCode.length === 6 ? '#080B0F' : '#4A6278', border: 'none', borderRadius: 7, padding: '10px 16px', fontWeight: 700, cursor: 'pointer' }}>
+                            Vérifier ✓
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 2: Codes de secours */}
+                {twofaStep === 'backup' && backupCodes.length > 0 && (
+                  <div style={{ marginTop: 16, borderTop: '1px solid rgba(0,255,148,0.2)', paddingTop: 16 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#FCD34D', marginBottom: 8 }}>
+                      ⚠️ Sauvegardez ces codes de secours maintenant — ils ne seront plus affichés
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+                      {backupCodes.map((code, i) => (
+                        <div key={i} style={{ background: '#0D1117', borderRadius: 6, padding: '6px 10px', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#E8EFF6', textAlign: 'center', border: '1px solid #1E2D3D' }}>
+                          {code}
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={() => { navigator.clipboard.writeText(backupCodes.join('
+')); showMsg('✓ Codes copiés'); }}
+                      style={{ background: 'transparent', border: '1px solid #FCD34D', borderRadius: 7, color: '#FCD34D', padding: '7px 14px', cursor: 'pointer', fontSize: 12, marginRight: 8 }}>
+                      📋 Copier tous les codes
+                    </button>
+                    <button onClick={() => setTwofaStep('idle')}
+                      style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '7px 14px', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
+                      J'ai sauvegardé → Terminer
+                    </button>
+                  </div>
+                )}
+
+                {/* Désactiver 2FA */}
+                {twofa?.enabled && twofaStep === 'idle' && (
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(30,45,61,0.5)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input value={twofaCode} onChange={e => setTwofaCode(e.target.value.replace(/\D/g,'').slice(0,6))}
+                      placeholder="Code 2FA pour désactiver"
+                      style={{ flex: 1, minWidth: 160, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 12px', fontSize: 13, outline: 'none', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.2em' }}/>
+                    <button onClick={disable2FA} style={{ background: 'rgba(248,113,113,0.15)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 7, color: '#F87171', padding: '8px 14px', cursor: 'pointer', fontSize: 12 }}>
+                      Désactiver 2FA
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ borderTop: '1px solid #1E2D3D', paddingTop: 20, marginBottom: 18 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6', marginBottom: 18 }}>Changer le mot de passe</div>
               <InputRow label="Mot de passe actuel" value={pwData.current} onChange={(e: any) => setPwData(p => ({ ...p, current: e.target.value }))} type="password"/>
               <InputRow label="Nouveau mot de passe" value={pwData.newPw} onChange={(e: any) => setPwData(p => ({ ...p, newPw: e.target.value }))} type="password"/>

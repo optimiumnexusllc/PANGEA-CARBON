@@ -100,6 +100,7 @@ app.use('/api/corsia',   ...featureGuard('multi_standard'), require('./routes/co
 app.use('/api/registry', ...featureGuard('multi_standard'), require('./routes/registry'));
 app.use('/api/baseline', ...featureGuard('ai_assistant'),   require('./routes/baseline'));
 app.use('/api/assistant', [auth, checkFeature('ai_assistant')], require('./routes/assistant'));
+app.use('/api/2fa', require('./routes/twofa'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/marketplace', require('./routes/marketplace'));
