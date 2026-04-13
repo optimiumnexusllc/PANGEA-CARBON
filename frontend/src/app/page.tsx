@@ -117,14 +117,6 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  if (!checked) return (
-    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-    </div>
-  );
-
-  const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
-
   const doSend = async () => {
     if (!cName || !cEmail) { setCerr('Nom et email requis'); return; }
     setCsending(true); setCerr('');
@@ -136,9 +128,17 @@ export default function LandingPage() {
       });
       if (r.ok) setCsent(true);
       else setCerr('Erreur envoi');
-    } catch { setCerr('Erreur envoi'); }
+    } catch(err) { setCerr('Erreur envoi'); }
     finally { setCsending(false); }
   };
+
+  if (!checked) return (
+    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
+    </div>
+  );
+
+  const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
 
   return (
     <div className="pangea-landing">
