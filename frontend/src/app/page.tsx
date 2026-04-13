@@ -875,7 +875,7 @@ export default function LandingPage() {
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>{'Annuler'}</button>
                   <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
-                    {cSending ? {'Envoi...'} : {'Envoyer ma demande'}}
+                    {cSending ? 'Envoi...' : 'Envoyer ma demande'}
                   </button>
                 </div>
               </div>
