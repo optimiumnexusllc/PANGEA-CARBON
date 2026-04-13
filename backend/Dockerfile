@@ -3,10 +3,12 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 FROM base AS deps
+RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 RUN npm install --omit=dev
 
 FROM base AS builder
+RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 RUN npm install
 COPY . .
