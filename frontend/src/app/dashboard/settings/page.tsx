@@ -122,7 +122,7 @@ function ContactModal({ onClose, contactEmail }: { onClose: () => void; contactE
   const lbl = { fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4, textTransform: 'uppercase' as const };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+    <div style={{ position: 'relative', background: 'rgba(0,0,0,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20, minHeight: 400, borderRadius: 16 }}>
       <div style={{ background: '#121920', border: '1px solid rgba(252,211,77,0.2)', borderRadius: 16, padding: 32, maxWidth: 540, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
         {!sent ? (
           <>
@@ -217,7 +217,14 @@ export default function SettingsPage() {
   }, []);
 
   async function handlePlan(plan: any) {
-    if (plan.isEnterprise) { setShowContact(true); return; }
+    if (plan.isEnterprise) {
+      setShowContact(true);
+      setTimeout(() => {
+        const el = document.getElementById('contact-form');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+      return;
+    }
     if (plan.disabled) return;
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/checkout`, {
@@ -315,7 +322,11 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {showContact && <ContactModal onClose={() => setShowContact(false)} contactEmail={contactEmail} />}
+      {showContact && (
+        <div id="contact-form" style={{ marginTop: 24, scrollMarginTop: 80 }}>
+          <ContactModal onClose={() => setShowContact(false)} contactEmail={contactEmail} />
+        </div>
+      )}
     </div>
   );
 }
