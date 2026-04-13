@@ -173,6 +173,7 @@ const SETTING_DEFS = [
   { key: 'mapbox_token',             category: 'integrations', encrypted: false, description: 'Mapbox token (carte avancée)' },
   { key: 'platform_name',            category: 'general',      encrypted: false, description: 'Nom de la plateforme' },
   { key: 'support_email',            category: 'general',      encrypted: false, description: 'Email de support' },
+  { key: 'contact_email',            category: 'integrations', encrypted: false, description: 'Email destinataire des demandes Enterprise' },
   { key: 'carbon_price_usd',         category: 'general',      encrypted: false, description: 'Prix carbone par défaut ($/tCO₂e)' },
 ];
 
