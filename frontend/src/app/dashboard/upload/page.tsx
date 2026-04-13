@@ -21,7 +21,7 @@ export default function UploadPage() {
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useState(() => {
+  useEffect(() => {
     api.getProjects().then(d => setProjects(d.projects || [])).catch(console.error);
   });
 

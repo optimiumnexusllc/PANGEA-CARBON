@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 const API = process.env.NEXT_PUBLIC_API_URL;
 const hdrs = () => ({
   'Content-Type': 'application/json',
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}`,
 });
 
 const CATEGORIES = [
