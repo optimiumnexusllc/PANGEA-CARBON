@@ -18,7 +18,6 @@ export default function AdminOrgsPage() {
   const [msg, setMsg] = useState<any>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: '', plan: 'TRIAL', country: '', billingEmail: '', maxProjects: 5, maxMW: 100, maxUsers: 3 });
-  const [saving, setSaving] = useState(false);
 
   const load = () => {
     fetchAuth(`/admin/orgs`)

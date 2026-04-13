@@ -311,7 +311,6 @@ export default function AdminUsersPage() {
       )}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
 
       {deleteUser && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
@@ -329,5 +328,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+    </div>
   );
 }
