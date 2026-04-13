@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { translations } from '@/lib/i18n';
+
 
 /* -
    PANGEA CARBON — Landing Page
@@ -79,13 +79,22 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
 export default function LandingPage() {
   const router = useRouter();
-  const [lang, setLangState] = React.useState('fr');
-  React.useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('pgc_lang') : null;
-    if (stored === 'en' || stored === 'fr') setLangState(stored);
+  const [lang, setLangState] = useState('fr');
+  const TR = {
+    fr: { nav_features: 'Fonctionnalites', nav_how: 'Comment', nav_pricing: 'Tarifs', nav_contact: 'Contact', nav_login: 'Connexion', nav_trial: 'Essai gratuit', hero_cta: 'Commencer gratuitement', hero_demo: 'Voir la demo', hero_sub: '14 jours gratuits · Pas de carte bancaire · Setup en 10 min', pricing_title: 'Commencez gratuitement, scalez sans limites', pricing_cta_start: 'Demarrer maintenant', pricing_cta_contact: 'Nous contacter', pricing_rs: 'Revenue Share', cta_title: 'Pret a monetiser votre carbone africain ?', cta_sub: '14 jours gratuits · Pas de carte bancaire · Premier projet en 10 minutes', cta_btn: 'Creer mon compte gratuit', contact_title: 'Parlons de votre projet', contact_sub: 'Un expert vous rappelle sous 24h.', contact_name: 'NOM *', contact_email: 'EMAIL *', contact_company: 'ENTREPRISE', contact_message: 'VOTRE BESOIN', contact_send: 'Envoyer ma demande', contact_sending: 'Envoi...', contact_sent_title: 'Demande envoyee !', contact_sent_sub: 'Reponse garantie sous 24h.', contact_close: 'Fermer', contact_cancel: 'Annuler', contact_err_required: 'Nom et email requis', contact_err_send: 'Erreur envoi' },
+    en: { nav_features: 'Features', nav_how: 'How it works', nav_pricing: 'Pricing', nav_contact: 'Contact', nav_login: 'Login', nav_trial: 'Free trial', hero_cta: 'Get started for free', hero_demo: 'Watch demo', hero_sub: '14-day free trial · No credit card · Setup in 10 min', pricing_title: 'Start free, scale without limits', pricing_cta_start: 'Get started', pricing_cta_contact: 'Contact us', pricing_rs: 'Revenue Share', cta_title: 'Ready to monetize your African carbon?', cta_sub: '14-day free trial · No credit card · First project in 10 minutes', cta_btn: 'Create my free account', contact_title: "Let's talk about your project", contact_sub: 'An expert will call you back within 24h.', contact_name: 'NAME *', contact_email: 'EMAIL *', contact_company: 'COMPANY', contact_message: 'YOUR NEEDS', contact_send: 'Send my request', contact_sending: 'Sending...', contact_sent_title: 'Request sent!', contact_sent_sub: 'Guaranteed response within 24h.', contact_close: 'Close', contact_cancel: 'Cancel', contact_err_required: 'Name and email required', contact_err_send: 'Send error' }
+  };
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('pgc_lang');
+      if (s === 'en' || s === 'fr') setLangState(s);
+    } catch(e) {}
   }, []);
-  const setLang = (l) => { setLangState(l); if (typeof window !== 'undefined') localStorage.setItem('pgc_lang', l); };
-  const t = (key) => (translations[lang] && translations[lang][key]) || (translations.fr && translations.fr[key]) || key;
+  const t = (key) => (TR[lang] && TR[lang][key]) || TR.fr[key] || key;
+  const setLang = (l) => {
+    setLangState(l);
+    try { localStorage.setItem('pgc_lang', l); } catch(e) {}
+  };
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
