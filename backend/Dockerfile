@@ -26,4 +26,4 @@ RUN mkdir -p logs reports && chown -R nodejs:nodejs /app
 USER nodejs
 
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy && node src/index.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node src/index.js"]
