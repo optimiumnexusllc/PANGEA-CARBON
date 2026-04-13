@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { validate, rules } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');

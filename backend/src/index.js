@@ -22,8 +22,20 @@ app.use('/api/billing/webhook', require('express').raw({ type: 'application/json
 
 // Middleware
 app.use(helmet());
+const ALLOWED_ORIGINS = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'https://pangea-carbon.com',
+  'https://www.pangea-carbon.com',
+  ...(process.env.EXTRA_ORIGINS ? process.env.EXTRA_ORIGINS.split(',') : []),
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Autoriser les requêtes sans origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin non autorisée: ${origin}`));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -49,12 +61,18 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/equipment', require('./routes/equipment'));
 app.use('/api/assistant', require('./routes/assistant'));
-app.use('/api/article6', require('./routes/article6'));
-app.use('/api/sdg', require('./routes/sdg'));
-app.use('/api/dmrv', require('./routes/dmrv'));
-app.use('/api/corsia', require('./routes/corsia'));
-app.use('/api/registry', require('./routes/registry'));
-app.use('/api/baseline', require('./routes/baseline'));
+const { checkFeature, checkPlan } = require('./middleware/tenant');
+const auth = require('./middleware/auth');
+
+// Elite modules — feature-gated
+const featureGuard = (flag) => [auth, checkFeature(flag)];
+app.use('/api/article6', ...featureGuard('multi_standard'), require('./routes/article6'));
+app.use('/api/sdg',      ...featureGuard('multi_standard'), require('./routes/sdg'));
+app.use('/api/dmrv',     ...featureGuard('multi_standard'), require('./routes/dmrv'));
+app.use('/api/corsia',   ...featureGuard('multi_standard'), require('./routes/corsia'));
+app.use('/api/registry', ...featureGuard('multi_standard'), require('./routes/registry'));
+app.use('/api/baseline', ...featureGuard('ai_assistant'),   require('./routes/baseline'));
+app.use('/api/assistant',[auth, checkFeature('ai_assistant')], require('./routes/assistant'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/optimization', require('./routes/optimization'));
 app.use('/api/projection', require('./routes/projection'));

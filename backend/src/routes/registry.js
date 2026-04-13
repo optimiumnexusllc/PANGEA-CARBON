@@ -4,6 +4,7 @@
  * Inspiré de: Verra Registry, Gold Standard Registry, Puro.earth
  */
 const router = require('express').Router();
+const { validate, rules } = require('../middleware/validate');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
@@ -27,7 +28,7 @@ function generateSerials(projectId, vintage, quantity, blockNumber) {
 }
 
 // POST /api/registry/issue — Émettre des crédits carbone
-router.post('/issue', auth, async (req, res, next) => {
+router.post('/issue', auth, rules.creditIssuance, validate, async (req, res, next) => {
   try {
     const { projectId, vintage, quantity, standard, buyerEntity } = req.body;
 

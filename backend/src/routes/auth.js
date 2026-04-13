@@ -8,7 +8,7 @@ const { sendVerificationEmail, sendAdminNotification, sendWelcomeEmail } = requi
 const prisma = new PrismaClient();
 
 const generateTokens = (user) => {
-  const payload = { userId: user.id, email: user.email, role: user.role };
+  const payload = { userId: user.id, email: user.email, role: user.role, organizationId: user.organizationId || null };
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
   const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
   return { accessToken, refreshToken };
@@ -201,7 +201,7 @@ router.post('/refresh', async (req, res, next) => {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, role: true, name: true, isActive: true }
+      select: { id: true, email: true, role: true, name: true, isActive: true, organizationId: true }
     });
     if (!user || !user.isActive) return res.status(401).json({ error: 'Compte invalide' });
 
@@ -225,3 +225,82 @@ router.get('/me', require('../middleware/auth'), async (req, res, next) => {
 });
 
 module.exports = router;
+
+// POST /api/auth/forgot-password
+router.post('/forgot-password', [
+  body('email').isEmail().normalizeEmail(),
+], async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    // Toujours répondre 200 (ne pas révéler si l'email existe)
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verifyToken: resetToken, verifyExpires: resetExpires }
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'https://pangea-carbon.com';
+    const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
+
+    const { sendVerificationEmail } = require('../services/email.service');
+    // Réutiliser le template email mais avec un message reset
+    await sendVerificationEmail({
+      to: email,
+      name: user.name,
+      verifyUrl: resetUrl,
+      subject: '🔑 Réinitialisation de votre mot de passe PANGEA CARBON',
+    }).catch(e => console.error('[Email] Reset password:', e.message));
+
+    await prisma.auditLog.create({
+      data: { action: 'PASSWORD_RESET_REQUESTED', entity: 'User', entityId: user.id, ipAddress: req.ip }
+    });
+
+    res.json({ message: 'Si cet email existe, un lien de réinitialisation a été envoyé.' });
+  } catch (e) { next(e); }
+});
+
+// POST /api/auth/reset-password
+router.post('/reset-password', [
+  body('token').notEmpty(),
+  body('password').isLength({ min: 8 }),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const { token, password } = req.body;
+
+    const user = await prisma.user.findFirst({
+      where: { verifyToken: token, verifyExpires: { gt: new Date() } }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Lien invalide ou expiré. Demandez un nouveau lien.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        verifyToken: null,
+        verifyExpires: null,
+        isActive: true,
+        emailVerified: true,
+      }
+    });
+
+    await prisma.auditLog.create({
+      data: { action: 'PASSWORD_RESET_COMPLETED', entity: 'User', entityId: user.id, ipAddress: req.ip }
+    });
+
+    res.json({ success: true, message: 'Mot de passe réinitialisé avec succès.' });
+  } catch (e) { next(e); }
+});

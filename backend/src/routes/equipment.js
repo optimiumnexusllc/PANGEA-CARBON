@@ -4,6 +4,7 @@
  * Auth: X-API-Key header (clé d'API par organisation)
  */
 const router = require('express').Router();
+const { validate, rules } = require('../middleware/validate');
 const { PrismaClient } = require('@prisma/client');
 const crypto = require('crypto');
 const { MRVEngine } = require('../services/mrv.service');
@@ -31,7 +32,7 @@ const apiKeyAuth = async (req, res, next) => {
 };
 
 // POST /api/equipment/reading — Lecture unique d'onduleur
-router.post('/reading', apiKeyAuth, async (req, res, next) => {
+router.post('/reading', apiKeyAuth, rules.equipmentReading, validate, async (req, res, next) => {
   try {
     const {
       project_id, device_id,

@@ -4,6 +4,7 @@
  * Scénarios: conservative / base / optimistic
  */
 const router = require('express').Router();
+const { validate, rules } = require('../middleware/validate');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
@@ -69,7 +70,7 @@ function monteCarloSimulation(baseCredits, basePrice, years, scenario) {
 }
 
 // POST /api/projection/:projectId — Projection avec paramètres custom
-router.post('/:projectId', auth, async (req, res, next) => {
+router.post('/:projectId', auth, rules.projection, validate, async (req, res, next) => {
   try {
     const { years = 10, carbonPrice, additionalMW, scenarioFilter } = req.body;
     const project = await prisma.project.findUnique({

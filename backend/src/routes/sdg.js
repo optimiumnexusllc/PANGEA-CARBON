@@ -4,6 +4,7 @@
  * Calcule le premium de prix basé sur les co-bénéfices
  */
 const router = require('express').Router();
+const { validate, rules } = require('../middleware/validate');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
@@ -60,7 +61,7 @@ function calculateStarRating(totalScore, sdgData, projectType) {
 }
 
 // POST /api/sdg/score — Calculer score SDG d'un projet
-router.post('/score', auth, async (req, res, next) => {
+router.post('/score', auth, rules.sdgScore, validate, async (req, res, next) => {
   try {
     const { projectId, year, sdgInputs, jobsCreated, householdsElectrified } = req.body;
 

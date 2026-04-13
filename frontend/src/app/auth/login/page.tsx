@@ -105,7 +105,10 @@ export default function LoginPage() {
                 className="input-dark" placeholder="nom@organisation.com" required autoComplete="email"/>
             </div>
             <div>
-              <label className="text-xs font-mono mb-1.5 block" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', fontSize: 10 }}>MOT DE PASSE</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', fontSize: 10 }}>MOT DE PASSE</label>
+                <a href="/auth/forgot-password" style={{ fontSize: 11, color: '#4A6278', textDecoration: 'none' }}>Mot de passe oublié ?</a>
+              </div>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                 className="input-dark" placeholder="••••••••" required autoComplete="current-password"/>
             </div>

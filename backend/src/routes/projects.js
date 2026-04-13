@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { validate, rules } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
@@ -9,8 +10,18 @@ const prisma = new PrismaClient();
 router.get('/', auth, async (req, res, next) => {
   try {
     const { status, type, country, page = 1, limit = 20 } = req.query;
+    // Isolation tenant: filtre par organisation ou par user
+    const orgId = req.user.organizationId;
     const where = {};
-    if (req.user.role !== 'ADMIN') where.userId = req.user.userId;
+    if (req.user.role === 'SUPER_ADMIN') {
+      // SUPER_ADMIN voit tout
+    } else if (orgId) {
+      // Users avec org: voient les projets de leur org
+      where.user = { organizationId: orgId };
+    } else {
+      // Users sans org: voient seulement leurs projets
+      where.userId = req.user.userId;
+    }
     if (status) where.status = status;
     if (type) where.type = type;
     if (country) where.countryCode = country;
@@ -92,11 +103,15 @@ router.post('/', auth, [
 });
 
 // PUT /api/projects/:id
-router.put('/:id', auth, async (req, res, next) => {
+router.put('/:id', auth, rules.project.map(r => r.optional()), validate, async (req, res, next) => {
   try {
     const project = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!project) return res.status(404).json({ error: 'Projet introuvable' });
-    if (project.userId !== req.user.userId && req.user.role !== 'ADMIN') {
+    const canAccess = req.user.role === 'SUPER_ADMIN' || 
+      project.userId === req.user.userId ||
+      (req.user.organizationId && project.user?.organizationId === req.user.organizationId) ||
+      req.user.role === 'ADMIN';
+    if (!canAccess) {
       return res.status(403).json({ error: 'Accès refusé' });
     }
 
