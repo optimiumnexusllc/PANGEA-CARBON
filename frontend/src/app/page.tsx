@@ -112,10 +112,10 @@ export default function LandingPage() {
     if (!cName || !cEmail) { setCerr('Nom et email requis'); return; }
     setCsending(true); setCerr('');
     try {
-      const r = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/email-composer/send', {
+      const r = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/email-composer/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: 'contact@pangea-carbon.com', subject: 'Enterprise', body: cName + ' ' + cEmail + ' ' + cCompany + ' ' + cMsg, templateId: 'custom' }),
+        body: JSON.stringify({ name: cName, email: cEmail, company: cCompany, message: cMsg }),
       });
       if (r.ok) setCsent(true);
       else setCerr('Erreur envoi');

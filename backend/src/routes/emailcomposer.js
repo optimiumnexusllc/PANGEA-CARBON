@@ -238,3 +238,51 @@ function getDefaultBody(templateId, vars) {
 }
 
 module.exports = router;
+
+// POST /api/email-composer/contact — ROUTE PUBLIQUE (sans auth)
+// Pour le formulaire de contact Enterprise de la landing page
+router.post('/contact', async (req, res, next) => {
+  try {
+    const { name, email, company, message } = req.body;
+    if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
+
+    const nodemailer = require('nodemailer');
+    const { PrismaClient: PC2 } = require('@prisma/client');
+    const p2 = new PC2();
+    const settings = await p2.systemSetting.findMany({
+      where: { key: { in: ['smtp_host', 'smtp_port', 'smtp_user', 'smtp_password', 'contact_email'] } }
+    });
+    await p2.$disconnect();
+    const map = Object.fromEntries(settings.map(s => [s.key, s.value]));
+
+    const host = map.smtp_host || process.env.SMTP_HOST;
+    const user = map.smtp_user || process.env.SMTP_USER;
+    const pass = map.smtp_password || process.env.SMTP_PASS;
+    const port = parseInt(map.smtp_port || process.env.SMTP_PORT || '465');
+    const dest = map.contact_email || user || 'contact@pangea-carbon.com';
+
+    if (!host || !user || !pass) {
+      return res.status(503).json({ error: 'SMTP non configure' });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host, port, secure: port === 465,
+      auth: { user, pass },
+    });
+
+    await transporter.sendMail({
+      from: `"PANGEA CARBON" <${user}>`,
+      to: dest,
+      replyTo: email,
+      subject: `Demande Enterprise — ${company || name} (${email})`,
+      html: `<h2>Nouvelle demande Enterprise</h2>
+        <p><strong>Nom:</strong> ${name}</p>
+        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+        <p><strong>Entreprise:</strong> ${company || '—'}</p>
+        <p><strong>Message:</strong><br>${(message || '').replace(/\n/g, '<br>')}</p>
+        <hr><p style="color:#888;font-size:12px">Envoyé depuis pangea-carbon.com</p>`,
+    });
+
+    res.json({ success: true });
+  } catch (e) { next(e); }
+});
