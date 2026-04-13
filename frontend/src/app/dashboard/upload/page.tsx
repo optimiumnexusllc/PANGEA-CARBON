@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('accessToken')}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 
 const CSV_TEMPLATE = `period_start,period_end,energy_mwh,peak_power_mw,availability_pct,notes
 2024-01-01,2024-01-31,1250.5,48.2,98.5,Janvier production
