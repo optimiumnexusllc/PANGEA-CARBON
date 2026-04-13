@@ -48,6 +48,23 @@ const CATEGORIES = [
     ],
   },
   {
+    id: 'storage', label: 'Stockage & Ops', icon: '🗄️', color: '#EF9F27',
+    guide: [
+      ['AWS S3',  'console.aws.amazon.com → S3 → Créer bucket → IAM → Access Keys'],
+      ['MinIO',   'Hébergé sur votre VPS: docker run minio/minio server /data'],
+      ['R2',      'dash.cloudflare.com → R2 → Créer bucket → API tokens'],
+      ['Sentry',  'sentry.io → New Project → Node.js → Copier le DSN'],
+    ],
+    settings: [
+      { key: 'sentry_dsn',   label: 'Sentry DSN (monitoring)',  placeholder: 'https://xxx@sentry.io/yyy', encrypted: false },
+      { key: 's3_bucket',    label: 'Bucket S3/MinIO',          placeholder: 'pangea-carbon-files',       encrypted: false },
+      { key: 's3_endpoint',  label: 'Endpoint (MinIO/R2)',       placeholder: 'https://minio.example.com', encrypted: false },
+      { key: 's3_region',    label: 'Région',                   placeholder: 'us-east-1',                 encrypted: false },
+      { key: 's3_access_key',label: 'Access Key ID',            placeholder: 'AKIA...',                   encrypted: true },
+      { key: 's3_secret_key',label: 'Secret Access Key',        placeholder: '••••••••',                  encrypted: true },
+    ],
+  },
+  {
     id: 'general', label: 'Général', icon: '⚙️', color: '#8FA3B8',
     guide: null,
     settings: [

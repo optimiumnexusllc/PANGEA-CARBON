@@ -46,6 +46,20 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 
+// ─── INIT SERVICES (async, non-bloquants) ─────────────────────────────────
+const { initSentry, sentryErrorHandler } = require('./utils/sentry');
+const { startWorkers } = require('./jobs/queue');
+const { initStorage } = require('./storage/s3');
+
+// Init async (n'empêche pas le démarrage si ça échoue)
+Promise.all([
+  initSentry().catch(e => logger.warn('Sentry init failed:', e.message)),
+  initStorage().catch(e => logger.warn('Storage init failed:', e.message)),
+]).then(() => {
+  // Démarrer les workers après init
+  startWorkers();
+}).catch(e => logger.warn('Services init:', e.message));
+
 // Health check
 app.get('/api/health', async (req, res) => {
   try {
@@ -64,6 +78,15 @@ app.use('/api/projects', mrvRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/admin', require('./routes/admin'));
+
+// Queue monitoring (admin only)
+app.get('/api/queue/stats', require('./middleware/auth'), async (req, res) => {
+  if (!['SUPER_ADMIN', 'ADMIN'].includes(req.user?.role)) return res.status(403).json({ error: 'Admin requis' });
+  try {
+    const { getQueueStats } = require('./jobs/queue');
+    res.json(await getQueueStats());
+  } catch (e) { res.json({ error: e.message }); }
+});
 app.use('/api/equipment', require('./routes/equipment'));
 const { checkFeature, checkPlan } = require('./middleware/tenant');
 const auth = require('./middleware/auth');
@@ -89,6 +112,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // Error handler
+app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;

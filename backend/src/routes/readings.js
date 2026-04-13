@@ -73,6 +73,14 @@ router.post('/:id/readings', auth, [
     });
 
     res.status(201).json(reading);
+    // Déclencher le calcul MRV en arrière-plan
+    try {
+      const { jobs } = require('../jobs/queue');
+      await jobs.scheduleMRV(projectId, req.user.userId);
+    } catch (queueErr) {
+      // Ne pas bloquer si la queue échoue
+      console.warn('[Queue] MRV schedule failed:', queueErr.message);
+    }
   } catch (e) { next(e); }
 });
 
