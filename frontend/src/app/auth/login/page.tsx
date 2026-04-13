@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -66,7 +67,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-sm animate-slide-up">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
+          <Link href="/" className="inline-flex items-center gap-2 mb-3" style={{ textDecoration: 'none', cursor: 'pointer' }}>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: 'rgba(0,255,148,0.15)', border: '1px solid rgba(0,255,148,0.3)' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -74,7 +75,7 @@ export default function LoginPage() {
               </svg>
             </div>
             <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#E8EFF6' }}>PANGEA CARBON</span>
-          </div>
+          </Link>
           <p className="text-sm" style={{ color: '#4A6278' }}>Carbon Credit Intelligence · Africa</p>
         </div>
 

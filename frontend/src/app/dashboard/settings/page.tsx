@@ -92,118 +92,14 @@ const PLANS = [
   },
 ];
 
-function ContactModal({ onClose, contactEmail }: { onClose: () => void; contactEmail: string }) {
-  const [form, setForm] = useState({ name: '', email: '', company: '', employees: '', message: '' });
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [err, setErr] = useState('');
-
-  async function send() {
-    if (!form.name || !form.email || !form.message) { setErr('Nom, email et message requis'); return; }
-    setSending(true);
-    setErr('');
-    try {
-      await fetchAuthJson('/email-composer/send', {
-        method: 'POST',
-        body: JSON.stringify({
-          to: contactEmail || 'contact@pangea-carbon.com',
-          subject: 'Demande Enterprise — ' + form.company + ' (' + form.name + ')',
-          body: 'Nom: ' + form.name + '\nEmail: ' + form.email + '\nEntreprise: ' + form.company + '\nEmployes: ' + form.employees + '\n\nMessage:\n' + form.message,
-          templateId: 'custom',
-        }),
-      });
-      setSent(true);
-    } catch (e: any) {
-      setErr(e.message || 'Erreur envoi');
-    } finally { setSending(false); }
-  }
-
-  const inp = { width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none', marginBottom: 12 };
-  const lbl = { fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4, textTransform: 'uppercase' as const };
-
-  return (
-    <div style={{ position: 'relative', background: 'rgba(0,0,0,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20, minHeight: 400, borderRadius: 16 }}>
-      <div style={{ background: '#121920', border: '1px solid rgba(252,211,77,0.2)', borderRadius: 16, padding: 32, maxWidth: 540, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-        {!sent ? (
-          <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-              <div>
-                <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6, letterSpacing: '0.1em' }}>PLAN ENTERPRISE · PANGEA CARBON</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Contactez notre equipe</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginTop: 6 }}>Un expert vous rappelle sous 24h pour construire votre offre sur mesure.</p>
-              </div>
-              <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 20, lineHeight: 1, paddingLeft: 12 }}>x</button>
-            </div>
-
-            <div style={{ background: 'rgba(252,211,77,0.06)', border: '1px solid rgba(252,211,77,0.15)', borderRadius: 10, padding: 16, marginBottom: 20 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
-                {['White-label complet', 'SSO SAML / LDAP', 'SLA 99.9% garanti', 'CSM dedie', 'API custom', 'Utilisateurs illimites'].map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#FCD34D' }}>
-                    <span style={{ fontSize: 14 }}>✓</span> {f}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <label style={lbl}>Prenom et Nom *</label>
-                <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Dayiri Esdras" style={inp} />
-              </div>
-              <div>
-                <label style={lbl}>Email professionnel *</label>
-                <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="vous@company.com" style={inp} />
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <label style={lbl}>Entreprise</label>
-                <input value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} placeholder="SIEPA, CIE, CIPREL..." style={inp} />
-              </div>
-              <div>
-                <label style={lbl}>Nb projets carbone</label>
-                <select value={form.employees} onChange={e => setForm(p => ({ ...p, employees: e.target.value }))} style={{ ...inp, cursor: 'pointer' }}>
-                  <option value="">Selectionner</option>
-                  <option value="1-5">1 a 5 projets</option>
-                  <option value="5-20">5 a 20 projets</option>
-                  <option value="20+">Plus de 20 projets</option>
-                  <option value="portfolio">Portfolio multi-pays</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label style={lbl}>Votre besoin *</label>
-              <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
-                placeholder="Decrivez votre projet, vos besoins specifiques, vos contraintes..."
-                rows={4}
-                style={{ ...inp, resize: 'vertical', marginBottom: 16, lineHeight: 1.6 }} />
-            </div>
-
-            {err && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 12 }}>{err}</div>}
-
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={onClose} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 12, cursor: 'pointer', fontSize: 13 }}>Annuler</button>
-              <button onClick={send} disabled={sending} style={{ flex: 2, background: sending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 12, fontWeight: 800, fontSize: 14, cursor: sending ? 'wait' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
-                {sending ? 'Envoi...' : 'Envoyer ma demande'}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 10 }}>Demande envoyee !</h2>
-            <p style={{ fontSize: 14, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 24 }}>Notre equipe vous contactera sous 24h pour construire votre offre Enterprise personnalisee.</p>
-            <button onClick={onClose} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>Fermer</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [showContact, setShowContact] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
+  const [contactSending, setContactSending] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [contactErr, setContactErr] = useState('');
   const [contactEmail, setContactEmail] = useState('contact@pangea-carbon.com');
 
   useEffect(() => {
@@ -216,15 +112,26 @@ export default function SettingsPage() {
     }).catch(() => {});
   }, []);
 
+  async function sendContact() {
+    if (!contactForm.name || !contactForm.email || !contactForm.message) { setContactErr('Nom, email et message requis'); return; }
+    setContactSending(true); setContactErr('');
+    try {
+      await fetchAuthJson('/email-composer/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          to: contactEmail || 'contact@pangea-carbon.com',
+          subject: 'Demande Enterprise — ' + (contactForm.company || contactForm.name),
+          body: 'Nom: ' + contactForm.name + '\nEmail: ' + contactForm.email + '\nEntreprise: ' + contactForm.company + '\n\nMessage:\n' + contactForm.message,
+          templateId: 'custom',
+        }),
+      });
+      setContactSent(true);
+    } catch (e: any) { setContactErr(e.message || 'Erreur envoi'); }
+    finally { setContactSending(false); }
+  }
+
   async function handlePlan(plan: any) {
-    if (plan.isEnterprise) {
-      setShowContact(true);
-      setTimeout(() => {
-        const el = document.getElementById('contact-form');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-      return;
-    }
+    if (plan.isEnterprise) { setShowContact(true); return; }
     if (plan.disabled) return;
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/checkout`, {
@@ -309,6 +216,37 @@ export default function SettingsPage() {
               }}>
               {plan.cta} {plan.isEnterprise ? '→' : ''}
             </button>
+
+            {plan.isEnterprise && showContact && (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(252,211,77,0.2)', paddingTop: 20 }}>
+                <div style={{ fontSize: 11, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12, letterSpacing: '0.08em' }}>FORMULAIRE DE CONTACT</div>
+                {!contactSent ? (
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                      <input value={contactForm.name} onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))} placeholder="Votre nom *"
+                        style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 12, outline: 'none', width: '100%' }} />
+                      <input value={contactForm.email} onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))} placeholder="Email pro *"
+                        style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 12, outline: 'none', width: '100%' }} />
+                    </div>
+                    <input value={contactForm.company} onChange={e => setContactForm(p => ({ ...p, company: e.target.value }))} placeholder="Entreprise"
+                      style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 12, outline: 'none', width: '100%', marginBottom: 8 }} />
+                    <textarea value={contactForm.message} onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))} placeholder="Votre besoin (projets, MW, pays...)" rows={3}
+                      style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 12, outline: 'none', width: '100%', resize: 'none', marginBottom: 10 }} />
+                    {contactErr && <div style={{ color: '#F87171', fontSize: 11, marginBottom: 8 }}>{contactErr}</div>}
+                    <button onClick={sendContact} disabled={contactSending}
+                      style={{ width: '100%', background: contactSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 800, fontSize: 13, cursor: contactSending ? 'wait' : 'pointer' }}>
+                      {contactSending ? 'Envoi...' : 'Envoyer ma demande'}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>✓</div>
+                    <div style={{ fontSize: 13, color: '#00FF94', fontWeight: 600, marginBottom: 4 }}>Demande envoyee !</div>
+                    <div style={{ fontSize: 11, color: '#4A6278' }}>Notre equipe vous contacte sous 24h.</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -322,11 +260,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {showContact && (
-        <div id="contact-form" style={{ marginTop: 24, scrollMarginTop: 80 }}>
-          <ContactModal onClose={() => setShowContact(false)} contactEmail={contactEmail} />
-        </div>
-      )}
+
     </div>
   );
 }
