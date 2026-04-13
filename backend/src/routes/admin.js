@@ -230,7 +230,9 @@ router.put('/settings/:key', auth, adminOnly, async (req, res, next) => {
 
     await prisma.auditLog.create({ data: { userId: req.user.userId, action: 'UPDATE_SETTING', entity: 'SystemSetting', entityId: key, after: { key, encrypted: def.encrypted }, ipAddress: req.ip } });
 
-    res.json({ success: true, key, masked: def.encrypted ? maskSecret(value) : value });
+    const displayMasked = def.encrypted ? maskSecret(value) : value;
+    console.log(`[Settings] ✓ ${key} sauvegardé (encrypted: ${def.encrypted})`);
+    res.json({ success: true, key, masked: displayMasked });
   } catch (e) { next(e); }
 });
 
