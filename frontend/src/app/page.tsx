@@ -1,8 +1,7 @@
 'use client';
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLang } from '@/lib/lang-context';
-import LangToggle from '@/components/LangToggle';
+import { translations } from '@/lib/i18n';
 
 /* -
    PANGEA CARBON — Landing Page
@@ -80,7 +79,13 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
 export default function LandingPage() {
   const router = useRouter();
-  const { t } = useLang();
+  const [lang, setLangState] = React.useState('fr');
+  React.useEffect(() => {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('pgc_lang') : null;
+    if (stored === 'en' || stored === 'fr') setLangState(stored);
+  }, []);
+  const setLang = (l) => { setLangState(l); if (typeof window !== 'undefined') localStorage.setItem('pgc_lang', l); };
+  const t = (key) => (translations[lang] && translations[lang][key]) || (translations.fr && translations.fr[key]) || key;
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
@@ -148,7 +153,14 @@ export default function LandingPage() {
 
           <div className="pgc-nav__actions">
             <a href="/auth/login" className="pgc-btn pgc-btn--ghost">{t('nav_login')}</a>
-            <LangToggle style={{ marginRight: 6 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: 'rgba(30,45,61,0.6)', borderRadius: 6, padding: '3px 4px', border: '1px solid #1E2D3D', marginRight: 6 }}>
+              {['fr', 'en'].map(l => (
+                <button key={l} onClick={() => setLang(l)}
+                  style={{ padding: '3px 8px', borderRadius: 4, border: 'none', cursor: 'pointer', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', fontWeight: lang === l ? 700 : 400, background: lang === l ? '#00FF94' : 'transparent', color: lang === l ? '#080B0F' : '#4A6278' }}>
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
             <a href="/signup" className="pgc-btn pgc-btn--primary">{t('nav_trial')}</a>
           </div>
 
