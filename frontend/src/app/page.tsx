@@ -2,11 +2,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-/* -
+/* ─────────────────────────────────────────────
    PANGEA CARBON — Landing Page
    Elite Palantir God+++ · Fully Responsive
    Mobile / Tablet / Desktop / Ultrawide
-- */
+───────────────────────────────────────────── */
 
 const STATS = [
   { value: 697, suffix: 'K+', label: 'tCO₂e certifiés', sub: 'Verra ACM0002' },
@@ -50,8 +50,6 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
   const ref = useRef<HTMLDivElement>(null);
   const started = useRef(false);
 
-
-
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !started.current) {
@@ -83,12 +81,15 @@ export default function LandingPage() {
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
-  const [showContact, setShowContact] = useState(false);
-  const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
-  const [contactSending, setContactSending] = useState(false);
-  const [contactSent, setContactSent] = useState(false);
-  const [contactErr, setContactErr] = useState('');
   const [scrolled, setScrolled] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+  const [cName, setCName] = useState('');
+  const [cEmail, setCEmail] = useState('');
+  const [cCompany, setCCompany] = useState('');
+  const [cMsg, setCMsg] = useState('');
+  const [cSending, setCsending] = useState(false);
+  const [cSent, setCsent] = useState(false);
+  const [cErr, setCerr] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -107,25 +108,24 @@ export default function LandingPage() {
 
   const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
 
-  const sendContact = async () => {
-    if (!contactForm.name || !contactForm.email || !contactForm.message) {
-      setContactErr('Nom requis'); return;
-    }
-    setContactSending(true); setContactErr('');
+  const doSend = async () => {
+    if (!cName || !cEmail) { setCerr('Nom et email requis'); return; }
+    setCsending(true); setCerr('');
     try {
-      await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/email-composer/send', {
+      const r = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/email-composer/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: 'contact@pangea-carbon.com', subject: 'Enterprise', body: contactForm.name + ' ' + contactForm.email + ' ' + contactForm.company + ' ' + contactForm.message, templateId: 'custom' }),
+        body: JSON.stringify({ to: 'contact@pangea-carbon.com', subject: 'Enterprise', body: cName + ' ' + cEmail + ' ' + cCompany + ' ' + cMsg, templateId: 'custom' }),
       });
-      setContactSent(true);
-    } catch { setContactErr('Erreur'); }
-    finally { setContactSending(false); }
+      if (r.ok) setCsent(true);
+      else setCerr('Erreur envoi');
+    } catch { setCerr('Erreur reseau'); }
+    finally { setCsending(false); }
   };
 
   return (
     <div className="pangea-landing">
-      {/* - NAVBAR - */}
+      {/* ── NAVBAR ─────────────────────────────── */}
       <nav className={`pgc-nav ${scrolled ? 'pgc-nav--scrolled' : ''}`}>
         <div className="pgc-nav__inner">
           <a href="/" className="pgc-logo">
@@ -169,7 +169,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* - HERO - */}
+      {/* ── HERO ───────────────────────────────── */}
       <section className="pgc-hero">
         <div className="pgc-hero__glow"/>
         <div className="pgc-hero__grid-pattern"/>
@@ -208,7 +208,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - STATS - */}
+      {/* ── STATS ──────────────────────────────── */}
       <section className="pgc-stats">
         <div className="pgc-container">
           <div className="pgc-stats__grid">
@@ -223,7 +223,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - FEATURES - */}
+      {/* ── FEATURES ───────────────────────────── */}
       <section id="features" className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -246,7 +246,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - HOW IT WORKS - */}
+      {/* ── HOW IT WORKS ───────────────────────── */}
       <section id="how" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -268,7 +268,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - API SHOWCASE - */}
+      {/* ── API SHOWCASE ───────────────────────── */}
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-api-showcase">
@@ -320,7 +320,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - PRICING - */}
+      {/* ── PRICING ────────────────────────────── */}
       <section id="pricing" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -360,15 +360,12 @@ export default function LandingPage() {
                   ))}
                 </div>
                 {plan.name === 'Enterprise' ? (
-                  <button onClick={() => setShowContact(true)}
-                    className="pgc-btn pgc-btn--full pgc-btn--outline"
-                    style={{ cursor: 'pointer', background: 'transparent' }}>
-                    Nous contacter →
+                  <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--full pgc-btn--outline" style={{ cursor: 'pointer' }}>
+                    Nous contacter
                   </button>
                 ) : (
-                  <a href="/signup"
-                    className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
-                    Démarrer maintenant →
+                  <a href="/signup" className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
+                    Demarrer maintenant
                   </a>
                 )}
               </div>
@@ -386,7 +383,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - TESTIMONIALS - */}
+      {/* ── TESTIMONIALS ───────────────────────── */}
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
@@ -411,7 +408,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - CTA - */}
+      {/* ── CTA ────────────────────────────────── */}
       <section id="contact" className="pgc-cta">
         <div className="pgc-cta__glow"/>
         <div className="pgc-container pgc-cta__content">
@@ -425,7 +422,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* - FOOTER - */}
+      {/* ── FOOTER ─────────────────────────────── */}
       <footer className="pgc-footer">
         <div className="pgc-container">
           <div className="pgc-footer__top">
@@ -463,7 +460,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* - GLOBAL STYLES - */}
+      {/* ── GLOBAL STYLES ──────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -482,7 +479,7 @@ export default function LandingPage() {
           overflow-x: hidden;
         }
 
-        /* - CONTAINER - */
+        /* ── CONTAINER ── */
         .pgc-container {
           width: 100%;
           max-width: 1200px;
@@ -490,7 +487,7 @@ export default function LandingPage() {
           padding: 0 clamp(16px, 5vw, 48px);
         }
 
-        /* - NAV - */
+        /* ── NAV ── */
         .pgc-nav {
           position: sticky; top: 0; z-index: 200;
           border-bottom: 1px solid transparent;
@@ -539,7 +536,7 @@ export default function LandingPage() {
         .pgc-mobile-menu__link { color:#8FA3B8; font-size:15px; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(30,45,61,0.4); }
         .pgc-mobile-menu__actions { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
 
-        /* - BUTTONS - */
+        /* ── BUTTONS ── */
         .pgc-btn {
           display:inline-flex; align-items:center; justify-content:center;
           gap:6px; font-size:13px; font-weight:600; text-decoration:none;
@@ -557,7 +554,7 @@ export default function LandingPage() {
         .pgc-btn--sm { padding:6px 14px; font-size:12px; }
         .pgc-btn--full { width:100%; }
 
-        /* - HERO - */
+        /* ── HERO ── */
         .pgc-hero {
           position:relative; overflow:hidden;
           padding: clamp(72px,10vw,120px) 0 clamp(60px,8vw,100px);
@@ -611,7 +608,7 @@ export default function LandingPage() {
         }
         .pgc-standard-badge__dot { width:5px; height:5px; border-radius:50%; background:var(--badge-color); }
 
-        /* - STATS - */
+        /* ── STATS ── */
         .pgc-stats {
           border-top:1px solid #1E2D3D; border-bottom:1px solid #1E2D3D;
           padding:clamp(24px,4vw,36px) 0; background:#0A0F14;
@@ -621,7 +618,7 @@ export default function LandingPage() {
         .pgc-stat__label { font-size:clamp(12px,1.8vw,14px); color:#E8EFF6; font-weight:500; margin-top:6px; }
         .pgc-stat__sub { font-size:clamp(9px,1.3vw,11px); color:#4A6278; margin-top:2px; font-family:'JetBrains Mono',monospace; }
 
-        /* - SECTIONS - */
+        /* ── SECTIONS ── */
         .pgc-section { padding:clamp(60px,8vw,96px) 0; }
         .pgc-section--dark { background:#0A0F14; border-top:1px solid #1E2D3D; border-bottom:1px solid #1E2D3D; }
         .pgc-section__header { text-align:center; margin-bottom:clamp(36px,5vw,56px); }
@@ -638,7 +635,7 @@ export default function LandingPage() {
         }
         .pgc-section__sub { font-size:clamp(13px,2vw,16px); color:#4A6278; }
 
-        /* - FEATURES - */
+        /* ── FEATURES ── */
         .pgc-features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,18px); }
         .pgc-feature-card {
           background:#0D1117; border:1px solid #1E2D3D; border-radius:14px;
@@ -655,7 +652,7 @@ export default function LandingPage() {
         .pgc-feature-card__title { font-size:clamp(13px,2vw,15px); font-weight:600; color:#E8EFF6; margin-bottom:8px; }
         .pgc-feature-card__desc { font-size:clamp(12px,1.6vw,13px); color:#4A6278; line-height:1.65; }
 
-        /* - FLOW - */
+        /* ── FLOW ── */
         .pgc-flow-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(16px,3vw,24px); position:relative; }
         .pgc-flow-step { text-align:center; position:relative; }
         .pgc-flow-step__num {
@@ -671,7 +668,7 @@ export default function LandingPage() {
         .pgc-flow-step__title { font-size:clamp(13px,1.8vw,15px); font-weight:600; color:#E8EFF6; margin-bottom:8px; }
         .pgc-flow-step__desc { font-size:clamp(11px,1.5vw,13px); color:#4A6278; line-height:1.6; }
 
-        /* - API SHOWCASE - */
+        /* ── API SHOWCASE ── */
         .pgc-api-showcase { display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,5vw,56px); align-items:center; }
         .pgc-api-integrations { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:20px; }
         .pgc-api-integration {
@@ -698,7 +695,7 @@ export default function LandingPage() {
           font-family:'JetBrains Mono',monospace;
         }
 
-        /* - PRICING - */
+        /* ── PRICING ── */
         .pgc-toggle {
           display:inline-flex; background:#0D1117; border:1px solid #1E2D3D;
           border-radius:22px; padding:3px; gap:2px; margin-top:16px;
@@ -740,7 +737,7 @@ export default function LandingPage() {
         .pgc-revenue-share__price { font-size:clamp(13px,2vw,15px); color:#00FF94; }
         .pgc-revenue-share__desc { font-size:clamp(12px,1.8vw,14px); color:#4A6278; }
 
-        /* - TESTIMONIALS - */
+        /* ── TESTIMONIALS ── */
         .pgc-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,18px); }
         .pgc-testi-card { background:#0D1117; border:1px solid #1E2D3D; border-radius:14px; padding:clamp(18px,3vw,24px); }
         .pgc-testi-card__quote { font-size:36px; color:#00FF94; line-height:1; margin-bottom:10px; font-family:'Syne',sans-serif; }
@@ -753,7 +750,7 @@ export default function LandingPage() {
         .pgc-testi-card__name { font-size:13px; font-weight:600; color:#E8EFF6; }
         .pgc-testi-card__role { font-size:11px; color:#4A6278; }
 
-        /* - CTA - */
+        /* ── CTA ── */
         .pgc-cta { position:relative; overflow:hidden; padding:clamp(72px,10vw,120px) 0; text-align:center; }
         .pgc-cta__glow {
           position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -768,7 +765,7 @@ export default function LandingPage() {
         }
         .pgc-cta__desc { font-size:clamp(13px,2vw,16px); color:#4A6278; margin-bottom:32px; }
 
-        /* - FOOTER - */
+        /* ── FOOTER ── */
         .pgc-footer { border-top:1px solid #1E2D3D; padding:clamp(40px,6vw,60px) 0 clamp(20px,4vw,32px); background:#0A0F14; }
         .pgc-footer__top { display:grid; grid-template-columns:1fr 2fr; gap:clamp(28px,5vw,60px); margin-bottom:clamp(28px,4vw,40px); }
         .pgc-footer__tagline { font-size:12px; color:#4A6278; line-height:1.7; margin-top:12px; }
@@ -778,9 +775,9 @@ export default function LandingPage() {
         .pgc-footer__link:hover { color:#8FA3B8; }
         .pgc-footer__bottom { display:flex; justify-content:space-between; align-items:center; border-top:1px solid #1E2D3D; padding-top:clamp(16px,3vw,20px); font-size:11px; color:#2A3F55; flex-wrap:wrap; gap:8px; }
 
-        /* -
+        /* ═══════════════════════════════════════
            RESPONSIVE BREAKPOINTS
-        - */
+        ═══════════════════════════════════════ */
 
         /* TABLET — 768px to 1023px */
         @media (max-width: 1023px) {
@@ -834,84 +831,59 @@ export default function LandingPage() {
           .pgc-container { max-width: 1600px; }
         }
       `}</style>
-
       {showContact && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(8,11,15,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 20 }}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
           onClick={e => { if (e.target === e.currentTarget) setShowContact(false); }}>
-          <div style={{ background: '#0D1117', border: '1px solid rgba(252,211,77,0.25)', borderRadius: 18, padding: 36, maxWidth: 520, width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
-            <button onClick={() => setShowContact(false)}
-              style={{ position: 'absolute', top: 16, right: 20, background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>
-              ×
-            </button>
-            {!contactSent ? (
-              <>
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(0,255,148,0.12)', border: '1px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z" stroke="#00FF94" strokeWidth="1.5"/></svg>
-                    </div>
-                    <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: '#E8EFF6' }}>PANGEA CARBON</span>
+          <div style={{ background: '#0D1117', border: '1px solid rgba(252,211,77,0.25)', borderRadius: 16, padding: 32, maxWidth: 500, width: '100%', position: 'relative' }}>
+            <button onClick={() => setShowContact(false)} style={{ position: 'absolute', top: 14, right: 18, background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 24 }}>x</button>
+            {!cSent ? (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 7, background: 'rgba(0,255,148,0.12)', border: '1px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z" stroke="#00FF94" strokeWidth="1.5"/></svg>
                   </div>
-                  <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE · SUR DEVIS</div>
-                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: '#E8EFF6', margin: 0, marginBottom: 8 }}>Parlons de votre projet</h2>
-                  <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7 }}>Un expert PANGEA CARBON vous rappelle sous 24h pour construire votre offre sur mesure.</p>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: '#E8EFF6' }}>PANGEA CARBON</span>
                 </div>
-                <div style={{ background: 'rgba(252,211,77,0.05)', border: '1px solid rgba(252,211,77,0.15)', borderRadius: 10, padding: 14, marginBottom: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {['White-label', 'SSO SAML', 'SLA 99.9%', 'CSM dédié', 'API custom', 'Utilisateurs illimités'].map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#FCD34D' }}>
-                      <span>✓</span> {f}
-                    </div>
-                  ))}
-                </div>
+                <div style={{ fontSize: 9, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE</div>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>Parlons de votre projet</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>Un expert vous rappelle sous 24h.</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
-                    <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>NOM COMPLET *</label>
-                    <input value={contactForm.name} onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))}
-                      placeholder="Dayiri Esdras"
-                      style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>NOM *</div>
+                    <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Votre nom"
+                      style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>EMAIL PRO *</label>
-                    <input type="email" value={contactForm.email} onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))}
-                      placeholder="vous@company.com"
-                      style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>EMAIL *</div>
+                    <input type="email" value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="vous@company.com"
+                      style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
                 </div>
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>ENTREPRISE / ORGANISATION</label>
-                  <input value={contactForm.company} onChange={e => setContactForm(p => ({ ...p, company: e.target.value }))}
-                    placeholder="SIEPA, CIE, CIPREL, Fonds vert..."
-                    style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ENTREPRISE</div>
+                  <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="SIEPA, CIE, Fonds vert..."
+                    style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                 </div>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5 }}>VOTRE BESOIN *</label>
-                  <textarea value={contactForm.message} onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
-                    placeholder="Décrivez vos projets, pays, volume de crédits visé, contraintes..."
-                    rows={4}
-                    style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none', resize: 'vertical', lineHeight: 1.7 }} />
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>VOTRE BESOIN</div>
+                  <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} placeholder="Projets, pays, volume carbone..." rows={3}
+                    style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none' }} />
                 </div>
-                {contactErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 12 }}>{contactErr}</div>}
+                {cErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{cErr}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)}
-                    style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 9, color: '#4A6278', padding: 12, cursor: 'pointer', fontSize: 13 }}>
-                    Annuler
-                  </button>
-                  <button onClick={sendContact} disabled={contactSending}
-                    style={{ flex: 2, background: contactSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14, cursor: contactSending ? 'wait' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
-                    {contactSending ? 'Envoi en cours...' : 'Envoyer ma demande →'}
+                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>Annuler</button>
+                  <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
+                    {cSending ? 'Envoi...' : 'Envoyer ma demande'}
                   </button>
                 </div>
-                <p style={{ fontSize: 11, color: '#2A3F55', textAlign: 'center', marginTop: 12, fontFamily: 'JetBrains Mono, monospace' }}>
-                  Réponse garantie sous 24h · contact@pangea-carbon.com
-                </p>
-              </>
+              </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,255,148,0.12)', border: '2px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 28 }}>✓</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 10 }}>Demande envoyée !</h2>
-                <p style={{ fontSize: 14, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 24 }}>Notre équipe vous contactera sous 24h pour construire votre offre Enterprise personnalisée.</p>
-                <button onClick={() => { setShowContact(false); setContactSent(false); setContactForm({ name: '', email: '', company: '', message: '' }); }}
-                  style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 9, padding: '10px 28px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>Demande envoyee !</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>Reponse garantie sous 24h.</p>
+                <button onClick={() => { setShowContact(false); setCsent(false); setCName(''); setCEmail(''); setCCompany(''); setCMsg(''); }}
+                  style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 24px', fontWeight: 700, cursor: 'pointer' }}>
                   Fermer
                 </button>
               </div>
@@ -919,5 +891,6 @@ export default function LandingPage() {
           </div>
         </div>
       )}
+    </div>
   );
 }
