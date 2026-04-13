@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -16,7 +17,7 @@ export default function AdminOverviewPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/admin/overview`, { headers: headers() })
+    fetchAuth(`/admin/overview`)
       .then(r => r.json()).then(setData).catch(console.error).finally(() => setLoading(false));
   }, []);
 

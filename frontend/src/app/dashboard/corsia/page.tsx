@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -15,13 +16,13 @@ export default function CORSIAPage() {
 
   useEffect(() => {
     api.getProjects().then(d => { setProjects(d.projects || []); if (d.projects?.[0]) setSelected(d.projects[0].id); });
-    fetch(`${API}/corsia/portfolio`, { headers: h() }).then(r => r.json()).then(setPortfolio).catch(() => {});
+    fetchAuth(`/corsia/portfolio`).then(r => r.json()).then(setPortfolio).catch(() => {});
   }, []);
 
   const check = async () => {
     if (!selected) return;
     setChecking(true);
-    const d = await fetch(`${API}/corsia/check/${selected}`, { headers: h() }).then(r => r.json());
+    const d = await fetchAuth(`/corsia/check/${selected}`).then(r => r.json());
     setResult(d);
     setChecking(false);
   };

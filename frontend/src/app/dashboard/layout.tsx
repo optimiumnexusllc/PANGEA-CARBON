@@ -12,7 +12,8 @@ const MAIN_NAV = [
   { href: '/dashboard/mrv',       label: 'Calculateur MRV',   icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18', feature: 'mrv_calculator' },
   { href: '/dashboard/assistant', label: 'Assistant IA',      icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z', feature: 'ai_assistant' },
   { href: '/dashboard/reports',   label: 'Rapports PDF',      icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8', feature: 'pdf_reports' },
-  { href: '/dashboard/api-keys',  label: 'API & Équipements', icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', feature: null },
+  { href: '/dashboard/marketplace', label: 'Marketplace',       icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z', feature: 'carbon_marketplace' },
+  { href: '/dashboard/api-keys',   label: 'API & Équipements', icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', feature: null },
 ];
 
 const ELITE_MODULES = [

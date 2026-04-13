@@ -74,6 +74,8 @@ app.use('/api/registry', ...featureGuard('multi_standard'), require('./routes/re
 app.use('/api/baseline', ...featureGuard('ai_assistant'),   require('./routes/baseline'));
 app.use('/api/assistant',[auth, checkFeature('ai_assistant')], require('./routes/assistant'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/marketplace', require('./routes/marketplace'));
 app.use('/api/optimization', require('./routes/optimization'));
 app.use('/api/projection', require('./routes/projection'));
 app.use('/api/benchmark', require('./routes/benchmark'));

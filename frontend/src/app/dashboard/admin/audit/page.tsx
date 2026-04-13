@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -16,7 +17,7 @@ export default function AdminAuditPage() {
   const load = () => {
     setLoading(true);
     const q = new URLSearchParams({ ...(search && { action: search }), page: String(page), limit: '50' });
-    fetch(`${API}/admin/audit?${q}`, { headers: h() })
+    fetchAuth(`/admin/audit?${q}`)
       .then(r => r.json()).then(d => { setLogs(d.logs || []); setTotal(d.total || 0); })
       .catch(console.error).finally(() => setLoading(false));
   };

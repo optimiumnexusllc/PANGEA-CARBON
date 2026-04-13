@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -15,26 +16,26 @@ export default function AdminOrgsPage() {
   const [saving, setSaving] = useState(false);
 
   const load = () => {
-    fetch(`${API}/admin/orgs`, { headers: h() })
+    fetchAuth(`/admin/orgs`)
       .then(r => r.json()).then(d => { setOrgs(d.orgs || []); setTotal(d.total || 0); })
       .catch(console.error).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
 
   const updatePlan = async (id: string, plan: string) => {
-    await fetch(`${API}/admin/orgs/${id}`, { method: 'PATCH', headers: h(), body: JSON.stringify({ plan }) });
+    await fetchAuth(`/admin/orgs/${id}`, { method: 'PATCH', body: JSON.stringify({ plan  }) });
     load();
   };
 
   const updateStatus = async (id: string, status: string) => {
-    await fetch(`${API}/admin/orgs/${id}`, { method: 'PATCH', headers: h(), body: JSON.stringify({ status }) });
+    await fetchAuth(`/admin/orgs/${id}`, { method: 'PATCH', body: JSON.stringify({ status  }) });
     load();
   };
 
   const createOrg = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API}/admin/orgs`, { method: 'POST', headers: h(), body: JSON.stringify(form) });
+      const res = await fetchAuth(`/admin/orgs`, { method: 'POST', body: JSON.stringify(form)  });
       if (!res.ok) { const e = await res.json(); alert(e.error); return; }
       setCreating(false);
       setForm({ name: '', plan: 'TRIAL', country: '', billingEmail: '', maxProjects: 5, maxMW: 100, maxUsers: 3 });

@@ -304,3 +304,45 @@ router.post('/reset-password', [
     res.json({ success: true, message: 'Mot de passe réinitialisé avec succès.' });
   } catch (e) { next(e); }
 });
+
+// POST /api/auth/change-password (utilisateur connecté)
+router.post('/change-password', require('../middleware/auth'), [
+  body('currentPassword').notEmpty(),
+  body('newPassword').isLength({ min: 8 }),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const { currentPassword, newPassword } = req.body;
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
+
+    const hashed = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({ where: { id: user.id }, data: { password: hashed } });
+
+    await prisma.auditLog.create({
+      data: { userId: user.id, action: 'PASSWORD_CHANGED', entity: 'User', entityId: user.id, ipAddress: req.ip }
+    });
+
+    res.json({ success: true, message: 'Mot de passe modifié avec succès.' });
+  } catch (e) { next(e); }
+});
+
+// PUT /api/auth/me — Mettre à jour le profil
+router.put('/me', require('../middleware/auth'), [
+  body('name').optional().trim().isLength({ min: 2, max: 100 }),
+], async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    const updated = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { ...(name && { name }) },
+      select: { id: true, email: true, name: true, role: true, organizationId: true, emailVerified: true, lastLoginAt: true }
+    });
+    res.json(updated);
+  } catch (e) { next(e); }
+});

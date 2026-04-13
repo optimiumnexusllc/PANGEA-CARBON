@@ -1,247 +1,252 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { api } from '@/lib/api';
+import { apiExt } from '@/lib/api';
 
-const fmt = (n: number, dec = 0) => n ? n.toLocaleString('fr-FR', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : '—';
-const fmtUSD = (n: number) => n ? '$' + fmt(n, 0) : '—';
+const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { maximumFractionDigits: d }) ?? '0';
+const fmtM = (n: number) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(0)}K` : `$${fmt(n)}`;
 
-const TYPE_COLORS: Record<string, string> = {
-  SOLAR: '#FCD34D', WIND: '#38BDF8', HYDRO: '#00FF94', BIOMASS: '#F87171', HYBRID: '#A78BFA'
-};
-const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-  DRAFT:     { label: 'Brouillon',   cls: 'badge-ghost' },
-  ACTIVE:    { label: 'Actif',       cls: 'badge-sky' },
-  MONITORING:{ label: 'Monitoring',  cls: 'badge-amber' },
-  VERIFIED:  { label: 'Vérifié',     cls: 'badge-acid' },
-  CREDITED:  { label: 'Crédité',     cls: 'badge-acid' },
-};
+const TT = ({ active, payload, label }: any) => active && payload?.length ? (
+  <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
+    <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
+    {payload.map((p: any, i: number) => <div key={i} style={{ color: p.color || '#E8EFF6' }}>{fmt(p.value, 0)}</div>)}
+  </div>
+) : null;
 
-function KPICard({ label, value, sub, accent = false, icon }: any) {
-  return (
-    <div className="stat-card animate-slide-up">
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-xs font-mono uppercase tracking-widest" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-          {label}
-        </span>
-        {icon && <span style={{ color: accent ? '#00FF94' : '#2A3F55' }}>{icon}</span>}
-      </div>
-      <div className={`text-2xl font-semibold mb-1 ${accent ? 'text-acid' : ''}`}
-        style={{ fontFamily: 'Syne, sans-serif', color: accent ? '#00FF94' : '#E8EFF6' }}>
-        {value}
-      </div>
-      {sub && <div className="text-xs" style={{ color: '#4A6278' }}>{sub}</div>}
-    </div>
-  );
-}
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="card" style={{ padding: '10px 14px', border: '1px solid #2A3F55' }}>
-      <div className="text-xs mb-1" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{label}</div>
-      {payload.map((p: any, i: number) => (
-        <div key={i} className="text-sm font-semibold" style={{ color: p.color }}>
-          {fmt(p.value, 1)} {p.name}
-        </div>
-      ))}
-    </div>
-  );
+const SEVERITY_STYLE: Record<string, { bg: string; border: string; color: string; icon: string }> = {
+  critical: { bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', color: '#F87171', icon: '🚨' },
+  warning:  { bg: 'rgba(252,211,77,0.08)',  border: 'rgba(252,211,77,0.25)',  color: '#FCD34D', icon: '⚠️' },
+  success:  { bg: 'rgba(0,255,148,0.08)',   border: 'rgba(0,255,148,0.25)',   color: '#00FF94', icon: '🎉' },
+  info:     { bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.25)',  color: '#38BDF8', icon: 'ℹ️' },
 };
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    Promise.all([api.stats(), api.leaderboard()])
-      .then(([s, l]) => { setStats(s); setLeaderboard(l); })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const u = localStorage.getItem('user');
+    if (u) setUser(JSON.parse(u));
+
+    Promise.all([
+      api.stats(),
+      api.leaderboard(),
+      apiExt.getAlerts().catch(() => ({ alerts: [] })),
+      apiExt.getPortfolioAnalytics().catch(() => null),
+    ]).then(([s, l, a, an]) => {
+      setStats(s);
+      setLeaderboard(l?.leaderboard || []);
+      setAlerts(a?.alerts?.slice(0, 5) || []);
+      setAnalytics(an);
+    }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <div className="inline-block w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mb-3"
-          style={{ borderColor: 'rgba(0,255,148,0.3)', borderTopColor: 'transparent' }} />
-        <div className="text-xs" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-          CHARGEMENT DES DONNÉES MRV...
-        </div>
-      </div>
-    </div>
-  );
-
-  const ov = stats?.overview || {};
-  const timeline = stats?.timeline || [];
-  const byType = stats?.projectsByType || [];
-  const byStatus = stats?.projectsByStatus || [];
+  const s = stats?.portfolio;
+  const timeData = stats?.monthly || [];
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto">
+    <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-7">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00FF94' }} />
-            <span className="text-xs font-mono" style={{ color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>
-              SYSTÈME ACTIF · ACM0002
-            </span>
-          </div>
-          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>
-            Carbon Intelligence
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: '#4A6278' }}>
-            Vue en temps réel de votre portefeuille MRV · Afrique
-          </p>
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>
+          {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
-        <div className="flex gap-2">
-          <a href="/dashboard/projects" className="btn-primary">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-            Nouveau projet
-          </a>
-        </div>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>
+          Bonjour, {user?.name?.split(' ')[0] || 'Esdras'} 👋
+        </h1>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>
+          Votre portfolio carbone africain · PANGEA CARBON Intelligence Platform
+        </p>
       </div>
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-        <KPICard
-          label="Crédits Carbone Nets"
-          value={fmt(ov.totalCarbonCredits) + ' tCO₂e'}
-          sub="Verra ACM0002 certifiables"
-          accent={true}
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 0v20M2 12h20"/></svg>}
-        />
-        <KPICard
-          label="Revenus Carbone Estimés"
-          value={fmtUSD(ov.totalRevenueUSD)}
-          sub="Prix moyen $12/tCO₂e"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg>}
-        />
-        <KPICard
-          label="Production Totale"
-          value={fmt(ov.totalEnergyMWh) + ' MWh'}
-          sub={fmt(ov.totalInstalledMW, 1) + ' MW installés'}
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>}
-        />
-        <KPICard
-          label="Projets MRV"
-          value={ov.totalProjects?.toString() || '0'}
-          sub={ov.totalReadings + ' lectures enregistrées'}
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>}
-        />
-      </div>
-
-      {/* Charts row */}
-      <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '2fr 1fr' }}>
-        {/* Timeline chart */}
-        <div className="card" style={{ padding: '20px' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <div className="text-xs font-mono mb-0.5" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PRODUCTION ÉNERGÉTIQUE</div>
-              <div className="text-sm font-medium">Timeline 12 mois · MWh</div>
+      {/* KPI Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+        {[
+          { label: 'Crédits carbone totaux', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} projets`, icon: '🌍' },
+          { label: 'Revenus carbone', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e moy.`, icon: '💰' },
+          { label: 'Production totale', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: 'Toutes années', icon: '⚡' },
+          { label: 'Potentiel Article 6', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
+        ].map(k => (
+          <div key={k.label} style={{ background: '#0D1117', border: `1px solid ${k.color}18`, borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 12, right: 14, fontSize: 22, opacity: 0.4 }}>{k.icon}</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>{k.label.toUpperCase()}</div>
+            <div style={{ fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 800, color: k.color, fontFamily: 'Syne, sans-serif', lineHeight: 1.1 }}>
+              {loading ? <div style={{ width: 80, height: 28, background: '#1E2D3D', borderRadius: 4, animation: 'pulse 1.5s infinite' }}/> : k.value}
             </div>
-            <span className="badge badge-acid">LIVE</span>
+            <div style={{ fontSize: 11, color: '#2A3F55', marginTop: 4 }}>{k.sub}</div>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={timeline} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
-              <defs>
-                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#00FF94" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#00FF94" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="period" tick={{ fill: '#4A6278', fontSize: 10 }} tickFormatter={v => new Date(v).toLocaleDateString('fr-FR', { month: 'short' })}/>
-              <YAxis tick={{ fill: '#4A6278', fontSize: 10 }}/>
-              <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="energyMWh" name="MWh" stroke="#00FF94" strokeWidth={2} fill="url(#areaGrad)"/>
-            </AreaChart>
-          </ResponsiveContainer>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* Tendance crédits */}
+        <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>CRÉDITS CARBONE · TENDANCE MENSUELLE</div>
+              <div style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>Production MWh par mois</div>
+            </div>
+            <a href="/dashboard/projection" style={{ fontSize: 12, color: '#A78BFA', textDecoration: 'none', background: 'rgba(167,139,250,0.1)', padding: '4px 10px', borderRadius: 6 }}>
+              📈 Projection 10 ans →
+            </a>
+          </div>
+          {timeData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={timeData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <defs>
+                  <linearGradient id="gradMWh" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00FF94" stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor="#00FF94" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="month" tick={{ fill: '#4A6278', fontSize: 10 }}/>
+                <YAxis tick={{ fill: '#4A6278', fontSize: 10 }}/>
+                <Tooltip content={<TT/>}/>
+                <Area dataKey="energyMWh" stroke="#00FF94" fill="url(#gradMWh)" strokeWidth={2} dot={false}/>
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#4A6278' }}>
+              <div style={{ fontSize: 32 }}>📊</div>
+              <div style={{ fontSize: 13 }}>Données insuffisantes · Importez des lectures</div>
+              <a href="/dashboard/upload" style={{ fontSize: 12, color: '#00FF94', textDecoration: 'none', background: 'rgba(0,255,148,0.08)', padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(0,255,148,0.2)' }}>
+                Importer des données →
+              </a>
+            </div>
+          )}
         </div>
 
-        {/* Type donut */}
-        <div className="card" style={{ padding: '20px' }}>
-          <div className="text-xs font-mono mb-0.5" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PAR TYPE DE PROJET</div>
-          <div className="text-sm font-medium mb-4">Répartition du parc</div>
-          <ResponsiveContainer width="100%" height={140}>
-            <PieChart>
-              <Pie data={byType} dataKey="_count" nameKey="type" cx="50%" cy="50%" innerRadius={40} outerRadius={65}>
-                {byType.map((entry: any, i: number) => (
-                  <Cell key={i} fill={TYPE_COLORS[entry.type] || '#4A6278'}/>
+        {/* Alertes */}
+        <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>ALERTES RÉCENTES</div>
+            {alerts.filter(a => a.severity === 'critical' || a.severity === 'warning').length > 0 && (
+              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#F87171', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {alerts.filter(a => a.severity === 'critical' || a.severity === 'warning').length}
+              </div>
+            )}
+          </div>
+          {alerts.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {alerts.map((alert: any) => {
+                const style = SEVERITY_STYLE[alert.severity] || SEVERITY_STYLE.info;
+                return (
+                  <div key={alert.id} style={{ padding: '10px 12px', background: style.bg, border: `1px solid ${style.border}`, borderRadius: 8, fontSize: 12, color: style.color }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                      <span style={{ flexShrink: 0 }}>{style.icon}</span>
+                      <span style={{ color: '#8FA3B8', lineHeight: 1.5 }}>{alert.message}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: '#2A3F55', marginTop: 4 }}>{new Date(alert.createdAt).toLocaleDateString('fr-FR')}</div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ padding: '20px 0', textAlign: 'center', color: '#4A6278' }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+              <div style={{ fontSize: 12 }}>Aucune alerte · Tous les projets sont dans les normes</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* Leaderboard projets */}
+        <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ padding: '12px 18px', background: '#121920', borderBottom: '1px solid #1E2D3D', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>TOP PROJETS · CRÉDITS CARBONE</div>
+            <a href="/dashboard/benchmark" style={{ fontSize: 11, color: '#FCD34D', textDecoration: 'none' }}>Benchmark →</a>
+          </div>
+          {leaderboard.length > 0 ? (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tbody>
+                {leaderboard.slice(0, 5).map((p: any, i: number) => (
+                  <tr key={p.projectId} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', cursor: 'pointer' }}
+                    onClick={() => window.location.href = `/dashboard/projects/${p.projectId}`}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,61,0.3)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    <td style={{ padding: '10px 14px', width: 36 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? 'rgba(252,211,77,0.2)' : '#121920', color: i === 0 ? '#FCD34D' : '#4A6278', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
+                        {i + 1}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 4px' }}>
+                      <div style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{p.name}</div>
+                      <div style={{ fontSize: 10, color: '#4A6278' }}>{p.countryCode} · {p.type}</div>
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.netCarbonCredits)}</div>
+                      <div style={{ fontSize: 10, color: '#4A6278' }}>tCO₂e</div>
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                      <div style={{ fontSize: 13, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.revenueUSD)}</div>
+                    </td>
+                  </tr>
                 ))}
-              </Pie>
-              <Tooltip formatter={(v: any, n: any) => [v + ' projets', n]}/>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {byType.map((e: any) => (
-              <div key={e.type} className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ background: TYPE_COLORS[e.type] || '#4A6278' }}/>
-                <span className="text-xs" style={{ color: '#8FA3B8' }}>{e.type} ({e._count})</span>
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ padding: '28px', textAlign: 'center', color: '#4A6278', fontSize: 13 }}>
+              Aucun projet avec données MRV
+            </div>
+          )}
+        </div>
+
+        {/* Quick actions + portfolio score */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Portfolio score */}
+          <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 18 }}>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>SCORE PORTFOLIO · PALANTIR INTELLIGENCE</div>
+            {[
+              { label: 'MRV Engine', score: 92, color: '#00FF94' },
+              { label: 'Data Quality', score: analytics?.dataQuality?.completeness || 70, color: '#38BDF8' },
+              { label: 'Optimisation', score: 45, color: '#FCD34D', note: 'Voir recommandations' },
+              { label: 'Multi-standard', score: 30, color: '#A78BFA', note: 'Article 6 potentiel' },
+            ].map(item => (
+              <div key={item.label} style={{ marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 12 }}>
+                  <span style={{ color: '#8FA3B8' }}>{item.label}</span>
+                  <span style={{ color: item.color, fontWeight: 600, fontFamily: 'JetBrains Mono, monospace' }}>{item.score}/100</span>
+                </div>
+                <div style={{ height: 6, background: '#121920', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ width: `${item.score}%`, height: '100%', background: item.color, borderRadius: 3, transition: 'width 1s ease' }}/>
+                </div>
+                {item.note && <div style={{ fontSize: 10, color: '#2A3F55', marginTop: 2 }}>{item.note}</div>}
               </div>
             ))}
           </div>
+
+          {/* Quick actions */}
+          <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 16 }}>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>ACTIONS RAPIDES</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[
+                { href: '/dashboard/projects/new', icon: '➕', label: 'Nouveau projet', color: '#00FF94' },
+                { href: '/dashboard/upload', icon: '📥', label: 'Importer CSV', color: '#38BDF8' },
+                { href: '/dashboard/optimization', icon: '⚙️', label: 'Optimiser MRV', color: '#FCD34D' },
+                { href: '/dashboard/marketplace', icon: '🏪', label: 'Marketplace', color: '#A78BFA' },
+                { href: '/dashboard/assistant', icon: '🤖', label: 'AI Assistant', color: '#EF9F27' },
+                { href: '/dashboard/registry', icon: '⛓️', label: 'Émettre crédits', color: '#00FF94' },
+              ].map(action => (
+                <a key={action.href} href={action.href}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', background: '#121920', borderRadius: 8, border: '1px solid #1E2D3D', textDecoration: 'none', transition: 'all 0.15s', cursor: 'pointer' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = `${action.color}40`)}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = '#1E2D3D')}>
+                  <span style={{ fontSize: 15 }}>{action.icon}</span>
+                  <span style={{ fontSize: 11, color: '#8FA3B8', fontWeight: 500 }}>{action.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Leaderboard */}
-      <div className="card" style={{ padding: '20px' }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="text-xs font-mono mb-0.5" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>TOP PROJETS</div>
-            <div className="text-sm font-medium">Classement par crédits carbone générés</div>
-          </div>
-          <a href="/dashboard/projects" className="btn-ghost" style={{ fontSize: '12px', padding: '5px 12px' }}>
-            Voir tous →
-          </a>
-        </div>
-        {leaderboard.length === 0 ? (
-          <div className="text-center py-8" style={{ color: '#4A6278' }}>
-            <div className="text-3xl mb-2">📊</div>
-            <div className="text-sm">Aucune donnée MRV calculée</div>
-            <div className="text-xs mt-1">Ajoutez des lectures de production pour générer des crédits</div>
-          </div>
-        ) : (
-          <table className="table-dark">
-            <thead>
-              <tr>
-                <th>#</th><th>Projet</th><th>Pays</th><th>Type</th>
-                <th style={{ textAlign: 'right' }}>MW</th>
-                <th style={{ textAlign: 'right' }}>Crédits tCO₂e</th>
-                <th style={{ textAlign: 'right' }}>Revenus USD</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((p: any, i: number) => (
-                <tr key={p.projectId} style={{ cursor: 'pointer' }}
-                  onClick={() => window.location.href = `/dashboard/projects/${p.projectId}`}>
-                  <td><span className="font-mono text-xs" style={{ color: '#4A6278' }}>#{i + 1}</span></td>
-                  <td><span style={{ color: '#E8EFF6', fontWeight: 500 }}>{p.projectName}</span></td>
-                  <td><span className="badge badge-ghost">{p.countryCode}</span></td>
-                  <td>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full" style={{ background: TYPE_COLORS[p.type] || '#4A6278' }}/>
-                      <span className="text-xs">{p.type}</span>
-                    </div>
-                  </td>
-                  <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px' }}>{p.installedMW}</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#00FF94', fontWeight: 600 }}>
-                    {fmt(p.carbonCredits)}
-                  </td>
-                  <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#38BDF8' }}>
-                    {fmtUSD(p.revenueUSD)}
-                  </td>
-                  <td><span className="badge badge-acid">{p.year}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
     </div>
   );
 }

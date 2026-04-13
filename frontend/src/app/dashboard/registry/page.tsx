@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -16,17 +17,17 @@ export default function RegistryPage() {
   const [newBlock, setNewBlock] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${API}/registry/chain`, { headers: h() }).then(r => r.json()).then(setChain).catch(() => {});
+    fetchAuth(`/registry/chain`).then(r => r.json()).then(setChain).catch(() => {});
     api.getProjects().then(d => { setProjects(d.projects || []); if (d.projects?.[0]) setForm(f => ({ ...f, projectId: d.projects[0].id })); });
   }, []);
 
   const issue = async () => {
     setIssuing(true);
     try {
-      const res = await fetch(`${API}/registry/issue`, { method: 'POST', headers: h(), body: JSON.stringify(form) });
+      const res = await fetchAuth(`/registry/issue`, { method: 'POST', body: JSON.stringify(form)  });
       const d = await res.json();
       setNewBlock(d);
-      const c = await fetch(`${API}/registry/chain`, { headers: h() }).then(r => r.json());
+      const c = await fetchAuth(`/registry/chain`).then(r => r.json());
       setChain(c);
     } finally { setIssuing(false); }
   };
@@ -34,8 +35,8 @@ export default function RegistryPage() {
   const retire = async (id: string) => {
     const reason = prompt('Raison de retraite (ex: Compensation bilan carbone 2026)');
     if (!reason) return;
-    await fetch(`${API}/registry/retire/${id}`, { method: 'POST', headers: h(), body: JSON.stringify({ retiredFor: reason }) });
-    const c = await fetch(`${API}/registry/chain`, { headers: h() }).then(r => r.json());
+    await fetchAuth(`/registry/retire/${id}`, { method: 'POST', body: JSON.stringify({ retiredFor: reason  }) });
+    const c = await fetchAuth(`/registry/chain`).then(r => r.json());
     setChain(c);
   };
 

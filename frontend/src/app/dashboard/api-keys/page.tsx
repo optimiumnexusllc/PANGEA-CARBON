@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -13,7 +14,7 @@ export default function ApiKeysPage() {
   const [saving, setSaving] = useState(false);
 
   const load = () => {
-    fetch(`${API}/admin/apikeys`, { headers: h() })
+    fetchAuth(`/admin/apikeys`)
       .then(r => r.json()).then(d => setKeys(Array.isArray(d) ? d : [])).catch(console.error).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
@@ -36,7 +37,7 @@ export default function ApiKeysPage() {
 
   const revoke = async (id: string) => {
     if (!confirm('Révoquer cette clé ? Les intégrations utilisant cette clé cesseront de fonctionner.')) return;
-    await fetch(`${API}/admin/apikeys/${id}`, { method: 'DELETE', headers: h() });
+    await fetchAuth(`/admin/apikeys/${id}`, { method: 'DELETE' });
     load();
   };
 

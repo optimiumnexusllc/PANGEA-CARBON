@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState, useCallback } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -46,7 +47,7 @@ export default function AdminUsersPage() {
         limit: '100',
         page: '1',
       });
-      const res = await fetch(`${API}/admin/users?${q}`, { headers: h() });
+      const res = await fetchAuth(`/admin/users?${q}`);
       if (!res.ok) {
         const e = await res.json().catch(() => ({}));
         throw new Error(e.error || `Erreur ${res.status}`);
@@ -66,7 +67,7 @@ export default function AdminUsersPage() {
 
   const updateUser = async (id: string, data: any) => {
     try {
-      await fetch(`${API}/admin/users/${id}`, { method: 'PATCH', headers: h(), body: JSON.stringify(data) });
+      await fetchAuth(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify(data)  });
       // Mise à jour locale immédiate
       setUsers(prev => prev.map(u => u.id === id ? { ...u, ...data } : u));
     } catch (e: any) {
@@ -83,11 +84,8 @@ export default function AdminUsersPage() {
     setSaveError('');
     setSaveSuccess('');
     try {
-      const res = await fetch(`${API}/admin/users`, {
-        method: 'POST',
-        headers: h(),
-        body: JSON.stringify(newUser),
-      });
+      const res = await fetchAuth(`/admin/users`, { method: 'POST', body: JSON.stringify(newUser),
+       });
       const data = await res.json();
       if (!res.ok) {
         setSaveError(data.error || `Erreur ${res.status}`);

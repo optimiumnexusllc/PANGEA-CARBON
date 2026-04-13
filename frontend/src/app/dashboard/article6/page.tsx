@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -12,8 +13,8 @@ export default function Article6Page() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/article6/projects`, { headers: h() }).then(r => r.json()),
-      fetch(`${API}/article6/buyer-analysis`, { headers: h() }).then(r => r.json()),
+      fetchAuth(`/article6/projects`).then(r => r.json()),
+      fetchAuth(`/article6/buyer-analysis`).then(r => r.json()),
     ]).then(([d, b]) => { setData(d); setBuyers(b); }).catch(console.error).finally(() => setLoading(false));
   }, []);
 

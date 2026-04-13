@@ -1,4 +1,5 @@
 'use client';
+import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
@@ -26,7 +27,7 @@ export default function AdminBillingPage() {
   const [activeView, setActiveView] = useState<'revenue' | 'credits'>('revenue');
 
   useEffect(() => {
-    fetch(`${API}/admin/revenue`, { headers: h() })
+    fetchAuth(`/admin/revenue`)
       .then(r => r.json()).then(setData).catch(console.error).finally(() => setLoading(false));
   }, []);
 
