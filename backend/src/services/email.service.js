@@ -230,4 +230,18 @@ async function sendWelcomeEmail({ to, name, dashboardUrl }) {
   });
 }
 
-module.exports = { sendVerificationEmail, sendAdminNotification, sendWelcomeEmail };
+async function sendEmail({ to, replyTo, subject, html, text }) {
+  const transporter = await getTransporter();
+  if (!transporter) throw new Error('SMTP non configure — verifiez Admin > Secrets');
+  const user = await getSetting('smtp_user') || process.env.SMTP_USER;
+  return transporter.sendMail({
+    from: `"PANGEA CARBON Africa" <${user}>`,
+    to,
+    ...(replyTo && { replyTo }),
+    subject,
+    html,
+    ...(text && { text }),
+  });
+}
+
+module.exports = { sendVerificationEmail, sendAdminNotification, sendWelcomeEmail, sendEmail };
