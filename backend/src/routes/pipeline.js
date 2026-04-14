@@ -135,7 +135,7 @@ async function loadFullPipeline(id) {
     include: {
       steps:     { orderBy: { stepNumber: 'asc' } },
       documents: { orderBy: { uploadedAt: 'desc' } },
-      project:   { select: { name:true, countryCode:true, type:true, installedMW:true, gridEmissionFactor:true } }
+      project:   { select: { name:true, countryCode:true, type:true, installedMW:true, baselineEF:true } }
     }
   });
   if (!pipeline) return null;
@@ -209,8 +209,8 @@ router.post('/', auth, async (req, res, next) => {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        energyReadings: { where:{ periodStart:{ gte:new Date(`${vintage}-01-01`) }, periodEnd:{ lte:new Date(`${vintage}-12-31`) } } },
-        mRVRecords:     { where:{ year:parseInt(vintage) }, take:1 }
+        readings: { where:{ periodStart:{ gte:new Date(`${vintage}-01-01`) }, periodEnd:{ lte:new Date(`${vintage}-12-31`) } } },
+        mrvRecords:     { where:{ year:parseInt(vintage) }, take:1 }
       }
     });
     if (!project) return res.status(404).json({ error: 'Project not found' });
@@ -224,16 +224,16 @@ router.post('/', auth, async (req, res, next) => {
     // Estimer les crédits
     let estimatedCredits = 0;
     let mrvData = null;
-    if (project.energyReadings.length > 0) {
+    if (project.readings.length > 0) {
       try {
-        const mrv = MRVEngine.calculateAnnual(project.energyReadings, project);
+        const mrv = MRVEngine.calculateAnnual(project.readings, project);
         estimatedCredits = mrv.emissions.netCarbonCredits;
-        mrvData = { grossReductions:mrv.emissions.grossReductions, leakage:mrv.emissions.leakageDeduction, netCredits:mrv.emissions.netCarbonCredits, gridEF:mrv.input.gridEmissionFactor, methodology:'ACM0002 v22.0' };
+        mrvData = { grossReductions:mrv.emissions.grossReductions, leakage:mrv.emissions.leakageDeduction, netCredits:mrv.emissions.netCarbonCredits, gridEF:mrv.input.gridEmissionFactor || project.baselineEF, methodology:'ACM0002 v22.0' };
       } catch(_e) {}
     }
     if (!estimatedCredits && project.installedMW) {
       // Estimation: MW * 8760h * 25% CF * EF * 0.92 (leakage+uncertainty)
-      const ef = project.gridEmissionFactor || 0.4;
+      const ef = project.baselineEF || 0.4;
       estimatedCredits = Math.round(project.installedMW * 8760 * 0.25 * ef * 0.92);
     }
 
@@ -252,9 +252,9 @@ router.post('/', auth, async (req, res, next) => {
     await initSteps(pipeline.id);
 
     // Auto-avancer si données MRV présentes
-    const readingCount = project.energyReadings.length;
-    if (readingCount >= 12 || project.mRVRecords.length > 0) {
-      await advanceStep(pipeline.id, 'MRV_DATA', { readingsCount:readingCount, totalMWh: project.energyReadings.reduce((s,r)=>s+r.energyMWh,0), autoCompleted:true }, req.user.userId);
+    const readingCount = project.readings.length;
+    if (readingCount >= 12 || project.mrvRecords.length > 0) {
+      await advanceStep(pipeline.id, 'MRV_DATA', { readingsCount:readingCount, totalMWh: project.readings.reduce((s,r)=>s+r.energyMWh,0), autoCompleted:true }, req.user.userId);
       if (mrvData) {
         await advanceStep(pipeline.id, 'MRV_CALCULATION', { ...mrvData, autoCompleted:true }, req.user.userId);
       }
