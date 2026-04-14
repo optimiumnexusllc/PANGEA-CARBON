@@ -57,7 +57,7 @@ export default function DashboardPage() {
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>
-          Bonjour, {user?.name?.split(' ')[0] || 'Esdras'} 👋
+          Bonjour, {user?.name?.spli' '[0] || 'Esdras'} 👋
         </h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>
           Votre portfolio carbone africain · PANGEA CARBON Intelligence Platform

@@ -141,15 +141,15 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else alert('Configurez Stripe dans Admin → Secrets');
-    } catch { alert('Erreur paiement — contactez contact@pangea-carbon.com'); }
+      else aler'Configurez Stripe dans Admin → Secrets';
+    } catch { aler'Erreur paiement — contactez contact@pangea-carbon.com'; }
   }
 
   return (
     <div style={{ padding: 24, maxWidth: 1300, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>COMPTE & ABONNEMENT</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>'Plans & Pricing'</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Plans &amp; Pricing</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 6 }}>Plateforme MRV carbone enterprise-grade pour l\'Afrique · Verra ACM0002 · Gold Standard · ACMI</p>
       </div>
 

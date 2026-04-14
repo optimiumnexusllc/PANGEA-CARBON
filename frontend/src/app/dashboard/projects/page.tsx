@@ -1,5 +1,4 @@
 'use client';
-import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -21,19 +20,18 @@ const STATUS_FR: Record<string, string> = {
 const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 
 export default function ProjectsPage() {
-  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [view, setView] = useState<'grid' | 'table'>('table');
+  const [view, setView] = useState('table');
   const [editProject, setEditProject] = useState<any>(null);
   const [deleteProject, setDeleteProject] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [actionMsg, setActionMsg] = useState<{text:string;ok:boolean}|null>(null);
+  const [actionMsg, setActionMsg] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -103,7 +101,7 @@ export default function ProjectsPage() {
         </div>
         <a href="/dashboard/projects/new" className="btn-primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          {t('proj_new')}
+          New project
         </a>
       </div>
 
@@ -256,7 +254,7 @@ export default function ProjectsPage() {
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
               <button onClick={deleteProj} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {deleting ? '...' : {t('proj_delete')}}
+                {deleting ? '...' : Delete}
               </button>
             </div>
           </div>
