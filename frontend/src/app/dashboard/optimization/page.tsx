@@ -7,13 +7,13 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
 
-const EFFORT_STYLE: Record<string, { color: string; bg: string; label: string }> = {
+const EFFORT_STYLE = {
   LOW:    { color: '#00FF94', bg: 'rgba(0,255,148,0.1)',    label: 'Facile' },
   MEDIUM: { color: '#FCD34D', bg: 'rgba(252,211,77,0.1)',   label: 'Moyen' },
   HIGH:   { color: '#F87171', bg: 'rgba(248,113,113,0.1)',  label: 'Complexe' },
 };
 
-const CAT_COLOR: Record<string, string> = { Standard: '#38BDF8', Marché: '#A78BFA', Performance: '#00FF94', Méthodologie: '#FCD34D', Données: '#8FA3B8', Vérification: '#F97316' };
+const CAT_COLOR = { Standard: '#38BDF8', Marché: '#A78BFA', Performance: '#00FF94', Méthodologie: '#FCD34D', Données: '#8FA3B8', Vérification: '#F97316' };
 
 export default function OptimizationPage() {
   const { t } = useLang();

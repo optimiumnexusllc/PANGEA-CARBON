@@ -60,7 +60,7 @@ const ENDPOINTS = [
   },
 ];
 
-const METHOD_COLOR: Record<string, string> = { GET: '#00FF94', POST: '#38BDF8', PUT: '#FCD34D', DELETE: '#F87171', PATCH: '#A78BFA' };
+const METHOD_COLOR = { GET: '#00FF94', POST: '#38BDF8', PUT: '#FCD34D', DELETE: '#F87171', PATCH: '#A78BFA' };
 
 export default function DocsPage() {
   const { t, lang } = useLang();

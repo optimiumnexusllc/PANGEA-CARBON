@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
 
-const ACTION_COLOR: Record<string, string> = {
+const ACTION_COLOR = {
   CREATE_USER: '#00FF94', UPDATE_USER: '#38BDF8', DEACTIVATE_USER: '#F87171',
   CREATE_ORG: '#A78BFA', UPDATE_ORG: '#38BDF8', UPDATE_SETTING: '#FCD34D',
   UPDATE_FEATURE: '#F0A500', CREATE_API_KEY: '#00FF94', SUBSCRIPTION_ACTIVATED: '#00FF94',

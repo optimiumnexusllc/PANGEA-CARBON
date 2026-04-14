@@ -6,8 +6,8 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContai
 import { api } from '@/lib/api';
 
 const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
-const STATUS_BADGE: Record<string, string> = { DRAFT: 'badge-ghost', ACTIVE: 'badge-sky', MONITORING: 'badge-amber', VERIFIED: 'badge-acid', CREDITED: 'badge-acid' };
-const STATUS_FR: Record<string, string> = { DRAFT: 'Brouillon', ACTIVE: 'Actif', MONITORING: 'Monitoring', VERIFIED: 'Vérifié', CREDITED: 'Crédité' };
+const STATUS_BADGE = { DRAFT: 'badge-ghost', ACTIVE: 'badge-sky', MONITORING: 'badge-amber', VERIFIED: 'badge-acid', CREDITED: 'badge-acid' };
+const STATUS_FR = { DRAFT: 'Brouillon', ACTIVE: 'Actif', MONITORING: 'Monitoring', VERIFIED: 'Vérifié', CREDITED: 'Crédité' };
 
 const Tooltip_ = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;

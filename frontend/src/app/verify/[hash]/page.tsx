@@ -2,7 +2,7 @@
 import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 
-const TIER_CONFIG: Record<string, { color: string; glow: string; label: string; rank: number }> = {
+const TIER_CONFIG = {
   VERIFIED:     { color: '#38BDF8', glow: 'rgba(56,189,248,0.12)',  label: 'PANGEA VERIFIED',      rank: 1 },
   CERTIFIED:    { color: '#00FF94', glow: 'rgba(0,255,148,0.12)',   label: 'PANGEA CERTIFIED',     rank: 2 },
   ELITE:        { color: '#A78BFA', glow: 'rgba(167,139,250,0.12)', label: 'PANGEA ELITE',         rank: 3 },

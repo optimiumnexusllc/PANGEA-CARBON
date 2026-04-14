@@ -202,7 +202,7 @@ export default function AdminSettingsPage() {
         throw new Error(e.error || `Erreur ${res.status}`);
       }
       const data = await res.json();
-      const map: Record<string, { hasValue: boolean; displayValue: string }> = {};
+      const map = {};
       if (Array.isArray(data.settings)) {
         data.settings.forEach((s: any) => {
           map[s.key] = { hasValue: !!s.hasValue, displayValue: s.value || '' };

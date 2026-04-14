@@ -3,11 +3,11 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
 
-const TYPE_COLORS: Record<string, string> = {
+const TYPE_COLORS = {
   SOLAR: '#FCD34D', WIND: '#38BDF8', HYDRO: '#00FF94',
   BIOMASS: '#F87171', HYBRID: '#A78BFA'
 };
-const TYPE_ICONS: Record<string, string> = {
+const TYPE_ICONS = {
   SOLAR: '☀️', WIND: '💨', HYDRO: '💧', BIOMASS: '🌿', HYBRID: '⚡'
 };
 const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '—';

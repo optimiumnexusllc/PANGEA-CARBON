@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 
-const FEATURE_ICONS: Record<string, string> = {
+const FEATURE_ICONS = {
   pdf_reports: '📄', africa_map: '🗺️', mrv_calculator: '🧮', api_access: '🔌',
   carbon_marketplace: '🏪', ai_assistant: '🤖', bulk_import: '📥', multi_standard: '📜',
   white_label: '🏷️', sso_saml: '🔑',

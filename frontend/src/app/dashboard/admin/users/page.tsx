@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 
 const ROLES = ['SUPER_ADMIN','ADMIN','ANALYST','AUDITOR','CLIENT','VIEWER'];
-const ROLE_COLOR: Record<string, string> = {
+const ROLE_COLOR = {
   SUPER_ADMIN: '#F87171', ADMIN: '#FCD34D', ANALYST: '#00FF94',
   AUDITOR: '#38BDF8', CLIENT: '#A78BFA', VIEWER: '#4A6278'
 };

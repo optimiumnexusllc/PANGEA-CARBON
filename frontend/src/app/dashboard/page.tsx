@@ -14,7 +14,7 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
   </div>
 ) : null;
 
-const SEVERITY_STYLE: Record<string, { bg: string; border: string; color: string; icon: string }> = {
+const SEVERITY_STYLE = {
   critical: { bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', color: '#F87171', icon: '🚨' },
   warning:  { bg: 'rgba(252,211,77,0.08)',  border: 'rgba(252,211,77,0.25)',  color: '#FCD34D', icon: '⚠️' },
   success:  { bg: 'rgba(0,255,148,0.08)',   border: 'rgba(0,255,148,0.25)',   color: '#00FF94', icon: '🎉' },

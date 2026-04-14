@@ -3,17 +3,17 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
-const TYPE_COLORS: Record<string, string> = {
+const TYPE_COLORS = {
   SOLAR: '#FCD34D', WIND: '#38BDF8', HYDRO: '#00FF94', BIOMASS: '#F87171', HYBRID: '#A78BFA'
 };
-const TYPE_ICONS: Record<string, string> = {
+const TYPE_ICONS = {
   SOLAR: '☀️', WIND: '💨', HYDRO: '💧', BIOMASS: '🌿', HYBRID: '⚡'
 };
-const STATUS_BADGE: Record<string, string> = {
+const STATUS_BADGE = {
   DRAFT: 'badge-ghost', ACTIVE: 'badge-sky', MONITORING: 'badge-amber',
   VERIFIED: 'badge-acid', CREDITED: 'badge-acid', ARCHIVED: 'badge-ghost'
 };
-const STATUS_FR: Record<string, string> = {
+const STATUS_FR = {
   DRAFT: 'Draft', ACTIVE: 'Active', MONITORING: 'Monitoring',
   VERIFIED: 'Vérifié', CREDITED: 'Crédité', ARCHIVED: 'Archivé'
 };
@@ -38,7 +38,7 @@ export default function ProjectsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const params: Record<string, string> = {};
+      const params = {};
       if (filterType) params.type = filterType;
       if (filterStatus) params.status = filterStatus;
       const data = await api.getProjects(params);

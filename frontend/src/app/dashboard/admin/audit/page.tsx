@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const ACTION_COLOR: Record<string, string> = { CREATE: '#00FF94', UPDATE: '#38BDF8', DELETE: '#F87171', DEACTIVATE: '#FCD34D', SUBSCRIPTION: '#A78BFA' };
+const ACTION_COLOR = { CREATE: '#00FF94', UPDATE: '#38BDF8', DELETE: '#F87171', DEACTIVATE: '#FCD34D', SUBSCRIPTION: '#A78BFA' };
 const getColor = (action: string) => ACTION_COLOR[Object.keys(ACTION_COLOR).find(k => action.includes(k)) || ''] || '#4A6278';
 
 export default function AdminAuditPage() {

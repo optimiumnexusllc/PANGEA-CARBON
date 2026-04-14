@@ -8,15 +8,15 @@ const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDi
 const fmtUSD = (n: number, d = 2) => '$' + (n ?? 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtK = (n: number) => n >= 1000000 ? `${(n/1000000).toFixed(1)}M` : n >= 1000 ? `${(n/1000).toFixed(0)}K` : String(Math.round(n));
 
-const STD_COLOR: Record<string, string> = {
+const STD_COLOR = {
   VERRA_VCS: '#00FF94', GOLD_STANDARD: '#FCD34D',
   ARTICLE6: '#38BDF8', CORSIA: '#F87171', BIOMASS: '#EF9F27',
 };
-const STD_LABEL: Record<string, string> = {
+const STD_LABEL = {
   VERRA_VCS: 'Verra VCS', GOLD_STANDARD: 'Gold Standard',
   ARTICLE6: 'Article 6 ITMO', CORSIA: 'CORSIA', BIOMASS: 'Biomass',
 };
-const FLAG: Record<string, string> = {
+const FLAG = {
   CI: '🇨🇮', GH: '🇬🇭', NG: '🇳🇬', KE: '🇰🇪', SN: '🇸🇳',
   TZ: '🇹🇿', RW: '🇷🇼', ET: '🇪🇹', ZA: '🇿🇦', BF: '🇧🇫',
 };
