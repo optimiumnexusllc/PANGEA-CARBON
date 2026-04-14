@@ -45,7 +45,7 @@ const CATEGORIES = [
       { key: 'anthropic_api_key',    label: 'Claude AI API Key',   placeholder: 'sk-ant-api03-...', encrypted: true },
       { key: 'contact_email',         label: 'Email contact Enterprise', placeholder: 'contact@pangea-carbon.com', encrypted: false },
       { key: 'mapbox_token',         label: 'Mapbox Token',        placeholder: 'pk.eyJ1...',       encrypted: false },
-      { key: 'carbon_market_api_key',label: 'Carbon Market API',   placeholder: 'API key...',       encrypted: true },
+      { key: 'xpansiv_api_key', label: 'Xpansiv CBL Price Feed', placeholder: 'xpansiv_...', encrypted: true },
     ],
   },
   {
@@ -101,7 +101,7 @@ const CATEGORIES = [
       { key: 'marketplace_stripe_key',   label: 'Stripe Key (Carbon)',       placeholder: 'sk_live_... (peut ≠ SaaS key)', encrypted: true },
       { key: 'marketplace_webhook_secret',label: 'Stripe Webhook Secret',   placeholder: 'whsec_...',                      encrypted: true },
       { key: 'seller_default_gateway',   label: 'Default Seller Gateway',   placeholder: 'FLUTTERWAVE | CINETPAY | WIRE',  encrypted: false },
-      { key: 'carbon_market_api_key',    label: 'Xpansiv CBL API Key',      placeholder: 'API key prix marché...',         encrypted: true },
+      { key: 'xpansiv_api_key',          label: 'Xpansiv CBL API Key',      placeholder: 'xpansiv_...',                   encrypted: true },
     ],
   },
   {
