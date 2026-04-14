@@ -19,7 +19,7 @@ const COUNTRIES = [
   { code: 'UG', name: 'Ouganda', ef: 0.191 },
 ];
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
+const fmt = (n, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function MRVCalculatorPage() {
   const { t, lang } = useLang();

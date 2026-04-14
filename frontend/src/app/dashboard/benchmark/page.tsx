@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
+const fmt = (n, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 
 function PercentileBar({ value, label, unit, benchmark, rating }: any) {
   const pct = Math.min(99, Math.max(0, value));

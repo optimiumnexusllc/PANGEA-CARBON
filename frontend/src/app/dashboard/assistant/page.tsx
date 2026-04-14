@@ -34,7 +34,7 @@ export default function AssistantPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = async (text?: string) => {
+  const send = async (text) => {
     const msg = text || input.trim();
     if (!msg || loading) return;
     setInput('');

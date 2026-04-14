@@ -74,7 +74,7 @@ export default function DocsPage() {
     setTimeout(() => setCopied(''), 2000);
   };
 
-  const curlExample = (method: string, path: string, body: string | null, auth = 'Bearer') => {
+  const curlExample = (method, path: string, body: string | null, auth = 'Bearer') => {
     const authHeader = auth === 'X-API-Key'
       ? `-H "X-API-Key: pgc_YOUR_API_KEY"`
       : `-H "Authorization: Bearer YOUR_ACCESS_TOKEN"`;

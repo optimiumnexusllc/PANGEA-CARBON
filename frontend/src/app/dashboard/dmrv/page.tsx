@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 1) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
+const fmt = (n, d = 1) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function DMRVPage() {
   const { t, lang } = useLang();

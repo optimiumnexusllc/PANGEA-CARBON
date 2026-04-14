@@ -47,7 +47,7 @@ const TESTIMONIALS = [
   { name: 'Fatoumata Koné', role: 'Director · AEOLUS CI', text: 'The first truly African platform. Understands our field realities and our countries.' },
 ];
 
-function AnimatedCounter({ target, suffix }: { target: number; suffix: string }) {
+function AnimatedCounter({ target, suffix }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const started = useRef(false);

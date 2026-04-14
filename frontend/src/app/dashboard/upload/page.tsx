@@ -33,7 +33,7 @@ export default function UploadPage() {
     const headers = lines[0].split(',').map(h => h.trim());
     return lines.slice(1).map(line => {
       const values = line.split(',');
-      return headers.reduce((obj: any, header, i) => {
+      return headers.reduce((obj, header, i) => {
         obj[header] = values[i]?.trim() || '';
         return obj;
       }, {});

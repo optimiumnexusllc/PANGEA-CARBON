@@ -5,13 +5,13 @@
  */
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
-export async function fetchAuth(path: string, options: RequestInit = {}) {
+export async function fetchAuth(path, options: RequestInit = {}) {
   const getToken = () => typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   const token = getToken();
 
   const headers = {
     'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
+    ...(options.headers || {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
@@ -47,7 +47,7 @@ export async function fetchAuth(path: string, options: RequestInit = {}) {
   return res;
 }
 
-export async function fetchAuthJson<T = any>(path: string, options: RequestInit = {}) {
+export async function fetchAuthJson(path, options = {}) {
   const res = await fetchAuth(path, options);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Erreur inconnue' }));

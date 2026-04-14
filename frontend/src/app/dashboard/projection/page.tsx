@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
+const fmt = (n, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
   <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>

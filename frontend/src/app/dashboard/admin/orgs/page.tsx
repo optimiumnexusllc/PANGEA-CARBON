@@ -50,7 +50,7 @@ export default function AdminOrgsPage() {
     } finally { setSaving(false); }
   };
 
-  const flash = (text: string, ok = true) => { setMsg({text, ok}); setTimeout(() => setMsg(null), 4000); };
+  const flash = (text, ok = true) => { setMsg({text, ok}); setTimeout(() => setMsg(null), 4000); };
 
   const saveOrg = async () => {
     setSaving(true);

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '@/lib/api';
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
+const fmt = (n, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 const STATUS_BADGE = { DRAFT: 'badge-ghost', ACTIVE: 'badge-sky', MONITORING: 'badge-amber', VERIFIED: 'badge-acid', CREDITED: 'badge-acid' };
 const STATUS_FR = { DRAFT: 'Draft', ACTIVE: 'Active', MONITORING: 'Monitoring', VERIFIED: 'Verified', CREDITED: 'Credited' };
 

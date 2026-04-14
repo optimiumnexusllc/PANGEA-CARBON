@@ -18,7 +18,7 @@ const STATUS_FR = {
   VERIFIED: 'Verified', CREDITED: 'Credited', ARCHIVED: 'Archived'
 };
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
+const fmt = (n, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 
 export default function ProjectsPage() {
   const { t, lang } = useLang();
@@ -51,7 +51,7 @@ export default function ProjectsPage() {
 
   useEffect(() => { load(); }, [filterType, filterStatus]);
 
-  const flash = (text: string, ok = true) => { setActionMsg({text, ok}); setTimeout(() => setActionMsg(null), 4000); };
+  const flash = (text, ok = true) => { setActionMsg({text, ok}); setTimeout(() => setActionMsg(null), 4000); };
 
   const deleteProj = async () => {
     if (!deleteProject) return;
