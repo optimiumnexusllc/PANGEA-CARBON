@@ -75,7 +75,7 @@ export const api = {
     request(`/projects/${projectId}/readings${year ? `?year=${year}` : ''}`),
   addReading: (projectId, data) =>
     request(`/projects/${projectId}/readings`, { method: 'POST', body: JSON.stringify(data) }),
-  bulkReadings: (projectId, readings[]) =>
+  bulkReadings: (projectId, readings) =>
     request(`/projects/${projectId}/readings/bulk`, { method: 'POST', body: JSON.stringify({ readings }) }),
 
   // MRV
