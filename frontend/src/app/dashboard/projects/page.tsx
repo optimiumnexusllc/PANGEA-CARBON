@@ -14,7 +14,7 @@ const STATUS_BADGE: Record<string, string> = {
   VERIFIED: 'badge-acid', CREDITED: 'badge-acid', ARCHIVED: 'badge-ghost'
 };
 const STATUS_FR: Record<string, string> = {
-  DRAFT: {t('dash_draft')}, ACTIVE: {t('dash_active')}, MONITORING: 'Monitoring',
+  DRAFT: 'Draft', ACTIVE: 'Active', MONITORING: 'Monitoring',
   VERIFIED: 'Vérifié', CREDITED: 'Crédité', ARCHIVED: 'Archivé'
 };
 

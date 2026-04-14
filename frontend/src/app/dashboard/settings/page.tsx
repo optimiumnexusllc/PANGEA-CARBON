@@ -1,5 +1,4 @@
 'use client';
-import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 
@@ -95,7 +94,6 @@ const PLANS = [
 
 
 export default function SettingsPage() {
-  const { t } = useLang();
   const [user, setUser] = useState<any>(null);
   const [showContact, setShowContact] = useState(false);
   const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
@@ -151,7 +149,7 @@ export default function SettingsPage() {
     <div style={{ padding: 24, maxWidth: 1300, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>COMPTE & ABONNEMENT</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>{t('settings_title')}</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>'Plans & Pricing'</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 6 }}>Plateforme MRV carbone enterprise-grade pour l\'Afrique · Verra ACM0002 · Gold Standard · ACMI</p>
       </div>
 
@@ -165,7 +163,7 @@ export default function SettingsPage() {
             <div style={{ fontSize: 12, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{user.email} · {user.role}</div>
           </div>
           <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 3 }}>{t('settings_current').toUpperCase()}</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 3 }}>'CURRENT PLAN'</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#00FF94' }}>{user.plan || 'FREE'}</div>
           </div>
         </div>
@@ -237,7 +235,7 @@ export default function SettingsPage() {
                     {contactErr && <div style={{ color: '#F87171', fontSize: 11, marginBottom: 8 }}>{contactErr}</div>}
                     <button onClick={sendContact} disabled={contactSending}
                       style={{ width: '100%', background: contactSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 800, fontSize: 13, cursor: contactSending ? 'wait' : 'pointer' }}>
-                      {contactSending ? '{t('contact_sending')}' : '{t('contact_send')}'}
+                      {contactSending ? ''Sending...'' : ''Send my request''}
                     </button>
                   </div>
                 ) : (

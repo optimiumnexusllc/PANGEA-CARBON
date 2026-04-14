@@ -1,5 +1,4 @@
 'use client';
-import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { api } from '@/lib/api';
@@ -23,7 +22,6 @@ const SEVERITY_STYLE: Record<string, { bg: string; border: string; color: string
 };
 
 export default function DashboardPage() {
-  const { t } = useLang();
   const [stats, setStats] = useState<any>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -70,7 +68,7 @@ export default function DashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
         {[
           { label: 'Crédits carbone totaux', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} projets`, icon: '🌍' },
-          { label: '{t('dash_total_revenue')}', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e moy.`, icon: '💰' },
+          { label: '''', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e moy.`, icon: '💰' },
           { label: 'Production totale', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: 'Toutes années', icon: '⚡' },
           { label: 'Potentiel Article 6', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
         ].map(k => (
@@ -228,7 +226,7 @@ export default function DashboardPage() {
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>ACTIONS RAPIDES</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
-                { href: '/dashboard/projects/new', icon: '➕', label: '{t('dash_new_project')}', color: '#00FF94' },
+                { href: '/dashboard/projects/new', icon: '➕', label: '''', color: '#00FF94' },
                 { href: '/dashboard/upload', icon: '📥', label: 'Importer CSV', color: '#38BDF8' },
                 { href: '/dashboard/optimization', icon: '⚙️', label: 'Optimiser MRV', color: '#FCD34D' },
                 { href: '/dashboard/marketplace', icon: '🏪', label: 'Marketplace', color: '#A78BFA' },
