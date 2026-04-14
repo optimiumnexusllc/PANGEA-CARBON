@@ -47,6 +47,62 @@ const CATEGORIES = [
     ],
   },
   {
+    id: 'cinetpay',
+    label: 'CinetPay — West Africa',
+    icon: '🌍',
+    color: '#F59E0B',
+    guide: [
+      ['1. Créer un compte', 'cinetpay.com → Inscription → Accès marchand'],
+      ['2. API Keys', 'Dashboard → Mon compte → Mes API → apikey + site_id'],
+      ['3. Webhook', 'Dashboard → Configuration → Notify URL → /api/marketplace/webhook/cinetpay'],
+      ['4. Pays couverts', 'CI · SN · BF · ML · TG · GN · CM · CG · GA · CD'],
+      ['5. Devises', 'XOF (CEDEAO) · XAF (CEMAC) · USD · EUR'],
+    ],
+    settings: [
+      { key: 'cinetpay_api_key',  label: 'CinetPay API Key',  placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx', encrypted: true },
+      { key: 'cinetpay_site_id',  label: 'CinetPay Site ID',  placeholder: '123456789',                encrypted: false },
+      { key: 'cinetpay_secret',   label: 'CinetPay Secret',   placeholder: '••••••••',                 encrypted: true },
+    ],
+  },
+  {
+    id: 'flutterwave',
+    label: 'Flutterwave — Pan-Africa',
+    icon: '🦋',
+    color: '#F5A623',
+    guide: [
+      ['1. Compte Flutterwave', 'dashboard.flutterwave.com → Settings → API'],
+      ['2. Secret Key',         'API → Copy Secret Key (FLWSECK_TEST / FLWSECK)'],
+      ['3. Webhook',            'Settings → Webhooks → /api/marketplace/webhook/flutterwave'],
+      ['4. Mobile Money',       'Paiements: MTN MoMo · Orange Money · Airtel · Vodafone'],
+      ['5. Pays couverts',      'NG · GH · KE · ZA · TZ · UG · RW + 15 pays africains'],
+    ],
+    settings: [
+      { key: 'flutterwave_secret_key',  label: 'Flutterwave Secret Key', placeholder: 'FLWSECK_PROD-...', encrypted: true },
+      { key: 'flutterwave_public_key',  label: 'Flutterwave Public Key', placeholder: 'FLWPUBK_PROD-...', encrypted: false },
+      { key: 'flutterwave_webhook_hash',label: 'Webhook Hash Secret',    placeholder: '••••••••',           encrypted: true },
+    ],
+  },
+  {
+    id: 'carbon_marketplace',
+    label: 'Carbon Marketplace',
+    icon: '🌱',
+    color: '#00FF94',
+    guide: [
+      ['Marge PANGEA',       '3.5% est le standard marché (range: 2.5–5%)'],
+      ['Split automatique',  'PANGEA fee → Stripe compte PANGEA'],
+      ['Payout vendeur',     '96.5% → gateway africaine préférée du vendeur'],
+      ['Stripe webhook',     'dashboard.stripe.com → Webhooks → /api/marketplace/webhook/stripe'],
+      ['Stripe Connect',     'Pour split Stripe natif: Stripe Connect Marketplace (optionnel)'],
+    ],
+    settings: [
+      { key: 'pangea_fee_pct',           label: 'PANGEA Carbon Fee %',      placeholder: '3.5',                            encrypted: false },
+      { key: 'marketplace_stripe_key',   label: 'Stripe Key (Carbon)',       placeholder: 'sk_live_... (peut ≠ SaaS key)', encrypted: true },
+      { key: 'marketplace_webhook_secret',label: 'Stripe Webhook Secret',   placeholder: 'whsec_...',                      encrypted: true },
+      { key: 'seller_default_gateway',   label: 'Default Seller Gateway',   placeholder: 'FLUTTERWAVE | CINETPAY | WIRE',  encrypted: false },
+      { key: 'carbon_market_api_key',    label: 'Xpansiv CBL API Key',      placeholder: 'API key prix marché...',         encrypted: true },
+    ],
+  },
+  {
     id: 'storage', label: 'Stockage & Ops', icon: '🗄️', color: '#EF9F27',
     guide: [
       ['AWS S3',  'console.aws.amazon.com → S3 → Create bucket → IAM → Access Keys'],
