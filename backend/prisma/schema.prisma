@@ -78,6 +78,7 @@ model Organization {
   projects         Project[]
   invoices         Invoice[]
   featureAccess    OrgFeature[]
+  ghgAudits        GHGAudit[]
 }
 
 model User {
@@ -513,3 +514,67 @@ model MarketplaceOrder {
   @@index([listingId])
   @@index([status])
 }
+
+// ─── GHG PROTOCOL AUDIT ENGINE ───────────────────────────────────────────────
+model GHGAudit {
+  id              String   @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  userId          String
+  name            String   // "Audit Annuel 2024 — MTN Ghana"
+  reportingYear   Int
+  framework       String   @default("GHG_PROTOCOL") // GHG_PROTOCOL | ISO_14064 | BILAN_CARBONE
+  status          String   @default("DRAFT")         // DRAFT | IN_PROGRESS | COMPLETED | VERIFIED
+  scope1Total     Float    @default(0)  // tCO2e
+  scope2Total     Float    @default(0)
+  scope3Total     Float    @default(0)
+  grandTotal      Float    @default(0)
+  intensity       Float?   // tCO2e / million USD revenue
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  offsetNeeded    Float    @default(0)  // tCO2e à compenser
+  offsetPurchased Float    @default(0)
+  netZeroTarget   Int?     // année cible net zéro
+  aiAnalysis      String?  // Claude analysis text
+  metadata        Json?
+  entries         GHGEntry[]
+  reports         GHGReport[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@index([organizationId])
+  @@index([reportingYear])
+}
+
+model GHGEntry {
+  id          String   @id @default(cuid())
+  auditId     String
+  audit       GHGAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  scope       Int      // 1, 2 ou 3
+  category    String   // STATIONARY_COMBUSTION, MOBILE_COMBUSTION, ELECTRICITY, BUSINESS_TRAVEL...
+  subcategory String?
+  description String
+  quantity    Float    // Unité de consommation (litres, kWh, km...)
+  unit        String   // LITRE | KWH | KM | TONNE | M3 | etc.
+  emissionFactor Float // tCO2e par unité
+  efSource    String?  // IPCC_2023 | UNFCCC | IEA | NATIONAL | CUSTOM
+  co2e        Float    // quantity * emissionFactor
+  country     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  @@index([auditId])
+  @@index([scope])
+  @@index([category])
+}
+
+model GHGReport {
+  id          String   @id @default(cuid())
+  auditId     String
+  audit       GHGAudit @relation(fields: [auditId], references: [id])
+  type        String   // EXECUTIVE | DETAILED | ISO14064 | BILAN_CARBONE | OFFSET_PLAN
+  filePath    String?
+  fileUrl     String?
+  generatedAt DateTime @default(now())
+  @@index([auditId])
+}
+
+// ─── Ajout relations ──────────────────────────────────────────────────────────
