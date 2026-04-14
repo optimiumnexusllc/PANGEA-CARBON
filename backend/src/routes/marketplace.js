@@ -23,7 +23,22 @@ const prisma = new PrismaClient();
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 const BASE_URL  = process.env.NEXT_PUBLIC_URL || 'https://pangea-carbon.com';
-const PANGEA_FEE_PCT = parseFloat(process.env.PANGEA_CARBON_FEE_PCT || '3.5'); // 3.5% default
+// Lire depuis DB en temps réel (mis à jour sans redémarrage)
+async function getPangeaFee() {
+  // Priorité: DB > PANGEA_FEE_PCT env > PANGEA_CARBON_FEE_PCT env > 3.5
+  try {
+    const setting = await prisma.systemSetting.findUnique({ where: { key: 'pangea_fee_pct' } });
+    if (setting?.value) {
+      const val = parseFloat(setting.encrypted ? setting.value : setting.value);
+      if (!isNaN(val) && val > 0 && val < 50) return val;
+    }
+  } catch(_e) {}
+  return parseFloat(
+    process.env.PANGEA_FEE_PCT ||
+    process.env.PANGEA_CARBON_FEE_PCT ||
+    '3.5'
+  );
+}
 
 // ─── Stripe (abonnements SaaS uniquement) ────────────────────────────────────
 const getStripe = () => {
@@ -126,9 +141,10 @@ const mobileMoney = {
 };
 
 // ─── Split Engine ─────────────────────────────────────────────────────────────
-async function splitPayment({ orderId, total, currency, sellerConfig }) {
-  const pangeaFee    = total * (PANGEA_FEE_PCT / 100);
+async function splitPayment({ orderId, total, currency, sellerConfig, feePct = 3.5 }) {
+  const pangeaFee    = total * (feePct / 100);
   const sellerAmount = total - pangeaFee;
+  result.pangeaFeePct = feePct;
 
   const result = {
     orderId,
@@ -241,7 +257,8 @@ const LIVE_PRICES = {
 };
 
 // ─── GET /prices ──────────────────────────────────────────────────────────────
-router.get('/prices', auth, (req, res) => {
+router.get('/prices', auth, async (req, res) => {
+  const PANGEA_FEE_PCT = await getPangeaFee();
   const seed = Math.floor(Date.now() / 30000);
   const jitter = (std) => (Math.sin(seed * 7 + std.charCodeAt(0)) * 0.05) * LIVE_PRICES[std].last;
   const prices = Object.entries(LIVE_PRICES).map(([standard, p]) => ({
@@ -259,6 +276,7 @@ router.get('/prices', auth, (req, res) => {
 // ─── GET /listings ────────────────────────────────────────────────────────────
 router.get('/listings', auth, async (req, res, next) => {
   try {
+    const PANGEA_FEE_PCT = await getPangeaFee();
     const { standard, maxPrice, country } = req.query;
     const issuances = await prisma.creditIssuance.findMany({
       where: { status: 'ISSUED', ...(standard && { standard }) },
@@ -307,6 +325,7 @@ function generateDemoListings() {
 // ─── POST /bid — Ordre + Paiement + Split ────────────────────────────────────
 router.post('/bid', auth, async (req, res, next) => {
   try {
+    const PANGEA_FEE_PCT = await getPangeaFee();
     const { listingId, quantity, maxPrice, orderType, buyerNote, paymentGateway } = req.body;
     if (!listingId || !quantity || !maxPrice)
       return res.status(400).json({ error: 'listingId, quantity, maxPrice required' });
@@ -605,7 +624,8 @@ router.get('/orders', auth, async (req, res, next) => {
 });
 
 // ─── GET /fee-info ─────────────────────────────────────────────────────────────
-router.get('/fee-info', auth, (req, res) => {
+router.get('/fee-info', auth, async (req, res) => {
+  const PANGEA_FEE_PCT = await getPangeaFee();
   res.json({
     pangeaFeePct: PANGEA_FEE_PCT,
     description: `PANGEA CARBON takes ${PANGEA_FEE_PCT}% on every carbon credit trade`,
@@ -695,9 +715,46 @@ router.post('/webhook/cinetpay', async (req, res) => {
   }
 });
 
+
+// ─── DELETE /orders/:id — Supprimer un ordre ─────────────────────────────────
+router.delete('/orders/:id', auth, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let order;
+    try {
+      order = await prisma.marketplaceOrder.findUnique({ where: { id } });
+    } catch(_e) { order = null; }
+
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.userId !== req.user.userId && req.user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    // Ne pas supprimer les ordres PAID ou SETTLED
+    if (['PAID', 'SETTLED', 'RETIRED'].includes(order.status)) {
+      return res.status(400).json({ error: `Cannot delete order with status ${order.status}` });
+    }
+
+    try {
+      await prisma.marketplaceOrder.delete({ where: { id } });
+    } catch(_e) { /* ignore si table n'existe pas encore */ }
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.userId,
+        action: 'MARKETPLACE_ORDER_DELETED',
+        entity: 'MarketplaceOrder', entityId: id,
+        after: { status: order.status, total: order.total }
+      }
+    }).catch(() => {});
+
+    res.json({ deleted: true, id });
+  } catch (e) { next(e); }
+});
+
 // ─── GET /stats ────────────────────────────────────────────────────────────────
 router.get('/stats', auth, async (req, res, next) => {
   try {
+    const PANGEA_FEE_PCT = await getPangeaFee();
     const [issuances, retired] = await Promise.all([
       prisma.creditIssuance.findMany({ where: { status: 'ISSUED' } }),
       prisma.creditIssuance.findMany({ where: { status: 'RETIRED' } }),

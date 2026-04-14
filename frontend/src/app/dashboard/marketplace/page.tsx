@@ -57,6 +57,11 @@ export default function MarketplacePage() {
       if (s?.pangeaFeePct) setPangeaFee(s.pangeaFeePct);
     }).finally(() => setLoading(false));
 
+    // Charger le fee depuis la DB (mis à jour sans redémarrage)
+    fetchAuthJson('/marketplace/fee-info').then(info => {
+      if (info?.pangeaFeePct) setPangeaFee(info.pangeaFeePct);
+    }).catch(() => {});
+
     try {
       const saved = JSON.parse(localStorage.getItem('pgc_orders') || '[]');
       setOrders(saved);
@@ -85,6 +90,18 @@ export default function MarketplacePage() {
     setOrderResult(null);
   };
   const closeBuy = () => { setSelectedListing(null); setOrderResult(null); };
+
+  const deleteOrder = async (orderId) => {
+    if (!confirm('Delete this order? This cannot be undone.')) return;
+    try {
+      await fetchAuthJson('/marketplace/orders/' + orderId, { method: 'DELETE' });
+      const updated = orders.filter(o => o.orderId !== orderId && o.id !== orderId);
+      setOrders(updated);
+      localStorage.setItem('pgc_orders', JSON.stringify(updated));
+    } catch(e) {
+      alert('Cannot delete: ' + (e.message || 'Order may be already paid'));
+    }
+  };
 
   const price  = selectedListing ? (orderForm.orderType === 'MARKET' ? (selectedListing.askPrice || 12) : parseFloat(orderForm.price) || 0) : 0;
   const qty    = parseFloat(orderForm.qty) || 0;
@@ -119,9 +136,15 @@ export default function MarketplacePage() {
       const updated = [newOrder, ...orders].slice(0, 50);
       setOrders(updated);
       localStorage.setItem('pgc_orders', JSON.stringify(updated));
-      // Auto-redirect si gateway le demande
-      if (result.autoRedirect && result.paymentUrl) {
-        setTimeout(() => { window.open(result.paymentUrl, '_blank'); }, 1500);
+      // Auto-redirect vers la gateway de paiement
+      if (result.paymentUrl && result.paymentMode !== 'manual' && result.paymentMode !== 'invoice') {
+        // Checkout/CinetPay/Flutterwave → redirect dans le même onglet après 2s
+        setTimeout(() => {
+          window.location.href = result.paymentUrl;
+        }, 2000);
+      } else if (result.paymentUrl && result.paymentMode === 'invoice') {
+        // Invoice → ouvrir dans un nouvel onglet (l'utilisateur reste sur la marketplace)
+        window.open(result.paymentUrl, '_blank', 'noopener,noreferrer');
       }
     } catch(e) {
       setOrderResult({ error: e.message || 'Order failed — check your connection' });
@@ -307,11 +330,20 @@ export default function MarketplacePage() {
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#E8EFF6', fontFamily: 'JetBrains Mono, monospace' }}>{fmtUSD(order.total)}</div>
                     <div style={{ fontSize: 10, color: '#4A6278' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
-                    {order.paymentUrl && (
-                      <a href={order.paymentUrl} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#00FF94', textDecoration: 'none' }}>
-                        {L('Pay now →','Payer →')}
-                      </a>
-                    )}
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+                      {order.paymentUrl && (
+                        <a href={order.paymentUrl} target="_blank" rel="noreferrer"
+                          style={{ fontSize: 11, color: '#00FF94', textDecoration: 'none', padding: '4px 10px', border: '1px solid rgba(0,255,148,0.3)', borderRadius: 5 }}>
+                          💳 {L('Pay now','Payer')} →
+                        </a>
+                      )}
+                      {!['PAID','SETTLED','RETIRED'].includes(order.status) && (
+                        <button onClick={() => deleteOrder(order.orderId || order.id)}
+                          style={{ fontSize: 11, color: '#F87171', background: 'transparent', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer' }}>
+                          🗑 {L('Delete','Supprimer')}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -420,7 +452,7 @@ export default function MarketplacePage() {
                       { k: L('Quantity','Quantité'),         v: `${qty.toLocaleString()} tCO₂e` },
                       { k: L('Price/tonne','Prix/tonne'),    v: fmtUSD(price) },
                       { k: L('Subtotal','Sous-total'),       v: fmtUSD(subtotal) },
-                      { k: `PANGEA Fee (${pangeaFee}%)`,     v: fmtUSD(fee), note: '→ PANGEA Stripe' },
+                      { k: `PANGEA Fee (${pangeaFee.toFixed(1)}%)`, v: fmtUSD(fee), note: '→ PANGEA Stripe' },
                       { k: L('TOTAL','TOTAL'),               v: fmtUSD(grand), highlight: true },
                     ].map(r => (
                       <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13 }}>
@@ -466,8 +498,20 @@ export default function MarketplacePage() {
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,255,148,0.12)', border: '2px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28 }}>✓</div>
                 <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{orderResult.orderId}</div>
                 <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>
-                  {L('Order Placed!','Ordre passé !')}
+                  {orderResult.paymentMode === 'checkout' || orderResult.paymentMode === 'cinetpay' || orderResult.paymentMode === 'flutterwave'
+                    ? L('Redirecting to payment...','Redirection vers paiement...')
+                    : L('Order Placed!','Ordre passé !')}
                 </h2>
+                {(orderResult.paymentMode === 'checkout' || orderResult.paymentMode === 'cinetpay' || orderResult.paymentMode === 'flutterwave') && (
+                  <div style={{ fontSize: 12, color: '#4A6278', marginBottom: 12 }}>
+                    {L('You will be redirected in 2 seconds...','Redirection dans 2 secondes...')}
+                    <div style={{ marginTop: 8 }}>
+                      <a href={orderResult.paymentUrl} style={{ color: '#00FF94', fontSize: 13, fontWeight: 700 }}>
+                        {L('Click here if not redirected →','Cliquez ici si pas redirigé →')}
+                      </a>
+                    </div>
+                  </div>
+                )}
 
                 {/* Payment badge */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
