@@ -4,9 +4,9 @@ import { useLang } from '@/lib/lang-context';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 import { api } from '@/lib/api';
 
-const fmtK=(n)=>(n||0)>=1000?`${((n||0)/1000).toFixed(1)}K`:String(Math.round(n||0));
+const fmtK=(n)=>(n||0)>=1000?((n||0)/1000).toFixed(1)+'K':String(Math.round(n||0));
 const fmtUSD=(n)=>'$'+Math.round(n||0).toLocaleString('en-US');
-const fmtM=(n)=>(n||0)>=1e6?`$${((n||0)/1e6).toFixed(2)}M`:fmtUSD(n);
+const fmtM=(n)=>(n||0)>=1e6?'$'+((n||0)/1e6).toFixed(2)+'M':fmtUSD(n);
 
 const ICONS={MRV_DATA:'📊',MRV_CALCULATION:'🧮',PDD:'📄',VVB_VALIDATION:'🏛️',MONITORING_PERIOD:'📡',MONITORING_REPORT:'📋',VVB_VERIFICATION:'✅',REGISTRY_SUBMISSION:'📤',REGISTRY_REVIEW:'🔍',CREDIT_ISSUANCE:'🌿',MARKET_LISTING:'🏪'};
 const SC={COMPLETED:'#00FF94',IN_PROGRESS:'#FCD34D',PENDING:'#2A3F55',BLOCKED:'#F87171'};
@@ -169,9 +169,9 @@ export default function PipelinePage() {
       fd.append('type', docType || docForm.type || 'PDD');
       const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiUrl}/pipeline/${current.pipeline.id}/upload`, {
+      const res = await fetch(apiUrl+'/pipeline/'+current.pipeline.id+'/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: 'Bearer '+token },
         body: fd,
       });
       if (!res.ok) {
@@ -180,9 +180,9 @@ export default function PipelinePage() {
         await fetchAuthJson('/pipeline/' + current.pipeline.id + '/documents', {
           method:'POST', body:JSON.stringify(body)
         });
-        toast$(`${file.name} registered (upload not configured)`);
+        toast$(file.name+' registered (upload not configured)');
       } else {
-        toast$(`${file.name} uploaded!`);
+        toast$(file.name+' uploaded!');
       }
       setDocForm({ type:'PDD', name:'', fileUrl:'' });
       await loadDetail(current.pipeline.id);
