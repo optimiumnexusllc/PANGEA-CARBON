@@ -62,10 +62,10 @@ export default function ForgotPasswordPage() {
               )}
 
               <form onSubmit={submit}>
-                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const }}>EMAIL</label>
+                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>EMAIL</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus
                   placeholder="votre@email.com"
-                  style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '11px 14px', fontSize: 14, boxSizing: 'border-box' as const, outline: 'none', marginBottom: 20 }}
+                  style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '11px 14px', fontSize: 14, boxSizing: 'border-box', outline: 'none', marginBottom: 20 }}
                   onFocus={e => e.target.style.borderColor = 'rgba(0,255,148,0.35)'}
                   onBlur={e => e.target.style.borderColor = '#1E2D3D'}/>
                 <button type="submit" disabled={loading || !email}

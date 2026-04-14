@@ -171,7 +171,7 @@ export default function MarketplacePage() {
   };
 
   // UI helpers
-  const inp = { background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 13px', fontSize: 13, outline: 'none', width: '100%', boxSizing: 'border-box' as const };
+  const inp = { background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 13px', fontSize: 13, outline: 'none', width: '100%', boxSizing: 'border-box' };
   const tabBtn = (t, label) => (
     <button onClick={() => setTab(t)} style={{ padding: '8px 18px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: tab === t ? 700 : 400, background: tab === t ? '#00FF94' : 'transparent', color: tab === t ? '#080B0F' : '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
       {label}

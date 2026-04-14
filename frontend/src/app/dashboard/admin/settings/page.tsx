@@ -246,7 +246,7 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
                   placeholder={def.placeholder}
                   autoFocus
                   onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { setEditing(false); setValue(''); } }}
-                  style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(0,255,148,0.4)', borderRadius: 7, color: '#E8EFF6', padding: def.encrypted ? '9px 36px 9px 12px' : '9px 12px', fontSize: 13, fontFamily: 'JetBrains Mono, monospace', outline: 'none', boxSizing: 'border-box' as const }}
+                  style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(0,255,148,0.4)', borderRadius: 7, color: '#E8EFF6', padding: def.encrypted ? '9px 36px 9px 12px' : '9px 12px', fontSize: 13, fontFamily: 'JetBrains Mono, monospace', outline: 'none', boxSizing: 'border-box' }}
                 />
                 {def.encrypted && (
                   <button onClick={() => setShow(!show)} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>

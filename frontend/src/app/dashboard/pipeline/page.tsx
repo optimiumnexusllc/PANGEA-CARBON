@@ -210,7 +210,11 @@ export default function PipelinePage() {
     } catch(e) { toast$(e.message,'error'); }
   };
 
-  const inp = { background:'#121920', border:'1px solid #1E2D3D', borderRadius:8, color:'#E8EFF6', padding:'9px 12px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
+  const inp = {
+    background:'#121920', border:'1px solid #1E2D3D', borderRadius:8,
+    color:'#E8EFF6', padding:'9px 12px', fontSize:13, outline:'none',
+    width:'100%', boxSizing:('border-box' as 'border-box'),
+  };
   const p = current?.pipeline;
   const pSteps = p?.steps || [];
   const completedN = pSteps.filter(s => s.status === 'COMPLETED').length;
@@ -231,7 +235,7 @@ export default function PipelinePage() {
           <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.4)', borderRadius:16, padding:28, maxWidth:420, width:'100%' }}>
             <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', marginBottom:8 }}>BLOCK STEP</div>
             <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, color:'#E8EFF6', marginBottom:16 }}>Block: {ICONS[confirmBlock.stepKey]} {confirmBlock.title}?</h2>
-            <textarea placeholder="Reason for blocking..." id="blockReason" style={{ ...inp, height:80, resize:'vertical' as const, marginBottom:14 }}/>
+            <textarea placeholder="Reason for blocking..." id="blockReason" style={{ ...inp, height:80, resize:('vertical' as 'vertical'), marginBottom:14 }}/>
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={() => setConfirmBlock(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:8, color:'#4A6278', padding:12, cursor:'pointer' }}>Cancel</button>
               <button onClick={() => blockStep(confirmBlock.stepKey, (document.getElementById('blockReason') as any)?.value||'Blocked')}
@@ -427,7 +431,7 @@ export default function PipelinePage() {
                 <span style={{ color:'#00FF94', fontFamily:'JetBrains Mono, monospace' }}>{progressPct}%</span>
               </div>
               {p.vvbName && <div style={{ marginTop:10, padding:'7px 10px', background:'rgba(56,189,248,0.08)', borderRadius:7, fontSize:11, color:'#38BDF8' }}>🏛️ {p.vvbName}</div>}
-              {p.issuanceId && <div style={{ marginTop:6, padding:'6px 10px', background:'rgba(0,255,148,0.06)', borderRadius:7, fontSize:10, color:'#00FF94', fontFamily:'monospace', wordBreak:'break-all' as const }}>⛓️ {p.issuanceId.slice(0,24)}...</div>}
+              {p.issuanceId && <div style={{ marginTop:6, padding:'6px 10px', background:'rgba(0,255,148,0.06)', borderRadius:7, fontSize:10, color:'#00FF94', fontFamily:'monospace', wordBreak:('break-all' as 'break-all') }}>⛓️ {p.issuanceId.slice(0,24)}...</div>}
             </div>
 
             <div style={{ background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:12, padding:14 }}>

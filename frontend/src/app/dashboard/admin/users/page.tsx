@@ -14,7 +14,7 @@ const PLAN_LIMITS = {
 };
 const ROLE_C = { SUPER_ADMIN:'#F87171',ADMIN:'#FCD34D',ANALYST:'#00FF94',AUDITOR:'#38BDF8',CLIENT:'#A78BFA',VIEWER:'#4A6278' };
 
-const inp = { width:'100%', background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:7, color:'#E8EFF6', padding:'9px 12px', fontSize:13, boxSizing:'border-box' as const, outline:'none' };
+const inp = { width:'100%', background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:7, color:'#E8EFF6', padding:'9px 12px', fontSize:13, boxSizing:('border-box' as 'border-box'), outline:'none' };
 
 export default function AdminUsersPage() {
   const { lang } = useLang();
@@ -186,7 +186,7 @@ export default function AdminUsersPage() {
           <thead>
             <tr style={{ background:'#121920' }}>
               {['User','Email','Role','Organization','Plan','Projects','Last login','Status','Actions'].map(col => (
-                <th key={col} style={{ padding:'10px 12px', textAlign:'left', fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', textTransform:'uppercase' as const, borderBottom:'1px solid #1E2D3D', whiteSpace:'nowrap' }}>
+                <th key={col} style={{ padding:'10px 12px', textAlign:'left', fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', textTransform:('uppercase' as 'uppercase'), borderBottom:'1px solid #1E2D3D', whiteSpace:'nowrap' }}>
                   {col}
                 </th>
               ))}

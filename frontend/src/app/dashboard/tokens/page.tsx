@@ -69,7 +69,7 @@ export default function TokensPage() {
   const inp = {
     background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7,
     color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none',
-    width: '100%', boxSizing: 'border-box' as const,
+    width: '100%', boxSizing: 'border-box',
   };
 
   return (

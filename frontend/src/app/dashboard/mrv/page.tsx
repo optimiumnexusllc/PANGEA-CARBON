@@ -105,7 +105,7 @@ export default function MRVCalculatorPage() {
   ];
 
   const sld = { width:'100%', accentColor:'#00FF94' };
-  const inp = { background:'#121920', border:'1px solid #1E2D3D', borderRadius:8, color:'#E8EFF6', padding:'8px 12px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
+  const inp = { background:'#121920', border:'1px solid #1E2D3D', borderRadius:8, color:'#E8EFF6', padding:'8px 12px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' };
 
   const Tip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
