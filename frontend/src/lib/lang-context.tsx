@@ -4,8 +4,8 @@ import { translations } from './i18n';
 
 const LangContext = createContext({
   lang: 'en',
-  setLang: (l: string) => {},
-  t: (key: string) => key,
+  setLang: (l) => {},
+  t: (key) => key,
 });
 
 export function LangProvider({ children }) {
@@ -19,23 +19,23 @@ export function LangProvider({ children }) {
     else setLangState('en');
 
     // Écouter les changements depuis d'autres composants
-    const handler = (e: StorageEvent) => {
+    const handler = (e) => {
       if (e.key === 'pgc_lang' && (e.newValue === 'fr' || e.newValue === 'en')) {
         setLangState(e.newValue);
       }
     };
-    const customHandler = (e: CustomEvent) => {
+    const customHandler = (e) => {
       if (e.detail === 'fr' || e.detail === 'en') setLangState(e.detail);
     };
     window.addEventListener('storage', handler);
-    window.addEventListener('pgc-lang-change', customHandler as EventListener);
+    window.addEventListener('pgc-lang-change', customHandler);
     return () => {
       window.removeEventListener('storage', handler);
-      window.removeEventListener('pgc-lang-change', customHandler as EventListener);
+      window.removeEventListener('pgc-lang-change', customHandler);
     };
   }, []);
 
-  function setLang(l: string) {
+  function setLang(l) {
     const safe = l === 'fr' ? 'fr' : 'en';
     setLangState(safe);
     if (typeof window !== 'undefined') {
@@ -47,7 +47,7 @@ export function LangProvider({ children }) {
     }
   }
 
-  function t(key: string): string {
+  function t(key) {
     return (translations as any)[lang]?.[key]
         || (translations as any).en?.[key]
         || key;

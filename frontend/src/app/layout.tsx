@@ -1,18 +1,17 @@
 import type { Metadata } from 'next';
 import '../styles/globals.css';
 import { LangProvider } from '@/lib/lang-context';
-import FloatingLangToggle from '@/components/FloatingLangToggle';
 
 export const metadata: Metadata = {
   title: 'PANGEA CARBON — Carbon Credit Intelligence Africa',
   description: 'MRV platform for carbon credits from renewable energy projects in Africa | Plateforme MRV de crédits carbone Afrique',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <LangProvider>{children}<FloatingLangToggle /></LangProvider>
+        <LangProvider>{children}</LangProvider>
       </body>
     </html>
   );
