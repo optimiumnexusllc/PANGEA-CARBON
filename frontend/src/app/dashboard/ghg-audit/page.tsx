@@ -592,7 +592,7 @@ export default function GHGAuditPage() {
           </div>
         </>
       )}
-    </div>
+
       {/* Delete Audit Confirmation Modal */}
       {deleteConfirm && (
         <div onClick={e => { if(e.target===e.currentTarget) setDeleteConfirm(null); }}
@@ -621,6 +621,8 @@ export default function GHGAuditPage() {
           </div>
         </div>
       )}
+
+    </div>
 
   );
 }
