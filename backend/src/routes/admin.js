@@ -175,6 +175,46 @@ const SETTING_DEFS = [
   { key: 'support_email',            category: 'general',      encrypted: false, description: 'Email de support' },
   { key: 'contact_email',            category: 'integrations', encrypted: false, description: 'Email destinataire des demandes Enterprise' },
   { key: 'carbon_price_usd',         category: 'general',      encrypted: false, description: 'Prix carbone par défaut ($/tCO₂e)' },
+
+  // ── CARBON MARKETPLACE & SPLIT ENGINE ─────────────────────────────────────
+  { key: 'pangea_fee_pct',            category: 'carbon_marketplace', encrypted: false, description: 'PANGEA Carbon Fee % (défaut: 3.5%)' },
+  { key: 'marketplace_stripe_key',    category: 'carbon_marketplace', encrypted: true,  description: 'Stripe Secret Key dédié marketplace carbone' },
+  { key: 'marketplace_webhook_secret',category: 'carbon_marketplace', encrypted: true,  description: 'Stripe Webhook Secret marketplace (/api/marketplace/webhook/stripe)' },
+  { key: 'seller_default_gateway',    category: 'carbon_marketplace', encrypted: false, description: 'Gateway par défaut pour payout vendeur: FLUTTERWAVE | CINETPAY | WIRE' },
+  { key: 'marketplace_min_order',     category: 'carbon_marketplace', encrypted: false, description: 'Montant minimum par ordre (USD, défaut: 100)' },
+  { key: 'marketplace_max_order',     category: 'carbon_marketplace', encrypted: false, description: 'Montant maximum par ordre (USD, défaut: 500000)' },
+
+  // ── CINETPAY — AFRIQUE DE L'OUEST ─────────────────────────────────────────
+  { key: 'cinetpay_api_key',          category: 'cinetpay',    encrypted: true,  description: 'CinetPay API Key (Dashboard → Mon compte → Mes API)' },
+  { key: 'cinetpay_site_id',          category: 'cinetpay',    encrypted: false, description: 'CinetPay Site ID (numérique)' },
+  { key: 'cinetpay_secret',           category: 'cinetpay',    encrypted: true,  description: 'CinetPay Secret (Dashboard → Mes API → Secret)' },
+  { key: 'cinetpay_currency',         category: 'cinetpay',    encrypted: false, description: 'Devise CinetPay: XOF (CEDEAO) | XAF (CEMAC) | USD' },
+  { key: 'cinetpay_notify_url',       category: 'cinetpay',    encrypted: false, description: 'Webhook CinetPay (auto: /api/marketplace/webhook/cinetpay)' },
+
+  // ── FLUTTERWAVE — PAN-AFRICA ───────────────────────────────────────────────
+  { key: 'flutterwave_secret_key',    category: 'flutterwave', encrypted: true,  description: 'Flutterwave Secret Key (FLWSECK_PROD-...)' },
+  { key: 'flutterwave_public_key',    category: 'flutterwave', encrypted: false, description: 'Flutterwave Public Key (FLWPUBK_PROD-...)' },
+  { key: 'flutterwave_webhook_hash',  category: 'flutterwave', encrypted: true,  description: 'Flutterwave Webhook Hash Secret' },
+  { key: 'flutterwave_currency',      category: 'flutterwave', encrypted: false, description: 'Devise Flutterwave défaut: USD | NGN | GHS | KES | ZAR' },
+  { key: 'flutterwave_subaccount',    category: 'flutterwave', encrypted: false, description: 'Subaccount ID Flutterwave pour split automatique' },
+
+  // ── MOBILE MONEY DIRECT ────────────────────────────────────────────────────
+  { key: 'mtn_momo_api_key',          category: 'mobile_money', encrypted: true,  description: 'MTN Mobile Money API Key (momodeveloper.mtn.com)' },
+  { key: 'mtn_momo_user_id',          category: 'mobile_money', encrypted: false, description: 'MTN MoMo User ID (UUID v4)' },
+  { key: 'mtn_momo_subscription_key', category: 'mobile_money', encrypted: true,  description: 'MTN MoMo Primary Subscription Key' },
+  { key: 'orange_money_client_id',    category: 'mobile_money', encrypted: false, description: 'Orange Money Client ID (developer.orange.com/apis)' },
+  { key: 'orange_money_client_secret',category: 'mobile_money', encrypted: true,  description: 'Orange Money Client Secret' },
+  { key: 'wave_api_key',              category: 'mobile_money', encrypted: true,  description: 'Wave API Key (wave.com/en/business/api)' },
+
+  // ── STRIPE CONNECT (split natif Stripe) ───────────────────────────────────
+  { key: 'stripe_connect_client_id',  category: 'stripe',       encrypted: false, description: 'Stripe Connect Client ID (ca_...) pour onboarding vendeurs' },
+  { key: 'stripe_connect_secret',     category: 'stripe',       encrypted: true,  description: 'Stripe Connect Secret Key pour splits automatiques' },
+
+  // ── VERRA / GOLD STANDARD (registres officiels) ────────────────────────────
+  { key: 'verra_api_token',           category: 'registries',   encrypted: true,  description: 'Verra Registry API Token (registry.verra.org)' },
+  { key: 'gold_standard_api_key',     category: 'registries',   encrypted: true,  description: 'Gold Standard API Key (registry.goldstandard.org)' },
+  { key: 'xpansiv_api_key',           category: 'registries',   encrypted: true,  description: 'Xpansiv CBL API Key (prix marché temps réel)' },
+  { key: 'icvcm_api_key',             category: 'registries',   encrypted: true,  description: 'ICVCM Core Carbon Principles API Key' },
 ];
 
 router.get('/settings', auth, adminOnly, async (req, res, next) => {

@@ -30,7 +30,9 @@ const CATEGORIES = [
     settings: [
       { key: 'stripe_secret_key',      label: 'Stripe Secret Key', placeholder: 'sk_live_...', encrypted: true },
       { key: 'stripe_webhook_secret',  label: 'Webhook Secret',    placeholder: 'whsec_...',   encrypted: true },
-      { key: 'stripe_publishable_key', label: 'Publishable Key',   placeholder: 'pk_live_...', encrypted: false },
+      { key: 'stripe_publishable_key',   label: 'Publishable Key',        placeholder: 'pk_live_...', encrypted: false },
+      { key: 'stripe_connect_client_id', label: 'Connect Client ID',      placeholder: 'ca_...',      encrypted: false },
+      { key: 'stripe_connect_secret',    label: 'Connect Secret Key',     placeholder: 'sk_live_...', encrypted: true },
     ],
   },
   {
@@ -100,6 +102,46 @@ const CATEGORIES = [
       { key: 'marketplace_webhook_secret',label: 'Stripe Webhook Secret',   placeholder: 'whsec_...',                      encrypted: true },
       { key: 'seller_default_gateway',   label: 'Default Seller Gateway',   placeholder: 'FLUTTERWAVE | CINETPAY | WIRE',  encrypted: false },
       { key: 'carbon_market_api_key',    label: 'Xpansiv CBL API Key',      placeholder: 'API key prix marché...',         encrypted: true },
+    ],
+  },
+  {
+    id: 'mobile_money',
+    label: 'Mobile Money Direct',
+    icon: '📱',
+    color: '#F59E0B',
+    guide: [
+      ['MTN MoMo', 'momodeveloper.mtn.com → Sandbox → Create API user → Primary Key'],
+      ['Orange Money', 'developer.orange.com/apis/om → Register → Client ID + Secret'],
+      ['Wave', 'wave.com/en/business/api → API Keys → Create'],
+      ['Couverture MTN', 'CI · GH · NG · CM · ZM · UG · RW · BJ · BF · GUI'],
+      ['Couverture Orange', 'CI · SN · ML · GN · BF · CM · NE · MG'],
+    ],
+    settings: [
+      { key: 'mtn_momo_api_key',           label: 'MTN MoMo API Key',          placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', encrypted: true },
+      { key: 'mtn_momo_user_id',           label: 'MTN MoMo User ID',          placeholder: 'UUID v4',                                encrypted: false },
+      { key: 'mtn_momo_subscription_key',  label: 'MTN Primary Subscription Key', placeholder: '••••••••',                           encrypted: true },
+      { key: 'orange_money_client_id',     label: 'Orange Money Client ID',    placeholder: 'client_id',                              encrypted: false },
+      { key: 'orange_money_client_secret', label: 'Orange Money Secret',       placeholder: '••••••••',                               encrypted: true },
+      { key: 'wave_api_key',               label: 'Wave API Key',              placeholder: 'wave_sn_prod_...',                        encrypted: true },
+    ],
+  },
+  {
+    id: 'registries',
+    label: 'Verra · Gold Standard · Xpansiv',
+    icon: '📋',
+    color: '#34D399',
+    guide: [
+      ['Verra Registry', 'registry.verra.org → My Account → API Access → Generate Token'],
+      ['Gold Standard', 'registry.goldstandard.org → Developer API → Request Access'],
+      ['Xpansiv CBL', 'xpansiv.com → Contact sales → API credentials'],
+      ['ICVCM', 'icvcm.org → Core Carbon Principles → API (2025)'],
+      ['Usage', 'Pour synchroniser automatiquement les issuances et prix de marché'],
+    ],
+    settings: [
+      { key: 'verra_api_token',   label: 'Verra Registry API Token',    placeholder: 'Bearer token...', encrypted: true },
+      { key: 'gold_standard_api_key', label: 'Gold Standard API Key',   placeholder: 'gs_api_...',     encrypted: true },
+      { key: 'xpansiv_api_key',   label: 'Xpansiv CBL API Key',         placeholder: 'xpansiv_...',    encrypted: true },
+      { key: 'icvcm_api_key',     label: 'ICVCM API Key',               placeholder: 'icvcm_...',      encrypted: true },
     ],
   },
   {
