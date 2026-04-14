@@ -77,7 +77,7 @@ export default function AdminBillingPage() {
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>L('PERFORMANCE BY YEAR', 'PERFORMANCE PAR ANNÉE')</div>
             <div style={{ display: 'flex', gap: 4, background: '#121920', borderRadius: 6, padding: 3 }}>
               {[['revenue', 'Revenus $'], ['credits', 'Credits tCO₂e']].map(([v, label]) => (
-                <button key={v} onClick={() => setActiveViewv}
+                <button key={v} onClick={() => setActiveView(v as any)}
                   style={{ padding: '4px 10px', borderRadius: 4, border: 'none', cursor: 'pointer', fontSize: 11,
                     background: activeView === v ? '#1E2D3D' : 'transparent',
                     color: activeView === v ? '#E8EFF6' : '#4A6278' }}>

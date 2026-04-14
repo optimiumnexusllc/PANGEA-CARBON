@@ -116,7 +116,7 @@ export default function ProjectDetailPage() {
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 2, marginBottom: 20, borderBottom: '1px solid #1E2D3D', paddingBottom: 0 }}>
         {TABS.map(t => (
-          <button key={t.id} onClick={() => setActiveTabt.id}
+          <button key={t.id} onClick={() => setActiveTab(t.id as any)}
             style={{ padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13,
               color: activeTab === t.id ? '#00FF94' : '#4A6278',
               borderBottom: activeTab === t.id ? '2px solid #00FF94' : '2px solid transparent',
@@ -278,11 +278,11 @@ export default function ProjectDetailPage() {
                 ['Fin de période', 'periodEnd', 'date'],
                 ['Production (MWh)', 'energyMWh', 'number'],
                 ['Availability (%)', 'availabilityPct', 'number'],
-              ].map(([label, key, type]) => 
+              ].map(([label, key, type]) => (
                 <div key={key}>
                   <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>{label}</label>
                   <input className="input-dark" type={type} step={type === 'number' ? '0.01' : undefined}
-                    value={(readingForm[key]} onChange={e => setReadingForm(f => ({ ...f, [key]: e.target.value }))}/>
+                    value={(readingForm as any)[key]} onChange={e => setReadingForm(f => ({ ...f, [key]: e.target.value }))}/>
                 </div>
               ))}
               <div>

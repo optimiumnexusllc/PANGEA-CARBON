@@ -211,7 +211,7 @@ export default function LandingPage() {
           {/* Standards */}
           <div className="pgc-standards">
             {STANDARDS.map(s => (
-              <div key={s.name} className="pgc-standard-badge" style={{ '--badge-color': s.color }>
+              <div key={s.name} className="pgc-standard-badge" style={{ '--badge-color': s.color } as any}>
                 <div className="pgc-standard-badge__dot"/>
                 <span>{s.name}</span>
               </div>
@@ -352,7 +352,7 @@ export default function LandingPage() {
               { name: 'Pro', price: prices.pro, color: '#00FF94', highlight: true, features: ['Unlimited projects', 'MW illimités', 'Certifiable PDFs', 'Equipment API', 'AI Assistant', '6 modules Elite', '10 users', 'Priority support'] },
               { name: 'Enterprise', price: null, color: '#A78BFA', features: ['Everything in Pro', 'White-label', 'SSO SAML', 'SLA 99.9%', 'Dedicated CSM', 'Custom integrations', 'Unlimited users'] },
             ].map(plan => (
-              <div key={plan.name} className={`pgc-pricing-card ${plan.highlight ? 'pgc-pricing-card--highlight' : ''}`} style={{ '--plan-color': plan.color }>
+              <div key={plan.name} className={`pgc-pricing-card ${plan.highlight ? 'pgc-pricing-card--highlight' : ''}`} style={{ '--plan-color': plan.color } as any}>
                 {plan.highlight && <div className="pgc-pricing-card__badge">RECOMMENDED</div>}
                 <div className="pgc-pricing-card__name" style={{ color: plan.color }}>{plan.name.toUpperCase()}</div>
                 <div className="pgc-pricing-card__price">

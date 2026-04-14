@@ -85,7 +85,7 @@ export default function ProjectionPage() {
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap', alignItems: 'flex-end' }}>
         <div style={{ display: 'flex', gap: 4, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, padding: 3 }}>
           {[['portfolio', '🌍 Portfolio'], ['project', '📊 Project']].map(([v, label]) => (
-            <button key={v} onClick={() => setViewv}
+            <button key={v} onClick={() => setView(v as any)}
               style={{ padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: view === v ? '#1E2D3D' : 'transparent', color: view === v ? '#E8EFF6' : '#4A6278' }}>
               {label}
             </button>
@@ -104,13 +104,13 @@ export default function ProjectionPage() {
                 { label: 'Horizon', key: 'years', min: 5, max: 20, unit: 'ans' },
                 { label: 'Carbon price', key: 'carbonPrice', min: 5, max: 60, unit: '$/t' },
                 { label: 'MW additionnel', key: 'additionalMW', min: 0, max: 100, unit: 'MW' },
-              ].mapp => (
+              ].map(p => (
                 <div key={p.key} style={{ display: 'flex', align: 'center', gap: 6, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, padding: '6px 12px', alignItems: 'center' }}>
                   <span style={{ fontSize: 11, color: '#4A6278', whiteSpace: 'nowrap' }}>{p.label}</span>
-                  <input type="range" min={p.min} max={p.max} value={(params[p.key]}
+                  <input type="range" min={p.min} max={p.max} value={(params as any)[p.key]}
                     onChange={e => setParams(prev => ({ ...prev, [p.key]: parseInt(e.target.value) }))}
                     style={{ width: 80, accentColor: '#A78BFA', cursor: 'pointer' }}/>
-                  <span style={{ fontSize: 12, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', minWidth: 40 }}>{params[p.key]}{p.unit}</span>
+                  <span style={{ fontSize: 12, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', minWidth: 40 }}>{(params as any)[p.key]}{p.unit}</span>
                 </div>
               ))}
               <button onClick={fetchProject} disabled={loading}

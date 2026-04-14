@@ -38,7 +38,7 @@ export default function MapPage() {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => {
-      const L = window.L;
+      const L = (window as any).L;
 
       // Map dark style
       const map = L.map(mapRef.current, {
@@ -138,8 +138,8 @@ export default function MapPage() {
 
   // Re-ajouter markers quand projets chargés
   useEffect(() => {
-    if !mapInstance.current || !(window.L || projects.length === 0) return;
-    addMarkersmapInstance.current, (window.L);
+    if (!mapInstance.current || !(window as any).L || projects.length === 0) return;
+    addMarkers(mapInstance.current, (window as any).L);
   }, [projects]);
 
   const totalCredits = projects.reduce((s, p) => s + (p.mrvRecords?.[0]?.netCarbonCredits || 0), 0);

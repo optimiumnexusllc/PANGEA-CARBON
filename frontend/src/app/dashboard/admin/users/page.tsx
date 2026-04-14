@@ -199,7 +199,7 @@ export default function AdminUsersPage() {
               <tr><td colSpan={9} style={{ padding:40, textAlign:'center', color:'#4A6278', fontSize:13 }}>
                 {search || roleFilter ? 'No results' : 'No users'}
               </td></tr>
-            ) : users.map(u => (
+            ) : (users as any[]).map(u => (
               <tr key={u.id}
                 style={{ borderBottom:'1px solid rgba(30,45,61,0.4)' }}
                 onMouseEnter={e => e.currentTarget.style.background='rgba(30,45,61,0.3)'}

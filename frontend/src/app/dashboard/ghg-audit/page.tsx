@@ -126,7 +126,7 @@ export default function GHGAuditPage() {
 
   // Factor groups for the UI
   const factorGroups = {};
-  factors.forEach(f => {
+  (factors as any[]).forEach(f => {
     const scope = f.scope;
     if (!factorGroups[scope]) factorGroups[scope] = {};
     if (!factorGroups[scope][f.cat]) factorGroups[scope][f.cat] = [];
@@ -150,7 +150,7 @@ export default function GHGAuditPage() {
 
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, background: toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'}`, color:'#E8EFF6', padding: '12px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, background: toast.type === 'error' ? '#F87171' : '#00FF94', color: '#080B0F', padding: '12px 20px', borderRadius: 10, fontWeight: 700, fontSize: 13, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
           {toast.type === 'error' ? '❌ ' : '✅ '}{toast.msg}
         </div>
       )}
@@ -215,9 +215,9 @@ export default function GHGAuditPage() {
             <div>
               {card(<>
                 <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>
-                  {L('AUDITS','AUDITS')} — {audits.length}
+                  {L('AUDITS','AUDITS')} — {(audits as any[]).length}
                 </div>
-                {audits.length === 0 ? (
+                {(audits as any[]).length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 0', color: '#4A6278' }}>
                     <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
                     <div style={{ fontSize: 14, marginBottom: 8 }}>{L('No audits yet','Aucun audit pour le moment')}</div>
@@ -226,7 +226,7 @@ export default function GHGAuditPage() {
                       {L('Start first audit →','Démarrer le premier audit →')}
                     </button>
                   </div>
-                ) : audits.map(a => {
+                ) : (audits as any[]).map(a => {
                   const total = a.scope1Total + a.scope2Total + a.scope3Total;
                   const statusC = { DRAFT:'#4A6278', IN_PROGRESS:'#FCD34D', COMPLETED:'#00FF94', VERIFIED:'#38BDF8' };
                   return (
@@ -439,7 +439,7 @@ export default function GHGAuditPage() {
                     <option value="">{L('Select emission source...','Sélectionnez une source...')}</option>
                     {[1,2,3].map(scope => (
                       <optgroup key={scope} label={`▸ Scope ${scope} — ${SCOPE_LABEL[scope]}`}>
-                        {factors.filter(f => f.scope === scope).map(f => (
+                        {(factors as any[]).filter(f => f.scope === scope).map(f => (
                           <option key={f.key} value={f.key}>
                             {f.desc} ({f.factor} tCO₂e/{f.unit})
                           </option>
@@ -450,7 +450,7 @@ export default function GHGAuditPage() {
                 </div>
 
                 {addEntry.factorKey && (() => {
-                  const ef = factors.find(f => f.key === addEntry.factorKey);
+                  const ef = (factors as any[]).find(f => f.key === addEntry.factorKey);
                   const est = (parseFloat(addEntry.quantity) || 0) * (ef?.factor || 0);
                   return (
                     <>

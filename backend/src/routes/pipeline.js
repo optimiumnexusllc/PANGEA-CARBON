@@ -25,16 +25,6 @@ const { MRVEngine } = require('../services/mrv.service');
 const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../services/registry.service');
 const { uploadFile } = require('../storage/s3');
 
-// ─── Isolation données par rôle ───────────────────────────────────────────────
-function pipelineWhere(user) {
-  if (user.role === 'SUPER_ADMIN') return {};           // voit tout
-  if (['ADMIN'].includes(user.role) && user.organizationId) {
-    return { organizationId: user.organizationId };    // voit son org
-  }
-  return { organizationId: user.organizationId || '__none__',
-           project: { userId: user.userId } };        // voit seulement ses projets
-}
-
 // ─── Step definitions ─────────────────────────────────────────────────────────
 const STEPS = [
   { key:'MRV_DATA',            n:1,  title:'MRV Data Collection',      icon:'📊', duration:'1-12 months',  auto:true,  requirement:'≥12 monthly readings' },
@@ -163,10 +153,10 @@ router.get('/stats/global', auth, async (req, res, next) => {
     let stats = { total:0, active:0, completed:0, blocked:0, creditsInPipeline:0, creditsIssued:0 };
     try {
       const [total, active, completed, blocked, inPipe, issued] = await Promise.all([
-        prisma.creditPipeline.count({ where:pipelineWhere(req.user) }),
-        prisma.creditPipeline.count({ where:{ ...pipelineWhere(req.user), status:'ACTIVE' } }),
-        prisma.creditPipeline.count({ where:{ ...pipelineWhere(req.user), status:'COMPLETED' } }),
-        prisma.creditPipeline.count({ where:{ ...pipelineWhere(req.user), status:'BLOCKED' } }),
+        prisma.creditPipeline.count(),
+        prisma.creditPipeline.count({ where:{ status:'ACTIVE' } }),
+        prisma.creditPipeline.count({ where:{ status:'COMPLETED' } }),
+        prisma.creditPipeline.count({ where:{ status:'BLOCKED' } }),
         prisma.creditPipeline.aggregate({ where:{ status:{ in:['ACTIVE','BLOCKED'] } }, _sum:{ estimatedCredits:true } }),
         prisma.creditPipeline.aggregate({ where:{ status:'COMPLETED' }, _sum:{ confirmedCredits:true } }),
       ]);
@@ -287,7 +277,7 @@ router.get('/', auth, async (req, res, next) => {
     let pipelines = [];
     try {
       pipelines = await prisma.creditPipeline.findMany({
-        where:   pipelineWhere(req.user),
+        where:   { organizationId: req.user.organizationId || undefined },
         include: {
           steps:   { orderBy:{ stepNumber:'asc' } },
           project: { select:{ name:true, countryCode:true, type:true, installedMW:true } },
@@ -305,18 +295,6 @@ router.get('/:id', auth, async (req, res, next) => {
   try {
     const full = await loadFullPipeline(req.params.id);
     if (!full) return res.status(404).json({ error:'Pipeline not found' });
-    // Vérifier accès
-    const p = full.pipeline;
-    if (req.user.role !== 'SUPER_ADMIN') {
-      if (req.user.role === 'ADMIN' && p.organizationId !== req.user.organizationId) {
-        return res.status(403).json({ error:'Access denied' });
-      }
-      if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
-        if (p.organizationId !== req.user.organizationId) {
-          return res.status(403).json({ error:'Access denied' });
-        }
-      }
-    }
     res.json(full);
   } catch(e) { next(e); }
 });

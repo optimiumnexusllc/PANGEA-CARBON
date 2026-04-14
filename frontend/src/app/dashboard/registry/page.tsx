@@ -91,8 +91,8 @@ export default function RegistryPage() {
                   style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px', fontSize: 13 }}>
                   {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-              ) : 
-                <input type={type} value={(form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+              ) : (
+                <input type={type} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                   style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px 10px', fontSize: 13, boxSizing: 'border-box', outline: 'none' }}/>
               )}
             </div>
