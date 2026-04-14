@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import LangToggle from '@/components/LangToggle';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -83,7 +84,7 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [lang, setLang] = useState('en');
+  const { lang, setLang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
   const [showContact, setShowContact] = useState(false);
   const [cName, setCName] = useState('');
@@ -94,9 +95,7 @@ export default function LandingPage() {
   const [cSent, setCsent] = useState(false);
   const [cErr, setCerr] = useState('');
 
-  useEffect(() => {
-    try { const s = localStorage.getItem('pgc_lang'); if (s === 'en' || s === 'fr') setLang(s); } catch(e) {}
-  }, []);
+
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -153,7 +152,7 @@ export default function LandingPage() {
           <div className="pgc-nav__actions">
             <a href="/auth/login" className="pgc-btn pgc-btn--ghost">Login</a>
             <span style={{display:'flex',alignItems:'center',gap:2,background:'rgba(30,45,61,.6)',borderRadius:6,padding:'3px 4px',border:'1px solid #1E2D3D',marginRight:6}}>
-              {['fr','en'].map(l=><button key={l} onClick={()=>{setLang(l);try{localStorage.setItem('pgc_lang',l)}catch(e){}}} style={{padding:'3px 8px',borderRadius:4,border:'none',cursor:'pointer',fontSize:11,fontWeight:lang===l?700:400,background:lang===l?'#00FF94':'transparent',color:lang===l?'#080B0F':'#4A6278'}}>{l.toUpperCase()}</button>)}
+              {['fr','en'].map(l=><button key={l} onClick={() => setLang(l)} style={{padding:'3px 8px',borderRadius:4,border:'none',cursor:'pointer',fontSize:11,fontWeight:lang===l?700:400,background:lang===l?'#00FF94':'transparent',color:lang===l?'#080B0F':'#4A6278'}}>{l.toUpperCase()}</button>)}
             </span>
             <a href="/signup" className="pgc-btn pgc-btn--primary">Free trial →</a>
           </div>
