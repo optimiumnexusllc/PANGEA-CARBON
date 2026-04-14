@@ -615,28 +615,70 @@ export default function MarketplacePage() {
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,255,148,0.12)', border: '2px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28 }}>✓</div>
                 <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{orderResult.orderId}</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 8 }}>Order Confirmed!</h2>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 8 }}>
+                  {orderResult.paymentMode === 'checkout' ? 'Redirecting to payment...' : L('Order Confirmed!', 'Ordre confirmé !')}
+                </h2>
                 <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20, lineHeight: 1.7 }}>{orderResult.message}</p>
-                <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16, marginBottom: 20, textAlign: 'left' }}>
+
+                {/* Payment mode badge */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                  <span style={{ fontSize: 11, padding: '4px 14px', borderRadius: 20, fontFamily: 'JetBrains Mono, monospace',
+                    background: orderResult.paymentMode === 'invoice' ? 'rgba(56,189,248,0.12)' : orderResult.paymentMode === 'checkout' ? 'rgba(0,255,148,0.12)' : 'rgba(252,211,77,0.12)',
+                    color: orderResult.paymentMode === 'invoice' ? '#38BDF8' : orderResult.paymentMode === 'checkout' ? '#00FF94' : '#FCD34D',
+                    border: `1px solid ${orderResult.paymentMode === 'invoice' ? 'rgba(56,189,248,0.3)' : orderResult.paymentMode === 'checkout' ? 'rgba(0,255,148,0.3)' : 'rgba(252,211,77,0.3)'}`,
+                  }}>
+                    {orderResult.paymentMode === 'invoice' ? '📧 Stripe Invoice sent by email' : orderResult.paymentMode === 'checkout' ? '💳 Stripe Card Payment' : '📞 Manual Settlement'}
+                  </span>
+                </div>
+
+                {/* Order summary */}
+                <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16, marginBottom: 16, textAlign: 'left' }}>
                   {[
                     { k: 'Order ID', v: orderResult.orderId },
-                    { k: 'Quantity', v: `${fmtK(orderResult.quantity)} tCO2e` },
-                    { k: 'Price', v: fmtUSD(orderResult.maxPrice) },
-                    { k: 'PANGEA Fee', v: fmtUSD(orderResult.pangea_fee) },
-                    { k: 'Total', v: fmtUSD(orderResult.total) },
+                    { k: L('Quantity','Quantité'), v: `${fmtK(orderResult.quantity)} tCO₂e` },
+                    { k: L('Price/tonne','Prix/tonne'), v: fmtUSD(orderResult.pricePerTonne || orderResult.maxPrice) },
+                    { k: L('Subtotal','Sous-total'), v: fmtUSD(orderResult.subtotal || 0) },
+                    { k: 'PANGEA Fee (2.5%)', v: fmtUSD(orderResult.pangea_fee) },
+                    { k: L('Total','Total'), v: fmtUSD(orderResult.total) },
                   ].map(r => (
                     <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
                       <span style={{ color: '#4A6278' }}>{r.k}</span>
-                      <span style={{ color: '#E8EFF6', fontFamily: 'JetBrains Mono, monospace' }}>{r.v}</span>
+                      <span style={{ color: r.k === L('Total','Total') ? '#00FF94' : '#E8EFF6', fontFamily: 'JetBrains Mono, monospace', fontWeight: r.k === L('Total','Total') ? 700 : 400 }}>{r.v}</span>
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize: 12, color: '#4A6278', marginBottom: 20 }}>
-                  Next step: {orderResult.nextStep}
+
+                {/* Next steps */}
+                {orderResult.nextSteps && (
+                  <div style={{ textAlign: 'left', marginBottom: 20 }}>
+                    {orderResult.nextSteps.map((step, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 6, fontSize: 12, color: '#8FA3B8' }}>
+                        <span style={{ color: '#00FF94', flexShrink: 0 }}>{i+1}.</span>
+                        <span>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* CTA buttons */}
+                <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
+                  {orderResult.paymentUrl && orderResult.paymentMode !== 'checkout' && (
+                    <a href={orderResult.paymentUrl} target="_blank" rel="noreferrer"
+                      style={{ display: 'block', background: '#38BDF8', color: '#080B0F', borderRadius: 9, padding: '12px', fontWeight: 800, fontSize: 14, textDecoration: 'none', textAlign: 'center' }}>
+                      {orderResult.paymentMode === 'invoice' ? '📧 Pay Invoice (Stripe)' : '💳 Pay Now (Stripe)'}
+                    </a>
+                  )}
+                  {orderResult.invoicePdf && (
+                    <a href={orderResult.invoicePdf} target="_blank" rel="noreferrer"
+                      style={{ display: 'block', background: 'transparent', border: '1px solid #38BDF8', color: '#38BDF8', borderRadius: 9, padding: '11px', fontWeight: 600, fontSize: 13, textDecoration: 'none', textAlign: 'center' }}>
+                      ⬇ Download Invoice PDF
+                    </a>
+                  )}
+                  <button onClick={() => { closeBuy(); setTab('portfolio'); }}
+                    style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 9, padding: '11px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                    {L('View in My Orders', 'Voir dans Mes ordres')}
+                  </button>
                 </div>
-                <button onClick={() => { closeBuy(); setTab('portfolio'); }} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 9, padding: '10px 28px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
-                  View in My Orders
-                </button>
               </div>
             )}
           </div>

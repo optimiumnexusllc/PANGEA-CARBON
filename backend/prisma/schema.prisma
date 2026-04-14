@@ -77,6 +77,7 @@ model Organization {
   users            User[]
   projects         Project[]
   invoices         Invoice[]
+  marketplaceOrders MarketplaceOrder[]
   featureAccess    OrgFeature[]
 }
 
@@ -479,4 +480,36 @@ model ProjectCertification {
   updatedAt       DateTime @updatedAt
   @@index([hash])
   @@index([projectId])
+}
+
+// ─── CARBON MARKETPLACE ORDERS ──────────────────────────────────────────────
+model MarketplaceOrder {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  listingId       String   // CreditIssuance.id
+  quantity        Float    // tCO2e
+  pricePerTonne   Float    // $/tCO2e
+  subtotal        Float    // quantity * price
+  pangeaFee       Float    // 2.5%
+  total           Float    // subtotal + fee
+  orderType       String   @default("MARKET") // MARKET | LIMIT
+  buyerNote       String?
+  status          String   @default("PENDING") // PENDING | PAYMENT_PENDING | PAID | SETTLED | RETIRED | CANCELLED | REFUNDED
+  paymentMethod   String?  // STRIPE_CARD | STRIPE_INVOICE | WIRE_TRANSFER
+  stripeSessionId String?
+  stripePaymentIntentId String?
+  stripeInvoiceId String?
+  stripeInvoiceUrl String?
+  stripeReceiptUrl String?
+  paidAt          DateTime?
+  settledAt       DateTime?
+  retiredAt       DateTime?
+  invoicePdf      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([status])
 }
