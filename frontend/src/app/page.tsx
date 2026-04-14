@@ -49,7 +49,7 @@ const TESTIMONIALS = [
 
 function AnimatedCounter({ target, suffix }: { target: number; suffix: string }) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
   const started = useRef(false);
 
   useEffect(() => {

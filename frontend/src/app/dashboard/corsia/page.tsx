@@ -6,15 +6,15 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function CORSIAPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [portfolio, setPortfolio] = useState<any>(null);
+  const [result, setResult] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
   const [checking, setChecking] = useState(false);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function CORSIAPage() {
           <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('CHECK A PROJECT', 'VÉRIFIER UN PROJET')</div>
           <select value={selected} onChange={e => setSelected(e.target.value)}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px', fontSize: 13, marginBottom: 16 }}>
-            {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode}</option>)}
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode}</option>)}
           </select>
           <div style={{ background: '#121920', borderRadius: 8, padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 10 }}>CORSIA CRITERIA (6 requis)</div>
@@ -102,7 +102,7 @@ export default function CORSIAPage() {
               {result.analysis?.failures?.length > 0 && (
                 <div>
                   <div style={{ fontSize: 11, color: '#F87171', marginBottom: 8 }}>POINTS À CORRIGER</div>
-                  {result.analysis.failures.map((f: string, i: number) => (
+                  {result.analysis.failures.map((f, i) => (
                     <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12 }}>
                       <span style={{ color: '#F87171', flexShrink: 0 }}>✗</span>
                       <span style={{ color: '#8FA3B8' }}>{f}</span>

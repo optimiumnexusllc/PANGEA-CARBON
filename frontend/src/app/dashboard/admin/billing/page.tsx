@@ -6,14 +6,14 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const TooltipC = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
       <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-      {payload.map((p: any, i: number) => (
+      {payload.map((p, i) => (
         <div key={i} style={{ color: p.color, fontWeight: 600 }}>
           {p.name === 'revenue' ? '$' : ''}{fmt(p.value)} {p.name === 'credits' ? 'tCO₂e' : p.name === 'revenue' ? 'USD' : ''}
         </div>
@@ -25,9 +25,9 @@ const TooltipC = ({ active, payload, label }: any) => {
 export default function AdminBillingPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState<'revenue' | 'credits'>('revenue');
+  const [activeView, setActiveView] = useState('revenue');
 
   useEffect(() => {
     fetchAuth(`/admin/revenue`)
@@ -112,7 +112,7 @@ export default function AdminBillingPage() {
             </tr>
           </thead>
           <tbody>
-            {topProjects.map((p: any, i: number) => (
+            {topProjects.map((p, i) => (
               <tr key={p.id || i} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                 <td style={{ padding: '10px 14px', fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{p.project?.name || '—'}</td>
                 <td style={{ padding: '10px 14px' }}>

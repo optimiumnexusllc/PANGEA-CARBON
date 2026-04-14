@@ -23,15 +23,15 @@ const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDi
 export default function ProjectsPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [view, setView] = useState('table');
-  const [editProject, setEditProject] = useState<any>(null);
-  const [deleteProject, setDeleteProject] = useState<any>(null);
+  const [editProject, setEditProject] = useState(null);
+  const [deleteProject, setDeleteProject] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [actionMsg, setActionMsg] = useState(null);
@@ -160,7 +160,7 @@ export default function ProjectsPage() {
               <th>L('Credits tCO₂e', 'Crédits tCO₂e')</th><th>L('Revenue USD', 'Revenus USD')</th><th>L('Status', 'Statut')</th><th></th>
             </tr></thead>
             <tbody>
-              {filtered.map((p: any) => {
+              {filtered.map((p) => {
                 const mrv = p.mrvRecords?.[0];
                 return (
                   <tr key={p.id} style={{ cursor: 'pointer' }}
@@ -199,7 +199,7 @@ export default function ProjectsPage() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-          {filtered.map((p: any) => {
+          {filtered.map((p) => {
             const mrv = p.mrvRecords?.[0];
             return (
               <div key={p.id} className="card animate-slide-up" style={{ padding: 20, cursor: 'pointer' }}
@@ -273,20 +273,20 @@ export default function ProjectsPage() {
             {[{ label: 'Nom', key: 'name', type: 'text' }, { label: 'MW installe', key: 'installedMW', type: 'number' }, { label: 'Description', key: 'description', type: 'text' }, { label: 'Latitude', key: 'latitude', type: 'number' }, { label: 'Longitude', key: 'longitude', type: 'number' }].map(f => (
               <div key={f.key} style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
-                <input type={f.type} value={editProject[f.key] || ''} onChange={e => setEditProject((p: any) => ({ ...p, [f.key]: e.target.value }))}
+                <input type={f.type} value={editProject[f.key] || ''} onChange={e => setEditProject((p) => ({ ...p, [f.key]: e.target.value }))}
                   style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }}/>
               </div>
             ))}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
               <div>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>TYPE</label>
-                <select value={editProject.type} onChange={e => setEditProject((p: any) => ({ ...p, type: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
+                <select value={editProject.type} onChange={e => setEditProject((p) => ({ ...p, type: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
                   {['SOLAR','WIND','HYDRO','BIOMASS','HYBRID'].map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>STATUT</label>
-                <select value={editProject.status} onChange={e => setEditProject((p: any) => ({ ...p, status: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
+                <select value={editProject.status} onChange={e => setEditProject((p) => ({ ...p, status: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
                   {['DRAFT','ACTIVE','MONITORING','VERIFIED','CREDITED','ARCHIVED'].map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>

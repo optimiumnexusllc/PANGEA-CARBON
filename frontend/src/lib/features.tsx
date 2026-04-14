@@ -5,15 +5,15 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 
 interface FeatureFlags {
   pdf_reports: boolean;
-  africa_map: boolean;
+  africa_map: any;
   mrv_calculator: boolean;
-  api_access: boolean;
+  api_access: any;
   carbon_marketplace: boolean;
-  ai_assistant: boolean;
+  ai_assistant: any;
   bulk_import: boolean;
-  multi_standard: boolean;
+  multi_standard: any;
   white_label: boolean;
-  sso_saml: boolean;
+  sso_saml: any;
   [key: string]: boolean;
 }
 
@@ -32,8 +32,8 @@ const DEFAULT_FLAGS: FeatureFlags = {
 
 const FeatureFlagsContext = createContext<FeatureFlags>(DEFAULT_FLAGS);
 
-export function FeatureFlagsProvider({ children }: { children: React.ReactNode }) {
-  const [flags, setFlags] = useState<FeatureFlags>(DEFAULT_FLAGS);
+export function FeatureFlagsProvider({ children }) {
+  const [flags, setFlags] = useState(DEFAULT_FLAGS);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -46,7 +46,7 @@ export function FeatureFlagsProvider({ children }: { children: React.ReactNode }
       .then(features => {
         if (!Array.isArray(features)) return;
         const map: FeatureFlags = { ...DEFAULT_FLAGS };
-        features.forEach((f: any) => { map[f.key] = f.enabled; });
+        features.forEach((f) => { map[f.key] = f.enabled; });
         setFlags(map);
       })
       .catch(() => {}); // Silencieux — utilise les defaults
@@ -63,7 +63,7 @@ export function useFeatureFlags() {
   return useContext(FeatureFlagsContext);
 }
 
-export function useFeature(key: string): boolean {
+export function useFeature(key) {
   const flags = useContext(FeatureFlagsContext);
   return flags[key] ?? false;
 }

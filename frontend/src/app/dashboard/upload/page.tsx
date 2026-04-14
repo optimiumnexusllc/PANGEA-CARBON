@@ -14,21 +14,21 @@ const CSV_TEMPLATE = `period_start,period_end,energy_mwh,peak_power_mw,availabil
 export default function UploadPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState('');
   const [dragging, setDragging] = useState(false);
-  const [parsed, setParsed] = useState<any[]>([]);
+  const [parsed, setParsed] = useState([]);
   const [fileName, setFileName] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const fileRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef(null);
 
   useEffect(() => {
     api.getProjects().then(d => setProjects(d.projects || [])).catch(console.error);
   });
 
-  const parseCSV = (text: string) => {
+  const parseCSV = (text) => {
     const lines = text.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
     return lines.slice(1).map(line => {
@@ -99,7 +99,7 @@ export default function UploadPage() {
     URL.revokeObjectURL(url);
   };
 
-  const fmt = (n: any) => parseFloat(n || 0).toFixed(2);
+  const fmt = (n) => parseFloat(n || 0).toFixed(2);
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -127,7 +127,7 @@ export default function UploadPage() {
         <select value={selectedProject} onChange={e => setSelectedProject(e.target.value)}
           style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: selectedProject ? '#E8EFF6' : '#4A6278', padding: '10px 14px', fontSize: 14, outline: 'none' }}>
           <option value="">Sélectionner un projet...</option>
-          {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.installedMW} MW · {p.countryCode}</option>)}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.installedMW} MW · {p.countryCode}</option>)}
         </select>
       </div>
 
@@ -171,7 +171,7 @@ export default function UploadPage() {
       {parsed.length > 0 && (
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, overflow: 'hidden' }}>
           <div style={{ padding: '10px 16px', background: '#121920', borderBottom: '1px solid #1E2D3D', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-            APERÇU — {parsed.length} LIGNES · {parsed.reduce((s: number, r: any) => s + parseFloat(r.energy_mwh || 0), 0).toFixed(1)} MWh total
+            APERÇU — {parsed.length} LIGNES · {parsed.reduce((s, r) => s + parseFloat(r.energy_mwh || 0), 0).toFixed(1)} MWh total
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -182,7 +182,7 @@ export default function UploadPage() {
               </tr>
             </thead>
             <tbody>
-              {parsed.slice(0, 10).map((row: any, i: number) => (
+              {parsed.slice(0, 10).map((row, i) => (
                 <tr key={i} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                   <td style={{ padding: '8px 14px', fontSize: 12, color: '#8FA3B8' }}>{row.period_start || row.periodStart}</td>
                   <td style={{ padding: '8px 14px', fontSize: 12, color: '#8FA3B8' }}>{row.period_end || row.periodEnd}</td>

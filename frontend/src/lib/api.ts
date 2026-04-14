@@ -5,9 +5,9 @@ function getToken() {
   return localStorage.getItem('accessToken');
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}) {
   const token = getToken();
-  const headers: Record<string, string> = {
+  const headers = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
@@ -50,7 +50,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
   // Auth
-  login: (email: string, password: string) =>
+  login: (email, password) =>
     request<any>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   me: () => request<any>('/auth/me'),
 
@@ -63,17 +63,17 @@ export const api = {
     const q = params ? '?' + new URLSearchParams(params).toString() : '';
     return request<any>(`/projects${q}`);
   },
-  getProject: (id: string) => request<any>(`/projects/${id}`),
-  createProject: (data: any) =>
+  getProject: (id) => request<any>(`/projects/${id}`),
+  createProject: (data) =>
     request<any>('/projects', { method: 'POST', body: JSON.stringify(data) }),
-  updateProject: (id: string, data: any) =>
+  updateProject: (id, data) =>
     request<any>(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   getCountries: () => request<any>('/projects/meta/countries'),
 
   // Readings
   getReadings: (projectId: string, year?: number) =>
     request<any>(`/projects/${projectId}/readings${year ? `?year=${year}` : ''}`),
-  addReading: (projectId: string, data: any) =>
+  addReading: (projectId, data) =>
     request<any>(`/projects/${projectId}/readings`, { method: 'POST', body: JSON.stringify(data) }),
   bulkReadings: (projectId: string, readings: any[]) =>
     request<any>(`/projects/${projectId}/readings/bulk`, { method: 'POST', body: JSON.stringify({ readings }) }),
@@ -81,7 +81,7 @@ export const api = {
   // MRV
   getMRV: (projectId: string, year?: number) =>
     request<any>(`/projects/${projectId}/mrv${year ? `?year=${year}` : ''}`),
-  simulateMRV: (projectId: string, data: any) =>
+  simulateMRV: (projectId, data) =>
     request<any>(`/projects/${projectId}/mrv/simulate`, { method: 'POST', body: JSON.stringify(data) }),
   getProjection: (projectId: string, years = 10) =>
     request<any>(`/projects/${projectId}/mrv/projection?years=${years}`),
@@ -91,30 +91,30 @@ export const api = {
 export const apiExt = {
   // Notifications
   getAlerts: () => request<any>('/notifications/alerts'),
-  checkAlerts: (projectId: string) => request<any>(`/notifications/check/${projectId}`, { method: 'POST' }),
+  checkAlerts: (projectId) => request<any>(`/notifications/check/${projectId}`, { method: 'POST' }),
   getNotifPrefs: () => request<any>('/notifications/preferences'),
-  updateNotifPrefs: (prefs: any) => request<any>('/notifications/preferences', { method: 'PUT', body: JSON.stringify(prefs) }),
+  updateNotifPrefs: (prefs) => request<any>('/notifications/preferences', { method: 'PUT', body: JSON.stringify(prefs) }),
 
   // Marketplace
   getPrices: () => request<any>('/marketplace/prices'),
   getListings: (params?: Record<string, string>) => request<any>(`/marketplace/listings${params ? '?' + new URLSearchParams(params) : ''}`),
-  placeBid: (data: any) => request<any>('/marketplace/bid', { method: 'POST', body: JSON.stringify(data) }),
+  placeBid: (data) => request<any>('/marketplace/bid', { method: 'POST', body: JSON.stringify(data) }),
   getMarketStats: () => request<any>('/marketplace/stats'),
 
   // Analytics
-  getProjectAnalytics: (id: string) => request<any>(`/analytics/${id}`),
+  getProjectAnalytics: (id) => request<any>(`/analytics/${id}`),
   getPortfolioAnalytics: () => request<any>('/analytics/portfolio/overview'),
 
   // Optimization
-  getOptimization: (id: string) => request<any>(`/optimization/${id}`),
+  getOptimization: (id) => request<any>(`/optimization/${id}`),
   getPortfolioGap: () => request<any>('/optimization/portfolio/gap'),
 
   // Projection
-  projectRevenue: (id: string, params: any) => request<any>(`/projection/${id}`, { method: 'POST', body: JSON.stringify(params) }),
-  projectPortfolio: (params: any) => request<any>('/projection/portfolio/total', { method: 'POST', body: JSON.stringify(params) }),
+  projectRevenue: (id, params) => request<any>(`/projection/${id}`, { method: 'POST', body: JSON.stringify(params) }),
+  projectPortfolio: (params) => request<any>('/projection/portfolio/total', { method: 'POST', body: JSON.stringify(params) }),
 
   // Benchmark
-  getProjectBenchmark: (id: string) => request<any>(`/benchmark/${id}`),
+  getProjectBenchmark: (id) => request<any>(`/benchmark/${id}`),
   getPortfolioRanking: () => request<any>('/benchmark/portfolio/ranking'),
 
   // Article 6
@@ -122,6 +122,6 @@ export const apiExt = {
   getBuyerAnalysis: () => request<any>('/article6/buyer-analysis'),
 
   // User account
-  updateProfile: (data: any) => request<any>('/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
-  changePassword: (data: any) => request<any>('/auth/change-password', { method: 'POST', body: JSON.stringify(data) }),
+  updateProfile: (data) => request<any>('/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
+  changePassword: (data) => request<any>('/auth/change-password', { method: 'POST', body: JSON.stringify(data) }),
 };

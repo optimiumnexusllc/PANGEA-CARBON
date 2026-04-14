@@ -10,9 +10,9 @@ const fmt = (n: number, d = 1) => n?.toLocaleString('en-US', { minimumFractionDi
 export default function DMRVPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
-  const [selected, setSelected] = useState<string>('');
-  const [dmrv, setDmrv] = useState<any>(null);
+  const [projects, setProjects] = useState([]);
+  const [selected, setSelected] = useState('');
+  const [dmrv, setDmrv] = useState(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
 
@@ -52,7 +52,7 @@ export default function DMRVPage() {
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 14px', fontSize: 13, flex: 1 }}>
-          {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.installedMW} MW</option>)}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.installedMW} MW</option>)}
         </select>
         <button onClick={runVerification} disabled={running || !selected}
           style={{ background: running ? '#1E2D3D' : '#A78BFA', color: running ? '#4A6278' : '#080B0F', border: 'none', borderRadius: 7, padding: '9px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -90,7 +90,7 @@ export default function DMRVPage() {
               </tr>
             </thead>
             <tbody>
-              {dmrv.comparison.slice(0, 8).map((c: any, i: number) => (
+              {dmrv.comparison.slice(0, 8).map((c, i) => (
                 <tr key={i} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                   <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(c.date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</td>
                   <td style={{ padding: '9px 14px', fontSize: 13, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(c.satellite)}</td>

@@ -3,12 +3,12 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
-const fmt = (n: number) => n?.toLocaleString('en-US') ?? '—';
+const fmt = (n) => n?.toLocaleString('en-US') ?? '—';
 
 export default function ReportsPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function ReportsPage() {
               <th>Status</th><th>Action</th>
             </tr></thead>
             <tbody>
-              {leaderboard.map((p: any) => (
+              {leaderboard.map((p) => (
                 <tr key={p.projectId + p.year}>
                   <td><span style={{ color: '#E8EFF6', fontWeight: 500 }}>{p.projectName}</span></td>
                   <td><span className="badge badge-ghost">{p.countryCode}</span></td>

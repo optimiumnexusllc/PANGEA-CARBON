@@ -1,7 +1,7 @@
 // PANGEA CARBON — Complete translations dictionary
 // Used by L(en, fr) helper in all pages
 
-export const TR: Record<string, string> = {
+export const TR = {
   "Active": "Actif",
   "Draft": "Brouillon",
   "Certified": "Certifié",
@@ -295,6 +295,6 @@ export const TR: Record<string, string> = {
 };
 
 // Helper: translate en->fr based on current language
-export function buildL(lang: string) {
-  return (en: string, fr: string) => lang === 'fr' ? fr : en;
+export function buildL(lang) {
+  return (en, fr) => lang === 'fr' ? fr : en;
 }

@@ -9,7 +9,7 @@ function VerifyEmailInner() {
   const router = useRouter();
   const params = useSearchParams();
   const token = params.get('token');
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+  const [status, setStatus] = useState('verifying');
   const [message, setMessage] = useState('');
   const [countdown, setCountdown] = useState(5);
 

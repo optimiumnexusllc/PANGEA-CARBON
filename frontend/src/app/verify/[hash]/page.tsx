@@ -12,7 +12,7 @@ const TIER_CONFIG = {
 export default function VerifyPage({ params }: { params: { hash: string } }) {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [cert, setCert] = useState<any>(null);
+  const [cert, setCert] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -133,7 +133,7 @@ export default function VerifyPage({ params }: { params: { hash: string } }) {
                         CORSIA ELIGIBLE
                       </span>
                     )}
-                    {cert.standards?.map((s: string) => (
+                    {cert.standards?.map((s) => (
                       <span key={s} style={{ fontSize: 10, background: 'rgba(30,45,61,0.8)', color: '#8FA3B8', border: '1px solid #1E2D3D', borderRadius: 4, padding: '3px 10px', fontFamily: 'JetBrains Mono, monospace' }}>
                         {s.replace(/_/g, ' ')}
                       </span>

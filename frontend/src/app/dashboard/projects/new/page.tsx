@@ -11,7 +11,7 @@ export default function NewProjectPage() {
   const L = (en, fr) => lang === 'fr' ? fr : en;
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [countries, setCountries] = useState<any[]>([]);
+  const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
@@ -25,10 +25,10 @@ export default function NewProjectPage() {
     api.getCountries().then(setCountries).catch(console.error);
   }, []);
 
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const selectCountry = (code: string) => {
-    const c = countries.find((x: any) => x.code === code);
+  const selectCountry = (code) => {
+    const c = countries.find((x) => x.code === code);
     if (c) { set('countryCode', c.code); set('country', c.name); set('baselineEF', String(c.ef)); }
   };
 
@@ -126,7 +126,7 @@ export default function NewProjectPage() {
               <Label>Country *</Label>
               <select className="input-dark" value={form.countryCode} onChange={e => selectCountry(e.target.value)}>
                 <option value="">Sélectionner un pays</option>
-                {countries.map((c: any) => (
+                {countries.map((c) => (
                   <option key={c.code} value={c.code}>{c.name} — EF: {c.ef} tCO₂/MWh</option>
                 ))}
               </select>

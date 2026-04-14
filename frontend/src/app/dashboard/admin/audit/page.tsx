@@ -6,12 +6,12 @@ import { useEffect, useState } from 'react';
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 const ACTION_COLOR = { CREATE: '#00FF94', UPDATE: '#38BDF8', DELETE: '#F87171', DEACTIVATE: '#FCD34D', SUBSCRIPTION: '#A78BFA' };
-const getColor = (action: string) => ACTION_COLOR[Object.keys(ACTION_COLOR).find(k => action.includes(k)) || ''] || '#4A6278';
+const getColor = (action) => ACTION_COLOR[Object.keys(ACTION_COLOR).find(k => action.includes(k)) || ''] || '#4A6278';
 
 export default function AdminAuditPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -49,7 +49,7 @@ export default function AdminAuditPage() {
           </thead>
           <tbody>
             {loading ? <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#4A6278' }}>L('Loading...', 'Chargement...')</td></tr>
-            : logs.map((log: any) => (
+            : logs.map((log) => (
               <tr key={log.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.3)' }}>
                 <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>
                   {new Date(log.createdAt).toLocaleString('en-US')}

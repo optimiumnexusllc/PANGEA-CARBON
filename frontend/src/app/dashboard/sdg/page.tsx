@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const SDG_LIST = [
   { key: 'sdg7', name: 'Clean energy', emoji: '⚡', core: true },
@@ -23,13 +23,13 @@ const SDG_LIST = [
 export default function SDGPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
   const [scores, setScores] = useState({});
   const [jobs, setJobs] = useState('');
   const [households, setHouseholds] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [summary, setSummary] = useState<any>(null);
+  const [result, setResult] = useState(null);
+  const [summary, setSummary] = useState(null);
   const [saving, setSaving] = useState(false);
   const year = new Date().getFullYear();
 
@@ -82,7 +82,7 @@ export default function SDGPage() {
           <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('ASSESS A PROJECT', 'ÉVALUER UN PROJET')</div>
           <select value={selected} onChange={e => setSelected(e.target.value)}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px', fontSize: 13, marginBottom: 16 }}>
-            {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
 
           {SDG_LIST.map(sdg => (
@@ -104,7 +104,7 @@ export default function SDGPage() {
             {[['Direct jobs created', jobs, setJobs], ['Households electrified', households, setHouseholds]].map(([label, val, setter]) => (
               <div key={String(label)}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>{label}</label>
-                <input type="number" value={String(val)} onChange={(e: any) => (setter as any)(e.target.value)} placeholder="0"
+                <input type="number" value={String(val)} onChange={(e) => (setter as any)(e.target.value)} placeholder="0"
                   style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px 10px', fontSize: 13, boxSizing: 'border-box' as const, outline: 'none' }}/>
               </div>
             ))}

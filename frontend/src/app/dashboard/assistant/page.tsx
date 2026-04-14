@@ -19,10 +19,10 @@ export default function AssistantPage() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState('');
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     fetch(`${API}/assistant/suggestions`, { headers: h() })
@@ -61,7 +61,7 @@ export default function AssistantPage() {
     } finally { setLoading(false); }
   };
 
-  const formatMessage = (text: string) => {
+  const formatMessage = (text) => {
     return text.split('\n').map((line, i) => {
       if (line.startsWith('**') && line.endsWith('**')) {
         return <div key={i} style={{ fontWeight: 600, color: '#E8EFF6', marginTop: 8 }}>{line.slice(2, -2)}</div>;
@@ -91,7 +91,7 @@ export default function AssistantPage() {
           <select value={selectedProject} onChange={e => setSelectedProject(e.target.value)}
             style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 6, color: '#8FA3B8', padding: '5px 10px', fontSize: 12, cursor: 'pointer' }}>
             <option value="">Portfolio global</option>
-            {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <button onClick={() => setMessages([{ role: 'assistant', content: '🌍 Nouvelle conversation démarrée. Comment puis-je vous aider ?' }])}
             style={{ background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 6, color: '#4A6278', padding: '5px 10px', cursor: 'pointer', fontSize: 12 }}>
@@ -136,7 +136,7 @@ export default function AssistantPage() {
       {/* Suggestions */}
       {suggestions.length > 0 && messages.length < 3 && (
         <div style={{ padding: '0 24px 12px', display: 'flex', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
-          {suggestions.slice(0, 4).map((s: any) => (
+          {suggestions.slice(0, 4).map((s) => (
             <button key={s.text} onClick={() => send(s.text)}
               style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 16, padding: '5px 12px', color: '#8FA3B8', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>
               {s.text}

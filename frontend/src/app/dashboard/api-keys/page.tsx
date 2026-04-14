@@ -9,11 +9,11 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 export default function ApiKeysPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [keys, setKeys] = useState<any[]>([]);
+  const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
-  const [newKey, setNewKey] = useState<string | null>(null);
+  const [newKey, setNewKey] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const load = () => {
@@ -38,7 +38,7 @@ export default function ApiKeysPage() {
     } finally { setSaving(false); }
   };
 
-  const revoke = async (id: string) => {
+  const revoke = async (id) => {
     if (!confirm('Révoquer cette clé ? Les intégrations utilisant cette clé cesseront de fonctionner.')) return;
     await fetchAuth(`/admin/apikeys/${id}`, { method: 'DELETE' });
     load();
@@ -124,7 +124,7 @@ export default function ApiKeysPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {keys.map((key: any) => (
+            {keys.map((key) => (
               <div key={key.id} style={{ background: '#0D1117', border: `1px solid ${key.isActive ? '#1E2D3D' : 'rgba(248,113,113,0.2)'}`, borderRadius: 9, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: key.isActive ? '#00FF94' : '#F87171', animation: key.isActive ? 'pulse 2s infinite' : 'none' }}/>
                 <div style={{ flex: 1 }}>

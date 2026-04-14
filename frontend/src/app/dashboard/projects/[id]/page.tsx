@@ -14,7 +14,7 @@ const Tooltip_ = ({ active, payload, label }: any) => {
   return (
     <div className="card" style={{ padding: '8px 12px', border: '1px solid #2A3F55', fontSize: 12 }}>
       <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-      {payload.map((p: any, i: number) => <div key={i} style={{ color: p.color, fontWeight: 600 }}>{fmt(p.value, 1)} {p.name}</div>)}
+      {payload.map((p, i) => <div key={i} style={{ color: p.color, fontWeight: 600 }}>{fmt(p.value, 1)} {p.name}</div>)}
     </div>
   );
 };
@@ -23,11 +23,11 @@ export default function ProjectDetailPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
   const { id } = useParams();
-  const [project, setProject] = useState<any>(null);
-  const [mrv, setMrv] = useState<any>(null);
-  const [projection, setProjection] = useState<any>(null);
+  const [project, setProject] = useState(null);
+  const [mrv, setMrv] = useState(null);
+  const [projection, setProjection] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'readings' | 'mrv' | 'projection'>('overview');
+  const [activeTab, setActiveTab] = useState('overview');
   const [addReading, setAddReading] = useState(false);
   const [readingForm, setReadingForm] = useState({ periodStart: '', periodEnd: '', energyMWh: '', availabilityPct: '', notes: '' });
   const [savingReading, setSavingReading] = useState(false);
@@ -59,7 +59,7 @@ export default function ProjectDetailPage() {
   if (!project) return <div className="p-6 text-center" style={{ color: '#4A6278' }}>Project introuvable</div>;
 
   const readings = project.readings || [];
-  const chartData = readings.map((r: any) => ({
+  const chartData = readings.map((r) => ({
     period: new Date(r.periodStart).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
     MWh: r.energyMWh,
     dispo: r.availabilityPct,
@@ -172,7 +172,7 @@ export default function ProjectDetailPage() {
             <table className="table-dark">
               <thead><tr><th>Période début</th><th>Période fin</th><th>Production MWh</th><th>Availability %</th><th>Source</th><th>Scores</th></tr></thead>
               <tbody>
-                {readings.map((r: any) => (
+                {readings.map((r) => (
                   <tr key={r.id}>
                     <td>{new Date(r.periodStart).toLocaleDateString('en-US')}</td>
                     <td>{new Date(r.periodEnd).toLocaleDateString('en-US')}</td>

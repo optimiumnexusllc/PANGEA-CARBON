@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function Article6Page() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [data, setData] = useState<any>(null);
-  const [buyers, setBuyers] = useState<any>(null);
+  const [data, setData] = useState(null);
+  const [buyers, setBuyers] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function Article6Page() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ACTIVE BUYER COUNTRIES — ITMO PRICES 2026</div>
-            {buyers.buyers.filter((b: any) => b.active).map((b: any) => (
+            {buyers.buyers.filter((b) => b.active).map((b) => (
               <div key={b.code} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                 <div>
                   <span style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{b.name}</span>
@@ -72,7 +72,7 @@ export default function Article6Page() {
 
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>BEST BILATERAL OPPORTUNITIES</div>
-            {buyers.topOpportunities?.map((op: any) => (
+            {buyers.topOpportunities?.map((op) => (
               <div key={op.pair} style={{ padding: '10px 0', borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{op.pair}</span>
@@ -101,7 +101,7 @@ export default function Article6Page() {
             </tr>
           </thead>
           <tbody>
-            {(data?.projects || []).map((p: any) => (
+            {(data?.projects || []).map((p) => (
               <tr key={p.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                 <td style={{ padding: '10px 14px', fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{p.name}</td>
                 <td style={{ padding: '10px 14px' }}><span style={{ fontSize: 10, padding: '2px 7px', background: 'rgba(74,98,120,0.3)', color: '#8FA3B8', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace' }}>{p.countryCode}</span></td>

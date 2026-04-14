@@ -67,7 +67,7 @@ export default function MRVCalculatorPage() {
     return (
       <div className="card" style={{ padding: '8px 12px', border: '1px solid #2A3F55', fontSize: 12 }}>
         <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-        {payload.map((p: any, i: number) => <div key={i} style={{ color: p.color, fontWeight: 600 }}>{fmt(p.value)} {p.name === 'revenue' ? 'USD' : 'tCO₂e'}</div>)}
+        {payload.map((p, i) => <div key={i} style={{ color: p.color, fontWeight: 600 }}>{fmt(p.value)} {p.name === 'revenue' ? 'USD' : 'tCO₂e'}</div>)}
       </div>
     );
   };

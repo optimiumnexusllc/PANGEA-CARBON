@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const MODULES = [
   { id: 'article6', href: '/dashboard/article6', icon: '🏛️', title: 'Article 6 ITMO', subtitle: 'Marchés carbone souverains', color: '#38BDF8', desc: '×3-5 prix vs Verra classique. Transactions état-à-état sous l\'Accord de Paris.', badge: '$35-55/tCO₂e' },
@@ -18,7 +18,7 @@ const MODULES = [
 export default function StandardsPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [summary, setSummary] = useState<any>(null);
+  const [summary, setSummary] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/article6/projects`, { headers: h() })

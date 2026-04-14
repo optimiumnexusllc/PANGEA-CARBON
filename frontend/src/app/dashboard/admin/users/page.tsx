@@ -28,7 +28,7 @@ const Input = ({ type = 'text', value, onChange, placeholder, autoFocus }: any) 
 export default function AdminUsersPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -38,7 +38,7 @@ export default function AdminUsersPage() {
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
   const [saving, setSaving] = useState(false);
-  const [deleteUser, setDeleteUser] = useState<any>(null);
+  const [deleteUser, setDeleteUser] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'ANALYST' });
 
@@ -70,7 +70,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const updateUser = async (id: string, data: any) => {
+  const updateUser = async (id, data) => {
     try {
       await fetchAuth(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify(data)  });
       // Mise à jour locale immédiate
@@ -197,7 +197,7 @@ export default function AdminUsersPage() {
               <tr><td colSpan={8} style={{ padding: 40, textAlign: 'center', color: '#4A6278', fontSize: 13 }}>
                 {search || roleFilter ? 'Aucun résultat pour ces filtres' : 'Aucun utilisateur'}
               </td></tr>
-            ) : users.map((u: any) => (
+            ) : users.map((u) => (
               <tr key={u.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', transition: 'background 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,61,0.3)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
@@ -282,13 +282,13 @@ export default function AdminUsersPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div><Label>Nom complet *</Label>
-                <Input value={newUser.name} onChange={(e: any) => setNewUser(u => ({ ...u, name: e.target.value }))} placeholder="Aminata Diallo" autoFocus/>
+                <Input value={newUser.name} onChange={(e) => setNewUser(u => ({ ...u, name: e.target.value }))} placeholder="Aminata Diallo" autoFocus/>
               </div>
               <div><Label>Email *</Label>
-                <Input type="email" value={newUser.email} onChange={(e: any) => setNewUser(u => ({ ...u, email: e.target.value }))} placeholder="aminata@organisation.com"/>
+                <Input type="email" value={newUser.email} onChange={(e) => setNewUser(u => ({ ...u, email: e.target.value }))} placeholder="aminata@organisation.com"/>
               </div>
               <div><Label>Password *</Label>
-                <Input type="password" value={newUser.password} onChange={(e: any) => setNewUser(u => ({ ...u, password: e.target.value }))} placeholder="8 caractères minimum"/>
+                <Input type="password" value={newUser.password} onChange={(e) => setNewUser(u => ({ ...u, password: e.target.value }))} placeholder="8 caractères minimum"/>
               </div>
               <div>
                 <Label>L('Role', 'Rôle')</Label>

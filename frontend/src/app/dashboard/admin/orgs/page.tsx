@@ -11,14 +11,14 @@ const STATUS_COLOR = { ACTIVE: '#00FF94', TRIAL: '#FCD34D', SUSPENDED: '#F87171'
 export default function AdminOrgsPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [orgs, setOrgs] = useState<any[]>([]);
+  const [orgs, setOrgs] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [editOrg, setEditOrg] = useState<any>(null);
-  const [deleteOrg, setDeleteOrg] = useState<any>(null);
+  const [editOrg, setEditOrg] = useState(null);
+  const [deleteOrg, setDeleteOrg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [msg, setMsg] = useState<any>(null);
+  const [msg, setMsg] = useState(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: '', plan: 'TRIAL', country: '', billingEmail: '', maxProjects: 5, maxMW: 100, maxUsers: 3 });
 
@@ -29,12 +29,12 @@ export default function AdminOrgsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const updatePlan = async (id: string, plan: string) => {
+  const updatePlan = async (id, plan) => {
     await fetchAuth(`/admin/orgs/${id}`, { method: 'PATCH', body: JSON.stringify({ plan  }) });
     load();
   };
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id, status) => {
     await fetchAuth(`/admin/orgs/${id}`, { method: 'PATCH', body: JSON.stringify({ status  }) });
     load();
   };
@@ -58,7 +58,7 @@ export default function AdminOrgsPage() {
       const res = await fetchAuth('/admin/orgs/' + editOrg.id + '/full', { method: 'PUT', body: JSON.stringify(editOrg) });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
-      setOrgs((prev: any[]) => prev.map((o: any) => o.id === editOrg.id ? { ...o, ...d } : o));
+      setOrgs((prev: any[]) => prev.map((o) => o.id === editOrg.id ? { ...o, ...d } : o));
       setEditOrg(null);
       flash('Organization mise a jour');
     } catch(e) { flash(e.message, false); }
@@ -71,7 +71,7 @@ export default function AdminOrgsPage() {
       const res = await fetchAuth('/admin/orgs/' + deleteOrg.id + '?force=true', { method: 'DELETE' });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
-      setOrgs((prev: any[]) => prev.filter((o: any) => o.id !== deleteOrg.id));
+      setOrgs((prev: any[]) => prev.filter((o) => o.id !== deleteOrg.id));
       setDeleteOrg(null);
       flash('Organization supprimee');
     } catch(e) { flash(e.message, false); }
@@ -92,7 +92,7 @@ export default function AdminOrgsPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
         {loading ? <div style={{ color: '#4A6278' }}>L('Loading...', 'Chargement...')</div> :
-          orgs.map((org: any) => (
+          orgs.map((org) => (
             <div key={org.id} style={{ background: '#0D1117', border: `1px solid ${PLAN_COLOR[org.plan] || '#1E2D3D'}20`, borderRadius: 10, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
@@ -197,7 +197,7 @@ export default function AdminOrgsPage() {
             {[{ label: 'Nom', key: 'name' }, { label: 'Domaine', key: 'domain' }].map(f => (
               <div key={f.key} style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
-                <input value={editOrg[f.key] || ''} onChange={e => setEditOrg((o: any) => ({ ...o, [f.key]: e.target.value }))}
+                <input value={editOrg[f.key] || ''} onChange={e => setEditOrg((o) => ({ ...o, [f.key]: e.target.value }))}
                   style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 12px', fontSize: 13, outline: 'none' }}/>
               </div>
             ))}
@@ -205,7 +205,7 @@ export default function AdminOrgsPage() {
               {[{ label: 'Max projets', key: 'maxProjects' }, { label: 'Max MW', key: 'maxMW' }, { label: 'Max users', key: 'maxUsers' }].map(f => (
                 <div key={f.key}>
                   <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
-                  <input type="number" value={editOrg[f.key] || ''} onChange={e => setEditOrg((o: any) => ({ ...o, [f.key]: e.target.value }))}
+                  <input type="number" value={editOrg[f.key] || ''} onChange={e => setEditOrg((o) => ({ ...o, [f.key]: e.target.value }))}
                     style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13, outline: 'none' }}/>
                 </div>
               ))}
@@ -213,13 +213,13 @@ export default function AdminOrgsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
               <div>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>PLAN</label>
-                <select value={editOrg.plan || 'FREE'} onChange={e => setEditOrg((o: any) => ({ ...o, plan: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13 }}>
+                <select value={editOrg.plan || 'FREE'} onChange={e => setEditOrg((o) => ({ ...o, plan: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13 }}>
                   {['FREE','TRIAL','STARTER','PRO','ENTERPRISE','CUSTOM'].map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
               <div>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>STATUT</label>
-                <select value={editOrg.status || 'ACTIVE'} onChange={e => setEditOrg((o: any) => ({ ...o, status: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13 }}>
+                <select value={editOrg.status || 'ACTIVE'} onChange={e => setEditOrg((o) => ({ ...o, status: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '8px 10px', fontSize: 13 }}>
                   {['ACTIVE','SUSPENDED','TRIAL','CHURNED'].map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>

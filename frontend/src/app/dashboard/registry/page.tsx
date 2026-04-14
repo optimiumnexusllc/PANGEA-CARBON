@@ -6,18 +6,18 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const STATUS_COLOR = { ISSUED: '#00FF94', RETIRED: '#F87171', TRANSFERRED: '#38BDF8', CANCELLED: '#4A6278' };
 
 export default function RegistryPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [chain, setChain] = useState<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [chain, setChain] = useState(null);
+  const [projects, setProjects] = useState([]);
   const [form, setForm] = useState({ projectId: '', vintage: String(new Date().getFullYear()), quantity: '', standard: 'VERRA_VCS' });
   const [issuing, setIssuing] = useState(false);
-  const [newBlock, setNewBlock] = useState<any>(null);
+  const [newBlock, setNewBlock] = useState(null);
 
   useEffect(() => {
     fetchAuth(`/registry/chain`).then(r => r.json()).then(setChain).catch(() => {});
@@ -35,7 +35,7 @@ export default function RegistryPage() {
     } finally { setIssuing(false); }
   };
 
-  const retire = async (id: string) => {
+  const retire = async (id) => {
     const reason = prompt('Raison de retraite (ex: Compensation bilan carbone 2026)');
     if (!reason) return;
     await fetchAuth(`/registry/retire/${id}`, { method: 'POST', body: JSON.stringify({ retiredFor: reason  }) });
@@ -89,7 +89,7 @@ export default function RegistryPage() {
               {type === 'select' ? (
                 <select value={form.projectId} onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
                   style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px', fontSize: 13 }}>
-                  {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               ) : (
                 <input type={type} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
@@ -128,7 +128,7 @@ export default function RegistryPage() {
                 ))}
               </tr></thead>
               <tbody>
-                {chain.blocks.map((b: any) => (
+                {chain.blocks.map((b) => (
                   <tr key={b.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.3)' }}>
                     <td style={{ padding: '9px 12px', fontSize: 12, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>#{b.blockNumber}</td>
                     <td style={{ padding: '9px 12px', fontSize: 12, color: '#E8EFF6' }}>{b.project?.name || '—'}</td>

@@ -369,7 +369,7 @@ export const translations = {
 }
 };
 
-export function t(lang: string, key: string): string {
+export function t(lang, key) {
   return (translations as any)[lang]?.[key]
       || (translations as any).en?.[key]
       || key;

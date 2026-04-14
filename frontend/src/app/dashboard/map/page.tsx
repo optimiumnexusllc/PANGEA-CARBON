@@ -10,14 +10,14 @@ const TYPE_COLORS = {
 const TYPE_ICONS = {
   SOLAR: '☀️', WIND: '💨', HYDRO: '💧', BIOMASS: '🌿', HYBRID: '⚡'
 };
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '—';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '—';
 
 export default function MapPage() {
   const { t, lang } = useLang();
-  const mapRef = useRef<any>(null);
-  const mapInstance = useRef<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [selected, setSelected] = useState<any>(null);
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const [projects, setProjects] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function MapPage() {
     return () => { /* cleanup */ };
   }, []);
 
-  const addMarkers = (map: any, L: any) => {
+  const addMarkers = (map, L) => {
     projects.forEach(p => {
       if (!p.latitude || !p.longitude) return;
       const mrv = p.mrvRecords?.[0];

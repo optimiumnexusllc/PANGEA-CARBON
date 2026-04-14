@@ -65,10 +65,10 @@ const METHOD_COLOR = { GET: '#00FF94', POST: '#38BDF8', PUT: '#FCD34D', DELETE: 
 export default function DocsPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState(null);
   const [copied, setCopied] = useState('');
 
-  const copy = (text: string, id: string) => {
+  const copy = (text, id) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
     setTimeout(() => setCopied(''), 2000);

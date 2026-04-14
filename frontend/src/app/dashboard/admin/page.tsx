@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const ACTION_COLOR = {
   CREATE_USER: '#00FF94', UPDATE_USER: '#38BDF8', DEACTIVATE_USER: '#F87171',
@@ -16,7 +16,7 @@ const ACTION_COLOR = {
 export default function AdminOverviewPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function AdminOverviewPage() {
         {/* Users by Role */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>L('USERS BY ROLE', 'UTILISATEURS PAR RÔLE')</div>
-          {(data?.usersByRole || []).map((r: any) => (
+          {(data?.usersByRole || []).map((r) => (
             <div key={r.role} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{r.role}</span>
               <span style={{ fontSize: 12, color: '#E8EFF6', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{r.count}</span>
@@ -73,7 +73,7 @@ export default function AdminOverviewPage() {
         {/* Orgs by Plan */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>L('ORGS BY PLAN', 'ORGS PAR PLAN')</div>
-          {(data?.orgsByPlan || []).map((r: any) => (
+          {(data?.orgsByPlan || []).map((r) => (
             <div key={r.plan} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{r.plan}</span>
               <span style={{ fontSize: 12, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{r.count}</span>
@@ -84,7 +84,7 @@ export default function AdminOverviewPage() {
         {/* Projects by Status */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>L('PROJECTS BY STATUS', 'PROJETS PAR STATUT')</div>
-          {(data?.projectsByStatus || []).map((r: any) => (
+          {(data?.projectsByStatus || []).map((r) => (
             <div key={r.status} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{r.status}</span>
               <span style={{ fontSize: 12, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{r.count}</span>
@@ -100,7 +100,7 @@ export default function AdminOverviewPage() {
           <a href="/dashboard/admin/audit" style={{ fontSize: 11, color: '#38BDF8', textDecoration: 'none' }}>L('View all →', 'Voir tout →')</a>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {(data?.recentAudit || []).map((log: any) => (
+          {(data?.recentAudit || []).map((log) => (
             <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '7px 10px', background: '#121920', borderRadius: 6 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: ACTION_COLOR[log.action] || '#4A6278', flexShrink: 0 }}/>
               <span style={{ fontSize: 11, color: '#E8EFF6', fontFamily: 'JetBrains Mono, monospace', minWidth: 180 }}>{log.action}</span>

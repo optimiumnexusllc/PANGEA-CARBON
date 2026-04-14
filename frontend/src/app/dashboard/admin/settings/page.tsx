@@ -174,11 +174,11 @@ const CATEGORIES = [
 
 /* ─── Single setting row ─────────────────────── */
 function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
-  def: { key: string; label: string; placeholder: string; encrypted: boolean };
-  hasValue: boolean;
-  displayValue: string;
-  onSave: (key: string, value: string) => Promise<{ success: boolean; masked?: string; error?: string }>;
-  onSuccess: (key: string, masked: string) => void;
+  def: any;
+  hasValue: any;
+  displayValue: any;
+  onSave: any;
+  onSuccess: any;
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
@@ -303,7 +303,7 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       const map = {};
       if (Array.isArray(data.settings)) {
-        data.settings.forEach((s: any) => {
+        data.settings.forEach((s) => {
           map[s.key] = { hasValue: !!s.hasValue, displayValue: s.value || '' };
         });
       }
@@ -317,7 +317,7 @@ export default function AdminSettingsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const saveSetting = async (key: string, value: string): Promise<{ success: boolean; masked?: string; error?: string }> => {
+  const saveSetting = async (key, value) => {
     try {
       const res = await fetchAuth(`/admin/settings/${key}`, {
         method: 'PUT',
@@ -332,7 +332,7 @@ export default function AdminSettingsPage() {
   };
 
   // Called by SettingRow after a successful save — update local state immediately
-  const handleSuccess = (key: string, masked: string) => {
+  const handleSuccess = (key, masked) => {
     setSettingsState(prev => ({
       ...prev,
       [key]: { hasValue: true, displayValue: masked },
@@ -459,7 +459,7 @@ export default function AdminSettingsPage() {
           <div style={{ fontSize: 10, color: activeCategory.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 10, letterSpacing: '0.08em' }}>
             GUIDE · {activeCategory.label.toUpperCase()}
           </div>
-          {activeCategory.guide.map(([step, action]: string[]) => (
+          {activeCategory.guide.map(([step, action]) => (
             <div key={step} style={{ display: 'flex', gap: 14, marginBottom: 8 }}>
               <span style={{ fontSize: 11, color: activeCategory.color, fontFamily: 'JetBrains Mono, monospace', flexShrink: 0, minWidth: 120, fontWeight: 600 }}>{step}</span>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{action}</span>

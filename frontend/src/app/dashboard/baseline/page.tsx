@@ -20,10 +20,10 @@ const GRID_CONTEXT = [
 export default function BaselinePage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function BaselinePage() {
     });
   }, []);
 
-  const loadHistory = (id: string) => {
+  const loadHistory = (id) => {
     fetch(`${API}/baseline/${id}`, { headers: h() })
       .then(r => r.json()).then(d => setHistory(d.assessments || [])).catch(() => {});
   };
@@ -48,7 +48,7 @@ export default function BaselinePage() {
     } finally { setRunning(false); }
   };
 
-  const proj = projects.find((p: any) => p.id === selected);
+  const proj = projects.find((p) => p.id === selected);
   const gridRef = GRID_CONTEXT.find(g => g.code === proj?.countryCode);
 
   return (
@@ -88,7 +88,7 @@ export default function BaselinePage() {
           <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Project cible</label>
           <select value={selected} onChange={e => { setSelected(e.target.value); loadHistory(e.target.value); setResult(null); }}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px', fontSize: 13, marginBottom: 20 }}>
-            {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode} · {p.installedMW} MW</option>)}
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode} · {p.installedMW} MW</option>)}
           </select>
 
           {/* Methodology info */}
@@ -177,7 +177,7 @@ export default function BaselinePage() {
               {result.assessment?.recommendedActions?.length > 0 && (
                 <div>
                   <div style={{ fontSize: 11, color: '#EF9F27', marginBottom: 8 }}>ACTIONS RECOMMANDÉES</div>
-                  {result.assessment.recommendedActions.map((a: string, i: number) => (
+                  {result.assessment.recommendedActions.map((a, i) => (
                     <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12 }}>
                       <span style={{ color: '#EF9F27', flexShrink: 0 }}>→</span>
                       <span style={{ color: '#8FA3B8' }}>{a}</span>
@@ -210,7 +210,7 @@ export default function BaselinePage() {
               ))}
             </tr></thead>
             <tbody>
-              {history.map((a: any) => (
+              {history.map((a) => (
                 <tr key={a.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                   <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(a.assessmentDate).toLocaleDateString('en-US')}</td>
                   <td style={{ padding: '9px 14px', fontSize: 14, color: '#EF9F27', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>{a.baselineEF}</td>

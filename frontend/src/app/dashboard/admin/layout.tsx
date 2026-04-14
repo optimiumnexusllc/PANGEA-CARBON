@@ -14,12 +14,12 @@ const ADMIN_NAV = [
   { href: '/dashboard/admin/billing',  label: 'Revenue',         icon: '💰' },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }) {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const u = localStorage.getItem('user');

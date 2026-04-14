@@ -42,10 +42,10 @@ function PercentileBar({ value, label, unit, benchmark, rating }: any) {
 export default function BenchmarkPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
-  const [data, setData] = useState<any>(null);
-  const [ranking, setRanking] = useState<any>(null);
+  const [data, setData] = useState(null);
+  const [ranking, setRanking] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function BenchmarkPage() {
       .then(r => r.json()).then(setData).catch(console.error).finally(() => setLoading(false));
   }, [selected]);
 
-  const radarData = data?.metrics?.map((m: any) => ({
+  const radarData = data?.metrics?.map((m) => ({
     subject: m.label.split(' ')[0],
     value: m.percentile,
     fullMark: 100,
@@ -76,7 +76,7 @@ export default function BenchmarkPage() {
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, minWidth: 240 }}>
-          {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
 
@@ -93,7 +93,7 @@ export default function BenchmarkPage() {
               ))}
             </tr></thead>
             <tbody>
-              {ranking.ranking.map((p: any, i: number) => (
+              {ranking.ranking.map((p, i) => (
                 <tr key={p.id} onClick={() => setSelected(p.id)}
                   style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', cursor: 'pointer', background: selected === p.id ? 'rgba(252,211,77,0.04)' : 'transparent' }}>
                   <td style={{ padding: '9px 14px', fontSize: 14, fontWeight: 800, color: i === 0 ? '#FCD34D' : '#4A6278', fontFamily: 'Syne, sans-serif' }}>#{i + 1}</td>
@@ -140,7 +140,7 @@ export default function BenchmarkPage() {
                 <div style={{ fontSize: 10, color: '#4A6278' }}>Score globale</div>
               </div>
             </div>
-            {data.metrics?.map((m: any) => (
+            {data.metrics?.map((m) => (
               <PercentileBar key={m.id} label={m.label} value={m.percentile} unit={m.unit} benchmark={m.benchmark} rating={m.rating}/>
             ))}
           </div>
@@ -154,7 +154,7 @@ export default function BenchmarkPage() {
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="#1E2D3D"/>
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#4A6278', fontSize: 11 }}/>
-                    <Tooltip formatter={(v: any) => `P${Math.round(v)}`}/>
+                    <Tooltip formatter={(v) => `P${Math.round(v)}`}/>
                     <Radar name="Votre projet" dataKey="value" stroke="#FCD34D" fill="rgba(252,211,77,0.15)" strokeWidth={2}/>
                   </RadarChart>
                 </ResponsiveContainer>

@@ -32,7 +32,7 @@ export default function SignupPage() {
     plan: 'trial',
   });
 
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const next = () => {
     setError('');
@@ -133,16 +133,16 @@ export default function SignupPage() {
           {step === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#E8EFF6' }}>Créez votre compte</h2>
-              <div><Label>Full name *</Label><Input placeholder="Dayiri Esdras" value={form.name} onChange={(e: any) => set('name', e.target.value)}/></div>
-              <div><Label>Email professionnel *</Label><Input type="email" placeholder="vous@organisation.com" value={form.email} onChange={(e: any) => set('email', e.target.value)}/></div>
-              <div><Label>Password *</Label><Input type="password" placeholder="8 caractères minimum" value={form.password} onChange={(e: any) => set('password', e.target.value)}/></div>
+              <div><Label>Full name *</Label><Input placeholder="Dayiri Esdras" value={form.name} onChange={(e) => set('name', e.target.value)}/></div>
+              <div><Label>Email professionnel *</Label><Input type="email" placeholder="vous@organisation.com" value={form.email} onChange={(e) => set('email', e.target.value)}/></div>
+              <div><Label>Password *</Label><Input type="password" placeholder="8 caractères minimum" value={form.password} onChange={(e) => set('password', e.target.value)}/></div>
             </div>
           )}
 
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#E8EFF6' }}>Votre organisation</h2>
-              <div><Label>Nom de l'organisation *</Label><Input placeholder="CFAO Aeolus / SolarAfrica Mali" value={form.orgName} onChange={(e: any) => set('orgName', e.target.value)}/></div>
+              <div><Label>Nom de l'organisation *</Label><Input placeholder="CFAO Aeolus / SolarAfrica Mali" value={form.orgName} onChange={(e) => set('orgName', e.target.value)}/></div>
               <div>
                 <Label>Type</Label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
@@ -156,7 +156,7 @@ export default function SignupPage() {
                   ))}
                 </div>
               </div>
-              <div><Label>Pays principal</Label><Input placeholder="Côte d'Ivoire, Kenya, Nigeria..." value={form.orgCountry} onChange={(e: any) => set('orgCountry', e.target.value)}/></div>
+              <div><Label>Pays principal</Label><Input placeholder="Côte d'Ivoire, Kenya, Nigeria..." value={form.orgCountry} onChange={(e) => set('orgCountry', e.target.value)}/></div>
             </div>
           )}
 
@@ -164,7 +164,7 @@ export default function SignupPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#E8EFF6' }}>Premier projet</h2>
               <p style={{ fontSize: 13, color: '#4A6278', margin: 0 }}>Optionnel — vous pouvez en ajouter plus tard</p>
-              <div><Label>Nom du projet</Label><Input placeholder="Parc Solaire Abidjan Nord" value={form.projectName} onChange={(e: any) => set('projectName', e.target.value)}/></div>
+              <div><Label>Nom du projet</Label><Input placeholder="Parc Solaire Abidjan Nord" value={form.projectName} onChange={(e) => set('projectName', e.target.value)}/></div>
               <div>
                 <Label>Type d'énergie</Label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6 }}>
@@ -178,7 +178,7 @@ export default function SignupPage() {
                   ))}
                 </div>
               </div>
-              <div><Label>Puissance installée (MW)</Label><Input type="number" placeholder="10.5" value={form.projectMW} onChange={(e: any) => set('projectMW', e.target.value)}/></div>
+              <div><Label>Puissance installée (MW)</Label><Input type="number" placeholder="10.5" value={form.projectMW} onChange={(e) => set('projectMW', e.target.value)}/></div>
             </div>
           )}
 

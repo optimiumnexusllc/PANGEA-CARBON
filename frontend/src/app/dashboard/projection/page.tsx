@@ -11,7 +11,7 @@ const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDi
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
   <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
     <div style={{ color: '#4A6278', marginBottom: 6, fontFamily: 'JetBrains Mono, monospace' }}>{label}</div>
-    {payload.map((p: any, i: number) => (
+    {payload.map((p, i) => (
       <div key={i} style={{ color: p.color, marginBottom: 3 }}>
         {p.name}: <strong>${fmt(p.value)}</strong>
       </div>
@@ -22,13 +22,13 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
 export default function ProjectionPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
-  const [portfolioData, setPortfolioData] = useState<any>(null);
-  const [projectData, setProjectData] = useState<any>(null);
+  const [portfolioData, setPortfolioData] = useState(null);
+  const [projectData, setProjectData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [params, setParams] = useState({ years: 10, carbonPrice: 12, additionalMW: 0 });
-  const [view, setView] = useState<'portfolio' | 'project'>('portfolio');
+  const [view, setView] = useState('portfolio');
 
   useEffect(() => {
     api.getProjects().then(d => { setProjects(d.projects || []); if (d.projects?.[0]) setSelected(d.projects[0].id); });
@@ -52,11 +52,11 @@ export default function ProjectionPage() {
   useEffect(() => { if (view === 'project') fetchProject(); }, [selected, view]);
 
   const chartData = view === 'portfolio' && portfolioData
-    ? portfolioData.byYear.map((y: any) => ({ year: String(y.year), Optimistic: y.optimistic, Base: y.base, Conservative: y.conservative }))
+    ? portfolioData.byYear.map((y) => ({ year: String(y.year), Optimistic: y.optimistic, Base: y.base, Conservative: y.conservative }))
     : projectData
       ? Object.keys(projectData.scenarios || {}).flatMap(() => {
           const years = projectData.scenarios.base?.yearly || [];
-          return years.map((y: any, i: number) => ({
+          return years.map((y, i) => ({
             year: String(y.year),
             Optimistic: projectData.scenarios.optimistic?.yearly[i]?.revenue || 0,
             Base: y.revenue,
@@ -96,7 +96,7 @@ export default function ProjectionPage() {
           <>
             <select value={selected} onChange={e => setSelected(e.target.value)}
               style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
-              {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
 
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -185,7 +185,7 @@ export default function ProjectionPage() {
           {projectData.insights && (
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>INSIGHTS STRATÉGIQUES</div>
-              {projectData.insights.map((ins: any, i: number) => (
+              {projectData.insights.map((ins, i) => (
                 <div key={i} style={{ padding: '12px', background: '#121920', borderRadius: 8, marginBottom: 10, borderLeft: '3px solid #A78BFA' }}>
                   <div style={{ fontSize: 11, color: '#A78BFA', marginBottom: 4, fontWeight: 600 }}>{ins.label}</div>
                   <div style={{ fontSize: 12, color: '#8FA3B8', lineHeight: 1.6 }}>{ins.value}</div>

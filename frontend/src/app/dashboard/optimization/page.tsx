@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const EFFORT_STYLE = {
   LOW:    { color: '#00FF94', bg: 'rgba(0,255,148,0.1)',    label: 'Facile' },
@@ -18,10 +18,10 @@ const CAT_COLOR = { Standard: '#38BDF8', Marché: '#A78BFA', Performance: '#00FF
 export default function OptimizationPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
-  const [data, setData] = useState<any>(null);
-  const [gap, setGap] = useState<any>(null);
+  const [data, setData] = useState(null);
+  const [gap, setGap] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState('ALL');
 
@@ -51,7 +51,7 @@ export default function OptimizationPage() {
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, minWidth: 240 }}>
-          {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
 
@@ -105,7 +105,7 @@ export default function OptimizationPage() {
 
       {!loading && filtered.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {filtered.map((rec: any, i: number) => {
+          {filtered.map((rec, i) => {
             const eff = EFFORT_STYLE[rec.effort];
             const catColor = CAT_COLOR[rec.category] || '#8FA3B8';
             return (

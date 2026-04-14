@@ -7,21 +7,21 @@ import { api } from '@/lib/api';
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
-const fmtUSD = (n: number) => '$' + fmt(n);
+const fmtUSD = (n) => '$' + fmt(n);
 
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
   <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
     <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-    {payload.map((p: any, i: number) => <div key={i} style={{ color: p.color || '#E8EFF6', fontWeight: 600 }}>{fmt(p.value, 1)} {p.name === 'revenue' ? 'USD' : 'MWh'}</div>)}
+    {payload.map((p, i) => <div key={i} style={{ color: p.color || '#E8EFF6', fontWeight: 600 }}>{fmt(p.value, 1)} {p.name === 'revenue' ? 'USD' : 'MWh'}</div>)}
   </div>
 ) : null;
 
 export default function AnalyticsPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState('');
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function AnalyticsPage() {
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, minWidth: 240 }}>
-          {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
       </div>
 
@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CAUSAL ANALYSIS · GAP FACTORS</div>
               {data.causalInsights?.length > 0 ? (
-                data.causalInsights.map((ins: any, i: number) => (
+                data.causalInsights.map((ins, i) => (
                   <div key={i} style={{ padding: '12px', background: ins.type === 'warning' ? 'rgba(248,113,113,0.06)' : 'rgba(56,189,248,0.06)', border: `1px solid ${ins.type === 'warning' ? 'rgba(248,113,113,0.2)' : 'rgba(56,189,248,0.15)'}`, borderRadius: 8, marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                       <div>
