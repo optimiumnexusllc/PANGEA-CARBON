@@ -21,23 +21,23 @@ const MAIN_NAV = [
 ];
 
 const ELITE_MODULES = [
-  { href: '/dashboard/article6', label: 'Article 6 ITMO',   icon: '🏛️', color: '#38BDF8', badge: '×3-5' },
-  { href: '/dashboard/sdg',      label: 'Gold Standard SDG',icon: '🌱', color: '#FCD34D', badge: '+$12/t' },
-  { href: '/dashboard/dmrv',     label: 'dMRV Satellite',   icon: '🛰️', color: '#A78BFA', badge: 'LIVE' },
-  { href: '/dashboard/corsia',   label: 'CORSIA Aviation',  icon: '✈️', color: '#F87171', badge: '$22/t' },
-  { href: '/dashboard/registry', label: 'Blockchain Registry',icon: '⛓️', color: '#00FF94', badge: 'SHA256' },
-    { href: '/dashboard/tokens', label: 'Token Generator', icon: '🔐', color: '#00FF94' },
-  { href: '/dashboard/baseline', label: 'AI Baseline',      icon: '🤖', color: '#EF9F27', badge: 'AI' },
+  { href: '/dashboard/article6', label: 'Article 6 ITMO',    labelKey: 'mod_article6', icon: '🏛️', color: '#38BDF8', badge: '×3-5' },
+  { href: '/dashboard/sdg',      label: 'Gold Standard SDG', labelKey: 'mod_sdg',      icon: '🌱', color: '#FCD34D', badge: '+$12/t' },
+  { href: '/dashboard/dmrv',     label: 'dMRV Satellite',    labelKey: 'mod_dmrv',     icon: '🛰️', color: '#A78BFA', badge: 'LIVE' },
+  { href: '/dashboard/corsia',   label: 'CORSIA Aviation',   labelKey: 'mod_corsia',   icon: '✈️', color: '#F87171', badge: '$22/t' },
+  { href: '/dashboard/registry', label: 'Blockchain Registry',labelKey: 'mod_registry', icon: '⛓️', color: '#00FF94', badge: 'SHA256' },
+  { href: '/dashboard/tokens',   label: 'Token Generator',   labelKey: 'mod_tokens',   icon: '🔐', color: '#00FF94' },
+  { href: '/dashboard/baseline', label: 'AI Baseline',       labelKey: 'mod_baseline', icon: '🤖', color: '#EF9F27', badge: 'AI' },
 ];
 
 const INTELLIGENCE_MODULES = [
-  { href: '/dashboard/analytics',    label: 'Analyse détaillée', icon: '🔬', color: '#38BDF8', badge: 'Causal' },
-  { href: '/dashboard/optimization', label: 'Optimisation MRV',  icon: '⚙️', color: '#00FF94', badge: 'ROI' },
-  { href: '/dashboard/projection',   label: 'Projection 10 ans', icon: '📈', color: '#A78BFA', badge: 'Monte Carlo' },
-  { href: '/dashboard/benchmark',    label: 'Benchmark Afrique', icon: '🏆', color: '#FCD34D', badge: 'IRENA 2024' },
+  { href: '/dashboard/analytics',    label: 'Analytics',       labelKey: 'mod_analytics',  icon: '🔬', color: '#38BDF8', badge: 'Causal' },
+  { href: '/dashboard/optimization', label: 'MRV Optimizer',   labelKey: 'mod_optim',      icon: '⚙️', color: '#00FF94', badge: 'ROI' },
+  { href: '/dashboard/projection',   label: '10-Year Forecast',labelKey: 'mod_projection', icon: '📈', color: '#A78BFA', badge: 'Monte Carlo' },
+  { href: '/dashboard/benchmark',    label: 'Africa Benchmark',labelKey: 'mod_benchmark',  icon: '🏆', color: '#FCD34D', badge: 'IRENA 2024' },
 ];
 
-function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
+function SidebarContent({ user, logout }) {
   const { t } = useLang();
   const pathname = usePathname();
   const flags = useFeatureFlags();
@@ -68,7 +68,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d={item.icon}/>
             </svg>
-            {item.label}
+            {t(item.labelKey) || item.label}
           </Link>
         ))}
 
@@ -80,7 +80,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
               border: isStandards ? '1px solid rgba(56,189,248,0.2)' : '1px solid transparent' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 13 }}>⬡</span>
-              <span style={{ fontSize: 11, color: isStandards ? '#38BDF8' : '#4A6278', fontWeight: isStandards ? 600 : 400 }}>Carbon Intelligence</span>
+              <span style={{ fontSize: 11, color: isStandards ? '#38BDF8' : '#4A6278', fontWeight: isStandards ? 600 : 400 }}>{t('mod_carbon_hub') || 'Carbon Hub'}</span>
             </div>
             <span style={{ fontSize: 8, background: 'rgba(56,189,248,0.15)', color: '#38BDF8', borderRadius: 3, padding: '2px 5px', fontFamily: 'JetBrains Mono, monospace' }}>6 MODULES</span>
           </Link>
@@ -93,7 +93,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: 12 }}>{mod.icon}</span>
                 <span style={{ fontSize: 11, color: pathname.startsWith(mod.href) ? mod.color : '#4A6278', fontWeight: pathname.startsWith(mod.href) ? 600 : 400 }}>
-                  {mod.label}
+                  {t(mod.labelKey) || mod.label}
                 </span>
               </div>
               <span style={{ fontSize: 8, background: `${mod.color}15`, color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
@@ -121,7 +121,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: 12 }}>{mod.icon}</span>
                 <span style={{ fontSize: 11, color: pathname.startsWith(mod.href) ? mod.color : '#4A6278', fontWeight: pathname.startsWith(mod.href) ? 600 : 400 }}>
-                  {mod.label}
+                  {t(mod.labelKey) || mod.label}
                 </span>
               </div>
               <span style={{ fontSize: 8, background: `${mod.color}15`, color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
@@ -136,7 +136,7 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            Paramètres
+            {t('dash_settings') || 'Settings'}
           </Link>
         </div>
       </nav>
@@ -168,16 +168,16 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
           <LangToggle />
         </div>
         <button onClick={logout} style={{ width: '100%', background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 5, color: '#4A6278', padding: '5px', cursor: 'pointer', fontSize: 11 }}>
-          Déconnexion
+          {t('dash_logout') || 'Logout'}
         </button>
       </div>
     </>
   );
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }) {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const u = localStorage.getItem('user');
