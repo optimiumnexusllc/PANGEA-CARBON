@@ -609,7 +609,7 @@ export default function PipelinePage() {
                 {/* File picker — méthode 1 */}
                 <div style={{ marginBottom:10 }}>
                   <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>
-                    {L('UPLOAD FROM COMPUTER','IMPORTER DEPUIS L'ORDINATEUR')}
+                    {L('UPLOAD FROM COMPUTER',"IMPORTER DEPUIS L'ORDINATEUR")}
                   </div>
                   <label style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'rgba(0,255,148,0.05)', border:'1px dashed rgba(0,255,148,0.25)', borderRadius:8, cursor:'pointer' }}>
                     <span style={{ fontSize:20 }}>📁</span>
