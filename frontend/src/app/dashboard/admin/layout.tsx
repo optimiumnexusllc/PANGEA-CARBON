@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ const ADMIN_NAV = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { t, lang } = useLang();
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);

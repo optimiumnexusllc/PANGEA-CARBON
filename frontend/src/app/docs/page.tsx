@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useState } from 'react';
 
 const BASE_URL = 'https://pangea-carbon.com/api';
@@ -62,6 +63,7 @@ const ENDPOINTS = [
 const METHOD_COLOR: Record<string, string> = { GET: '#00FF94', POST: '#38BDF8', PUT: '#FCD34D', DELETE: '#F87171', PATCH: '#A78BFA' };
 
 export default function DocsPage() {
+  const { t, lang } = useLang();
   const [active, setActive] = useState<string | null>(null);
   const [copied, setCopied] = useState('');
 

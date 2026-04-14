@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -18,6 +19,7 @@ const PLANS = [
 ];
 
 export default function SignupPage() {
+  const { t, lang } = useLang();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);

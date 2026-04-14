@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -20,6 +21,7 @@ const STATUS_FR: Record<string, string> = {
 const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 
 export default function ProjectsPage() {
+  const { t, lang } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);

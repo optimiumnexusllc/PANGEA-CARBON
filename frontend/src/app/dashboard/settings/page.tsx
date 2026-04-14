@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 
@@ -94,6 +95,7 @@ const PLANS = [
 
 
 export default function SettingsPage() {
+  const { t, lang } = useLang();
   const [user, setUser] = useState<any>(null);
   const [showContact, setShowContact] = useState(false);
   const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });

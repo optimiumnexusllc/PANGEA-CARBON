@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { api } from '@/lib/api';
@@ -22,6 +23,7 @@ const SEVERITY_STYLE: Record<string, { bg: string; border: string; color: string
 };
 
 export default function DashboardPage() {
+  const { t, lang } = useLang();
   const [stats, setStats] = useState<any>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);

@@ -86,7 +86,7 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
   const [value, setValue] = useState('');
   const [show, setShow] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [feedback, setFeedback] = useState(null);
 
   const save = async () => {
     if (!value.trim()) { setFeedback({ msg: 'Valeur requise', ok: false }); return; }
@@ -185,11 +185,11 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
 /* ─── Main page ──────────────────────────────── */
 export default function AdminSettingsPage() {
   const { t } = useLang();
-  const [settingsState, setSettingsState] = useState<Record<string, { hasValue: boolean; displayValue: string }>>({});
+  const [settingsState, setSettingsState] = useState({});
   const [activeTab, setActiveTab] = useState('smtp');
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
-  const [testResult, setTestResult] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [testResult, setTestResult] = useState(null);
   const [testLoading, setTestLoading] = useState(false);
 
   const load = useCallback(async () => {

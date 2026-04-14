@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -77,6 +78,7 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 }
 
 export default function LandingPage() {
+  const { t, lang } = useLang();
   const router = useRouter();
   const [checked, setChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

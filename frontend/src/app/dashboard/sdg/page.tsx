@@ -24,7 +24,7 @@ export default function SDGPage() {
   const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
-  const [scores, setScores] = useState<Record<string, number>>({});
+  const [scores, setScores] = useState({});
   const [jobs, setJobs] = useState('');
   const [households, setHouseholds] = useState('');
   const [result, setResult] = useState<any>(null);

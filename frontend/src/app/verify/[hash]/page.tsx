@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 
 const TIER_CONFIG: Record<string, { color: string; glow: string; label: string; rank: number }> = {
@@ -9,6 +10,7 @@ const TIER_CONFIG: Record<string, { color: string; glow: string; label: string; 
 };
 
 export default function VerifyPage({ params }: { params: { hash: string } }) {
+  const { t, lang } = useLang();
   const [cert, setCert] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
