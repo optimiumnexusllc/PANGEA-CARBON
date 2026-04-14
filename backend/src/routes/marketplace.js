@@ -21,6 +21,7 @@ const auth = require('../middleware/auth');
 const crypto = require('crypto');
 const prisma = new PrismaClient();
 const { getLiveCarbonPrices, AFRICA_SPREAD, BASELINE_PRICES } = require('../services/carbonPrices.service');
+const { decrypt } = require('../services/crypto.service');
 const { addOrder: obAddOrder, getDepth, seedLiquidity, getMarketStats: obGetStats } = require('../services/orderbook.service');
 
 // ─── Configuration ────────────────────────────────────────────────────────────
@@ -31,7 +32,8 @@ async function getPangeaFee() {
   try {
     const setting = await prisma.systemSetting.findUnique({ where: { key: 'pangea_fee_pct' } });
     if (setting?.value) {
-      const val = parseFloat(setting.encrypted ? setting.value : setting.value);
+      const raw = setting.encrypted ? decrypt(setting.value) : setting.value;
+      const val = parseFloat(raw);
       if (!isNaN(val) && val > 0 && val < 50) return val;
     }
   } catch(_e) {}
@@ -44,18 +46,25 @@ async function getPangeaFee() {
 
 // ─── Stripe — lit depuis DB ou env var ───────────────────────────────────────
 async function getStripeKey() {
-  // Priorité: marketplace_stripe_key DB > STRIPE_SECRET_KEY env
-  try {
-    const mkt = await prisma.systemSetting.findUnique({ where: { key: 'marketplace_stripe_key' } });
-    if (mkt?.value && mkt.value.length > 10) return mkt.value;
-  } catch(_e) {}
-  try {
-    const sk = await prisma.systemSetting.findUnique({ where: { key: 'stripe_secret_key' } });
-    if (sk?.value && sk.value.length > 10) return sk.value;
-  } catch(_e) {}
-  const envKey = process.env.STRIPE_SECRET_KEY || process.env.MARKETPLACE_STRIPE_KEY;
-  if (envKey) return envKey;
-  return null;
+  // Priorité: marketplace_stripe_key DB > stripe_secret_key DB > env
+  // IMPORTANT: les valeurs sont chiffrées AES-256-GCM en DB → decrypt() requis
+  const tryDbKey = async (key) => {
+    try {
+      const row = await prisma.systemSetting.findUnique({ where: { key } });
+      if (!row?.value) return null;
+      const raw = row.encrypted ? decrypt(row.value) : row.value;
+      if (raw && raw.startsWith('sk_') && raw.length > 20) return raw;
+    } catch(_e) {}
+    return null;
+  };
+
+  return (
+    await tryDbKey('marketplace_stripe_key') ||
+    await tryDbKey('stripe_secret_key') ||
+    process.env.STRIPE_SECRET_KEY ||
+    process.env.MARKETPLACE_STRIPE_KEY ||
+    null
+  );
 }
 async function getStripeClient() {
   const key = await getStripeKey();
