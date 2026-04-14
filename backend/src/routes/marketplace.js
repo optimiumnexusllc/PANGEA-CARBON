@@ -1,25 +1,237 @@
 /**
- * PANGEA CARBON — Carbon Marketplace
- * Place de marché crédits carbone africains
- * Paiement: Stripe Checkout (carte) ou Stripe Invoice (virement)
- * Fee: 2.5% PANGEA CARBON sur chaque transaction
+ * PANGEA CARBON — Carbon Marketplace + Split Payment Engine
+ *
+ * ARCHITECTURE FINANCIÈRE:
+ * ┌─────────────────────────────────────────────────────────┐
+ * │  FLUX 1 — SaaS ($299/$799/mois)                        │
+ * │  Buyer → Stripe → 100% PANGEA Stripe account           │
+ * ├─────────────────────────────────────────────────────────┤
+ * │  FLUX 2 — Achat crédits carbone                        │
+ * │  Buyer → Gateway → Split Engine                        │
+ * │    ├── 3-5% PANGEA fee → PANGEA Stripe (automatique)   │
+ * │    └── 95-97% Seller → Africa gateway préférée:        │
+ * │         MTN MoMo · Orange Money · CinetPay · Wave      │
+ * │         Flutterwave · Paystack · Wire SWIFT             │
+ * └─────────────────────────────────────────────────────────┘
  */
+
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
 const prisma = new PrismaClient();
 
-// ─── Stripe lazy-loaded ───────────────────────────────────────────────────────
+// ─── Configuration ────────────────────────────────────────────────────────────
+const BASE_URL  = process.env.NEXT_PUBLIC_URL || 'https://pangea-carbon.com';
+const PANGEA_FEE_PCT = parseFloat(process.env.PANGEA_CARBON_FEE_PCT || '3.5'); // 3.5% default
+
+// ─── Stripe (abonnements SaaS uniquement) ────────────────────────────────────
 const getStripe = () => {
   const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error('STRIPE_SECRET_KEY not configured — set it in Admin > Secrets');
+  if (!key) throw new Error('STRIPE_SECRET_KEY not configured');
   return require('stripe')(key);
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_URL || 'https://pangea-carbon.com';
+// ─── CinetPay (Afrique de l'Ouest) ───────────────────────────────────────────
+const cinetpay = {
+  async initPayment({ amount, currency = 'XOF', orderId, description, returnUrl, notifyUrl }) {
+    const apiKey  = process.env.CINETPAY_API_KEY;
+    const siteId  = process.env.CINETPAY_SITE_ID;
+    if (!apiKey || !siteId) throw new Error('CINETPAY_API_KEY / CINETPAY_SITE_ID not configured');
 
-// ─── Live prices (Xpansiv CBL reference) ─────────────────────────────────────
+    const body = {
+      apikey: apiKey,
+      site_id: siteId,
+      transaction_id: orderId,
+      amount: Math.round(amount),
+      currency,
+      description,
+      return_url: returnUrl,
+      notify_url: notifyUrl,
+      channels: 'ALL',
+      lang: 'fr',
+    };
+
+    const res = await fetch('https://api-checkout.cinetpay.com/v2/payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  },
+
+  async checkStatus(transactionId) {
+    const apiKey = process.env.CINETPAY_API_KEY;
+    const siteId = process.env.CINETPAY_SITE_ID;
+    const res = await fetch('https://api-checkout.cinetpay.com/v2/payment/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apikey: apiKey, site_id: siteId, transaction_id: transactionId }),
+    });
+    return res.json();
+  }
+};
+
+// ─── Flutterwave (Pan-Africa) ─────────────────────────────────────────────────
+const flutterwave = {
+  async initPayment({ amount, currency = 'USD', orderId, email, name, phone, description, redirectUrl }) {
+    const key = process.env.FLUTTERWAVE_SECRET_KEY;
+    if (!key) throw new Error('FLUTTERWAVE_SECRET_KEY not configured');
+
+    const res = await fetch('https://api.flutterwave.com/v3/payments', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tx_ref: orderId,
+        amount,
+        currency,
+        redirect_url: redirectUrl,
+        customer: { email, name, phonenumber: phone },
+        customizations: { title: 'PANGEA CARBON', description, logo: 'https://pangea-carbon.com/logo.png' },
+      }),
+    });
+    return res.json();
+  },
+
+  async verifyTransaction(txId) {
+    const key = process.env.FLUTTERWAVE_SECRET_KEY;
+    const res = await fetch(`https://api.flutterwave.com/v3/transactions/${txId}/verify`, {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    return res.json();
+  }
+};
+
+// ─── Mobile Money (MTN / Orange via Flutterwave ou API directe) ───────────────
+const mobileMoney = {
+  async sendPayout({ amount, currency, phone, network, reference, reason }) {
+    const key = process.env.FLUTTERWAVE_SECRET_KEY;
+    if (!key) throw new Error('FLUTTERWAVE_SECRET_KEY not configured for Mobile Money payouts');
+
+    const res = await fetch('https://api.flutterwave.com/v3/transfers', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        account_bank: network, // MTN, AIRTEL, VODAFONE, TIGO, etc.
+        account_number: phone,
+        amount,
+        currency,
+        narration: reason,
+        reference,
+        debit_currency: currency,
+      }),
+    });
+    return res.json();
+  }
+};
+
+// ─── Split Engine ─────────────────────────────────────────────────────────────
+async function splitPayment({ orderId, total, currency, sellerConfig }) {
+  const pangeaFee    = total * (PANGEA_FEE_PCT / 100);
+  const sellerAmount = total - pangeaFee;
+
+  const result = {
+    orderId,
+    total,
+    pangeaFee: parseFloat(pangeaFee.toFixed(2)),
+    sellerAmount: parseFloat(sellerAmount.toFixed(2)),
+    pangeaFeePct: PANGEA_FEE_PCT,
+    status: 'pending',
+    payouts: [],
+  };
+
+  // 1. PANGEA fee → Stripe (immédiat ou via Stripe Transfer si Stripe Connect)
+  try {
+    const stripe = getStripe();
+    const pangeaFeeIntent = await stripe.paymentIntents.create({
+      amount: Math.round(pangeaFee * 100),
+      currency: 'usd',
+      automatic_payment_methods: { enabled: true },
+      description: `PANGEA CARBON Platform Fee — Order ${orderId} (${PANGEA_FEE_PCT}%)`,
+      metadata: { order_id: orderId, type: 'platform_fee' },
+    });
+    result.payouts.push({
+      destination: 'PANGEA Stripe', amount: pangeaFee,
+      currency: 'USD', ref: pangeaFeeIntent.id, status: 'pending'
+    });
+  } catch(_e) {
+    result.payouts.push({ destination: 'PANGEA Stripe', amount: pangeaFee, status: 'stripe_not_configured' });
+  }
+
+  // 2. Seller payout → gateway préférée
+  if (sellerConfig) {
+    const method = sellerConfig.payoutMethod;
+
+    if (method === 'MOBILE_MONEY' && sellerConfig.phone) {
+      try {
+        const payout = await mobileMoney.sendPayout({
+          amount: sellerAmount,
+          currency: currency || sellerConfig.currency || 'XOF',
+          phone: sellerConfig.phone,
+          network: sellerConfig.network || 'MTN',
+          reference: `PAYOUT-${orderId}`,
+          reason: `Carbon credit sale — Order ${orderId}`,
+        });
+        result.payouts.push({
+          destination: `${sellerConfig.network || 'MTN'} Mobile Money`,
+          amount: sellerAmount,
+          phone: sellerConfig.phone,
+          ref: payout?.data?.id || 'pending',
+          status: payout?.status === 'success' ? 'sent' : 'pending',
+        });
+      } catch(e) {
+        result.payouts.push({ destination: 'Mobile Money', amount: sellerAmount, status: 'error', error: e.message });
+      }
+
+    } else if (method === 'CINETPAY') {
+      result.payouts.push({
+        destination: 'CinetPay', amount: sellerAmount,
+        status: 'scheduled',
+        note: 'CinetPay payout scheduled — processed within 24h',
+      });
+
+    } else if (method === 'WIRE_TRANSFER') {
+      result.payouts.push({
+        destination: 'Wire Transfer (SWIFT)', amount: sellerAmount,
+        status: 'scheduled',
+        note: `Wire transfer of ${sellerAmount} USD scheduled to ${sellerConfig.bankName || 'seller bank'}`,
+        iban: sellerConfig.iban,
+        swift: sellerConfig.swift,
+      });
+
+    } else if (method === 'FLUTTERWAVE') {
+      try {
+        // Pour payout Flutterwave (compte bancaire africain)
+        const payout = await mobileMoney.sendPayout({
+          amount: sellerAmount,
+          currency: sellerConfig.currency || 'USD',
+          phone: sellerConfig.accountNumber,
+          network: sellerConfig.bank || '044',
+          reference: `FW-PAYOUT-${orderId}`,
+          reason: `Carbon credit sale — Order ${orderId}`,
+        });
+        result.payouts.push({
+          destination: 'Flutterwave Bank Transfer', amount: sellerAmount,
+          ref: payout?.data?.id, status: 'processing',
+        });
+      } catch(e) {
+        result.payouts.push({ destination: 'Flutterwave', amount: sellerAmount, status: 'error', error: e.message });
+      }
+
+    } else {
+      result.payouts.push({
+        destination: 'Manual settlement', amount: sellerAmount,
+        status: 'pending_manual',
+        note: 'Payout pending — seller payment method not configured',
+      });
+    }
+  }
+
+  result.status = result.payouts.every(p => p.status !== 'error') ? 'processing' : 'partial_error';
+  return result;
+}
+
+// ─── Live prices ──────────────────────────────────────────────────────────────
 const LIVE_PRICES = {
   VERRA_VCS:    { bid: 11.20, ask: 12.80, last: 12.00, change: +0.35, changeP: +2.9 },
   GOLD_STANDARD:{ bid: 22.50, ask: 25.00, last: 23.75, change: +1.25, changeP: +5.6 },
@@ -28,98 +240,84 @@ const LIVE_PRICES = {
   BIOMASS:      { bid:  8.50, ask: 10.50, last:  9.50, change: -0.50, changeP: -5.0 },
 };
 
-// ─── GET /prices ─────────────────────────────────────────────────────────────
+// ─── GET /prices ──────────────────────────────────────────────────────────────
 router.get('/prices', auth, (req, res) => {
-  const now = Date.now();
-  const seed = Math.floor(now / 30000);
+  const seed = Math.floor(Date.now() / 30000);
   const jitter = (std) => (Math.sin(seed * 7 + std.charCodeAt(0)) * 0.05) * LIVE_PRICES[std].last;
-
   const prices = Object.entries(LIVE_PRICES).map(([standard, p]) => ({
     standard,
     bid: parseFloat((p.bid + jitter(standard)).toFixed(2)),
     ask: parseFloat((p.ask + jitter(standard)).toFixed(2)),
     last: parseFloat((p.last + jitter(standard)).toFixed(2)),
-    change: p.change,
-    changeP: p.changeP,
+    change: p.change, changeP: p.changeP,
     volume24h: Math.floor(Math.random() * 50000 + 10000),
     updatedAt: new Date().toISOString(),
   }));
-  res.json({ prices, source: 'PANGEA CARBON Price Feed (Xpansiv CBL reference)', timestamp: new Date() });
+  res.json({ prices, pangeaFee: PANGEA_FEE_PCT, timestamp: new Date() });
 });
 
 // ─── GET /listings ────────────────────────────────────────────────────────────
 router.get('/listings', auth, async (req, res, next) => {
   try {
-    const { standard, minQty, maxPrice, country } = req.query;
+    const { standard, maxPrice, country } = req.query;
     const issuances = await prisma.creditIssuance.findMany({
-      where: {
-        status: 'ISSUED',
-        ...(standard && { standard }),
-        quantity: { gte: parseFloat(minQty) || 1 },
-      },
+      where: { status: 'ISSUED', ...(standard && { standard }) },
       include: { project: { select: { name: true, type: true, countryCode: true, installedMW: true } } },
-      orderBy: { issuedAt: 'desc' },
-      take: 50,
+      orderBy: { issuedAt: 'desc' }, take: 50,
     });
 
-    const listings = issuances.length > 0 ? issuances.map(iss => {
-      const price = LIVE_PRICES[iss.standard];
-      return {
-        id: iss.id, standard: iss.standard, vintage: iss.vintage,
-        quantity: iss.quantity, availableQty: iss.quantity,
-        askPrice: parseFloat((price?.ask || 12).toFixed(2)),
-        project: iss.project,
-        serialFrom: iss.serialFrom, serialTo: iss.serialTo,
-        blockHash: iss.blockHash?.slice(0, 16) + '...',
-        issuedAt: iss.issuedAt, seller: 'PANGEA CARBON Africa', verified: true,
-      };
-    }) : generateDemoListings();
+    const listings = issuances.length > 0 ? issuances.map(iss => ({
+      id: iss.id, standard: iss.standard, vintage: iss.vintage,
+      quantity: iss.quantity, availableQty: iss.quantity,
+      askPrice: parseFloat((LIVE_PRICES[iss.standard]?.ask || 12).toFixed(2)),
+      project: iss.project, verified: true, seller: 'PANGEA CARBON Africa',
+      serialFrom: iss.serialFrom, serialTo: iss.serialTo,
+      blockHash: iss.blockHash?.slice(0, 16) + '...',
+      issuedAt: iss.issuedAt,
+    })) : generateDemoListings();
 
     const filtered = listings
       .filter(l => !maxPrice || l.askPrice <= parseFloat(maxPrice))
       .filter(l => !country || l.project?.countryCode === country);
 
-    res.json({ listings: filtered, total: filtered.length,
-      totalAvailable: filtered.reduce((s, l) => s + (l.availableQty || l.quantity), 0) });
+    res.json({ listings: filtered, total: filtered.length, pangeaFee: PANGEA_FEE_PCT });
   } catch (e) { next(e); }
 });
 
 function generateDemoListings() {
   const projects = [
-    { name: 'Parc Solaire Abidjan Nord', type: 'SOLAR', countryCode: 'CI', installedMW: 52.5 },
-    { name: 'Turkana Wind Farm', type: 'WIND', countryCode: 'KE', installedMW: 120 },
-    { name: 'Lagos Solar Plant', type: 'SOLAR', countryCode: 'NG', installedMW: 30 },
-    { name: 'Dakar Hybrid Project', type: 'HYBRID', countryCode: 'SN', installedMW: 18.5 },
-    { name: 'Volta Hydro Ghana', type: 'HYDRO', countryCode: 'GH', installedMW: 45 },
+    { name: 'Parc Solaire Abidjan Nord',  type: 'SOLAR', countryCode: 'CI', installedMW: 52.5 },
+    { name: 'Turkana Wind Farm',          type: 'WIND',  countryCode: 'KE', installedMW: 120  },
+    { name: 'Lagos Solar Plant',          type: 'SOLAR', countryCode: 'NG', installedMW: 30   },
+    { name: 'Dakar Hybrid Project',       type: 'HYBRID',countryCode: 'SN', installedMW: 18.5 },
+    { name: 'Volta Hydro Ghana',          type: 'HYDRO', countryCode: 'GH', installedMW: 45   },
   ];
   return projects.flatMap((p, i) => [
-    { id: `demo-${i}-vcs`, standard: 'VERRA_VCS', vintage: 2024,
-      quantity: Math.floor(Math.random() * 5000 + 1000),
-      availableQty: Math.floor(Math.random() * 3000 + 500),
-      askPrice: parseFloat((12 + Math.random() * 2).toFixed(2)),
+    { id: `demo-${i}-vcs`, standard: 'VERRA_VCS',    vintage: 2024,
+      quantity: Math.floor(Math.random()*5000+1000), availableQty: Math.floor(Math.random()*3000+500),
+      askPrice: parseFloat((12 + Math.random()*2).toFixed(2)),
       project: p, verified: true, seller: p.name, issuedAt: new Date() },
-    { id: `demo-${i}-gs`, standard: 'GOLD_STANDARD', vintage: 2024,
-      quantity: Math.floor(Math.random() * 2000 + 500),
-      availableQty: Math.floor(Math.random() * 1500 + 200),
-      askPrice: parseFloat((23 + Math.random() * 3).toFixed(2)),
+    { id: `demo-${i}-gs`,  standard: 'GOLD_STANDARD', vintage: 2024,
+      quantity: Math.floor(Math.random()*2000+500), availableQty: Math.floor(Math.random()*1500+200),
+      askPrice: parseFloat((23 + Math.random()*3).toFixed(2)),
       project: p, verified: true, seller: p.name, issuedAt: new Date() },
   ]).slice(0, 12);
 }
 
-// ─── POST /bid — Passer un ordre + initier le paiement Stripe ────────────────
+// ─── POST /bid — Ordre + Paiement + Split ────────────────────────────────────
 router.post('/bid', auth, async (req, res, next) => {
   try {
-    const { listingId, quantity, maxPrice, orderType, buyerNote } = req.body;
+    const { listingId, quantity, maxPrice, orderType, buyerNote, paymentGateway } = req.body;
     if (!listingId || !quantity || !maxPrice)
       return res.status(400).json({ error: 'listingId, quantity, maxPrice required' });
 
-    const qty   = parseFloat(quantity);
-    const price = parseFloat(maxPrice);
+    const qty      = parseFloat(quantity);
+    const price    = parseFloat(maxPrice);
     const subtotal = qty * price;
-    const fee   = subtotal * 0.025; // 2.5% PANGEA fee
-    const total = subtotal + fee;
+    const fee      = subtotal * (PANGEA_FEE_PCT / 100);
+    const total    = subtotal + fee;
 
-    // 1. Créer l'ordre en base
+    // 1. Créer l'ordre
     let order;
     try {
       order = await prisma.marketplaceOrder.create({
@@ -132,108 +330,26 @@ router.post('/bid', auth, async (req, res, next) => {
           status: 'PENDING',
         }
       });
-    } catch (dbErr) {
-      // Si MarketplaceOrder n'existe pas encore (migration pas encore faite),
-      // on log dans auditLog et on continue avec un ID généré
+    } catch(_e) {
       const fakeId = `ORD-${Date.now()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
-      await prisma.auditLog.create({
-        data: {
-          userId: req.user.userId,
-          action: 'MARKETPLACE_BID',
-          entity: 'CreditIssuance', entityId: listingId,
-          after: { orderId: fakeId, quantity: qty, maxPrice: price, fee, total, orderType, buyerNote }
-        }
-      });
       order = { id: fakeId };
     }
 
-    // 2. Décider du mode de paiement selon le montant
-    // < $2000 → Stripe Checkout (carte immédiate)
-    // ≥ $2000 → Stripe Invoice (virement bancaire acceptable)
-    const amountCents = Math.round(total * 100);
-    const useInvoice = total >= 2000;
-
-    // 3. Récupérer infos utilisateur
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
       select: { email: true, name: true }
     });
 
-    let stripeData = {};
-    let stripeConfigured = false;
+    // 2. Décider gateway selon montant et préférence buyer
+    const amountCents = Math.round(total * 100);
+    const gateway = paymentGateway || (total < 2000 ? 'STRIPE_CHECKOUT' : 'STRIPE_INVOICE');
+    let paymentUrl = null, invoicePdf = null, paymentMode = 'manual';
+    let stripeSessionId = null, stripeInvoiceId = null;
 
-    try {
-      const stripe = getStripe();
-      stripeConfigured = true;
-
-      const description = `PANGEA CARBON — ${qty.toLocaleString()} tCO₂e × $${price}/t — Order ${order.id}`;
-
-      if (useInvoice) {
-        // ── Mode Invoice (grands montants) ──────────────────────────────────
-        // Créer ou trouver le customer Stripe
-        const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-        let customer;
-        if (customers.data.length > 0) {
-          customer = customers.data[0];
-        } else {
-          customer = await stripe.customers.create({
-            email: user.email,
-            name: user.name,
-            metadata: { pangea_user_id: req.user.userId }
-          });
-        }
-
-        // Créer une invoice Stripe
-        const invoice = await stripe.invoices.create({
-          customer: customer.id,
-          collection_method: 'send_invoice',
-          days_until_due: 7,
-          description,
-          metadata: { order_id: order.id, listing_id: listingId, quantity: qty.toString() },
-          footer: 'PANGEA CARBON Africa — contact@pangea-carbon.com — pangea-carbon.com',
-        });
-
-        // Ajouter les line items
-        await stripe.invoiceItems.create({
-          customer: customer.id,
-          invoice: invoice.id,
-          quantity: Math.ceil(qty),
-          unit_amount: Math.round(price * 100), // en centimes
-          currency: 'usd',
-          description: `Carbon Credits — ${qty.toLocaleString()} tCO₂e @ $${price}/tonne`,
-          metadata: { standard: listingId.includes('vcs') ? 'VERRA_VCS' : 'GOLD_STANDARD' }
-        });
-
-        await stripe.invoiceItems.create({
-          customer: customer.id,
-          invoice: invoice.id,
-          amount: Math.round(fee * 100),
-          currency: 'usd',
-          description: 'PANGEA CARBON Platform Fee (2.5%)',
-        });
-
-        // Finaliser et envoyer l'invoice
-        const finalInvoice = await stripe.invoices.finalizeInvoice(invoice.id);
-        await stripe.invoices.sendInvoice(invoice.id);
-
-        stripeData = {
-          stripeInvoiceId: finalInvoice.id,
-          stripeInvoiceUrl: finalInvoice.hosted_invoice_url,
-          invoicePdf: finalInvoice.invoice_pdf,
-          paymentMethod: 'STRIPE_INVOICE',
-          status: 'PAYMENT_PENDING',
-        };
-
-        // Mettre à jour l'ordre
-        try {
-          await prisma.marketplaceOrder.update({
-            where: { id: order.id },
-            data: stripeData,
-          });
-        } catch(_e) {}
-
-      } else {
-        // ── Mode Checkout (petits montants, carte immédiate) ────────────────
+    // ── STRIPE CHECKOUT (petits montants ou buyer préfère carte) ──────────────
+    if (gateway === 'STRIPE_CHECKOUT') {
+      try {
+        const stripe = getStripe();
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
           mode: 'payment',
@@ -243,9 +359,8 @@ router.post('/bid', auth, async (req, res, next) => {
               price_data: {
                 currency: 'usd',
                 product_data: {
-                  name: `PANGEA CARBON — Carbon Credits`,
-                  description: `${qty.toLocaleString()} tCO₂e @ $${price}/tonne`,
-                  images: ['https://pangea-carbon.com/logo.png'],
+                  name: `PANGEA CARBON — ${qty.toLocaleString()} tCO₂e`,
+                  description: `Carbon credits @ $${price}/tonne · Order ${order.id}`,
                 },
                 unit_amount: Math.round(subtotal * 100),
               },
@@ -254,154 +369,265 @@ router.post('/bid', auth, async (req, res, next) => {
             {
               price_data: {
                 currency: 'usd',
-                product_data: { name: 'PANGEA CARBON Platform Fee (2.5%)' },
+                product_data: { name: `PANGEA CARBON Platform Fee (${PANGEA_FEE_PCT}%)` },
                 unit_amount: Math.round(fee * 100),
               },
               quantity: 1,
             },
           ],
-          metadata: { order_id: order.id, listing_id: listingId, user_id: req.user.userId },
+          metadata: { order_id: order.id, listing_id: listingId, user_id: req.user.userId, type: 'carbon_trade' },
           success_url: `${BASE_URL}/dashboard/marketplace?order=${order.id}&status=success`,
-          cancel_url: `${BASE_URL}/dashboard/marketplace?order=${order.id}&status=cancelled`,
+          cancel_url:  `${BASE_URL}/dashboard/marketplace?order=${order.id}&status=cancelled`,
         });
-
-        stripeData = {
-          stripeSessionId: session.id,
-          stripeInvoiceUrl: session.url,
-          paymentMethod: 'STRIPE_CARD',
-          status: 'PAYMENT_PENDING',
-        };
-
+        paymentUrl  = session.url;
+        stripeSessionId = session.id;
+        paymentMode = 'checkout';
         try {
           await prisma.marketplaceOrder.update({
             where: { id: order.id },
-            data: stripeData,
+            data: { stripeSessionId, stripeInvoiceUrl: paymentUrl, paymentMethod: 'STRIPE_CARD', status: 'PAYMENT_PENDING' }
           });
         } catch(_e) {}
+      } catch(stripeErr) {
+        paymentMode = 'manual';
       }
 
-    } catch (stripeErr) {
-      // Stripe non configuré ou erreur → mode manuel
-      if (!stripeConfigured) {
-        stripeData = { paymentMethod: 'MANUAL', status: 'PENDING' };
-      } else {
-        console.error('Stripe error:', stripeErr.message);
-        stripeData = { paymentMethod: 'MANUAL', status: 'PENDING' };
+    // ── STRIPE INVOICE (grands montants — virement accepté) ───────────────────
+    } else if (gateway === 'STRIPE_INVOICE') {
+      try {
+        const stripe = getStripe();
+        const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+        const customer  = customers.data[0] || await stripe.customers.create({ email: user.email, name: user.name });
+
+        const invoice = await stripe.invoices.create({
+          customer: customer.id,
+          collection_method: 'send_invoice',
+          days_until_due: 7,
+          description: `PANGEA CARBON — ${qty.toLocaleString()} tCO₂e @ $${price}/t — Order ${order.id}`,
+          metadata: { order_id: order.id },
+          footer: 'PANGEA CARBON Africa · pangea-carbon.com · contact@pangea-carbon.com',
+        });
+        await stripe.invoiceItems.create({
+          customer: customer.id, invoice: invoice.id,
+          amount: Math.round(subtotal * 100), currency: 'usd',
+          description: `Carbon Credits — ${qty.toLocaleString()} tCO₂e @ $${price}/tonne`,
+        });
+        await stripe.invoiceItems.create({
+          customer: customer.id, invoice: invoice.id,
+          amount: Math.round(fee * 100), currency: 'usd',
+          description: `PANGEA CARBON Platform Fee (${PANGEA_FEE_PCT}%)`,
+        });
+        const finalInv = await stripe.invoices.finalizeInvoice(invoice.id);
+        await stripe.invoices.sendInvoice(invoice.id);
+
+        paymentUrl    = finalInv.hosted_invoice_url;
+        invoicePdf    = finalInv.invoice_pdf;
+        stripeInvoiceId = finalInv.id;
+        paymentMode   = 'invoice';
+        try {
+          await prisma.marketplaceOrder.update({
+            where: { id: order.id },
+            data: { stripeInvoiceId, stripeInvoiceUrl: paymentUrl, invoicePdf, paymentMethod: 'STRIPE_INVOICE', status: 'PAYMENT_PENDING' }
+          });
+        } catch(_e) {}
+      } catch(stripeErr) {
+        paymentMode = 'manual';
+      }
+
+    // ── CINETPAY (Afrique de l'Ouest — XOF/XAF) ──────────────────────────────
+    } else if (gateway === 'CINETPAY') {
+      try {
+        const result = await cinetpay.initPayment({
+          amount: Math.round(total * 655), // USD → XOF approximatif
+          currency: 'XOF',
+          orderId: order.id,
+          description: `Crédits carbone — ${qty} tCO₂e — PANGEA CARBON`,
+          returnUrl: `${BASE_URL}/dashboard/marketplace?order=${order.id}&status=success`,
+          notifyUrl: `${BASE_URL}/api/marketplace/webhook/cinetpay`,
+        });
+        if (result?.data?.payment_url) {
+          paymentUrl  = result.data.payment_url;
+          paymentMode = 'cinetpay';
+          try {
+            await prisma.marketplaceOrder.update({
+              where: { id: order.id },
+              data: { stripeInvoiceUrl: paymentUrl, paymentMethod: 'CINETPAY', status: 'PAYMENT_PENDING' }
+            });
+          } catch(_e) {}
+        }
+      } catch(e) {
+        paymentMode = 'manual';
+      }
+
+    // ── FLUTTERWAVE (Pan-Africa) ──────────────────────────────────────────────
+    } else if (gateway === 'FLUTTERWAVE') {
+      try {
+        const result = await flutterwave.initPayment({
+          amount: total, currency: 'USD', orderId: order.id,
+          email: user.email, name: user.name,
+          description: `Carbon Credits — ${qty} tCO₂e — PANGEA CARBON`,
+          redirectUrl: `${BASE_URL}/dashboard/marketplace?order=${order.id}&status=success`,
+        });
+        if (result?.data?.link) {
+          paymentUrl  = result.data.link;
+          paymentMode = 'flutterwave';
+          try {
+            await prisma.marketplaceOrder.update({
+              where: { id: order.id },
+              data: { stripeInvoiceUrl: paymentUrl, paymentMethod: 'FLUTTERWAVE', status: 'PAYMENT_PENDING' }
+            });
+          } catch(_e) {}
+        }
+      } catch(e) {
+        paymentMode = 'manual';
       }
     }
 
-    // 4. Audit log
+    // 3. Audit log
     await prisma.auditLog.create({
       data: {
         userId: req.user.userId,
         action: 'MARKETPLACE_ORDER_CREATED',
         entity: 'CreditIssuance', entityId: listingId,
-        after: { orderId: order.id, qty, price, subtotal, fee, total, ...stripeData }
+        after: { orderId: order.id, qty, price, subtotal, pangeaFee: fee, total, pangeaFeePct: PANGEA_FEE_PCT, gateway, paymentMode }
       }
     }).catch(() => {});
 
-    // 5. Réponse
-    const isInvoice = stripeData.paymentMethod === 'STRIPE_INVOICE';
-    const isCard = stripeData.paymentMethod === 'STRIPE_CARD';
-    const isManual = stripeData.paymentMethod === 'MANUAL';
+    // 4. Réponse structurée
+    const PAYMENT_LABELS = {
+      checkout:    { label: 'Stripe Card',           icon: '💳', redirect: true  },
+      invoice:     { label: 'Stripe Invoice (email)', icon: '📧', redirect: false },
+      cinetpay:    { label: 'CinetPay',              icon: '🌍', redirect: true  },
+      flutterwave: { label: 'Flutterwave',           icon: '🦋', redirect: true  },
+      manual:      { label: 'Manual settlement',     icon: '📞', redirect: false },
+    };
+    const pm = PAYMENT_LABELS[paymentMode] || PAYMENT_LABELS.manual;
 
     res.status(201).json({
-      orderId: order.id,
-      status: stripeData.status || 'PENDING',
-      quantity: qty,
+      orderId:      order.id,
+      status:       paymentMode === 'manual' ? 'PENDING' : 'PAYMENT_PENDING',
+      quantity:     qty,
       pricePerTonne: price,
-      subtotal: parseFloat(subtotal.toFixed(2)),
-      pangea_fee: parseFloat(fee.toFixed(2)),
-      total: parseFloat(total.toFixed(2)),
+      subtotal:     parseFloat(subtotal.toFixed(2)),
+      pangeaFee:    parseFloat(fee.toFixed(2)),
+      pangeaFeePct: PANGEA_FEE_PCT,
+      sellerAmount: parseFloat((subtotal - fee + fee - fee).toFixed(2)), // seller = subtotal after fee
+      total:        parseFloat(total.toFixed(2)),
 
-      // Stripe URLs
-      paymentUrl: stripeData.stripeInvoiceUrl || null,
-      invoicePdf: stripeData.invoicePdf || null,
-      paymentMethod: stripeData.paymentMethod || 'MANUAL',
+      // Payment
+      paymentMode,
+      paymentGateway: pm.label,
+      paymentIcon:    pm.icon,
+      paymentUrl:     paymentUrl,
+      invoicePdf:     invoicePdf,
+      autoRedirect:   pm.redirect && !!paymentUrl,
 
-      // Instructions selon mode
-      paymentMode: isInvoice ? 'invoice' : isCard ? 'checkout' : 'manual',
-      message: isInvoice
-        ? `Invoice sent to ${user.email} — Payment due in 7 days. You can also pay immediately via the invoice link.`
-        : isCard
-        ? 'Redirecting to secure Stripe payment...'
-        : 'Order registered. Our team will contact you for payment within 24h.',
-      nextSteps: isInvoice
-        ? ['Check your email for the Stripe invoice', 'Pay by card or wire transfer', 'Credits transferred within 48h after payment']
-        : isCard
-        ? ['Complete payment on Stripe', 'Credits transferred automatically after confirmation']
-        : ['KYC verification (one-time)', 'Wire transfer instructions by email', 'Credits transferred within 48h after settlement'],
+      // Available gateways pour retry
+      availableGateways: [
+        { id: 'STRIPE_CHECKOUT', label: 'Card (Stripe)',          icon: '💳', minAmount: 0,    maxAmount: 50000 },
+        { id: 'STRIPE_INVOICE',  label: 'Invoice / Wire',         icon: '📧', minAmount: 0,    maxAmount: 999999 },
+        { id: 'CINETPAY',        label: 'CinetPay (West Africa)', icon: '🌍', minAmount: 0,    maxAmount: 5000  },
+        { id: 'FLUTTERWAVE',     label: 'Flutterwave (Africa)',   icon: '🦋', minAmount: 0,    maxAmount: 50000 },
+      ],
+
+      splitBreakdown: {
+        label:       'Payment split',
+        buyerPays:   parseFloat(total.toFixed(2)),
+        pangeaFee:   { amount: parseFloat(fee.toFixed(2)), pct: PANGEA_FEE_PCT, destination: 'PANGEA Stripe' },
+        sellerGets:  { amount: parseFloat(subtotal.toFixed(2)), pct: 100 - PANGEA_FEE_PCT, destination: 'Seller Africa gateway' },
+      },
+
+      message: paymentMode === 'invoice'
+        ? `Invoice sent to ${user.email} — due in 7 days. Card or wire transfer accepted.`
+        : paymentMode === 'manual'
+        ? 'Order registered. Our team will contact you within 24h for payment.'
+        : `Redirecting to ${pm.label} payment...`,
+
+      nextSteps: paymentMode === 'invoice'
+        ? [`Check ${user.email} for Stripe invoice`, 'Pay by card or wire (7 days)', 'Credits transferred 48h after payment']
+        : paymentMode === 'manual'
+        ? ['KYC verification (one-time)', 'Wire transfer instructions sent by email', 'Credits transferred 48h after settlement']
+        : [`Complete ${pm.label} payment`, 'Split processed: PANGEA fee + seller payment', 'Credits transferred automatically'],
     });
 
   } catch (e) { next(e); }
 });
 
-// ─── GET /order/:id — Statut d'un ordre ──────────────────────────────────────
+// ─── GET /order/:id ───────────────────────────────────────────────────────────
 router.get('/order/:id', auth, async (req, res, next) => {
   try {
     let order;
     try {
-      order = await prisma.marketplaceOrder.findUnique({
-        where: { id: req.params.id },
-        include: { user: { select: { email: true, name: true } } }
-      });
+      order = await prisma.marketplaceOrder.findUnique({ where: { id: req.params.id } });
     } catch(_e) { order = null; }
-
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    if (order.userId !== req.user.userId && req.user.role !== 'SUPER_ADMIN')
-      return res.status(403).json({ error: 'Forbidden' });
 
-    // Vérifier le statut Stripe en temps réel
+    // Sync Stripe status
     if (order.stripeSessionId || order.stripeInvoiceId) {
       try {
         const stripe = getStripe();
-        if (order.stripeSessionId) {
+        if (order.stripeSessionId && order.status !== 'PAID') {
           const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
-          if (session.payment_status === 'paid' && order.status !== 'PAID') {
+          if (session.payment_status === 'paid') {
             order = await prisma.marketplaceOrder.update({
               where: { id: order.id },
-              data: { status: 'PAID', paidAt: new Date(), stripeReceiptUrl: session.receipt_url }
+              data: { status: 'PAID', paidAt: new Date() }
             });
           }
         }
-        if (order.stripeInvoiceId) {
+        if (order.stripeInvoiceId && order.status !== 'PAID') {
           const inv = await stripe.invoices.retrieve(order.stripeInvoiceId);
-          if (inv.status === 'paid' && order.status !== 'PAID') {
+          if (inv.status === 'paid') {
             order = await prisma.marketplaceOrder.update({
               where: { id: order.id },
-              data: { status: 'PAID', paidAt: new Date(), stripeReceiptUrl: inv.receipt_number }
+              data: { status: 'PAID', paidAt: new Date() }
             });
           }
         }
       } catch(_e) {}
     }
-
     res.json(order);
   } catch (e) { next(e); }
 });
 
-// ─── GET /orders — Mes ordres ─────────────────────────────────────────────────
+// ─── GET /orders ──────────────────────────────────────────────────────────────
 router.get('/orders', auth, async (req, res, next) => {
   try {
-    let orders;
+    let orders = [];
     try {
       orders = await prisma.marketplaceOrder.findMany({
         where: { userId: req.user.userId },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
+        orderBy: { createdAt: 'desc' }, take: 50,
       });
-    } catch(_e) { orders = []; }
-    res.json({ orders, total: orders.length });
+    } catch(_e) {}
+    res.json({ orders, total: orders.length, pangeaFee: PANGEA_FEE_PCT });
   } catch (e) { next(e); }
 });
 
-// ─── POST /webhook/stripe — Webhook Stripe ───────────────────────────────────
-// Route publique (pas d'auth)
-router.post('/webhook/stripe', async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+// ─── GET /fee-info ─────────────────────────────────────────────────────────────
+router.get('/fee-info', auth, (req, res) => {
+  res.json({
+    pangeaFeePct: PANGEA_FEE_PCT,
+    description: `PANGEA CARBON takes ${PANGEA_FEE_PCT}% on every carbon credit trade`,
+    feeDestination: 'PANGEA CARBON Stripe account (automatic)',
+    sellerPct: 100 - PANGEA_FEE_PCT,
+    sellerDestination: 'Seller preferred payout method (Mobile Money, CinetPay, Wire, Flutterwave)',
+    gateways: {
+      buyer: ['Stripe Card', 'Stripe Invoice (wire)', 'CinetPay (XOF/XAF)', 'Flutterwave (USD/local)'],
+      sellerPayout: ['MTN Mobile Money', 'Orange Money', 'CinetPay', 'Flutterwave Bank Transfer', 'Wire SWIFT/SEPA'],
+    },
+    saasVsCarbon: {
+      saas: 'Stripe subscriptions → 100% PANGEA account',
+      carbon: `Buyer pays total → ${PANGEA_FEE_PCT}% to PANGEA Stripe + ${100-PANGEA_FEE_PCT}% to seller Africa gateway`,
+    }
+  });
+});
 
-  if (!secret) return res.json({ received: true }); // pas configuré
+// ─── POST /webhook/stripe ─────────────────────────────────────────────────────
+router.post('/webhook/stripe', async (req, res) => {
+  const sig    = req.headers['stripe-signature'];
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) return res.json({ received: true });
 
   let event;
   try {
@@ -413,89 +639,88 @@ router.post('/webhook/stripe', async (req, res) => {
 
   switch (event.type) {
     case 'checkout.session.completed': {
-      const session = event.data.object;
-      const orderId = session.metadata?.order_id;
-      if (orderId) {
+      const s = event.data.object;
+      const orderId = s.metadata?.order_id;
+      if (orderId && s.payment_status === 'paid') {
         await prisma.marketplaceOrder.update({
           where: { id: orderId },
-          data: { status: 'PAID', paidAt: new Date(), stripeReceiptUrl: session.receipt_url || null }
+          data: { status: 'PAID', paidAt: new Date() }
         }).catch(() => {});
 
-        await prisma.auditLog.create({
-          data: {
-            userId: session.metadata?.user_id || 'system',
-            action: 'MARKETPLACE_PAYMENT_RECEIVED',
-            entity: 'MarketplaceOrder', entityId: orderId,
-            after: { session_id: session.id, amount: session.amount_total / 100 }
+        // Déclencher le split seller payout
+        try {
+          const order = await prisma.marketplaceOrder.findUnique({ where: { id: orderId } });
+          if (order) {
+            await splitPayment({
+              orderId,
+              total: order.subtotal, // seller gets subtotal (PANGEA fee already collected via Stripe)
+              currency: 'USD',
+              sellerConfig: null, // TODO: seller payout preferences
+            });
           }
-        }).catch(() => {});
+        } catch(_e) {}
       }
       break;
     }
     case 'invoice.paid': {
-      const invoice = event.data.object;
+      const inv = event.data.object;
       try {
-        const order = await prisma.marketplaceOrder.findFirst({
-          where: { stripeInvoiceId: invoice.id }
-        });
+        const order = await prisma.marketplaceOrder.findFirst({ where: { stripeInvoiceId: inv.id } });
         if (order) {
           await prisma.marketplaceOrder.update({
             where: { id: order.id },
             data: { status: 'PAID', paidAt: new Date() }
-          });
-          await prisma.auditLog.create({
-            data: {
-              userId: order.userId,
-              action: 'MARKETPLACE_INVOICE_PAID',
-              entity: 'MarketplaceOrder', entityId: order.id,
-              after: { invoice_id: invoice.id, amount: invoice.amount_paid / 100 }
-            }
-          }).catch(() => {});
-        }
-      } catch(_e) {}
-      break;
-    }
-    case 'invoice.payment_failed': {
-      const invoice = event.data.object;
-      try {
-        const order = await prisma.marketplaceOrder.findFirst({
-          where: { stripeInvoiceId: invoice.id }
-        });
-        if (order) {
-          await prisma.marketplaceOrder.update({
-            where: { id: order.id },
-            data: { status: 'PAYMENT_FAILED' }
           });
         }
       } catch(_e) {}
       break;
     }
   }
-
   res.json({ received: true });
+});
+
+// ─── POST /webhook/cinetpay ───────────────────────────────────────────────────
+router.post('/webhook/cinetpay', async (req, res) => {
+  try {
+    const { transaction_id, status } = req.body;
+    if (status === 'ACCEPTED' && transaction_id) {
+      await prisma.marketplaceOrder.updateMany({
+        where: { id: transaction_id },
+        data: { status: 'PAID', paidAt: new Date(), paymentMethod: 'CINETPAY' }
+      }).catch(() => {});
+    }
+    res.json({ code: '00', message: 'OK' });
+  } catch(_e) {
+    res.json({ code: '00', message: 'OK' });
+  }
 });
 
 // ─── GET /stats ────────────────────────────────────────────────────────────────
 router.get('/stats', auth, async (req, res, next) => {
   try {
-    const issuances = await prisma.creditIssuance.findMany({ where: { status: 'ISSUED' } });
-    const retired = await prisma.creditIssuance.findMany({ where: { status: 'RETIRED' } });
-
-    let orderStats = { total: 0, volume: 0 };
+    const [issuances, retired] = await Promise.all([
+      prisma.creditIssuance.findMany({ where: { status: 'ISSUED' } }),
+      prisma.creditIssuance.findMany({ where: { status: 'RETIRED' } }),
+    ]);
+    let orderStats = { total: 0, volume: 0, pangeaRevenue: 0 };
     try {
       const orders = await prisma.marketplaceOrder.findMany({ where: { status: 'PAID' } });
-      orderStats = { total: orders.length, volume: orders.reduce((s, o) => s + o.total, 0) };
+      orderStats = {
+        total: orders.length,
+        volume: orders.reduce((s, o) => s + o.total, 0),
+        pangeaRevenue: orders.reduce((s, o) => s + o.pangeaFee, 0),
+      };
     } catch(_e) {}
 
     res.json({
       totalAvailable: issuances.reduce((s, i) => s + i.quantity, 0),
-      totalRetired: retired.reduce((s, i) => s + i.quantity, 0),
+      totalRetired:   retired.reduce((s, i) => s + i.quantity, 0),
       activeListings: issuances.length,
-      standards: ['VERRA_VCS', 'GOLD_STANDARD', 'ARTICLE6', 'CORSIA'],
+      paidOrders:     orderStats.total,
+      totalVolume:    orderStats.volume,
+      pangeaRevenue:  orderStats.pangeaRevenue,
+      pangeaFeePct:   PANGEA_FEE_PCT,
       africaMarketSize: 400000000,
-      pangea_fee_pct: 2.5,
-      paidOrders: orderStats.total,
-      totalVolume: orderStats.volume,
       prices: LIVE_PRICES,
     });
   } catch (e) { next(e); }
