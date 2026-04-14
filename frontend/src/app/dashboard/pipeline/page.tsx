@@ -238,7 +238,7 @@ export default function PipelinePage() {
             <textarea placeholder="Reason for blocking..." id="blockReason" style={{ ...inp, height:80, resize:'vertical', marginBottom:14 }}/>
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={() => setConfirmBlock(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:8, color:'#4A6278', padding:12, cursor:'pointer' }}>Cancel</button>
-              <button onClick={() => blockStep(confirmBlock.stepKey, (document.getElementById('blockReason') as any)?.value||'Blocked')}
+              <button onClick={() => blockStep(confirmBlock.stepKey, (document.getElementById('blockReason') ? document.getElementById('blockReason').value : 'Blocked'))}
                 style={{ flex:1, background:'#F87171', color:'#fff', border:'none', borderRadius:8, padding:12, fontWeight:700, cursor:'pointer' }}>
                 🔒 Block step
               </button>
@@ -310,12 +310,12 @@ export default function PipelinePage() {
 
         <div style={{ background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:12, overflow:'hidden' }}>
           <div style={{ padding:'12px 18px', background:'#121920', borderBottom:'1px solid #1E2D3D', display:'flex', justifyContent:'space-between' }}>
-            <span style={{ fontSize:10, color:'#4A6278', fontFamily:'JetBrains Mono, monospace' }}>PIPELINES — {(pipelines as any[]).length}</span>
+            <span style={{ fontSize:10, color:'#4A6278', fontFamily:'JetBrains Mono, monospace' }}>PIPELINES — {pipelines.length}</span>
             <button onClick={loadList} style={{ background:'transparent', border:'none', color:'#4A6278', cursor:'pointer', fontSize:12 }}>↺</button>
           </div>
           {loading ? (
             <div style={{ padding:40, textAlign:'center', color:'#4A6278' }}>⟳ Loading...</div>
-          ) : (pipelines as any[]).length === 0 ? (
+          ) : pipelines.length === 0 ? (
             <div style={{ padding:48, textAlign:'center' }}>
               <div style={{ fontSize:44, marginBottom:12 }}>🌿</div>
               <div style={{ fontSize:15, color:'#E8EFF6', marginBottom:16 }}>{L('No pipelines yet','Aucun pipeline')}</div>
@@ -323,7 +323,7 @@ export default function PipelinePage() {
                 {L('Start first pipeline →','Démarrer →')}
               </button>
             </div>
-          ) : (pipelines as any[]).map(pl => {
+          ) : pipelines.map(pl => {
             const done = pl.steps.filter(s => s.status === 'COMPLETED').length;
             const pct  = Math.round((done/(pl.steps.length||11))*100);
             const curS = stepDefs.find(s => s.key === pl.currentStep);
@@ -375,9 +375,9 @@ export default function PipelinePage() {
               <div style={{ fontSize:10, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>PROJECT *</div>
               <select value={newForm.projectId} onChange={e => setNewForm(f => ({ ...f, projectId:e.target.value }))} style={inp}>
                 <option value="">{L('Select project...','Sélectionnez...')}</option>
-                {(projects as any[]).map(pr => <option key={pr.id} value={pr.id}>{pr.name} — {pr.countryCode} · {pr.type} · {pr.installedMW}MW</option>)}
+                {projects.map(pr => <option key={pr.id} value={pr.id}>{pr.name} — {pr.countryCode} · {pr.type} · {pr.installedMW}MW</option>)}
               </select>
-              {(projects as any[]).length === 0 && <div style={{ fontSize:11, color:'#FCD34D', marginTop:5 }}>⚠ {L('No projects — create one in Projects tab','Aucun projet — créez-en un dans Projets')}</div>}
+              {projects.length === 0 && <div style={{ fontSize:11, color:'#FCD34D', marginTop:5 }}>⚠ {L('No projects — create one in Projects tab','Aucun projet — créez-en un dans Projets')}</div>}
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
               <div>
