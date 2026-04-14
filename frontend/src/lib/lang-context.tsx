@@ -19,7 +19,7 @@ export function LangProvider({ children }) {
   }
 
   function t(key) {
-    return (translations[lang] && translations[lang][key]) || (translations.fr && translations.fr[key]) || key;
+    return (translations[lang] && translations[lang][key]) || (translations.en && translations.en[key]) || key;
   }
 
   return <LangContext.Provider value={{ lang, setLang, t }}>{children}</LangContext.Provider>;
