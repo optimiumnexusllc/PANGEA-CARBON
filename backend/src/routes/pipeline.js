@@ -23,6 +23,7 @@ const crypto  = require('crypto');
 const prisma  = new PrismaClient();
 const { MRVEngine } = require('../services/mrv.service');
 const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../services/registry.service');
+const { uploadFile } = require('../storage/s3');
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
 const STEPS = [
@@ -415,6 +416,57 @@ router.delete('/:id/documents/:docId', auth, async (req, res, next) => {
   try {
     await prisma.pipelineDocument.delete({ where:{ id:req.params.docId } });
     res.json({ deleted:true });
+  } catch(e) { next(e); }
+});
+
+
+// POST /pipeline/:id/upload — Upload fichier via multipart/form-data (busboy natif)
+router.post('/:id/upload', auth, async (req, res, next) => {
+  try {
+    // Parser multipart sans multer (busboy natif Node.js)
+    const Busboy = (() => {
+      try { return require('busboy'); } catch(_e) { return null; }
+    })();
+
+    if (!Busboy) {
+      // Fallback: accepter JSON avec base64
+      const { name, type, base64, size } = req.body || {};
+      if (!name) return res.status(400).json({ error: 'name required' });
+      const hash = crypto.createHash('sha256').update(name + Date.now()).digest('hex').slice(0, 24);
+      const doc  = await prisma.pipelineDocument.create({
+        data: { pipelineId:req.params.id, type:type||'OTHER', name, fileUrl:null, hash, uploadedBy:req.user.userId }
+      });
+      return res.status(201).json({ ...doc, storage:'name_only' });
+    }
+
+    const bb = Busboy({ headers: req.headers, limits: { fileSize: 50*1024*1024 } });
+    let fileBuffer = null, filename = '', mimetype = '', docType = 'OTHER';
+
+    bb.on('field', (name, val) => { if (name === 'type') docType = val; });
+    bb.on('file', (field, stream, info) => {
+      filename = info.filename;
+      mimetype = info.mimeType;
+      const chunks = [];
+      stream.on('data', d => chunks.push(d));
+      stream.on('end', () => { fileBuffer = Buffer.concat(chunks); });
+    });
+    bb.on('finish', async () => {
+      try {
+        if (!fileBuffer || !filename) {
+          return res.status(400).json({ error: 'No file received' });
+        }
+        const key  = `pipelines/${req.params.id}/${Date.now()}_${filename.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+        const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex').slice(0, 24);
+        const result = await uploadFile(key, fileBuffer, mimetype);
+        const fileUrl = result.location || null;
+        const doc = await prisma.pipelineDocument.create({
+          data: { pipelineId:req.params.id, type:docType, name:filename, fileUrl, hash, uploadedBy:req.user.userId }
+        });
+        res.status(201).json({ ...doc, size:fileBuffer.length, storage: result.s3?'minio':'local' });
+      } catch(e) { next(e); }
+    });
+    bb.on('error', next);
+    req.pipe(bb);
   } catch(e) { next(e); }
 });
 

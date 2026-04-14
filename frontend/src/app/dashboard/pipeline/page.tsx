@@ -56,6 +56,7 @@ export default function PipelinePage() {
   const [docForm, setDocForm] = useState({ type:'PDD', name:'', fileUrl:'' });
   const [advNotes, setAdvNotes] = useState('');
   const [confirmedCredits, setConfirmedCredits] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const toast$ = (msg, type='success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 4000); };
 
@@ -157,6 +158,36 @@ export default function PipelinePage() {
       await loadDetail(current.pipeline.id);
       toast$('Document added!');
     } catch(e) { toast$(e.message||'Failed to add document','error'); }
+  };
+
+  const uploadFile = async (file, docType) => {
+    if (!current || !file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('type', docType || docForm.type || 'PDD');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${apiUrl}/pipeline/${current.pipeline.id}/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
+      if (!res.ok) {
+        // Fallback: juste enregistrer le nom sans upload
+        const body = { type:docForm.type, name:file.name, fileUrl:null };
+        await fetchAuthJson('/pipeline/' + current.pipeline.id + '/documents', {
+          method:'POST', body:JSON.stringify(body)
+        });
+        toast$(`${file.name} registered (upload not configured)`);
+      } else {
+        toast$(`${file.name} uploaded!`);
+      }
+      setDocForm({ type:'PDD', name:'', fileUrl:'' });
+      await loadDetail(current.pipeline.id);
+    } catch(e) { toast$(e.message||'Upload failed','error'); }
+    finally { setUploading(false); }
   };
 
   const deleteDoc = async (docId) => {
@@ -506,13 +537,22 @@ export default function PipelinePage() {
                     value={advNotes} onChange={e => setAdvNotes(e.target.value)} style={inp}/>
                 </div>
 
-                <button onClick={() => advance(p.currentStep)} disabled={!!advancing}
-                  style={{ width:'100%', background:advancing?'#1E2D3D':'#00FF94', color:'#080B0F', border:'none', borderRadius:9, padding:13, fontWeight:800, fontSize:14, cursor:advancing?'wait':'pointer', fontFamily:'Syne, sans-serif' }}>
-                  {advancing===p.currentStep ? '⟳ Processing...'
-                    : p.currentStep==='REGISTRY_REVIEW' ? `🌿 ${L('Validate & Issue Credits →','Valider & Émettre →')}`
-                    : p.currentStep==='MARKET_LISTING' ? `🏪 ${L('List on Marketplace →','Lister →')}`
-                    : `✓ ${L('Mark step complete →','Valider cette étape →')}`}
-                </button>
+                {/* BOUTON NEXT — BIEN VISIBLE */}
+                <div style={{ background:'rgba(0,255,148,0.04)', border:'1px solid rgba(0,255,148,0.15)', borderRadius:10, padding:'14px', marginTop:4 }}>
+                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:8, textAlign:'center' }}>
+                    {L('COMPLETE THIS STEP & ADVANCE','VALIDER CETTE ÉTAPE & PASSER À LA SUIVANTE')}
+                    {curDef && stepDefs[stepDefs.findIndex(s=>s.key===p.currentStep)+1] && (
+                      <span style={{ color:'#2A3F55' }}> → {stepDefs[stepDefs.findIndex(s=>s.key===p.currentStep)+1]?.title}</span>
+                    )}
+                  </div>
+                  <button onClick={() => advance(p.currentStep)} disabled={!!advancing}
+                    style={{ width:'100%', background:advancing?'#1E2D3D':'#00FF94', color:'#080B0F', border:'none', borderRadius:9, padding:'14px', fontWeight:800, fontSize:15, cursor:advancing?'wait':'pointer', fontFamily:'Syne, sans-serif', letterSpacing:'0.02em' }}>
+                    {advancing===p.currentStep ? '⟳ Processing...'
+                      : p.currentStep==='REGISTRY_REVIEW' ? `🌿 ${L('Issue Credits → Step 10','Émettre Crédits → Étape 10')}`
+                      : p.currentStep==='MARKET_LISTING' ? `🏪 ${L('Complete Pipeline → Marketplace','Finaliser → Marketplace')}`
+                      : `✓ ${L('Next step','Étape suivante')} →`}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -554,25 +594,64 @@ export default function PipelinePage() {
             <div style={{ background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:12, padding:18 }}>
               <div style={{ fontSize:10, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:14 }}>PIPELINE DOCUMENTS ({(p.documents||[]).length})</div>
               <div style={{ background:'#121920', borderRadius:9, padding:14, marginBottom:14 }}>
+                {/* Type selector */}
+                <div style={{ marginBottom:10 }}>
+                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>DOCUMENT TYPE</div>
+                  <select value={docForm.type} onChange={e => setDocForm(f => ({ ...f, type:e.target.value }))} style={inp}>
+                    {DOC_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g,' ')}</option>)}
+                  </select>
+                </div>
+
+                {/* File picker — méthode 1 */}
+                <div style={{ marginBottom:10 }}>
+                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>
+                    {L('UPLOAD FROM COMPUTER','IMPORTER DEPUIS L'ORDINATEUR')}
+                  </div>
+                  <label style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'rgba(0,255,148,0.05)', border:'1px dashed rgba(0,255,148,0.25)', borderRadius:8, cursor:'pointer' }}>
+                    <span style={{ fontSize:20 }}>📁</span>
+                    <div>
+                      <div style={{ fontSize:12, color:'#00FF94', fontWeight:600 }}>
+                        {uploading ? '⟳ Uploading...' : L('Choose file','Choisir un fichier')}
+                      </div>
+                      <div style={{ fontSize:10, color:'#4A6278' }}>PDF · DOC · DOCX · XLSX · PNG · ZIP (max 50MB)</div>
+                    </div>
+                    <input type="file" accept=".pdf,.doc,.docx,.xlsx,.csv,.png,.jpg,.jpeg,.zip"
+                      style={{ display:'none' }}
+                      disabled={uploading}
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setDocForm(f => ({ ...f, name:file.name }));
+                          uploadFile(file, docForm.type);
+                        }
+                        e.target.value = '';
+                      }}/>
+                  </label>
+                </div>
+
+                {/* Séparateur */}
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+                  <div style={{ flex:1, height:1, background:'#1E2D3D' }}/>
+                  <span style={{ fontSize:10, color:'#2A3F55' }}>{L('or enter manually','ou saisir manuellement')}</span>
+                  <div style={{ flex:1, height:1, background:'#1E2D3D' }}/>
+                </div>
+
+                {/* Saisie manuelle — méthode 2 */}
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
                   <div>
-                    <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>TYPE</div>
-                    <select value={docForm.type} onChange={e => setDocForm(f => ({ ...f, type:e.target.value }))} style={inp}>
-                      {DOC_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g,' ')}</option>)}
-                    </select>
+                    <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>NAME *</div>
+                    <input placeholder="PDD_v2.1.pdf" value={docForm.name}
+                      onChange={e => setDocForm(f => ({ ...f, name:e.target.value }))} style={inp}/>
                   </div>
                   <div>
-                    <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>NAME *</div>
-                    <input placeholder="PDD_v2.1.pdf" value={docForm.name} onChange={e => setDocForm(f => ({ ...f, name:e.target.value }))} style={inp}/>
+                    <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>URL / DRIVE LINK</div>
+                    <input placeholder="https://drive.google.com/..." value={docForm.fileUrl}
+                      onChange={e => setDocForm(f => ({ ...f, fileUrl:e.target.value }))} style={inp}/>
                   </div>
                 </div>
-                <div style={{ marginBottom:8 }}>
-                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>URL / LINK</div>
-                  <input placeholder="https://..." value={docForm.fileUrl} onChange={e => setDocForm(f => ({ ...f, fileUrl:e.target.value }))} style={inp}/>
-                </div>
-                <button onClick={addDoc} disabled={!docForm.name}
-                  style={{ background:!docForm.name?'#1E2D3D':'rgba(0,255,148,0.12)', border:'1px solid rgba(0,255,148,0.3)', borderRadius:7, color:!docForm.name?'#2A3F55':'#00FF94', padding:'8px 16px', cursor:!docForm.name?'not-allowed':'pointer', fontSize:12, fontWeight:600 }}>
-                  + {L('Add Document','Ajouter')}
+                <button onClick={addDoc} disabled={!docForm.name.trim() || uploading}
+                  style={{ background:!docForm.name.trim()||uploading?'#1E2D3D':'rgba(0,255,148,0.12)', border:'1px solid rgba(0,255,148,0.3)', borderRadius:7, color:!docForm.name.trim()||uploading?'#2A3F55':'#00FF94', padding:'8px 16px', cursor:!docForm.name.trim()||uploading?'not-allowed':'pointer', fontSize:12, fontWeight:600 }}>
+                  + {L('Add manually','Ajouter manuellement')}
                 </button>
               </div>
               {(p.documents||[]).length === 0 ? (
