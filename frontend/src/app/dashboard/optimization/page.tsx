@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -15,6 +16,7 @@ const EFFORT_STYLE: Record<string, { color: string; bg: string; label: string }>
 const CAT_COLOR: Record<string, string> = { Standard: '#38BDF8', Marché: '#A78BFA', Performance: '#00FF94', Méthodologie: '#FCD34D', Données: '#8FA3B8', Vérification: '#F97316' };
 
 export default function OptimizationPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [data, setData] = useState<any>(null);

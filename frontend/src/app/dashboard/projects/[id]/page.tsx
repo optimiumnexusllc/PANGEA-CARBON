@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
@@ -19,6 +20,7 @@ const Tooltip_ = ({ active, payload, label }: any) => {
 };
 
 export default function ProjectDetailPage() {
+  const { t } = useLang();
   const { id } = useParams();
   const [project, setProject] = useState<any>(null);
   const [mrv, setMrv] = useState<any>(null);

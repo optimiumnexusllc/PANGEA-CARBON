@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useRef } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 

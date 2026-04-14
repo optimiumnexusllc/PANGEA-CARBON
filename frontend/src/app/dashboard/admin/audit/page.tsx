@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
@@ -8,6 +9,7 @@ const ACTION_COLOR: Record<string, string> = { CREATE: '#00FF94', UPDATE: '#38BD
 const getColor = (action: string) => ACTION_COLOR[Object.keys(ACTION_COLOR).find(k => action.includes(k)) || ''] || '#4A6278';
 
 export default function AdminAuditPage() {
+  const { t } = useLang();
   const [logs, setLogs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');

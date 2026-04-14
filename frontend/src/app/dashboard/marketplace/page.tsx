@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { apiExt } from '@/lib/api';
 
@@ -15,6 +16,7 @@ const STANDARD_LABEL: Record<string, string> = {
 };
 
 export default function MarketplacePage() {
+  const { t } = useLang();
   const [prices, setPrices] = useState<any[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);

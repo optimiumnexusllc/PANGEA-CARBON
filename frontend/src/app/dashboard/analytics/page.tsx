@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { api } from '@/lib/api';
@@ -16,6 +17,7 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
 ) : null;
 
 export default function AnalyticsPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [data, setData] = useState<any>(null);

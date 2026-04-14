@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -89,5 +90,6 @@ function CheckEmailInner() {
 }
 
 export default function CheckEmailPage() {
+  const { t } = useLang();
   return <Suspense fallback={null}><CheckEmailInner /></Suspense>;
 }

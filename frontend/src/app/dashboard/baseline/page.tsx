@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -17,6 +18,7 @@ const GRID_CONTEXT = [
 ];
 
 export default function BaselinePage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [result, setResult] = useState<any>(null);

@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -131,5 +132,6 @@ function ResendForm() {
 }
 
 export default function VerifyEmailPage() {
+  const { t } = useLang();
   return <Suspense fallback={null}><VerifyEmailInner /></Suspense>;
 }

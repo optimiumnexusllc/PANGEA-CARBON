@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '@/lib/api';
@@ -21,6 +22,7 @@ const COUNTRIES = [
 const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function MRVCalculatorPage() {
+  const { t } = useLang();
   const [mw, setMw] = useState(10);
   const [cf, setCf] = useState(85);
   const [country, setCountry] = useState(COUNTRIES[0]);

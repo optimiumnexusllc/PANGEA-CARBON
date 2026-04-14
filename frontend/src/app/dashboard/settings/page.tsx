@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 
@@ -27,7 +28,7 @@ const PLANS = [
     price: '$299',
     period: '/mois',
     color: '#38BDF8',
-    subtitle: 'Pour debuter',
+    subtitle: 'Getting started',
     badge: null,
     features: [
       '5 projets MRV',
@@ -47,8 +48,8 @@ const PLANS = [
     price: '$799',
     period: '/mois',
     color: '#00FF94',
-    subtitle: 'Pour les IPPs',
-    badge: 'Recommande',
+    subtitle: 'For IPPs',
+    badge: 'Recommended',
     highlight: true,
     features: [
       'Projets illimites',
@@ -68,19 +69,19 @@ const PLANS = [
   },
   {
     name: 'Enterprise',
-    price: 'Sur devis',
+    price: 'Custom pricing',
     period: '',
     color: '#FCD34D',
-    subtitle: 'Grands comptes',
-    badge: 'Personnalise',
+    subtitle: 'Enterprise',
+    badge: 'Custom',
     features: [
-      'Tout Pro inclus',
+      'Everything in Pro',
       'White-label complet',
       'SSO SAML / LDAP',
       'SLA 99.9% garanti',
       'Customer Success Manager dedie',
       'Intégrations custom',
-      'Utilisateurs illimites',
+      'Unlimited users',
       'Multi-organisations',
       'Audit trail avance',
       'Formation & onboarding dedie',
@@ -94,6 +95,7 @@ const PLANS = [
 
 
 export default function SettingsPage() {
+  const { t } = useLang();
   const [user, setUser] = useState<any>(null);
   const [showContact, setShowContact] = useState(false);
   const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
@@ -149,7 +151,7 @@ export default function SettingsPage() {
     <div style={{ padding: 24, maxWidth: 1300, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>COMPTE & ABONNEMENT</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Plans & Tarifs</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>{t('settings_title')}</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 6 }}>Plateforme MRV carbone enterprise-grade pour l\'Afrique · Verra ACM0002 · Gold Standard · ACMI</p>
       </div>
 
@@ -163,7 +165,7 @@ export default function SettingsPage() {
             <div style={{ fontSize: 12, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{user.email} · {user.role}</div>
           </div>
           <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 3 }}>PLAN ACTUEL</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 3 }}>{t('settings_current').toUpperCase()}</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#00FF94' }}>{user.plan || 'FREE'}</div>
           </div>
         </div>
@@ -182,7 +184,7 @@ export default function SettingsPage() {
               <div style={{ fontSize: 10, color: plan.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 6, letterSpacing: '0.08em' }}>{plan.subtitle.toUpperCase()}</div>
               <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#E8EFF6', marginBottom: 10 }}>{plan.name}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span style={{ fontSize: plan.price === 'Sur devis' ? 18 : 32, fontWeight: 800, color: plan.color, fontFamily: 'Syne, sans-serif' }}>{plan.price}</span>
+                <span style={{ fontSize: plan.price === 'Custom pricing' ? 18 : 32, fontWeight: 800, color: plan.color, fontFamily: 'Syne, sans-serif' }}>{plan.price}</span>
                 {plan.period && <span style={{ fontSize: 12, color: '#4A6278' }}>{plan.period}</span>}
               </div>
             </div>
@@ -235,7 +237,7 @@ export default function SettingsPage() {
                     {contactErr && <div style={{ color: '#F87171', fontSize: 11, marginBottom: 8 }}>{contactErr}</div>}
                     <button onClick={sendContact} disabled={contactSending}
                       style={{ width: '100%', background: contactSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 800, fontSize: 13, cursor: contactSending ? 'wait' : 'pointer' }}>
-                      {contactSending ? 'Envoi...' : 'Envoyer ma demande'}
+                      {contactSending ? '{t('contact_sending')}' : '{t('contact_send')}'}
                     </button>
                   </div>
                 ) : (
@@ -252,7 +254,7 @@ export default function SettingsPage() {
       </div>
 
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>STANDARDS INCLUS DANS TOUS LES PLANS</div>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>STANDARDS INCLUDED IN ALL PLANS</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {['Verra ACM0002 v19.0', 'UNFCCC 2024', 'Gold Standard', 'Article 6 ITMO', 'CORSIA Aviation', 'ACMI Africa', 'Blockchain Registry', 'dMRV Satellite'].map(s => (
             <span key={s} style={{ fontSize: 11, background: 'rgba(0,255,148,0.06)', color: '#00FF94', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 5, padding: '4px 10px', fontFamily: 'JetBrains Mono, monospace' }}>{s}</span>

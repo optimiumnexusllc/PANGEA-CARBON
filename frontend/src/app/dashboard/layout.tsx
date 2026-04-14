@@ -162,7 +162,8 @@ function SidebarContent({ user, logout }: { user: any; logout: () => void }) {
             🛡️ Admin Console
           </Link>
         )}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 8, padding: '6px 0' }}>
+          <span style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>LANGUAGE</span>
           <LangToggle />
         </div>
         <button onClick={logout} style={{ width: '100%', background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 5, color: '#4A6278', padding: '5px', cursor: 'pointer', fontSize: 11 }}>

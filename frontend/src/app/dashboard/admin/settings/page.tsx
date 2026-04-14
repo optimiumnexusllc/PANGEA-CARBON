@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useCallback } from 'react';
 import { fetchAuth } from '@/lib/fetch-auth';
 
@@ -183,6 +184,7 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
 
 /* ─── Main page ──────────────────────────────── */
 export default function AdminSettingsPage() {
+  const { t } = useLang();
   const [settingsState, setSettingsState] = useState<Record<string, { hasValue: boolean; displayValue: string }>>({});
   const [activeTab, setActiveTab] = useState('smtp');
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -8,6 +9,7 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function CORSIAPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [result, setResult] = useState<any>(null);

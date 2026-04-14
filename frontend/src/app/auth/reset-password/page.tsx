@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -122,6 +123,7 @@ function ResetPasswordInner() {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useLang();
   return (
     <Suspense fallback={<div style={{ background: '#080B0F', minHeight: '100vh' }}/>}>
       <ResetPasswordInner/>

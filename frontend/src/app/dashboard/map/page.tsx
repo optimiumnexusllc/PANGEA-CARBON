@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
 
@@ -12,6 +13,7 @@ const TYPE_ICONS: Record<string, string> = {
 const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '—';
 
 export default function MapPage() {
+  const { t } = useLang();
   const mapRef = useRef<any>(null);
   const mapInstance = useRef<any>(null);
   const [projects, setProjects] = useState<any[]>([]);

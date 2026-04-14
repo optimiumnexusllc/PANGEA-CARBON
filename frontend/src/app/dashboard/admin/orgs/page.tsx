@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
@@ -8,6 +9,7 @@ const PLAN_COLOR: Record<string, string> = { FREE: '#4A6278', TRIAL: '#FCD34D', 
 const STATUS_COLOR: Record<string, string> = { ACTIVE: '#00FF94', TRIAL: '#FCD34D', SUSPENDED: '#F87171', CHURNED: '#4A6278' };
 
 export default function AdminOrgsPage() {
+  const { t } = useLang();
   const [orgs, setOrgs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);

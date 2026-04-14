@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -15,6 +16,7 @@ const MODULES = [
 ];
 
 export default function StandardsPage() {
+  const { t } = useLang();
   const [summary, setSummary] = useState<any>(null);
 
   useEffect(() => {

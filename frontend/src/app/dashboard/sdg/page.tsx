@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -20,6 +21,7 @@ const SDG_LIST = [
 ];
 
 export default function SDGPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [scores, setScores] = useState<Record<string, number>>({});

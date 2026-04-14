@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -6,6 +7,7 @@ import { api } from '@/lib/api';
 const STEPS = ['Informations', 'Localisation', 'Paramètres MRV', 'Confirmation'];
 
 export default function NewProjectPage() {
+  const { t } = useLang();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [countries, setCountries] = useState<any[]>([]);

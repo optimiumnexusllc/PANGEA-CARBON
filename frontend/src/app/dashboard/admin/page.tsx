@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
@@ -13,6 +14,7 @@ const ACTION_COLOR: Record<string, string> = {
 };
 
 export default function AdminOverviewPage() {
+  const { t } = useLang();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 

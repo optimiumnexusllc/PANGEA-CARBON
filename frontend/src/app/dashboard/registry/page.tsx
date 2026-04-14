@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -10,6 +11,7 @@ const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0
 const STATUS_COLOR: Record<string, string> = { ISSUED: '#00FF94', RETIRED: '#F87171', TRANSFERRED: '#38BDF8', CANCELLED: '#4A6278' };
 
 export default function RegistryPage() {
+  const { t } = useLang();
   const [chain, setChain] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [form, setForm] = useState({ projectId: '', vintage: String(new Date().getFullYear()), quantity: '', standard: 'VERRA_VCS' });

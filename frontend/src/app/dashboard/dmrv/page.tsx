@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -7,6 +8,7 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const fmt = (n: number, d = 1) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function DMRVPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [dmrv, setDmrv] = useState<any>(null);

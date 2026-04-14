@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
@@ -7,6 +8,7 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function Article6Page() {
+  const { t } = useLang();
   const [data, setData] = useState<any>(null);
   const [buyers, setBuyers] = useState<any>(null);
   const [loading, setLoading] = useState(true);

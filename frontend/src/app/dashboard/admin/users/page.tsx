@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState, useCallback } from 'react';
 
@@ -25,6 +26,7 @@ const Input = ({ type = 'text', value, onChange, placeholder, autoFocus }: any) 
 );
 
 export default function AdminUsersPage() {
+  const { t } = useLang();
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');

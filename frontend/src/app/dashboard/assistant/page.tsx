@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 
@@ -8,6 +9,7 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 type Message = { role: 'user' | 'assistant'; content: string; };
 
 export default function AssistantPage() {
+  const { t } = useLang();
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, propulsé par Claude (Anthropic).\n\nJe peux analyser vos données carbone, expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nQue puis-je faire pour vous ?' }
   ]);

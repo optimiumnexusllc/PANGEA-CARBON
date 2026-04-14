@@ -2,15 +2,15 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from './i18n';
 
-const LangContext = createContext({ lang: 'fr', setLang: (l) => {}, t: (key) => key });
+const LangContext = createContext({ lang: 'en', setLang: (l) => {}, t: (key) => key });
 
 export function LangProvider({ children }) {
-  const [lang, setLangState] = useState('fr');
+  const [lang, setLangState] = useState('en');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const stored = localStorage.getItem('pgc_lang');
-    if (stored === 'en' || stored === 'fr') setLangState(stored);
+    if (stored === 'en' || stored === 'fr') setLangState(stored); else setLangState('en');
   }, []);
 
   function setLang(l) {

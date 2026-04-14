@@ -1,9 +1,11 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function ForgotPasswordPage() {
+  const { t } = useLang();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);

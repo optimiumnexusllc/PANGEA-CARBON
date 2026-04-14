@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { api } from '@/lib/api';
@@ -19,6 +20,7 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
 ) : null;
 
 export default function ProjectionPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [portfolioData, setPortfolioData] = useState<any>(null);

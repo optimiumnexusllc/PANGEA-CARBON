@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -13,13 +14,14 @@ const STATUS_BADGE: Record<string, string> = {
   VERIFIED: 'badge-acid', CREDITED: 'badge-acid', ARCHIVED: 'badge-ghost'
 };
 const STATUS_FR: Record<string, string> = {
-  DRAFT: 'Brouillon', ACTIVE: 'Actif', MONITORING: 'Monitoring',
+  DRAFT: {t('dash_draft')}, ACTIVE: {t('dash_active')}, MONITORING: 'Monitoring',
   VERIFIED: 'Vérifié', CREDITED: 'Crédité', ARCHIVED: 'Archivé'
 };
 
 const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 
 export default function ProjectsPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -101,7 +103,7 @@ export default function ProjectsPage() {
         </div>
         <a href="/dashboard/projects/new" className="btn-primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          Nouveau projet
+          {t('proj_new')}
         </a>
       </div>
 
@@ -254,7 +256,7 @@ export default function ProjectsPage() {
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
               <button onClick={deleteProj} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {deleting ? '...' : 'Supprimer'}
+                {deleting ? '...' : {t('proj_delete')}}
               </button>
             </div>
           </div>

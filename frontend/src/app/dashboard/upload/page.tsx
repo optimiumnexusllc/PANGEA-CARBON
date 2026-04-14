@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useState, useRef, useEffect } from 'react';
 import { api } from '@/lib/api';
 
@@ -11,6 +12,7 @@ const CSV_TEMPLATE = `period_start,period_end,energy_mwh,peak_power_mw,availabil
 2024-03-01,2024-03-31,1340.7,49.1,99.1,Mars production`;
 
 export default function UploadPage() {
+  const { t } = useLang();
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState('');
   const [dragging, setDragging] = useState(false);

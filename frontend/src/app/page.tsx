@@ -82,7 +82,7 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [lang, setLang] = useState('fr');
+  const [lang, setLang] = useState('en');
   const [showContact, setShowContact] = useState(false);
   const [cName, setCName] = useState('');
   const [cEmail, setCEmail] = useState('');

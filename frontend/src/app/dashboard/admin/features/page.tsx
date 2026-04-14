@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -11,6 +12,7 @@ const FEATURE_ICONS: Record<string, string> = {
 };
 
 export default function AdminFeaturesPage() {
+  const { t } = useLang();
   const [features, setFeatures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string>('');

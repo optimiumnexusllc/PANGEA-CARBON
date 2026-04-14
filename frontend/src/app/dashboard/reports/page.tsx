@@ -1,10 +1,12 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const fmt = (n: number) => n?.toLocaleString('fr-FR') ?? '—';
 
 export default function ReportsPage() {
+  const { t } = useLang();
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
