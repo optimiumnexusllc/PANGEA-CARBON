@@ -77,26 +77,78 @@ router.get('/users', auth, adminOnly, async (req, res, next) => {
 
 router.patch('/users/:id', auth, adminOnly, async (req, res, next) => {
   try {
-    const { role, isActive, organizationId } = req.body;
-    const before = await prisma.user.findUnique({ where: { id: req.params.id } });
+    const { role, isActive, organizationId, name, billingPlan, maxProjects, maxUsers, maxMW } = req.body;
+    if (req.params.id === req.user.userId && isActive === false) {
+      return res.status(400).json({ error: 'Cannot disable your own account' });
+    }
+    const before = await prisma.user.findUnique({
+      where: { id: req.params.id },
+      include: { organization: { select: { id:true, plan:true, name:true } } }
+    });
+
+    // Update user fields
+    const updateData = {};
+    if (role !== undefined) updateData.role = role;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (organizationId !== undefined) updateData.organizationId = organizationId;
+    if (name !== undefined && name.trim()) updateData.name = name.trim();
+
     const user = await prisma.user.update({
       where: { id: req.params.id },
-      data: { ...(role && { role }), ...(isActive !== undefined && { isActive }), ...(organizationId !== undefined && { organizationId }) },
-      select: { id: true, name: true, email: true, role: true, isActive: true }
+      data: updateData,
+      select: { id:true, name:true, email:true, role:true, isActive:true, organizationId:true,
+                organization:{ select:{ id:true, name:true, plan:true } } }
     });
+
+    // Update org billing plan if requested
+    if (billingPlan && user.organizationId) {
+      const orgUpdate = { plan: billingPlan };
+      if (maxProjects) orgUpdate.maxProjects = parseInt(maxProjects);
+      if (maxUsers) orgUpdate.maxUsers = parseInt(maxUsers);
+      if (maxMW) orgUpdate.maxMW = parseFloat(maxMW);
+      // Set limits based on plan
+      const planLimits = {
+        TRIAL:      { maxProjects:5,  maxUsers:3,  maxMW:100 },
+        STARTER:    { maxProjects:10, maxUsers:5,  maxMW:500 },
+        GROWTH:     { maxProjects:50, maxUsers:20, maxMW:5000 },
+        ENTERPRISE: { maxProjects:999,maxUsers:999,maxMW:99999 },
+      };
+      const limits = planLimits[billingPlan] || planLimits.TRIAL;
+      await prisma.organization.update({
+        where: { id: user.organizationId },
+        data: { plan:billingPlan, status:billingPlan, ...limits, ...orgUpdate }
+      });
+    }
+
     await prisma.auditLog.create({
-      data: { userId: req.user.userId, action: 'UPDATE_USER', entity: 'User', entityId: req.params.id, before, after: user, ipAddress: req.ip }
+      data: { userId:req.user.userId, action:'UPDATE_USER', entity:'User', entityId:req.params.id,
+              before, after:{ ...updateData, billingPlan }, ipAddress:req.ip }
     });
-    res.json(user);
+    res.json({ ...user, billingPlan: billingPlan || user.organization?.plan });
   } catch (e) { next(e); }
 });
 
 router.delete('/users/:id', auth, adminOnly, async (req, res, next) => {
   try {
-    if (req.params.id === req.user.userId) return res.status(400).json({ error: 'Impossible de supprimer votre propre compte' });
-    await prisma.user.update({ where: { id: req.params.id }, data: { isActive: false } });
-    await prisma.auditLog.create({ data: { userId: req.user.userId, action: 'DEACTIVATE_USER', entity: 'User', entityId: req.params.id, ipAddress: req.ip } });
-    res.json({ success: true });
+    if (req.params.id === req.user.userId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+    const user = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const hard = req.query.hard === 'true' && req.user.role === 'SUPER_ADMIN';
+
+    if (hard) {
+      // Vraie suppression (SUPER_ADMIN only)
+      await prisma.user.delete({ where: { id: req.params.id } });
+      await prisma.auditLog.create({ data: { userId:req.user.userId, action:'DELETE_USER_HARD', entity:'User', entityId:req.params.id, before:user, ipAddress:req.ip } }).catch(()=>{});
+      res.json({ deleted: true, hard: true });
+    } else {
+      // Désactivation (comportement par défaut)
+      await prisma.user.update({ where: { id: req.params.id }, data: { isActive: false } });
+      await prisma.auditLog.create({ data: { userId:req.user.userId, action:'DEACTIVATE_USER', entity:'User', entityId:req.params.id, before:user, ipAddress:req.ip } });
+      res.json({ deleted: true, hard: false, deactivated: true });
+    }
   } catch (e) { next(e); }
 });
 
