@@ -77,7 +77,6 @@ model Organization {
   users            User[]
   projects         Project[]
   invoices         Invoice[]
-  marketplaceOrders MarketplaceOrder[]
   featureAccess    OrgFeature[]
 }
 
@@ -100,6 +99,7 @@ model User {
   projects       Project[]
   reports        Report[]
   auditLogs      AuditLog[]
+  marketplaceOrders MarketplaceOrder[]
   apiKeys        ApiKey[]
 }
 
