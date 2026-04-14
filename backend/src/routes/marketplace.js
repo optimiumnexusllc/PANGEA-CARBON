@@ -40,12 +40,26 @@ async function getPangeaFee() {
   );
 }
 
-// ─── Stripe (abonnements SaaS uniquement) ────────────────────────────────────
-const getStripe = () => {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error('STRIPE_SECRET_KEY not configured');
+// ─── Stripe — lit depuis DB ou env var ───────────────────────────────────────
+async function getStripeKey() {
+  // Priorité: marketplace_stripe_key DB > STRIPE_SECRET_KEY env
+  try {
+    const mkt = await prisma.systemSetting.findUnique({ where: { key: 'marketplace_stripe_key' } });
+    if (mkt?.value && mkt.value.length > 10) return mkt.value;
+  } catch(_e) {}
+  try {
+    const sk = await prisma.systemSetting.findUnique({ where: { key: 'stripe_secret_key' } });
+    if (sk?.value && sk.value.length > 10) return sk.value;
+  } catch(_e) {}
+  const envKey = process.env.STRIPE_SECRET_KEY || process.env.MARKETPLACE_STRIPE_KEY;
+  if (envKey) return envKey;
+  return null;
+}
+async function getStripeClient() {
+  const key = await getStripeKey();
+  if (!key) throw new Error('STRIPE_SECRET_KEY not configured — add it in Admin → Secrets → Stripe Payments');
   return require('stripe')(key);
-};
+}
 
 // ─── CinetPay (Afrique de l'Ouest) ───────────────────────────────────────────
 const cinetpay = {
@@ -158,7 +172,7 @@ async function splitPayment({ orderId, total, currency, sellerConfig, feePct = 3
 
   // 1. PANGEA fee → Stripe (immédiat ou via Stripe Transfer si Stripe Connect)
   try {
-    const stripe = getStripe();
+    const stripe = await getStripeClient();
     const pangeaFeeIntent = await stripe.paymentIntents.create({
       amount: Math.round(pangeaFee * 100),
       currency: 'usd',
@@ -362,13 +376,13 @@ router.post('/bid', auth, async (req, res, next) => {
     // 2. Décider gateway selon montant et préférence buyer
     const amountCents = Math.round(total * 100);
     const gateway = paymentGateway || (total < 2000 ? 'STRIPE_CHECKOUT' : 'STRIPE_INVOICE');
-    let paymentUrl = null, invoicePdf = null, paymentMode = 'manual';
+    let paymentUrl = null, invoicePdf = null, paymentMode = 'manual', paymentError = null;
     let stripeSessionId = null, stripeInvoiceId = null;
 
     // ── STRIPE CHECKOUT (petits montants ou buyer préfère carte) ──────────────
     if (gateway === 'STRIPE_CHECKOUT') {
       try {
-        const stripe = getStripe();
+        const stripe = await getStripeClient();
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
           mode: 'payment',
@@ -409,12 +423,13 @@ router.post('/bid', auth, async (req, res, next) => {
         } catch(_e) {}
       } catch(stripeErr) {
         paymentMode = 'manual';
+        paymentError = stripeErr.message || 'Stripe error';
       }
 
     // ── STRIPE INVOICE (grands montants — virement accepté) ───────────────────
     } else if (gateway === 'STRIPE_INVOICE') {
       try {
-        const stripe = getStripe();
+        const stripe = await getStripeClient();
         const customers = await stripe.customers.list({ email: user.email, limit: 1 });
         const customer  = customers.data[0] || await stripe.customers.create({ email: user.email, name: user.name });
 
@@ -451,6 +466,7 @@ router.post('/bid', auth, async (req, res, next) => {
         } catch(_e) {}
       } catch(stripeErr) {
         paymentMode = 'manual';
+        paymentError = stripeErr.message || 'Stripe invoice error';
       }
 
     // ── CINETPAY (Afrique de l'Ouest — XOF/XAF) ──────────────────────────────
@@ -535,6 +551,7 @@ router.post('/bid', auth, async (req, res, next) => {
 
       // Payment
       paymentMode,
+      paymentError: paymentError, // null si OK, message si erreur
       paymentGateway: pm.label,
       paymentIcon:    pm.icon,
       paymentUrl:     paymentUrl,
@@ -584,7 +601,7 @@ router.get('/order/:id', auth, async (req, res, next) => {
     // Sync Stripe status
     if (order.stripeSessionId || order.stripeInvoiceId) {
       try {
-        const stripe = getStripe();
+        const stripe = await getStripeClient();
         if (order.stripeSessionId && order.status !== 'PAID') {
           const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
           if (session.payment_status === 'paid') {
@@ -651,7 +668,7 @@ router.post('/webhook/stripe', async (req, res) => {
 
   let event;
   try {
-    const stripe = getStripe();
+    const stripe = await getStripeClient();
     event = stripe.webhooks.constructEvent(req.body, sig, secret);
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
