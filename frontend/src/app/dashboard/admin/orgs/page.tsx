@@ -126,7 +126,7 @@ export default function AdminOrgsPage() {
 
               {org.trialEndsAt && (
                 <div style={{ marginTop: 8, fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>
-                  Trial expire: {new Date(org.trialEndsAt).toLocaleDateString('en-US')}
+                  Trial expires: {new Date(org.trialEndsAt).toLocaleDateString('en-US')}
                 </div>
               )}
             </div>

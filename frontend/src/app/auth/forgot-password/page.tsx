@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
       });
       if (res.ok) setSent(true);
       else { const d = await res.json(); setError(d.error || 'Erreur'); }
-    } catch(_e) { setError('Erreur réseau. Réessayez.'); }
+    } catch(_e) { setError('Network error. Please try again.'); }
     finally { setLoading(false); }
   };
 
@@ -46,12 +46,12 @@ export default function ForgotPasswordPage() {
               </p>
               <div style={{ fontSize: 12, color: '#4A6278', marginBottom: 20 }}>Vérifiez vos spams si vous ne voyez rien.</div>
               <a href="/auth/login" style={{ display: 'block', background: '#00FF94', color: '#080B0F', borderRadius: 8, padding: '11px', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>
-                ← Retour à la connexion
+                ← Back to login
               </a>
             </div>
           ) : (
             <>
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, color: '#E8EFF6', marginBottom: 6 }}>Mot de passe oublié</h1>
+              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, color: '#E8EFF6', marginBottom: 6 }}>Forgot password</h1>
               <p style={{ fontSize: 13, color: '#4A6278', marginBottom: 24 }}>Entrez votre email pour recevoir un lien de réinitialisation.</p>
 
               {error && (
@@ -69,12 +69,12 @@ export default function ForgotPasswordPage() {
                   onBlur={e => e.target.style.borderColor = '#1E2D3D'}/>
                 <button type="submit" disabled={loading || !email}
                   style={{ width: '100%', background: loading ? '#1E2D3D' : '#00FF94', color: loading ? '#4A6278' : '#080B0F', border: 'none', borderRadius: 8, padding: '12px', fontWeight: 700, fontSize: 14, cursor: loading ? 'wait' : 'pointer' }}>
-                  {loading ? 'Envoi...' : 'Envoyer le lien de réinitialisation →'}
+                  {loading ? 'Sending...' : 'Send reset link →'}
                 </button>
               </form>
 
               <div style={{ textAlign: 'center', marginTop: 20 }}>
-                <a href="/auth/login" style={{ fontSize: 13, color: '#4A6278', textDecoration: 'none' }}>← Retour à la connexion</a>
+                <a href="/auth/login" style={{ fontSize: 13, color: '#4A6278', textDecoration: 'none' }}>← Back to login</a>
               </div>
             </>
           )}

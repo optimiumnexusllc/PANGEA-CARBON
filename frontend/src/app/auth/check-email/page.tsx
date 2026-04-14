@@ -46,9 +46,9 @@ function CheckEmailInner() {
 
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 20, marginBottom: 24, textAlign: 'left' }}>
             {[
-              ['1.', 'Ouvrez votre boîte email'],
-              ['2.', 'Cliquez sur "Activer mon compte"'],
-              ['3.', 'Accédez à votre dashboard PANGEA CARBON'],
+              ['1.', 'Open your email inbox'],
+              ['2.', 'Click on "Activate my account"'],
+              ['3.', 'Access your PANGEA CARBON dashboard'],
             ].map(([num, text]) => (
               <div key={num} style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 10, fontSize: 13 }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,255,148,0.15)', color: '#00FF94', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{num}</div>
@@ -71,7 +71,7 @@ function CheckEmailInner() {
               Pas reçu l'email ?{' '}
               <button onClick={resend} disabled={loading}
                 style={{ background: 'none', border: 'none', color: '#38BDF8', cursor: 'pointer', fontSize: 13, textDecoration: 'underline' }}>
-                {loading ? 'Envoi...' : 'Renvoyer'}
+                {loading ? 'Sending...' : 'Renvoyer'}
               </button>
             </div>
           )}
@@ -82,7 +82,7 @@ function CheckEmailInner() {
         </div>
 
         <a href="/auth/login" style={{ display: 'inline-block', marginTop: 16, fontSize: 13, color: '#4A6278', textDecoration: 'none' }}>
-          ← Retour à la connexion
+          ← Back to login
         </a>
       </div>
     </div>

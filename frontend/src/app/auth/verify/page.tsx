@@ -14,7 +14,7 @@ function VerifyEmailInner() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    if (!token) { setStatus('error'); setMessage('Lien invalide — token manquant.'); return; }
+    if (!token) { setStatus('error'); setMessage('Invalid link — missing token.'); return; }
 
     fetch(`${API}/auth/verify?token=${token}`)
       .then(r => r.json())
@@ -37,7 +37,7 @@ function VerifyEmailInner() {
           setMessage(data.error || data.message || 'Erreur de vérification.');
         }
       })
-      .catch(() => { setStatus('error'); setMessage('Erreur réseau. Réessayez.'); });
+      .catch(() => { setStatus('error'); setMessage('Network error. Please try again.'); });
   }, [token]);
 
   return (
@@ -55,7 +55,7 @@ function VerifyEmailInner() {
           {status === 'verifying' && (
             <>
               <div style={{ width: 48, height: 48, border: '3px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }}/>
-              <div style={{ fontSize: 18, fontWeight: 600, color: '#E8EFF6', fontFamily: 'Syne, sans-serif', marginBottom: 8 }}>Vérification en cours...</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: '#E8EFF6', fontFamily: 'Syne, sans-serif', marginBottom: 8 }}>Verification en cours...</div>
               <div style={{ fontSize: 13, color: '#4A6278' }}>Activation de votre compte PANGEA CARBON</div>
             </>
           )}
@@ -82,7 +82,7 @@ function VerifyEmailInner() {
               <div style={{ fontSize: 14, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 24 }}>{message}</div>
               <ResendForm />
               <a href="/auth/login" style={{ display: 'block', marginTop: 12, fontSize: 13, color: '#4A6278', textDecoration: 'none' }}>
-                ← Retour à la connexion
+                ← Back to login
               </a>
             </>
           )}

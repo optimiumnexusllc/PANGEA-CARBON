@@ -33,9 +33,9 @@ export default function LoginPage() {
       if (!res.ok) {
         if (data.pendingVerification) {
           setPendingVerif(true);
-          setError(data.message || 'Email non vérifié. Consultez votre boîte mail.');
+          setError(data.message || 'Email not verified. Please check your inbox.');
         } else {
-          setError(data.error || 'Identifiants invalides');
+          setError(data.error || 'Invalid credentials');
         }
         return;
       }
@@ -111,7 +111,7 @@ export default function LoginPage() {
             </div>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <label style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', fontSize: 10 }}>MOT DE PASSE</label>
+                <label style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', fontSize: 10 }}>PASSWORD</label>
                 <a href="/auth/forgot-password" style={{ fontSize: 11, color: '#4A6278', textDecoration: 'none' }}>{t('auth_forgot')}</a>
               </div>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
@@ -132,9 +132,9 @@ export default function LoginPage() {
           </form>
 
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #1E2D3D', textAlign: 'center' }}>
-            <span style={{ fontSize: 13, color: '#4A6278' }}>Pas encore de compte ? </span>
+            <span style={{ fontSize: 13, color: '#4A6278' }}>No account? </span>
             <a href="/signup" style={{ fontSize: 13, color: '#00FF94', textDecoration: 'none', fontWeight: 600 }}>
-              S'inscrire gratuitement →
+              Sign up for free →
             </a>
           </div>
         </div>

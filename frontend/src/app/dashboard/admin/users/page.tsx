@@ -137,11 +137,11 @@ export default function AdminUsersPage() {
           <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>
             ADMIN · {total} UTILISATEUR{total > 1 ? 'S' : ''}
           </div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Gestion Users</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>User Management</h1>
         </div>
         <button onClick={() => { setCreating(true); setSaveError(''); setSaveSuccess(''); }}
           style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          + Nouvel utilisateur
+          + New user
         </button>
       </div>
 
@@ -207,7 +207,7 @@ export default function AdminUsersPage() {
                     </div>
                     <div>
                       <div style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{u.name}</div>
-                      {u.emailVerified && <div style={{ fontSize: 9, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace' }}>✓ email vérifié</div>}
+                      {u.emailVerified && <div style={{ fontSize: 9, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace' }}>✓ verified email</div>}
                     </div>
                   </div>
                 </td>
@@ -240,7 +240,7 @@ export default function AdminUsersPage() {
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     <button onClick={() => updateUser(u.id, { isActive: !u.isActive })}
                       style={{ fontSize: 11, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 5, color: u.isActive ? '#F87171' : '#00FF94', padding: '4px 9px', cursor: 'pointer' }}>
-                      {u.isActive ? 'Desactiver' : 'Activer'}
+                      {u.isActive ? 'Disable' : 'Activer'}
                     </button>
                     <button onClick={() => setDeleteUser(u)}
                       style={{ fontSize: 11, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, color: '#F87171', padding: '4px 9px', cursor: 'pointer' }}>
@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 14, padding: 28, width: '100%', maxWidth: 420, boxShadow: '0 24px 60px rgba(0,0,0,0.5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#E8EFF6', margin: 0 }}>Nouvel utilisateur</h2>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#E8EFF6', margin: 0 }}>New user</h2>
               <button onClick={() => { setCreating(false); setSaveError(''); setSaveSuccess(''); }}
                 style={{ background: 'transparent', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>✕</button>
             </div>

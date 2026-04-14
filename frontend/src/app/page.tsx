@@ -9,19 +9,19 @@ import { useRouter } from 'next/navigation';
 ───────────────────────────────────────────── */
 
 const STATS = [
-  { value: 697, suffix: 'K+', label: 'tCO₂e certifiés', sub: 'Verra ACM0002' },
-  { value: 7.7, suffix: 'M$', label: 'revenus carbone', sub: 'Portfolio actif' },
-  { value: 18, suffix: '', label: 'pays africains', sub: 'EF UNFCCC officiels' },
-  { value: 6, suffix: '', label: 'projets live', sub: 'Solar · Wind · Hydro' },
+  { value: 697, suffix: 'K+', label: 'tCO₂e certified', sub: 'Verra ACM0002' },
+  { value: 7.7, suffix: 'M$', label: 'carbon revenue', sub: 'Portfolio actif' },
+  { value: 18, suffix: '', label: 'African countries', sub: 'EF UNFCCC officiels' },
+  { value: 6, suffix: '', label: 'live projects', sub: 'Solar · Wind · Hydro' },
 ];
 
 const FEATURES = [
-  { icon: '⚡', title: 'Equipment API native', desc: 'SMA, Huawei, SolarEdge, Fronius. REST ou webhook. MRV calculé automatiquement à chaque lecture.', tag: 'API REST' },
-  { icon: '🧮', title: 'MRV ACM0002 certifiable', desc: 'Méthodologie Verra v19.0. 18 pays africains. Calcul en millisecondes. Rapport PDF audit-ready.', tag: 'Verra · Gold Standard' },
+  { icon: '⚡', title: 'Native Equipment API', desc: 'SMA, Huawei, SolarEdge, Fronius. REST ou webhook. MRV calculé automatiquement à chaque lecture.', tag: 'API REST' },
+  { icon: '🧮', title: 'Certifiable MRV ACM0002', desc: 'Méthodologie Verra v19.0. 18 African countries. Calcul en millisecondes. Rapport PDF audit-ready.', tag: 'Verra · Gold Standard' },
   { icon: '🛰️', title: 'dMRV Satellite + IoT', desc: 'Sentinel-2 + IoT sensors. Vérification continue. Plus d\'auditeur annuel requis. Score dMRV live.', tag: 'Continuous MRV' },
-  { icon: '🏛️', title: 'Article 6 ITMO', desc: 'Marchés carbone souverains. Prix $35-55/tCO₂e. Transactions état-à-état Accord de Paris.', tag: '×3-5 prix Verra' },
-  { icon: '🤖', title: 'AI Carbon Assistant', desc: 'Claude (Anthropic) avec contexte carbone africain. Analyse portfolio, répond aux questions ACM0002.', tag: 'Claude · Anthropic' },
-  { icon: '⛓️', title: 'Blockchain Registry', desc: 'SHA-256 hash chain. Anti-double comptage. Chaque crédit vérifiable publiquement par hash unique.', tag: 'Trustless' },
+  { icon: '🏛️', title: 'Article 6 ITMO', desc: 'Sovereign carbon markets. Price $35-55/tCO₂e. State-to-state Paris Agreement transactions.', tag: '×3-5 prix Verra' },
+  { icon: '🤖', title: 'AI Carbon Assistant', desc: 'Claude (Anthropic) with African carbon context. Analyzes portfolio, answers ACM0002 questions.', tag: 'Claude · Anthropic' },
+  { icon: '⛓️', title: 'Blockchain Registry', desc: 'SHA-256 hash chain. Anti-double counting. Every credit publicly verifiable by unique hash.', tag: 'Trustless' },
 ];
 
 const STANDARDS = [
@@ -33,16 +33,16 @@ const STANDARDS = [
 ];
 
 const FLOW = [
-  { n: '01', title: 'Créez un projet', desc: 'Enregistrez votre parc en 2 min. Facteur d\'émission défini automatiquement.' },
-  { n: '02', title: 'Connectez les équipements', desc: 'API REST pour SMA, Huawei, SolarEdge. Ou importez CSV. Données temps réel.' },
-  { n: '03', title: 'MRV automatique', desc: 'Chaque lecture déclenche le calcul. Crédits, revenus, équivalents. Tout tracé.' },
-  { n: '04', title: 'Téléchargez & vendez', desc: 'PDF certifiable en 1 clic. Soumettez VVB. Vendez sur notre marketplace.' },
+  { n: '01', title: 'Create a project', desc: 'Enregistrez votre parc en 2 min. Facteur d\'émission défini automatiquement.' },
+  { n: '02', title: 'Connect equipment', desc: 'REST API for SMA, Huawei, SolarEdge. Or import CSV. Real-time data.' },
+  { n: '03', title: 'Automatic MRV', desc: 'Every reading triggers calculation. Credits, revenue, equivalents. All tracked.' },
+  { n: '04', title: 'Download & sell', desc: 'Certifiable PDF in 1 click. Submit to VVB. Sell on our marketplace.' },
 ];
 
 const TESTIMONIALS = [
-  { name: 'Aminata Diallo', role: 'CFO · SolarAfrica Mali', text: 'Notre rapport MRV est passé de 3 semaines à 1 clic. Les auditeurs Verra sont impressionnés.' },
+  { name: 'Aminata Diallo', role: 'CFO · SolarAfrica Mali', text: 'Our MRV report went from 3 weeks to 1 click. Verra auditors are impressed.' },
   { name: 'Emmanuel Osei', role: 'CEO · GreenPower Ghana', text: 'L\'Equipment API avec nos onduleurs Huawei fonctionne parfaitement. MRV en temps réel.' },
-  { name: 'Fatoumata Koné', role: 'Director · AEOLUS CI', text: 'La première plateforme vraiment africaine. Comprend nos réalités terrain et nos pays.' },
+  { name: 'Fatoumata Koné', role: 'Director · AEOLUS CI', text: 'The first truly African platform. Understands our field realities and our countries.' },
 ];
 
 function AnimatedCounter({ target, suffix }: { target: number; suffix: string }) {
@@ -114,7 +114,7 @@ export default function LandingPage() {
   const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
 
   const doSend = async () => {
-    if (!cName || !cEmail) { setCerr('Nom et email requis'); return; }
+    if (!cName || !cEmail) { setCerr('Name and email required'); return; }
     setCsending(true); setCerr('');
     try {
       const r = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/email-composer/contact', {
@@ -123,7 +123,7 @@ export default function LandingPage() {
         body: JSON.stringify({ name: cName, email: cEmail, company: cCompany, message: cMsg }),
       });
       if (r.ok) setCsent(true);
-      else setCerr('Erreur envoi');
+      else setCerr('Send error');
     } catch(_e) { setCerr('Erreur reseau'); }
     finally { setCsending(false); }
   };
@@ -142,18 +142,18 @@ export default function LandingPage() {
           </a>
 
           <div className="pgc-nav__links">
-            <a href="#features" className="pgc-nav__link">Fonctionnalités</a>
-            <a href="#how" className="pgc-nav__link">Comment</a>
-            <a href="#pricing" className="pgc-nav__link">Tarifs</a>
+            <a href="#features" className="pgc-nav__link">Features</a>
+            <a href="#how" className="pgc-nav__link">How it works</a>
+            <a href="#pricing" className="pgc-nav__link">Pricing</a>
             <a href="#contact" className="pgc-nav__link">Contact</a>
           </div>
 
           <div className="pgc-nav__actions">
-            <a href="/auth/login" className="pgc-btn pgc-btn--ghost">Connexion</a>
+            <a href="/auth/login" className="pgc-btn pgc-btn--ghost">Login</a>
             <span style={{display:'flex',alignItems:'center',gap:2,background:'rgba(30,45,61,.6)',borderRadius:6,padding:'3px 4px',border:'1px solid #1E2D3D',marginRight:6}}>
               {['fr','en'].map(l=><button key={l} onClick={()=>{setLang(l);try{localStorage.setItem('pgc_lang',l)}catch(e){}}} style={{padding:'3px 8px',borderRadius:4,border:'none',cursor:'pointer',fontSize:11,fontWeight:lang===l?700:400,background:lang===l?'#00FF94':'transparent',color:lang===l?'#080B0F':'#4A6278'}}>{l.toUpperCase()}</button>)}
             </span>
-            <a href="/signup" className="pgc-btn pgc-btn--primary">Essai gratuit →</a>
+            <a href="/signup" className="pgc-btn pgc-btn--primary">Free trial →</a>
           </div>
 
           <button className="pgc-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
@@ -167,11 +167,11 @@ export default function LandingPage() {
         <div className={`pgc-mobile-menu ${menuOpen ? 'pgc-mobile-menu--open' : ''}`}>
           {['#features', '#how', '#pricing', '#contact'].map((href, i) => (
             <a key={href} href={href} className="pgc-mobile-menu__link" onClick={() => setMenuOpen(false)}>
-              {['Fonctionnalités', 'Comment ça marche', 'Tarifs', 'Contact'][i]}
+              {['Features', 'How it works ça marche', 'Pricing', 'Contact'][i]}
             </a>
           ))}
           <div className="pgc-mobile-menu__actions">
-            <a href="/auth/login" className="pgc-btn pgc-btn--ghost pgc-btn--full">Connexion</a>
+            <a href="/auth/login" className="pgc-btn pgc-btn--ghost pgc-btn--full">Login</a>
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--full">Essai gratuit 14j →</a>
           </div>
         </div>
@@ -187,22 +187,22 @@ export default function LandingPage() {
             <span>Carbon Credit Intelligence · Africa · Verra ACM0002</span>
           </div>
           <h1 className="pgc-hero__title">
-            La plateforme MRV qui fait<br className="pgc-br-desktop"/>
-            <span className="pgc-text-green"> l'Afrique leader</span><br className="pgc-br-desktop"/>
-            du carbone mondial
+            The MRV platform making<br className="pgc-br-desktop"/>
+            <span className="pgc-text-green"> Africa the leader</span><br className="pgc-br-desktop"/>
+            of global carbon
           </h1>
           <p className="pgc-hero__desc">
-            Connectez vos équipements. Calculez vos crédits carbone automatiquement selon Verra ACM0002. Générez des rapports certifiables. Vendez sur notre marketplace.
+            Connect your equipment. Calculate carbon credits automatically per Verra ACM0002. Generate certifiable reports. Sell on our marketplace.
           </p>
           <div className="pgc-hero__cta">
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--lg">
-              Commencer gratuitement →
+              Get started for free →
             </a>
             <a href="/auth/login" className="pgc-btn pgc-btn--outline pgc-btn--lg">
-              Voir la démo
+              Watch demo
             </a>
           </div>
-          <p className="pgc-hero__note">14 jours gratuits · Pas de carte bancaire · Setup en 10 min</p>
+          <p className="pgc-hero__note">14-day free trial · No credit card · Setup in 10 min</p>
 
           {/* Standards */}
           <div className="pgc-standards">
@@ -235,9 +235,9 @@ export default function LandingPage() {
       <section id="features" className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
-            <div className="pgc-eyebrow">FONCTIONNALITÉS</div>
-            <h2 className="pgc-section__title">Tout ce dont un EPC/IPP africain a besoin</h2>
-            <p className="pgc-section__sub">Une plateforme. Zéro Excel. Zéro consultant MRV externe.</p>
+            <div className="pgc-eyebrow">FEATURES</div>
+            <h2 className="pgc-section__title">Everything an African EPC/IPP needs</h2>
+            <p className="pgc-section__sub">One platform. Zero Excel. Zero external MRV consultant.</p>
           </div>
           <div className="pgc-features-grid">
             {FEATURES.map(f => (
@@ -258,8 +258,8 @@ export default function LandingPage() {
       <section id="how" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
-            <div className="pgc-eyebrow">COMMENT ÇA MARCHE</div>
-            <h2 className="pgc-section__title">De l'équipement aux crédits en 4 étapes</h2>
+            <div className="pgc-eyebrow">HOW IT WORKS</div>
+            <h2 className="pgc-section__title">From equipment to credits in 4 steps</h2>
           </div>
           <div className="pgc-flow-grid">
             {FLOW.map((step, i) => (
@@ -282,9 +282,9 @@ export default function LandingPage() {
           <div className="pgc-api-showcase">
             <div className="pgc-api-showcase__text">
               <div className="pgc-eyebrow" style={{ color: '#A78BFA' }}>EQUIPMENT API</div>
-              <h2 className="pgc-section__title" style={{ textAlign: 'left', maxWidth: 'none' }}>Connectez vos onduleurs en 5 minutes</h2>
+              <h2 className="pgc-section__title" style={{ textAlign: 'left', maxWidth: 'none' }}>Connect your inverters in 5 minutes</h2>
               <p style={{ fontSize: 'clamp(13px, 2vw, 15px)', color: '#8FA3B8', lineHeight: 1.7, marginBottom: 24 }}>
-                Un endpoint REST. Un webhook. Vos données arrivent automatiquement, le MRV se calcule en continu.
+                One REST endpoint. One webhook. Your data arrives automatically, MRV calculated continuously.
               </p>
               <div className="pgc-api-integrations">
                 {[['☀️','SMA Solar'],['🌀','Huawei FusionSolar'],['⚡','SolarEdge'],['🔆','Fronius'],['📊','CSV / Excel'],['🔗','Webhook custom']].map(([icon, name]) => (
@@ -296,7 +296,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <a href="/signup" className="pgc-btn pgc-btn--primary" style={{ marginTop: 24, display: 'inline-flex' }}>
-                Obtenir une clé API →
+                Get an API key →
               </a>
             </div>
             <div className="pgc-terminal">
@@ -332,8 +332,8 @@ export default function LandingPage() {
       <section id="pricing" className="pgc-section pgc-section--dark">
         <div className="pgc-container">
           <div className="pgc-section__header">
-            <div className="pgc-eyebrow">TARIFS</div>
-            <h2 className="pgc-section__title">Commencez gratuitement, scalez sans limites</h2>
+            <div className="pgc-eyebrow">PRICING</div>
+            <h2 className="pgc-section__title">Start free, scale without limits</h2>
             <div className="pgc-toggle">
               <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>Mensuel</button>
               <button onClick={() => setAnnual(true)} className={`pgc-toggle__btn ${annual ? 'active' : ''}`}>
@@ -344,18 +344,18 @@ export default function LandingPage() {
 
           <div className="pgc-pricing-grid">
             {[
-              { name: 'Starter', price: prices.starter, color: '#38BDF8', features: ['5 projets', '50 MW max', 'MRV ACM0002', 'Dashboard', 'Import CSV', '2 users', 'Support email'] },
-              { name: 'Pro', price: prices.pro, color: '#00FF94', highlight: true, features: ['Projets illimités', 'MW illimités', 'PDF certifiables', 'Equipment API', 'AI Assistant', '6 modules Elite', '10 users', 'Support prioritaire'] },
-              { name: 'Enterprise', price: null, color: '#A78BFA', features: ['Tout Pro inclus', 'White-label', 'SSO SAML', 'SLA 99.9%', 'CSM dédié', 'Intégrations custom', 'Utilisateurs illimités'] },
+              { name: 'Starter', price: prices.starter, color: '#38BDF8', features: ['5 projects', '50 MW max', 'MRV ACM0002', 'Dashboard', 'Import CSV', '2 users', 'Email support'] },
+              { name: 'Pro', price: prices.pro, color: '#00FF94', highlight: true, features: ['Unlimited projects', 'MW illimités', 'Certifiable PDFs', 'Equipment API', 'AI Assistant', '6 modules Elite', '10 users', 'Priority support'] },
+              { name: 'Enterprise', price: null, color: '#A78BFA', features: ['Everything in Pro', 'White-label', 'SSO SAML', 'SLA 99.9%', 'Dedicated CSM', 'Custom integrations', 'Unlimited users'] },
             ].map(plan => (
               <div key={plan.name} className={`pgc-pricing-card ${plan.highlight ? 'pgc-pricing-card--highlight' : ''}`} style={{ '--plan-color': plan.color } as any}>
-                {plan.highlight && <div className="pgc-pricing-card__badge">RECOMMANDÉ</div>}
+                {plan.highlight && <div className="pgc-pricing-card__badge">RECOMMENDED</div>}
                 <div className="pgc-pricing-card__name" style={{ color: plan.color }}>{plan.name.toUpperCase()}</div>
                 <div className="pgc-pricing-card__price">
                   {plan.price ? (
                     <><span className="pgc-pricing-card__amount" style={{ color: plan.color }}>${plan.price}</span><span className="pgc-pricing-card__period">/mois</span></>
                   ) : (
-                    <span className="pgc-pricing-card__amount" style={{ color: plan.color }}>Sur devis</span>
+                    <span className="pgc-pricing-card__amount" style={{ color: plan.color }}>Custom pricing</span>
                   )}
                 </div>
                 {annual && plan.price && <div className="pgc-pricing-card__annual">Facturé annuellement</div>}
@@ -369,11 +369,11 @@ export default function LandingPage() {
                 </div>
                 {plan.name === 'Enterprise' ? (
                   <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--full pgc-btn--outline" style={{ cursor: 'pointer' }}>
-                    Nous contacter
+                    Contact us
                   </button>
                 ) : (
                   <a href="/signup" className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
-                    Demarrer maintenant
+                    Get started
                   </a>
                 )}
               </div>
@@ -384,9 +384,9 @@ export default function LandingPage() {
             <div>
               <span className="pgc-revenue-share__title">Revenue Share</span>
               <span className="pgc-revenue-share__price"> — $0/mois</span>
-              <span className="pgc-revenue-share__desc"> · Payez uniquement 3% sur vos revenus carbone générés</span>
+              <span className="pgc-revenue-share__desc"> · Payez uniquement 3% sur vos carbon revenue générés</span>
             </div>
-            <a href="/signup" className="pgc-btn pgc-btn--ghost pgc-btn--sm">En savoir plus →</a>
+            <a href="/signup" className="pgc-btn pgc-btn--ghost pgc-btn--sm">Learn more →</a>
           </div>
         </div>
       </section>
@@ -395,8 +395,8 @@ export default function LandingPage() {
       <section className="pgc-section">
         <div className="pgc-container">
           <div className="pgc-section__header">
-            <div className="pgc-eyebrow">TÉMOIGNAGES</div>
-            <h2 className="pgc-section__title">Ils font confiance à PANGEA CARBON</h2>
+            <div className="pgc-eyebrow">TESTIMONIALS</div>
+            <h2 className="pgc-section__title">They trust PANGEA CARBON</h2>
           </div>
           <div className="pgc-testi-grid">
             {TESTIMONIALS.map(t => (
@@ -421,11 +421,11 @@ export default function LandingPage() {
         <div className="pgc-cta__glow"/>
         <div className="pgc-container pgc-cta__content">
           <div className="pgc-eyebrow" style={{ justifyContent: 'center' }}>WITH AFRICA FOR AFRICA 🌍</div>
-          <h2 className="pgc-cta__title">Prêt à monétiser votre carbone africain ?</h2>
-          <p className="pgc-cta__desc">14 jours gratuits · Pas de carte bancaire · Premier projet en 10 minutes</p>
+          <h2 className="pgc-cta__title">Ready to monetize your African carbon?</h2>
+          <p className="pgc-cta__desc">14-day free trial · No credit card · First project in 10 minutes</p>
           <div className="pgc-hero__cta">
-            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">Créer mon compte gratuit →</a>
-            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>Nous contacter</button>
+            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--xl">Create my free account →</a>
+            <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--ghost pgc-btn--xl" style={{ cursor: "pointer" }}>Contact us</button>
           </div>
         </div>
       </section>
@@ -443,14 +443,14 @@ export default function LandingPage() {
             </div>
             <div className="pgc-footer__links-group">
               <div className="pgc-footer__col">
-                <div className="pgc-footer__col-title">Plateforme</div>
-                {[['Fonctionnalités','#features'],['Tarifs','#pricing'],['API Docs','/dashboard/api-keys'],['Carbon Hub','/dashboard/standards']].map(([l,h]) => (
+                <div className="pgc-footer__col-title">Platform</div>
+                {[['Features','#features'],['Pricing','#pricing'],['API Docs','/dashboard/api-keys'],['Carbon Hub','/dashboard/standards']].map(([l,h]) => (
                   <a key={l} href={h} className="pgc-footer__link">{l}</a>
                 ))}
               </div>
               <div className="pgc-footer__col">
-                <div className="pgc-footer__col-title">Compte</div>
-                {[['Connexion','/auth/login'],['Inscription','/signup'],['Dashboard','/dashboard'],['Admin','/dashboard/admin']].map(([l,h]) => (
+                <div className="pgc-footer__col-title">Account</div>
+                {[['Login','/auth/login'],['Register','/signup'],['Dashboard','/dashboard'],['Admin','/dashboard/admin']].map(([l,h]) => (
                   <a key={l} href={h} className="pgc-footer__link">{l}</a>
                 ))}
               </div>
@@ -853,11 +853,11 @@ export default function LandingPage() {
                   <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: '#E8EFF6' }}>PANGEA CARBON</span>
                 </div>
                 <div style={{ fontSize: 9, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.12em', marginBottom: 6 }}>PLAN ENTERPRISE</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>Parlons de votre projet</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>Un expert vous rappelle sous 24h.</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#E8EFF6', margin: '0 0 6px' }}>Let's talk about your project</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 18, lineHeight: 1.6 }}>An expert will call you back within 24h.</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
-                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>NOM *</div>
+                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>NAME *</div>
                     <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Votre nom"
                       style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                   </div>
@@ -868,31 +868,31 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ENTREPRISE</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>COMPANY</div>
                   <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="SIEPA, CIE, Fonds vert..."
                     style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }} />
                 </div>
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>VOTRE BESOIN</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>YOUR NEEDS</div>
                   <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} placeholder="Projets, pays, volume carbone..." rows={3}
                     style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none', resize: 'none' }} />
                 </div>
                 {cErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{cErr}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>Annuler</button>
+                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>Cancel</button>
                   <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
-                    {cSending ? 'Envoi...' : 'Envoyer ma demande'}
+                    {cSending ? 'Sending...' : 'Send my request'}
                   </button>
                 </div>
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>Demande envoyee !</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>Reponse garantie sous 24h.</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#00FF94', marginBottom: 8 }}>Request sent!</h2>
+                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>Guaranteed response within 24h.</p>
                 <button onClick={() => { setShowContact(false); setCsent(false); setCName(''); setCEmail(''); setCCompany(''); setCMsg(''); }}
                   style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 24px', fontWeight: 700, cursor: 'pointer' }}>
-                  Fermer
+                  Close
                 </button>
               </div>
             )}

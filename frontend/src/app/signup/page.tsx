@@ -132,9 +132,9 @@ export default function SignupPage() {
           {step === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#E8EFF6' }}>Créez votre compte</h2>
-              <div><Label>Nom complet *</Label><Input placeholder="Dayiri Esdras" value={form.name} onChange={(e: any) => set('name', e.target.value)}/></div>
+              <div><Label>Full name *</Label><Input placeholder="Dayiri Esdras" value={form.name} onChange={(e: any) => set('name', e.target.value)}/></div>
               <div><Label>Email professionnel *</Label><Input type="email" placeholder="vous@organisation.com" value={form.email} onChange={(e: any) => set('email', e.target.value)}/></div>
-              <div><Label>Mot de passe *</Label><Input type="password" placeholder="8 caractères minimum" value={form.password} onChange={(e: any) => set('password', e.target.value)}/></div>
+              <div><Label>Password *</Label><Input type="password" placeholder="8 caractères minimum" value={form.password} onChange={(e: any) => set('password', e.target.value)}/></div>
             </div>
           )}
 
@@ -214,7 +214,7 @@ export default function SignupPage() {
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)} style={{ background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '10px 16px', cursor: 'pointer', fontSize: 13 }}>← Retour</button>
             ) : (
-              <a href="/auth/login" style={{ color: '#4A6278', fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>Déjà un compte ?</a>
+              <a href="/auth/login" style={{ color: '#4A6278', fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>Already have an account ?</a>
             )}
             {step < STEPS.length - 1 ? (
               <button onClick={next} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '10px 22px', fontWeight: 700, fontSize: 13, cursor: 'pointer', flex: 1, maxWidth: 200 }}>
@@ -222,7 +222,7 @@ export default function SignupPage() {
               </button>
             ) : (
               <button onClick={submit} disabled={loading} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '10px 22px', fontWeight: 700, fontSize: 13, cursor: 'pointer', flex: 1, opacity: loading ? 0.6 : 1 }}>
-                {loading ? 'Création...' : '✓ Créer mon compte'}
+                {loading ? 'Création...' : '✓ Create my account'}
               </button>
             )}
           </div>

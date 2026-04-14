@@ -17,13 +17,13 @@ function ResetPasswordInner() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!token) setError('Lien invalide — token manquant.');
+    if (!token) setError('Invalid link — missing token.');
   }, [token]);
 
   const submit = async (e) => {
     e.preventDefault();
-    if (password.length < 8) { setError('Minimum 8 caractères.'); return; }
-    if (password !== confirm) { setError('Les mots de passe ne correspondent pas.'); return; }
+    if (password.length < 8) { setError('Minimum 8 characters.'); return; }
+    if (password !== confirm) { setError('Passwords do not match.'); return; }
     setLoading(true); setError('');
     try {
       const res = await fetch(`${API}/auth/reset-password`, {
@@ -35,9 +35,9 @@ function ResetPasswordInner() {
         setSuccess(true);
         setTimeout(() => router.push('/auth/login'), 3000);
       } else {
-        setError(data.error || 'Erreur lors de la réinitialisation.');
+        setError(data.error || 'Reset error.');
       }
-    } catch(_e) { setError('Erreur réseau. Réessayez.'); }
+    } catch(_e) { setError('Network error. Please try again.'); }
     finally { setLoading(false); }
   };
 
@@ -62,12 +62,12 @@ function ResetPasswordInner() {
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 10 }}>Mot de passe réinitialisé !</h2>
               <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>Redirection vers la connexion dans 3 secondes...</p>
               <a href="/auth/login" style={{ display: 'block', background: '#00FF94', color: '#080B0F', borderRadius: 8, padding: '11px', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>
-                Se connecter →
+                Sign in →
               </a>
             </div>
           ) : (
             <>
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, color: '#E8EFF6', marginBottom: 6 }}>Nouveau mot de passe</h1>
+              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, color: '#E8EFF6', marginBottom: 6 }}>New password</h1>
               <p style={{ fontSize: 13, color: '#4A6278', marginBottom: 24 }}>Choisissez un mot de passe sécurisé pour votre compte.</p>
 
               {error && (
@@ -81,7 +81,7 @@ function ResetPasswordInner() {
                   <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const }}>NOUVEAU MOT DE PASSE</label>
                   <div style={{ position: 'relative' }}>
                     <input type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required autoFocus
-                      placeholder="8 caractères minimum"
+                      placeholder="8 characters minimum"
                       style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '11px 40px 11px 14px', fontSize: 14, boxSizing: 'border-box' as const, outline: 'none' }}
                       onFocus={e => e.target.style.borderColor = 'rgba(0,255,148,0.35)'}
                       onBlur={e => e.target.style.borderColor = '#1E2D3D'}/>
@@ -111,7 +111,7 @@ function ResetPasswordInner() {
 
                 <button type="submit" disabled={loading || !token || password.length < 8 || password !== confirm}
                   style={{ background: loading ? '#1E2D3D' : '#00FF94', color: loading ? '#4A6278' : '#080B0F', border: 'none', borderRadius: 8, padding: '12px', fontWeight: 700, fontSize: 14, cursor: loading ? 'wait' : 'pointer', opacity: password !== confirm && confirm ? 0.5 : 1, transition: 'all 0.15s' }}>
-                  {loading ? '⏳ Réinitialisation...' : '✓ Réinitialiser mon mot de passe'}
+                  {loading ? '⏳ Réinitialisation...' : '✓ Reset mon mot de passe'}
                 </button>
               </form>
             </>
