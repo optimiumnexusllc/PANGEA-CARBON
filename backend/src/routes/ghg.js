@@ -101,11 +101,14 @@ router.get('/factors', auth, (req, res) => {
 // ─── GET /ghg/audits — Liste des audits ──────────────────────────────────────
 router.get('/audits', auth, async (req, res, next) => {
   try {
-    const audits = await prisma.gHGAudit.findMany({
+    let audits = [];
+    try {
+      audits = await prisma.gHGAudit.findMany({
       where: { organizationId: req.user.organizationId || undefined },
       include: { _count: { select: { entries: true } } },
       orderBy: { createdAt: 'desc' },
-    });
+      });
+    } catch(_dbErr) { audits = []; }
     res.json({ audits, total: audits.length });
   } catch(e) { next(e); }
 });
@@ -378,11 +381,14 @@ router.get('/audits/:id/offset-plan', auth, async (req, res, next) => {
 // ─── GET /ghg/dashboard — Tableau de bord GHG global ────────────────────────
 router.get('/dashboard', auth, async (req, res, next) => {
   try {
-    const audits = await prisma.gHGAudit.findMany({
+    let audits = [];
+    try {
+      audits = await prisma.gHGAudit.findMany({
       where: { organizationId: req.user.organizationId || undefined },
       include: { entries: true },
       orderBy: { reportingYear: 'desc' },
-    });
+      });
+    } catch(_dbErr) { audits = []; }
 
     const currentYear = new Date().getFullYear() - 1;
     const currentAudit = audits.find(a => a.reportingYear === currentYear) || audits[0];

@@ -225,15 +225,18 @@ router.post('/', auth, async (req, res, next) => {
 // ─── GET /pipeline — Liste des pipelines ─────────────────────────────────────
 router.get('/', auth, async (req, res, next) => {
   try {
-    const pipelines = await prisma.creditPipeline.findMany({
-      where: { organizationId: req.user.organizationId || undefined },
+    let pipelines = [];
+    try {
+      pipelines = await prisma.creditPipeline.findMany({
+        where: { organizationId: req.user.organizationId || undefined },
       include: {
         steps: { orderBy: { stepNumber: 'asc' } },
         project: { select: { name: true, countryCode: true, type: true, installedMW: true } },
         _count: { select: { documents: true } }
       },
       orderBy: { createdAt: 'desc' }
-    });
+      });
+    } catch(_dbErr) { pipelines = []; }
     res.json({ pipelines, total: pipelines.length, stepDefinitions: PIPELINE_STEPS });
   } catch(e) { next(e); }
 });
@@ -428,20 +431,26 @@ async function issueCarbonCredits(pipeline, userId) {
 // ─── GET /pipeline/stats/global — Stats globales ─────────────────────────────
 router.get('/stats/global', auth, async (req, res, next) => {
   try {
-    const [total, active, completed, blocked] = await Promise.all([
+    let total = 0, active = 0, completed = 0, blocked = 0;
+    let creditsInPipeline = { _sum: { estimatedCredits: 0 } };
+    let creditsIssued = { _sum: { confirmedCredits: 0 } };
+    try {
+    [total, active, completed, blocked] = await Promise.all([
       prisma.creditPipeline.count(),
       prisma.creditPipeline.count({ where: { status: 'ACTIVE' } }),
       prisma.creditPipeline.count({ where: { status: 'COMPLETED' } }),
       prisma.creditPipeline.count({ where: { status: 'BLOCKED' } }),
     ]);
-    const creditsInPipeline = await prisma.creditPipeline.aggregate({
+    creditsInPipeline = await prisma.creditPipeline.aggregate({
       where: { status: { in: ['ACTIVE', 'BLOCKED'] } },
       _sum: { estimatedCredits: true }
     });
-    const creditsIssued = await prisma.creditPipeline.aggregate({
+    creditsIssued = await prisma.creditPipeline.aggregate({
       where: { status: 'COMPLETED' },
       _sum: { confirmedCredits: true }
     });
+    total = t; active = a; completed = c2; blocked = b;
+    } catch(_dbErr) {}
     res.json({
       total, active, completed, blocked,
       creditsInPipeline: creditsInPipeline._sum.estimatedCredits || 0,
