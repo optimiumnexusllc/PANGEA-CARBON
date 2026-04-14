@@ -106,6 +106,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/email-composer', require('./routes/emailcomposer'));
 app.use('/api/certification', require('./routes/certification'));
 app.use('/api/marketplace', require('./routes/marketplace'));
+app.use('/api/tokens', require('./routes/tokens')); // Carbon Asset Tokens + QR
 app.use('/api/optimization', require('./routes/optimization'));
 app.use('/api/projection', require('./routes/projection'));
 app.use('/api/benchmark', require('./routes/benchmark'));

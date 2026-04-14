@@ -15,8 +15,12 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",
+    "@sentry/node": "^8.0.0",
+    "@sentry/profiling-node": "^8.0.0",
+    "aws-sdk": "^2.1600.0",
     "bcryptjs": "^2.4.3",
     "bull": "^4.12.0",
+    "bullmq": "^5.0.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
@@ -26,20 +30,16 @@
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.10",
     "pdfkit": "^0.14.0",
-    "stripe": "^14.21.0",
-    "winston": "^3.11.0",
-    "@sentry/node": "^8.0.0",
-    "@sentry/profiling-node": "^8.0.0",
-    "bullmq": "^5.0.0",
-    "aws-sdk": "^2.1600.0",
+    "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
-    "qrcode": "^1.5.3"
+    "stripe": "^14.21.0",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0",
-    "prisma": "^5.10.0",
+    "@jest/globals": "^29.0.0",
     "jest": "^29.0.0",
-    "@jest/globals": "^29.0.0"
+    "nodemon": "^3.1.0",
+    "prisma": "^5.10.0"
   },
   "jest": {
     "testEnvironment": "node",

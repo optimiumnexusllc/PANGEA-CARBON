@@ -26,6 +26,7 @@ const ELITE_MODULES = [
   { href: '/dashboard/dmrv',     label: 'dMRV Satellite',   icon: '🛰️', color: '#A78BFA', badge: 'LIVE' },
   { href: '/dashboard/corsia',   label: 'CORSIA Aviation',  icon: '✈️', color: '#F87171', badge: '$22/t' },
   { href: '/dashboard/registry', label: 'Blockchain Registry',icon: '⛓️', color: '#00FF94', badge: 'SHA256' },
+    { href: '/dashboard/tokens', label: 'Token Generator', icon: '🔐', color: '#00FF94' },
   { href: '/dashboard/baseline', label: 'AI Baseline',      icon: '🤖', color: '#EF9F27', badge: 'AI' },
 ];
 
