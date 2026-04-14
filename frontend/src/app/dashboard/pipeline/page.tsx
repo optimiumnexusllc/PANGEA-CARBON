@@ -53,7 +53,7 @@ export default function PipelinePage() {
   const [confirmBlock, setConfirmBlock] = useState(null);
   const [newForm, setNewForm] = useState({ projectId:'', vintage:new Date().getFullYear()-1, standard:'VERRA_VCS' });
   const [vvbForm, setVvbForm] = useState({ vvbName:'', vvbContact:'' });
-  const [docForm, setDocForm] = useState({ type:'PDD', name:'', fileUrl:'', notes:'' });
+  const [docForm, setDocForm] = useState({ type:'PDD', name:'', fileUrl:'' });
   const [advNotes, setAdvNotes] = useState('');
   const [confirmedCredits, setConfirmedCredits] = useState('');
 
@@ -146,15 +146,17 @@ export default function PipelinePage() {
   };
 
   const addDoc = async () => {
-    if (!current || !docForm.name) return;
+    if (!current) { toast$('No pipeline selected','error'); return; }
+    if (!docForm.name.trim()) { toast$('Document name is required','error'); return; }
     try {
+      const body = { type:docForm.type, name:docForm.name.trim(), fileUrl:docForm.fileUrl||null };
       await fetchAuthJson('/pipeline/' + current.pipeline.id + '/documents', {
-        method:'POST', body:JSON.stringify(docForm)
+        method:'POST', body:JSON.stringify(body)
       });
-      setDocForm({ type:'PDD', name:'', fileUrl:'', notes:'' });
+      setDocForm({ type:'PDD', name:'', fileUrl:'' });
       await loadDetail(current.pipeline.id);
       toast$('Document added!');
-    } catch(e) { toast$(e.message,'error'); }
+    } catch(e) { toast$(e.message||'Failed to add document','error'); }
   };
 
   const deleteDoc = async (docId) => {
@@ -569,7 +571,7 @@ export default function PipelinePage() {
                   <input placeholder="https://..." value={docForm.fileUrl} onChange={e => setDocForm(f => ({ ...f, fileUrl:e.target.value }))} style={inp}/>
                 </div>
                 <button onClick={addDoc} disabled={!docForm.name}
-                  style={{ background:!docForm.name?'#1E2D3D':'rgba(0,255,148,0.12)', border:'1px solid rgba(0,255,148,0.3)', borderRadius:7, color:'#00FF94', padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:600 }}>
+                  style={{ background:!docForm.name?'#1E2D3D':'rgba(0,255,148,0.12)', border:'1px solid rgba(0,255,148,0.3)', borderRadius:7, color:!docForm.name?'#2A3F55':'#00FF94', padding:'8px 16px', cursor:!docForm.name?'not-allowed':'pointer', fontSize:12, fontWeight:600 }}>
                   + {L('Add Document','Ajouter')}
                 </button>
               </div>
