@@ -1,4 +1,5 @@
 'use client';
+import LangToggle from '@/components/LangToggle';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -168,12 +169,15 @@ export default function LandingPage() {
         <div className={`pgc-mobile-menu ${menuOpen ? 'pgc-mobile-menu--open' : ''}`}>
           {['#features', '#how', '#pricing', '#contact'].map((href, i) => (
             <a key={href} href={href} className="pgc-mobile-menu__link" onClick={() => setMenuOpen(false)}>
-              {['Features', 'How it works ça marche', 'Pricing', 'Contact'][i]}
+              {[L('Features','Fonctionnalités'), L('How it works','Comment ça marche'), L('Pricing','Tarifs'), 'Contact'][i]}
             </a>
           ))}
           <div className="pgc-mobile-menu__actions">
-            <a href="/auth/login" className="pgc-btn pgc-btn--ghost pgc-btn--full">Login</a>
-            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--full">Essai gratuit 14j →</a>
+            <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 8 }}>
+              <LangToggle />
+            </div>
+            <a href="/auth/login" className="pgc-btn pgc-btn--ghost pgc-btn--full">{L('Login','Connexion')}</a>
+            <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--full">{L('Free trial 14d →','Essai gratuit 14j →')}</a>
           </div>
         </div>
       </nav>

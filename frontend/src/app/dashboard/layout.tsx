@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useLang } from '@/lib/lang-context';
 import LangToggle from '@/components/LangToggle';
+import FloatingLangToggle from '@/components/FloatingLangToggle';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FeatureFlagsProvider, useFeatureFlags } from '@/lib/features';
@@ -164,8 +165,8 @@ function SidebarContent({ user, logout }) {
             🛡️ Admin Console
           </Link>
         )}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 8, padding: '6px 0' }}>
-          <span style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>LANGUAGE</span>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 8, padding: '8px 0', borderTop: '1px solid #1E2D3D', borderBottom: '1px solid #1E2D3D' }}>
+          <span style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>LANG</span>
           <LangToggle />
         </div>
         <button onClick={logout} style={{ width: '100%', background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 5, color: '#4A6278', padding: '5px', cursor: 'pointer', fontSize: 11 }}>
@@ -196,6 +197,7 @@ export default function DashboardLayout({ children }) {
           <SidebarContent user={user} logout={logout} />
         </aside>
         <main className="main-content">{children}</main>
+        <FloatingLangToggle />
       </div>
     </FeatureFlagsProvider>
   );

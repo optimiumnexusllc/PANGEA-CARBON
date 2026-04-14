@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import '../styles/globals.css';
 import { LangProvider } from '@/lib/lang-context';
+import FloatingLangToggle from '@/components/FloatingLangToggle';
 
 export const metadata: Metadata = {
   title: 'PANGEA CARBON — Carbon Credit Intelligence Africa',
@@ -11,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <LangProvider>{children}</LangProvider>
+        <LangProvider>{children}<FloatingLangToggle /></LangProvider>
       </body>
     </html>
   );
