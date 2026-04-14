@@ -25,6 +25,13 @@ const { MRVEngine } = require('../services/mrv.service');
 const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../services/registry.service');
 const { uploadFile } = require('../storage/s3');
 
+// Isolation des données par rôle
+function pipelineWhere(user) {
+  if (user.role === 'SUPER_ADMIN') return {};
+  if (user.role === 'ADMIN' && user.organizationId) return { organizationId: user.organizationId };
+  return { organizationId: user.organizationId || '__none__', project: { userId: user.userId } };
+}
+
 // ─── Step definitions ─────────────────────────────────────────────────────────
 const STEPS = [
   { key:'MRV_DATA',            n:1,  title:'MRV Data Collection',      icon:'📊', duration:'1-12 months',  auto:true,  requirement:'≥12 monthly readings' },
@@ -153,10 +160,10 @@ router.get('/stats/global', auth, async (req, res, next) => {
     let stats = { total:0, active:0, completed:0, blocked:0, creditsInPipeline:0, creditsIssued:0 };
     try {
       const [total, active, completed, blocked, inPipe, issued] = await Promise.all([
-        prisma.creditPipeline.count(),
-        prisma.creditPipeline.count({ where:{ status:'ACTIVE' } }),
-        prisma.creditPipeline.count({ where:{ status:'COMPLETED' } }),
-        prisma.creditPipeline.count({ where:{ status:'BLOCKED' } }),
+        prisma.creditPipeline.count({ where:pipelineWhere(req.user) }),
+        prisma.creditPipeline.count({ where:{ ...pipelineWhere(req.user), status:'ACTIVE' } }),
+        prisma.creditPipeline.count({ where:{ ...pipelineWhere(req.user), status:'COMPLETED' } }),
+        prisma.creditPipeline.count({ where:{ ...pipelineWhere(req.user), status:'BLOCKED' } }),
         prisma.creditPipeline.aggregate({ where:{ status:{ in:['ACTIVE','BLOCKED'] } }, _sum:{ estimatedCredits:true } }),
         prisma.creditPipeline.aggregate({ where:{ status:'COMPLETED' }, _sum:{ confirmedCredits:true } }),
       ]);
@@ -277,7 +284,7 @@ router.get('/', auth, async (req, res, next) => {
     let pipelines = [];
     try {
       pipelines = await prisma.creditPipeline.findMany({
-        where:   { organizationId: req.user.organizationId || undefined },
+        where:   pipelineWhere(req.user),
         include: {
           steps:   { orderBy:{ stepNumber:'asc' } },
           project: { select:{ name:true, countryCode:true, type:true, installedMW:true } },

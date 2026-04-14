@@ -173,7 +173,7 @@ export default function DashboardPage() {
           </div>
           {alerts.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {(alerts as any[]).map((alert) => {
+              {alerts.map((alert) => {
                 const sty = SEVERITY_STYLE[alert.severity] || SEVERITY_STYLE.info;
                 return (
                   <div key={alert.id} style={{ padding: '10px 12px', background: sty.bg, border: `1px solid ${sty.border}`, borderRadius: 8, fontSize: 12, color: sty.color }}>
@@ -210,10 +210,10 @@ export default function DashboardPage() {
               {lang === 'fr' ? 'Benchmark →' : 'Benchmark →'}
             </a>
           </div>
-          {(leaderboard as any[]).length > 0 ? (
+          {leaderboard.length > 0 ? (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
-                {(leaderboard as any[]).slice(0, 5).map((p, i) => (
+                {leaderboard.slice(0, 5).map((p, i) => (
                   <tr key={p.projectId} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', cursor: 'pointer' }}
                     onClick={() => window.location.href = `/dashboard/projects/${p.projectId}`}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,61,0.3)')}

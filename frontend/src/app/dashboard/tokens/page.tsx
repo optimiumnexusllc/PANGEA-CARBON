@@ -103,7 +103,7 @@ export default function TokensPage() {
           <div style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>SELECT PROJECT</div>
             <select value={selectedProject} onChange={e => setSelectedProject(e.target.value)} style={{ ...inp }}>
-              {(projects as any[]).map(p => <option key={p.id} value={p.id}>{p.name} — {p.countryCode}</option>)}
+              {projects.map(p => <option key={p.id} value={p.id}>{p.name} — {p.countryCode}</option>)}
             </select>
           </div>
 
@@ -139,7 +139,7 @@ export default function TokensPage() {
               <div style={{ marginBottom: 12 }}><div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>CREDIT ISSUANCE *</div>
                 <select style={inp} onChange={e => set('issuanceId', e.target.value)}>
                   <option value="">Select issuance...</option>
-                  {(issuances as any[]).map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
+                  {issuances.map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
                 </select>
               </div>
             )}
@@ -149,7 +149,7 @@ export default function TokensPage() {
                 <div style={{ marginBottom: 12 }}><div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>CREDIT BATCH *</div>
                   <select style={inp} onChange={e => set('issuanceId', e.target.value)}>
                     <option value="">Select issuance...</option>
-                    {(issuances as any[]).map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
+                    {issuances.map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
                   </select>
                 </div>
                 {selectedType === 'broker-sale' ? (
@@ -262,16 +262,16 @@ export default function TokensPage() {
           {/* Existing tokens */}
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>
-              PROJECT TOKENS ({(projectTokens as any[]).length})
+              PROJECT TOKENS ({projectTokens.length})
             </div>
-            {(projectTokens as any[]).length === 0 ? (
+            {projectTokens.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '32px 0', color: '#4A6278', fontSize: 13 }}>
                 <div style={{ fontSize: 28, marginBottom: 10 }}>🔐</div>
                 No tokens generated yet for this project
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(projectTokens as any[]).map((tok, i) => {
+                {projectTokens.map((tok, i) => {
                   const tColor = TOKEN_TYPES.find(t => t.id.replace('-','_').toUpperCase() === tok.type)?.color || '#4A6278';
                   return (
                     <div key={i} style={{ background: '#121920', borderRadius: 9, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

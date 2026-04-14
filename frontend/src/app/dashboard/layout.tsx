@@ -5,6 +5,7 @@ import LangToggle from '@/components/LangToggle';
 import FloatingLangToggle from '@/components/FloatingLangToggle';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ToastProvider } from '@/components/ui/Toast';
 import { FeatureFlagsProvider, useFeatureFlags, useUserContext, PLAN_METADATA } from '@/lib/features';
 
 const MAIN_NAV = [

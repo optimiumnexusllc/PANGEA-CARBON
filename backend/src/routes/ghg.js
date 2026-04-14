@@ -11,6 +11,12 @@
  */
 
 const router = require('express').Router();
+
+function ghgWhere(user) {
+  if (user.role === 'SUPER_ADMIN') return {};
+  if (user.role === 'ADMIN' && user.organizationId) return { organizationId: user.organizationId };
+  return { userId: user.userId };
+}
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
@@ -104,7 +110,7 @@ router.get('/audits', auth, async (req, res, next) => {
     let audits = [];
     try {
       audits = await prisma.gHGAudit.findMany({
-      where: { organizationId: req.user.organizationId || undefined },
+      where: ghgWhere(req.user),
       include: { _count: { select: { entries: true } } },
       orderBy: { createdAt: 'desc' },
       });
@@ -384,7 +390,7 @@ router.get('/dashboard', auth, async (req, res, next) => {
     let audits = [];
     try {
       audits = await prisma.gHGAudit.findMany({
-      where: { organizationId: req.user.organizationId || undefined },
+      where: ghgWhere(req.user),
       include: { entries: true },
       orderBy: { reportingYear: 'desc' },
       });

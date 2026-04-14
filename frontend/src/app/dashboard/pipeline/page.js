@@ -225,8 +225,14 @@ export default function PipelinePage() {
     <div style={{ padding:20, maxWidth:1400, margin:'0 auto' }}>
 
       {toast && (
-        <div style={{ position:'fixed', top:20, right:20, zIndex:9999, background:toast.type==='error'?'#F87171':'#00FF94', color:'#080B0F', padding:'12px 20px', borderRadius:10, fontWeight:700, fontSize:13, boxShadow:'0 4px 24px rgba(0,0,0,0.5)', maxWidth:380 }}>
-          {toast.type==='error'?'❌ ':'✅ '}{toast.msg}
+        <div style={{ position:'fixed', top:20, right:20, zIndex:99999, maxWidth:420 }}>
+          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':toast.type==='warning'?'rgba(252,211,77,0.1)':'rgba(0,255,148,0.08)', border:'1px solid '+(toast.type==='error'?'rgba(248,113,113,0.35)':toast.type==='warning'?'rgba(252,211,77,0.3)':'rgba(0,255,148,0.3)'), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:toast.type==='error'?'#F87171':toast.type==='warning'?'#FCD34D':'#00FF94', borderRadius:'12px 0 0 12px' }}/>
+            <div style={{ width:22, height:22, borderRadius:'50%', background:toast.type==='error'?'rgba(248,113,113,0.15)':'rgba(0,255,148,0.15)', border:'1px solid '+(toast.type==='error'?'rgba(248,113,113,0.3)':'rgba(0,255,148,0.3)'), display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:toast.type==='error'?'#F87171':'#00FF94', fontWeight:800, marginLeft:8 }}>
+              {toast.type==='error'?'✗':'✓'}
+            </div>
+            <span style={{ fontSize:13, color:'#E8EFF6', flex:1 }}>{toast.msg}</span>
+          </div>
         </div>
       )}
 
