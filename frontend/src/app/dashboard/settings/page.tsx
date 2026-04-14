@@ -143,8 +143,8 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else aler'Configurez Stripe dans Admin → Secrets';
-    } catch { aler'Erreur paiement — contactez contact@pangea-carbon.com'; }
+      else alert('Configure Stripe in Admin → Secrets');
+    } catch { alert('Payment error — contact contact@pangea-carbon.com'); }
   }
 
   return (
