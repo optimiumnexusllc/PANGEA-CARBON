@@ -4,6 +4,7 @@
  * Sources: Sentinel-2, Landsat-9, NASA POWER, PVGIS
  */
 const router = require('express').Router();
+const { searchSentinel2Images, fetchNASAPowerData, calculateSiteNDVI } = require('../services/satellite.service');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const { MRVEngine } = require('../services/mrv.service');
@@ -148,6 +149,35 @@ router.post('/continuous-verify/:projectId', auth, async (req, res, next) => {
 
     res.json({ created: readings.length, message: `${readings.length} lectures satellite générées`, readings });
   } catch (e) { next(e); }
+});
+
+// GET /api/projects/:id/dmrv/satellite — Images Sentinel-2 réelles (Copernicus)
+router.get('/:id/satellite-search', auth, async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+    const { lat, lon } = project.coordinates || { lat: 5.35, lon: -4.00 };
+    const start = startDate || new Date(Date.now() - 180*86400000).toISOString().split('T')[0];
+    const end   = endDate   || new Date().toISOString().split('T')[0];
+    const result = await searchSentinel2Images({ lat, lon, startDate: start, endDate: end });
+    const nasa   = await fetchNASAPowerData({ lat, lon });
+    res.json({ ...result, nasaIrradiance: nasa, coordinates: { lat, lon } });
+  } catch(e) { next(e); }
+});
+
+// GET /api/projects/:id/dmrv/ndvi — Calcul NDVI Sentinel-2
+router.get('/:id/ndvi', auth, async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+    const { lat, lon } = project.coordinates || { lat: 5.35, lon: -4.00 };
+    const start = startDate || new Date(Date.now() - 180*86400000).toISOString().split('T')[0];
+    const end   = endDate   || new Date().toISOString().split('T')[0];
+    const result = await calculateSiteNDVI({ lat, lon, startDate: start, endDate: end });
+    res.json(result);
+  } catch(e) { next(e); }
 });
 
 module.exports = router;

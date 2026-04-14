@@ -1,7 +1,12 @@
+# PANGEA CARBON — Production Infrastructure
+# Architecture: Nginx → 2x Backend (Node.js cluster) → PostgreSQL 16 → Redis 7
+# Storage: MinIO (S3-compatible) | Monitoring: Prometheus-ready
+# Resilience: auto-restart, health checks, resource limits
 
 services:
+
   nginx:
-    image: nginx:alpine
+    image: nginx:1.25-alpine
     container_name: pangea-carbon_nginx
     ports:
       - "80:80"
@@ -12,22 +17,40 @@ services:
       - certbot_webroot:/var/www/certbot:ro
       - certbot_certs:/etc/letsencrypt:ro
     depends_on:
-      - frontend
-      - backend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
     restart: unless-stopped
-    networks:
-      - pangea-carbon_net
+    networks: [pangea_net]
+    logging:
+      driver: "json-file"
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 256M }
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL:-https://pangea-carbon.com}
     container_name: pangea-carbon_frontend
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL:-https://pangea-carbon.com}
+      - NODE_ENV=production
     restart: unless-stopped
-    networks:
-      - pangea-carbon_net
+    networks: [pangea_net]
+    logging:
+      driver: "json-file"
+      options: { max-size: "20m", max-file: "5" }
+    deploy:
+      resources:
+        limits: { cpus: '1.0', memory: 512M }
+        reservations: { memory: 256M }
 
   backend:
     build:
@@ -36,41 +59,104 @@ services:
     container_name: pangea-carbon_backend
     environment:
       - NODE_ENV=production
+      - PORT=4000
       - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-      - FRONTEND_URL=${FRONTEND_URL}
+      - FRONTEND_URL=${FRONTEND_URL:-https://pangea-carbon.com}
+      - NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL:-https://pangea-carbon.com}
+      # Carbon market data (real APIs)
+      - XPANSIV_API_KEY=${XPANSIV_API_KEY:-}
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      - COPERNICUS_USER=${COPERNICUS_USER:-}
+      - COPERNICUS_PASSWORD=${COPERNICUS_PASSWORD:-}
+      # Verra / Gold Standard registry
+      - VERRA_API_TOKEN=${VERRA_API_TOKEN:-}
+      # Payment gateways
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - CINETPAY_API_KEY=${CINETPAY_API_KEY:-}
+      - FLUTTERWAVE_SECRET_KEY=${FLUTTERWAVE_SECRET_KEY:-}
+      # Performance
+      - UV_THREADPOOL_SIZE=8
+      - NODE_OPTIONS=--max-old-space-size=1024
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/health || exit 1"]
+      interval: 20s
+      timeout: 8s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
-    networks:
-      - pangea-carbon_net
+    networks: [pangea_net]
+    logging:
+      driver: "json-file"
+      options: { max-size: "50m", max-file: "7" }
+    deploy:
+      resources:
+        limits: { cpus: '2.0', memory: 1024M }
+        reservations: { cpus: '0.5', memory: 512M }
 
   postgres:
     image: postgres:16-alpine
     container_name: pangea-carbon_postgres
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB:-pangea_carbon}
+      - POSTGRES_USER=${POSTGRES_USER:-pangea}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # Performance tuning (VPS 4GB RAM profile)
+      - POSTGRES_INITDB_ARGS=--data-checksums
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=4MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+      -c max_connections=100
+      -c log_min_duration_statement=1000
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pangea} -d ${POSTGRES_DB:-pangea_carbon}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
     restart: unless-stopped
-    networks:
-      - pangea-carbon_net
+    networks: [pangea_net]
+    logging:
+      driver: "json-file"
+      options: { max-size: "20m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { cpus: '1.5', memory: 1024M }
+        reservations: { memory: 512M }
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
     container_name: pangea-carbon_redis
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
     volumes:
       - redis_data:/data
     healthcheck:
@@ -79,46 +165,58 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-    networks:
-      - pangea-carbon_net
+    networks: [pangea_net]
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 320M }
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2024-01-18T22-51-28Z
     container_name: pangea-carbon_minio
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+    command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-pangea}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-pangea_minio_2026!}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-pangea}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-pangea_minio_2026!}
+      - MINIO_PROMETHEUS_AUTH_TYPE=public
     volumes:
       - minio_data:/data
-    command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "mc", "ready", "local"]
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      - pangea-carbon_net
+      start_period: 15s
+    restart: unless-stopped
+    networks: [pangea_net]
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:latest
     container_name: pangea-carbon_certbot
     volumes:
       - certbot_webroot:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
     restart: unless-stopped
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
   minio_data:
+    driver: local
   certbot_webroot:
+    driver: local
   certbot_certs:
+    driver: local
 
 networks:
-  pangea-carbon_net:
+  pangea_net:
+    name: pangea-carbon_net
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

@@ -20,6 +20,8 @@ const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
 const prisma = new PrismaClient();
+const { getLiveCarbonPrices, AFRICA_SPREAD, BASELINE_PRICES } = require('../services/carbonPrices.service');
+const { addOrder: obAddOrder, getDepth, seedLiquidity, getMarketStats: obGetStats } = require('../services/orderbook.service');
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 const BASE_URL  = process.env.NEXT_PUBLIC_URL || 'https://pangea-carbon.com';
@@ -337,18 +339,34 @@ async function settleOrder(orderId, metadata = {}) {
 // ─── GET /prices ──────────────────────────────────────────────────────────────
 router.get('/prices', auth, async (req, res) => {
   const PANGEA_FEE_PCT = await getPangeaFee();
-  const seed = Math.floor(Date.now() / 30000);
-  const jitter = (std) => (Math.sin(seed * 7 + std.charCodeAt(0)) * 0.05) * LIVE_PRICES[std].last;
-  const prices = Object.entries(LIVE_PRICES).map(([standard, p]) => ({
-    standard,
-    bid: parseFloat((p.bid + jitter(standard)).toFixed(2)),
-    ask: parseFloat((p.ask + jitter(standard)).toFixed(2)),
-    last: parseFloat((p.last + jitter(standard)).toFixed(2)),
-    change: p.change, changeP: p.changeP,
-    volume24h: Math.floor(Math.random() * 50000 + 10000),
-    updatedAt: new Date().toISOString(),
-  }));
-  res.json({ prices, pangeaFee: PANGEA_FEE_PCT, timestamp: new Date() });
+  try {
+    const liveData = await getLiveCarbonPrices();
+    // Seed order books avec les prix réels
+    liveData.prices.forEach(p => {
+      try { seedLiquidity(p.standard, p.last); } catch(_e) {}
+    });
+    res.json({
+      prices: liveData.prices,
+      pangeaFee: PANGEA_FEE_PCT,
+      reference: liveData.reference,
+      methodology: liveData.methodology,
+      timestamp: new Date(),
+      dataSource: liveData.methodology?.source || 'live',
+      nextUpdateIn: liveData.nextUpdateIn,
+    });
+  } catch(_e) {
+    // Fallback si les APIs externes sont indisponibles
+    res.json({
+      prices: Object.entries(LIVE_PRICES).map(([standard, p]) => ({
+        standard, bid: p.bid, ask: p.ask, last: p.last,
+        change: p.change, changeP: p.changeP,
+        volume24h: Math.floor(Math.random() * 50000 + 10000),
+      })),
+      pangeaFee: PANGEA_FEE_PCT,
+      timestamp: new Date(),
+      dataSource: 'fallback_historical',
+    });
+  }
 });
 
 // ─── GET /listings ────────────────────────────────────────────────────────────

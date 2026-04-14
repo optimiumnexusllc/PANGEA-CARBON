@@ -18,6 +18,7 @@
  */
 
 const router = require('express').Router();
+const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../services/registry.service');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
@@ -447,6 +448,27 @@ router.get('/stats/global', auth, async (req, res, next) => {
       creditsIssued: creditsIssued._sum.confirmedCredits || 0,
       stepDefinitions: PIPELINE_STEPS,
     });
+  } catch(e) { next(e); }
+});
+
+// GET /pipeline/vvbs — Liste VVBs accrédités Verra réels
+router.get('/vvbs', auth, async (req, res, next) => {
+  try {
+    const { country, standard, speciality } = req.query;
+    const result = getAccreditedVVBs({ country, standard, speciality });
+    res.json(result);
+  } catch(e) { next(e); }
+});
+
+// GET /pipeline/verra-projects — Projets Verra réels
+router.get('/verra-projects', auth, async (req, res, next) => {
+  try {
+    const { country, methodology } = req.query;
+    const [projects, stats] = await Promise.all([
+      searchVerraProjects({ country, methodology }),
+      getVerraStats(),
+    ]);
+    res.json({ ...projects, globalStats: stats });
   } catch(e) { next(e); }
 });
 
