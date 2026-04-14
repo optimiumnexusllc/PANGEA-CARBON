@@ -11,8 +11,11 @@ type Message = { role: 'user' | 'assistant'; content: string; };
 export default function AssistantPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, L('powered by Claude (Anthropic)', 'propulsé par Claude (Anthropic)').\n\nL('I can analyze your carbon data', 'Je peux analyser vos données carbone'), expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nL('How can I help you?', 'Que puis-je faire pour vous ?')' }
+  const welcomeMsg = lang === 'fr'
+    ? '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, propulsé par Claude (Anthropic).\n\nJe peux analyser vos données carbone, expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nQue puis-je faire pour vous ?'
+    : '🌍 Hello! I am the PANGEA CARBON MRV Assistant, powered by Claude (Anthropic).\n\nI can analyze your carbon data, explain the ACM0002 methodology, optimize your portfolio, or answer any question about African carbon markets.\n\nHow can I help you?';
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: welcomeMsg }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -161,7 +164,7 @@ export default function AssistantPage() {
           </button>
         </div>
         <div style={{ fontSize: 10, color: '#2A3F55', textAlign: 'center', marginTop: 6, fontFamily: 'JetBrains Mono, monospace' }}>
-          Claude by Anthropic · L('Your data stays private', 'Vos données restent privées') · L('Shift+Enter for new line', 'Shift+Entrée pour saut de ligne')
+          Claude by Anthropic · {L('Your data stays private', 'Vos données restent privées')} · {L('Shift+Enter for new line', 'Shift+Entrée pour saut de ligne')}
         </div>
       </div>
     </div>

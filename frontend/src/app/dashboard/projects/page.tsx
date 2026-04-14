@@ -98,9 +98,9 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="text-xs font-mono mb-1" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-            L('PORTFOLIO', 'PORTEFEUILLE') · {total} PROJETS
+            {L('PORTFOLIO', 'PORTEFEUILLE')} · {total} {L('PROJECTS', 'PROJETS')}
           </div>
-          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>L('MRV Projects', 'Projets MRV')</h1>
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>{L('MRV Projects', 'Projets MRV')}</h1>
         </div>
         <a href="/dashboard/projects/new" className="btn-primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -168,7 +168,7 @@ export default function ProjectsPage() {
                     <td>
                       <div style={{ color: '#E8EFF6', fontWeight: 500 }}>{p.name}</div>
                       <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-                        {p._count?.readings || 0} L('readings', 'lectures') + ' · '{p._count?.L('reports', 'rapports') || 0} L('reports', 'rapports')
+                        {p._count?.readings || 0} {L('readings', 'lectures')} · {p._count?.reports || 0} {L('reports', 'rapports')}
                       </div>
                     </td>
                     <td><span className="badge badge-ghost">{p.countryCode}</span></td>
