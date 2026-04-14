@@ -248,7 +248,7 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       if (res.ok) setTestResult({ msg: `✓ ${data.message || 'Email de test envoyé'}`, ok: true });
       else setTestResult({ msg: `✗ ${data.error || 'Erreur SMTP'}`, ok: false });
-    } catch {
+    } catch(_e) {
       setTestResult({ msg: '✗ Erreur réseau', ok: false });
     } finally { setTestLoading(false); }
   };

@@ -44,7 +44,7 @@ export default function LoginPage() {
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard');
-    } catch {
+    } catch(_e) {
       setError(t('auth_network_err'));
     } finally {
       setLoading(false);

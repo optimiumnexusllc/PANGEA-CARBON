@@ -144,7 +144,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else alert('Configure Stripe in Admin → Secrets');
-    } catch { alert('Payment error — contact contact@pangea-carbon.com'); }
+    } catch(_e) { alert('Payment error — contact contact@pangea-carbon.com'); }
   }
 
   return (

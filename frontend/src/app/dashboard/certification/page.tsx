@@ -41,7 +41,7 @@ function CertificationPage() {
       ]);
       setScore(s);
       setCert(c);
-    } catch {}
+    } catch(_e) {}
   }
 
   async function issueCert() {

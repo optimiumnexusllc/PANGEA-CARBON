@@ -52,7 +52,7 @@ export default function AssistantPage() {
       });
       const data = await res.json();
       setMessages([...history, { role: 'assistant', content: data.reply || 'Désolé, une erreur est survenue.' }]);
-    } catch {
+    } catch(_e) {
       setMessages([...history, { role: 'assistant', content: 'Erreur de connexion. Vérifiez votre connexion et réessayez.' }]);
     } finally { setLoading(false); }
   };

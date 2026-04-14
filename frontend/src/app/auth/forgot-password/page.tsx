@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
       });
       if (res.ok) setSent(true);
       else { const d = await res.json(); setError(d.error || 'Erreur'); }
-    } catch { setError('Erreur réseau. Réessayez.'); }
+    } catch(_e) { setError('Erreur réseau. Réessayez.'); }
     finally { setLoading(false); }
   };
 

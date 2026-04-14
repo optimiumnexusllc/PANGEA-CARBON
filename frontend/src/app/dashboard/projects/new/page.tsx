@@ -147,7 +147,7 @@ export default function NewProjectPage() {
                           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
                         });
                         if (res.ok) { const d = await res.json(); set('latitude', d.lat); set('longitude', d.lng); }
-                      } catch {}
+                      } catch(_e) {}
                     }}
                       style={{ background: 'rgba(0,255,148,0.1)', border: '1px solid rgba(0,255,148,0.3)', borderRadius: 7, color: '#00FF94', padding: '8px 12px', cursor: 'pointer', fontSize: 11, whiteSpace: 'nowrap', fontFamily: 'JetBrains Mono, monospace' }}>
                       📍 Auto

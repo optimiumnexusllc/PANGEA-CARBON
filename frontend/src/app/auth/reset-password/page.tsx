@@ -37,7 +37,7 @@ function ResetPasswordInner() {
       } else {
         setError(data.error || 'Erreur lors de la réinitialisation.');
       }
-    } catch { setError('Erreur réseau. Réessayez.'); }
+    } catch(_e) { setError('Erreur réseau. Réessayez.'); }
     finally { setLoading(false); }
   };
 

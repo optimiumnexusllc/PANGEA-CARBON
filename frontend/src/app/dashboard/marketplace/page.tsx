@@ -63,7 +63,7 @@ export default function MarketplacePage() {
     try {
       const saved = JSON.parse(localStorage.getItem('pgc_orders') || '[]');
       setOrders(saved);
-    } catch {}
+    } catch(_e) {}
     return () => { clearInterval(priceInterval); clearInterval(tickerInterval); };
   }, [load]);
 

@@ -124,7 +124,7 @@ export default function LandingPage() {
       });
       if (r.ok) setCsent(true);
       else setCerr('Erreur envoi');
-    } catch { setCerr('Erreur reseau'); }
+    } catch(_e) { setCerr('Erreur reseau'); }
     finally { setCsending(false); }
   };
 
