@@ -162,7 +162,7 @@ export default function SettingsPage() {
 
       {/* Enterprise contact modal */}
       {showContact && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
           onClick={e => { if (e.target === e.currentTarget) { setShowContact(false); setSent(false); } }}>
           <div style={{ background: '#0D1117', border: '1px solid rgba(252,211,77,0.3)', borderRadius: 18, padding: 32, maxWidth: 500, width: '90%', position: 'relative' }}>
             <button onClick={() => { setShowContact(false); setSent(false); }} style={{ position: 'absolute', top: 16, right: 20, background: 'none', border: 'none', color: '#4A6278', fontSize: 22, cursor: 'pointer' }}>×</button>

@@ -422,7 +422,7 @@ export default function AdminUsersPage() {
 
       {/* ── DELETE MODAL ─────────────────────────────────────────────────── */}
       {deleteModal && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
           <div style={{ background:'#121920', border:'1px solid rgba(248,113,113,0.35)', borderRadius:16, padding:28, maxWidth:420, width:'90%' }}>
             <div style={{ width:52, height:52, borderRadius:'50%', background:'rgba(248,113,113,0.1)', border:'2px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', fontSize:22 }}>
               🗑

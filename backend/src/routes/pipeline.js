@@ -245,7 +245,22 @@ router.post('/', auth, async (req, res, next) => {
       estimatedCredits = Math.round(project.installedMW * 8760 * 0.25 * ef * 0.92);
     }
 
-    const orgId = project.organizationId || req.user.organizationId || 'system';
+    // Auto-créer une org si l'user n'en a pas
+    let orgId = project.organizationId || req.user.organizationId;
+    if (!orgId) {
+      const autoOrg = await prisma.organization.create({
+        data: {
+          name: (req.user.email || req.user.userId).split('@')[0] + "'s Organization",
+          slug: req.user.userId.slice(-8) + '-auto-' + Date.now().toString(36),
+          plan: 'TRIAL', status: 'TRIAL',
+          maxProjects: 3, maxUsers: 2, maxMW: 50,
+          billingEmail: '',
+          trialEndsAt: new Date(Date.now() + 14*24*60*60*1000),
+        }
+      });
+      orgId = autoOrg.id;
+      await prisma.user.update({ where: { id: req.user.userId }, data: { organizationId: orgId } });
+    }
     const pipeline = await prisma.creditPipeline.create({
       data: {
         projectId, organizationId: orgId,

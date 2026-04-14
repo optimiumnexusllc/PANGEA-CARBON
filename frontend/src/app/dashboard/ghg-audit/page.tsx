@@ -26,6 +26,7 @@ export default function GHGAuditPage() {
   const L = (en, fr) => lang === 'fr' ? fr : en;
 
   const [view, setView]         = useState('dashboard'); // dashboard | list | audit | new
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [audits, setAudits]     = useState([]);
   const [currentAudit, setCurrentAudit] = useState(null);
   const [factors, setFactors]   = useState([]);
@@ -111,6 +112,22 @@ export default function GHGAuditPage() {
     const plan = await fetchAuthJson('/ghg/audits/' + currentAudit.id + '/offset-plan').catch(() => null);
     setOffsetPlan(plan);
     showToast(L('Deleted', 'Supprimé'));
+  };
+
+  const deleteAudit = (auditId, auditName) => {
+    setDeleteConfirm({ id: auditId, name: auditName });
+  };
+
+  const confirmDeleteAudit = async () => {
+    if (!deleteConfirm) return;
+    try {
+      await fetchAuthJson('/ghg/audits/' + deleteConfirm.id, { method: 'DELETE' });
+      showToast(L('Audit deleted', 'Audit supprimé'));
+      setDeleteConfirm(null);
+      setCurrentAudit(null);
+      setView('dashboard');
+      await loadAudits();
+    } catch(e) { showToast(e.message, 'error'); }
   };
 
   const runAI = async () => {
@@ -576,5 +593,34 @@ export default function GHGAuditPage() {
         </>
       )}
     </div>
+      {/* Delete Audit Confirmation Modal */}
+      {deleteConfirm && (
+        <div onClick={e => { if(e.target===e.currentTarget) setDeleteConfirm(null); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000, backdropFilter:'blur(10px)' }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.3)', borderRadius:16, padding:28, maxWidth:440, width:'90%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🗑</div>
+              <div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:3 }}>GHG AUDIT · SUPPRESSION</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#F87171', margin:0 }}>{L('Delete this audit?','Supprimer cet audit ?')}</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(248,113,113,0.2) 0%,transparent 100%)', marginBottom:16 }}/>
+            <p style={{ fontSize:13, color:'#8FA3B8', lineHeight:1.7, marginBottom:20 }}>
+              <strong style={{ color:'#E8EFF6' }}>{deleteConfirm.name}</strong> {L('and all its entries will be permanently deleted.','et toutes ses entrées seront définitivement supprimés.')}
+            </p>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:11, cursor:'pointer', fontSize:13 }}>
+                {L('Cancel','Annuler')}
+              </button>
+              <button onClick={confirmDeleteAudit}
+                style={{ flex:1, background:'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:9, color:'#F87171', padding:11, fontWeight:700, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+                🗑 {L('Delete permanently','Supprimer définitivement')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
   );
 }

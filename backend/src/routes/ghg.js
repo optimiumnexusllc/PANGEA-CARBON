@@ -125,9 +125,26 @@ router.post('/audits', auth, async (req, res, next) => {
     const { name, reportingYear, framework, netZeroTarget } = req.body;
     if (!name || !reportingYear) return res.status(400).json({ error: 'name and reportingYear required' });
 
+    // Si l'user n'a pas d'org, lui créer une org automatiquement
+    let orgId = req.user.organizationId;
+    if (!orgId) {
+      const autoOrg = await prisma.organization.create({
+        data: {
+          name: (req.user.email || req.user.userId).split('@')[0] + "'s Organization",
+          slug: req.user.userId.slice(-8) + '-auto',
+          plan: 'TRIAL', status: 'TRIAL',
+          maxProjects: 3, maxUsers: 2, maxMW: 50,
+          billingEmail: req.user.email || '',
+          trialEndsAt: new Date(Date.now() + 14*24*60*60*1000),
+        }
+      });
+      orgId = autoOrg.id;
+      // Associer le user à cette org
+      await prisma.user.update({ where: { id: req.user.userId }, data: { organizationId: orgId } });
+    }
     const audit = await prisma.gHGAudit.create({
       data: {
-        organizationId: req.user.organizationId || 'default',
+        organizationId: orgId,
         userId: req.user.userId,
         name, reportingYear: parseInt(reportingYear),
         framework: framework || 'GHG_PROTOCOL',

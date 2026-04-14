@@ -844,7 +844,7 @@ export default function LandingPage() {
         }
       `}</style>
       {showContact && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
           onClick={e => { if (e.target === e.currentTarget) setShowContact(false); }}>
           <div style={{ background: '#0D1117', border: '1px solid rgba(252,211,77,0.25)', borderRadius: 16, padding: 32, maxWidth: 500, width: '100%', position: 'relative' }}>
             <button onClick={() => setShowContact(false)} style={{ position: 'absolute', top: 14, right: 18, background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 24 }}>x</button>

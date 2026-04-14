@@ -247,7 +247,7 @@ export default function ProjectsPage() {
         </div>
       )}
       {deleteProject && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 32, maxWidth: 440, width: '90%' }}>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#F87171', marginBottom: 10 }}>Delete this project ?</h2>
             <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 8 }}>Vous allez supprimer <strong style={{ color: '#E8EFF6' }}>{deleteProject.name}</strong>.</p>
@@ -264,8 +264,8 @@ export default function ProjectsPage() {
         </div>
       )}
       {editProject && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
-          <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 14, padding: 28, maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div style={{ background: '#0D1117', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 16, padding: 28, maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#E8EFF6', margin: 0 }}>Edit le projet</h2>
               <button onClick={() => setEditProject(null)} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 20 }}>x</button>

@@ -237,7 +237,7 @@ export default function PipelinePage() {
       )}
 
       {confirmBlock && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1100, padding:16 }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1100, padding:16 }}>
           <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.4)', borderRadius:16, padding:28, maxWidth:420, width:'100%' }}>
             <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', marginBottom:8 }}>BLOCK STEP</div>
             <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, color:'#E8EFF6', marginBottom:16 }}>Block: {ICONS[confirmBlock.stepKey]} {confirmBlock.title}?</h2>
