@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { maximumFractionDigits: d }) ?? '0';
+const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
   <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
@@ -51,15 +51,15 @@ export default function ProjectionPage() {
   useEffect(() => { if (view === 'project') fetchProject(); }, [selected, view]);
 
   const chartData = view === 'portfolio' && portfolioData
-    ? portfolioData.byYear.map((y: any) => ({ year: String(y.year), Optimiste: y.optimistic, Base: y.base, Conservateur: y.conservative }))
+    ? portfolioData.byYear.map((y: any) => ({ year: String(y.year), Optimistic: y.optimistic, Base: y.base, Conservative: y.conservative }))
     : projectData
       ? Object.keys(projectData.scenarios || {}).flatMap(() => {
           const years = projectData.scenarios.base?.yearly || [];
           return years.map((y: any, i: number) => ({
             year: String(y.year),
-            Optimiste: projectData.scenarios.optimistic?.yearly[i]?.revenue || 0,
+            Optimistic: projectData.scenarios.optimistic?.yearly[i]?.revenue || 0,
             Base: y.revenue,
-            Conservateur: projectData.scenarios.conservative?.yearly[i]?.revenue || 0,
+            Conservative: projectData.scenarios.conservative?.yearly[i]?.revenue || 0,
           }));
         }).filter((v, i, a) => a.findIndex(x => x.year === v.year) === i)
       : [];
@@ -75,15 +75,15 @@ export default function ProjectionPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 10, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>PROJECTION · SIMULATION MONTE CARLO</div>
+        <div style={{ fontSize: 10, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>PROJECTION · MONTE CARLO SIMULATION</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Projection {params.years} ans</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>3 scénarios · Monte Carlo 200 simulations · Décarbonation réseau intégrée</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>3 scenarios · 200 Monte Carlo simulations · Grid decarbonization integrated</p>
       </div>
 
       {/* View toggle + controls */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap', alignItems: 'flex-end' }}>
         <div style={{ display: 'flex', gap: 4, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, padding: 3 }}>
-          {[['portfolio', '🌍 Portfolio'], ['project', '📊 Projet']].map(([v, label]) => (
+          {[['portfolio', '🌍 Portfolio'], ['project', '📊 Project']].map(([v, label]) => (
             <button key={v} onClick={() => setView(v as any)}
               style={{ padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: view === v ? '#1E2D3D' : 'transparent', color: view === v ? '#E8EFF6' : '#4A6278' }}>
               {label}
@@ -101,7 +101,7 @@ export default function ProjectionPage() {
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               {[
                 { label: 'Horizon', key: 'years', min: 5, max: 20, unit: 'ans' },
-                { label: 'Prix carbone', key: 'carbonPrice', min: 5, max: 60, unit: '$/t' },
+                { label: 'Carbon price', key: 'carbonPrice', min: 5, max: 60, unit: '$/t' },
                 { label: 'MW additionnel', key: 'additionalMW', min: 0, max: 100, unit: 'MW' },
               ].map(p => (
                 <div key={p.key} style={{ display: 'flex', align: 'center', gap: 6, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, padding: '6px 12px', alignItems: 'center' }}>
@@ -141,7 +141,7 @@ export default function ProjectionPage() {
       {/* Main chart */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, marginBottom: 16 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>
-          PROJECTION REVENUS CARBONE — 3 SCÉNARIOS · USD/AN
+          CARBON REVENUE PROJECTION — 3 SCENARIOS · USD/YEAR
         </div>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={280}>
@@ -150,12 +150,12 @@ export default function ProjectionPage() {
               <YAxis tick={{ fill: '#4A6278', fontSize: 10 }} tickFormatter={v => `$${(v/1000).toFixed(0)}k`}/>
               <Tooltip content={<TT/>}/>
               <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }}/>
-              <Area dataKey="Optimiste" stroke="#00FF94" fill="rgba(0,255,148,0.06)" strokeWidth={2} dot={false}/>
+              <Area dataKey="Optimistic" stroke="#00FF94" fill="rgba(0,255,148,0.06)" strokeWidth={2} dot={false}/>
               <Area dataKey="Base" stroke="#FCD34D" fill="rgba(252,211,77,0.06)" strokeWidth={2} dot={false}/>
-              <Area dataKey="Conservateur" stroke="#F87171" fill="rgba(248,113,113,0.04)" strokeWidth={2} dot={false}/>
+              <Area dataKey="Conservative" stroke="#F87171" fill="rgba(248,113,113,0.04)" strokeWidth={2} dot={false}/>
             </AreaChart>
           </ResponsiveContainer>
-        ) : <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278' }}>Chargement...</div>}
+        ) : <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278' }}>Loading...</div>}
       </div>
 
       {/* Monte Carlo + insights */}
@@ -163,7 +163,7 @@ export default function ProjectionPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {mc && (
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>MONTE CARLO — 200 SIMULATIONS SCÉNARIO BASE</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>MONTE CARLO — 200 SIMULATIONS BASE SCENARIO</div>
               {[
                 { label: 'P10 (pessimiste)', value: `$${fmt(mc.p10)}`, color: '#F87171' },
                 { label: 'P50 (médiane)', value: `$${fmt(mc.p50)}`, color: '#FCD34D' },

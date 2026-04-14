@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const STATUS_COLOR = { ISSUED: '#00FF94', RETIRED: '#F87171', TRANSFERRED: '#38BDF8', CANCELLED: '#4A6278' };
 
@@ -48,15 +48,15 @@ export default function RegistryPage() {
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>BLOCKCHAIN REGISTRY · SHA-256 HASH CHAIN · TRUSTLESS</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Credit Registry</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Chaque crédit émis crée un bloc immuable. Hash SHA-256 vérifiable publiquement. Anti-double comptage.</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Every issued credit creates an immutable block. Publicly verifiable SHA-256 hash. Anti-double counting.</p>
       </div>
 
       {chain && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
           {[
-            { label: 'Total blocs émis', value: chain.totalBlocks, color: '#00FF94' },
-            { label: 'Supply totale (tCO₂e)', value: fmt(chain.totalSupply), color: '#38BDF8' },
-            { label: 'Intégrité chaîne', value: 'VALIDÉE ✓', color: '#00FF94' },
+            { label: 'Total blocks issued', value: chain.totalBlocks, color: '#00FF94' },
+            { label: 'Total supply (tCO₂e)', value: fmt(chain.totalSupply), color: '#38BDF8' },
+            { label: 'Chain integrity', value: 'VALIDATED ✓', color: '#00FF94' },
           ].map(k => (
             <div key={k.label} style={{ background: '#0D1117', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 10, padding: 16 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -77,11 +77,11 @@ export default function RegistryPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
         {/* Issue form */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, height: 'fit-content' }}>
-          <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ÉMETTRE DES CRÉDITS</div>
+          <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ISSUE CREDITS</div>
           {[
-            ['Projet', 'projectId', 'select'],
-            ['Vintage (année)', 'vintage', 'number'],
-            ['Quantité (tCO₂e)', 'quantity', 'number'],
+            ['Project', 'projectId', 'select'],
+            ['Vintage (year)', 'vintage', 'number'],
+            ['Quantity (tCO₂e)', 'quantity', 'number'],
           ].map(([label, key, type]) => (
             <div key={key} style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>{label}</label>
@@ -105,14 +105,14 @@ export default function RegistryPage() {
           </div>
           <button onClick={issue} disabled={issuing || !form.quantity || !form.projectId}
             style={{ width: '100%', background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '11px', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: issuing ? 0.6 : 1 }}>
-            {issuing ? 'Inscription...' : '⛓️ Émettre & Inscrire en registre'}
+            {issuing ? 'Inscription...' : '⛓️ Issue & Register on ledger'}
           </button>
         </div>
 
         {/* Chain blocks */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '12px 20px', background: '#121920', borderBottom: '1px solid #1E2D3D', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-            BLOCKCHAIN LEDGER — {chain?.totalBlocks || 0} BLOCS · GENESIS: {('0'.repeat(16) + '...').slice(0, 20)}
+            BLOCKCHAIN LEDGER — {chain?.totalBlocks || 0} BLOCKS · GENESIS: {('0'.repeat(16) + '...').slice(0, 20)}
           </div>
           {(!chain?.blocks || chain.blocks.length === 0) ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>
@@ -122,7 +122,7 @@ export default function RegistryPage() {
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr>
-                {['Bloc', 'Projet', 'Standard', 'tCO₂e', 'Serials', 'Hash', 'Statut', ''].map(col => (
+                {['Bloc', 'Project', 'Standard', 'tCO₂e', 'Serials', 'Hash', 'Status', ''].map(col => (
                   <th key={col} style={{ padding: '9px 12px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{col}</th>
                 ))}
               </tr></thead>

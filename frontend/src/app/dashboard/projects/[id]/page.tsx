@@ -5,9 +5,9 @@ import { useParams } from 'next/navigation';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '@/lib/api';
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
+const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 const STATUS_BADGE = { DRAFT: 'badge-ghost', ACTIVE: 'badge-sky', MONITORING: 'badge-amber', VERIFIED: 'badge-acid', CREDITED: 'badge-acid' };
-const STATUS_FR = { DRAFT: 'Brouillon', ACTIVE: 'Actif', MONITORING: 'Monitoring', VERIFIED: 'Vérifié', CREDITED: 'Crédité' };
+const STATUS_FR = { DRAFT: 'Draft', ACTIVE: 'Active', MONITORING: 'Monitoring', VERIFIED: 'Verified', CREDITED: 'Credited' };
 
 const Tooltip_ = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -55,11 +55,11 @@ export default function ProjectDetailPage() {
   };
 
   if (loading) return <div className="flex items-center justify-center h-screen"><div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>;
-  if (!project) return <div className="p-6 text-center" style={{ color: '#4A6278' }}>Projet introuvable</div>;
+  if (!project) return <div className="p-6 text-center" style={{ color: '#4A6278' }}>Project introuvable</div>;
 
   const readings = project.readings || [];
   const chartData = readings.map((r: any) => ({
-    period: new Date(r.periodStart).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
+    period: new Date(r.periodStart).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
     MWh: r.energyMWh,
     dispo: r.availabilityPct,
   })).reverse();
@@ -70,14 +70,14 @@ export default function ProjectDetailPage() {
     { id: 'overview', label: 'Vue d\'ensemble' },
     { id: 'readings', label: `Données (${readings.length})` },
     { id: 'mrv', label: 'Résultats MRV' },
-    { id: 'projection', label: 'Projection 10 ans' },
+    { id: 'projection', label: '10-Year Forecast' },
   ];
 
   return (
     <div className="p-6 max-w-[1300px] mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <a href="/dashboard/projects" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 12 }}>← Projets</a>
+        <a href="/dashboard/projects" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 12 }}>← Projects</a>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
@@ -102,7 +102,7 @@ export default function ProjectDetailPage() {
             { label: 'Production totale', value: fmt(mrv.projectMetrics?.totalMWh) + ' MWh', color: '#38BDF8' },
             { label: 'Crédits carbone nets', value: fmt(mrv.emissions?.netCarbonCredits) + ' tCO₂e', color: '#00FF94' },
             { label: 'Revenus estimés', value: '$' + fmt(mrv.financials?.netRevenueUSD), color: '#FCD34D' },
-            { label: 'Facteur de charge', value: fmt(mrv.projectMetrics?.capacityFactorPct, 1) + '%', color: '#A78BFA' },
+            { label: 'Capacity factor', value: fmt(mrv.projectMetrics?.capacityFactorPct, 1) + '%', color: '#A78BFA' },
           ].map(kpi => (
             <div key={kpi.label} className="stat-card">
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', marginBottom: 6 }}>{kpi.label}</div>
@@ -140,14 +140,14 @@ export default function ProjectDetailPage() {
                   <Area type="monotone" dataKey="MWh" stroke="#00FF94" strokeWidth={2} fill="url(#g)"/>
                 </AreaChart>
               </ResponsiveContainer>
-            ) : <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278', fontSize: 13 }}>Aucune donnée — ajoutez des lectures de production</div>}
+            ) : <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278', fontSize: 13 }}>No data — ajoutez des lectures de production</div>}
           </div>
           <div className="card" style={{ padding: 20 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>DÉTAILS PROJET</div>
             {[
-              ['Pays', project.country], ['Code', project.countryCode],
-              ['MW installés', project.installedMW], ['EF grille', project.baselineEF + ' tCO₂/MWh'],
-              ['Standard', project.standard], ['Démarrage', new Date(project.startDate).toLocaleDateString('fr-FR')],
+              ['Country', project.country], ['Code', project.countryCode],
+              ['MW installés', project.installedMW], ['Grid EF', project.baselineEF + ' tCO₂/MWh'],
+              ['Standard', project.standard], ['Démarrage', new Date(project.startDate).toLocaleDateString('en-US')],
               ['Lectures', project._count?.readings || 0], ['Rapports', project._count?.reports || 0],
             ].map(([k, v]) => (
               <div key={String(k)} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
@@ -164,17 +164,17 @@ export default function ProjectDetailPage() {
           {readings.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-              <div style={{ fontSize: 14, marginBottom: 4 }}>Aucune donnée de production</div>
-              <div style={{ fontSize: 12 }}>Cliquez "Ajouter données" pour saisir votre première lecture</div>
+              <div style={{ fontSize: 14, marginBottom: 4 }}>No data de production</div>
+              <div style={{ fontSize: 12 }}>Click "Ajouter données" pour saisir votre première lecture</div>
             </div>
           ) : (
             <table className="table-dark">
-              <thead><tr><th>Période début</th><th>Période fin</th><th>Production MWh</th><th>Disponibilité %</th><th>Source</th><th>Notes</th></tr></thead>
+              <thead><tr><th>Période début</th><th>Période fin</th><th>Production MWh</th><th>Availability %</th><th>Source</th><th>Scores</th></tr></thead>
               <tbody>
                 {readings.map((r: any) => (
                   <tr key={r.id}>
-                    <td>{new Date(r.periodStart).toLocaleDateString('fr-FR')}</td>
-                    <td>{new Date(r.periodEnd).toLocaleDateString('fr-FR')}</td>
+                    <td>{new Date(r.periodStart).toLocaleDateString('en-US')}</td>
+                    <td>{new Date(r.periodEnd).toLocaleDateString('en-US')}</td>
                     <td style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00FF94', fontWeight: 600 }}>{fmt(r.energyMWh, 1)}</td>
                     <td style={{ fontFamily: 'JetBrains Mono, monospace' }}>{r.availabilityPct ? fmt(r.availabilityPct, 1) + '%' : '—'}</td>
                     <td><span className="badge badge-ghost">{r.source}</span></td>
@@ -192,14 +192,14 @@ export default function ProjectDetailPage() {
           {[
             { title: 'RÉDUCTIONS D\'ÉMISSIONS', items: [
               ['Brutes', fmt(mrv.emissions?.grossReductions) + ' tCO₂e', '#E8EFF6'],
-              ['Déduction fuites (3%)', '- ' + fmt(mrv.emissions?.leakageDeduction) + ' tCO₂e', '#F87171'],
-              ['Déduction incertitude (5%)', '- ' + fmt(mrv.emissions?.uncertaintyDeduction) + ' tCO₂e', '#F87171'],
+              ['Leakage deduction (3%)', '- ' + fmt(mrv.emissions?.leakageDeduction) + ' tCO₂e', '#F87171'],
+              ['Uncertainty deduction (5%)', '- ' + fmt(mrv.emissions?.uncertaintyDeduction) + ' tCO₂e', '#F87171'],
               ['CRÉDITS NETS', fmt(mrv.emissions?.netCarbonCredits) + ' tCO₂e', '#00FF94'],
             ]},
             { title: 'REVENUS CARBONE', items: [
               ['Prix marché', '$' + mrv.financials?.marketPriceUSD + '/tCO₂e', '#E8EFF6'],
-              ['Revenus bruts', '$' + fmt(mrv.financials?.grossRevenueUSD), '#38BDF8'],
-              ['Coûts vérification (8%)', '- $' + fmt(mrv.financials?.transactionCostsUSD), '#F87171'],
+              ['Gross revenue', '$' + fmt(mrv.financials?.grossRevenueUSD), '#38BDF8'],
+              ['Verification costs (8%)', '- $' + fmt(mrv.financials?.transactionCostsUSD), '#F87171'],
               ['REVENUS NETS', '$' + fmt(mrv.financials?.netRevenueUSD), '#FCD34D'],
             ]},
           ].map(section => (
@@ -222,7 +222,7 @@ export default function ProjectDetailPage() {
               {[
                 ['🚗', 'Voitures retirées', fmt(mrv.equivalents?.carsOffRoad)],
                 ['🌳', 'Arbres équivalents', fmt(mrv.equivalents?.treesPlanted)],
-                ['🏠', 'Foyers électrifiés', fmt(mrv.equivalents?.homesElectrified)],
+                ['🏠', 'Households electrified', fmt(mrv.equivalents?.homesElectrified)],
               ].map(([icon, label, val]) => (
                 <div key={String(label)} style={{ textAlign: 'center', padding: '16px', background: '#0D1117', borderRadius: 8 }}>
                   <div style={{ fontSize: 28, marginBottom: 6 }}>{icon}</div>
@@ -238,7 +238,7 @@ export default function ProjectDetailPage() {
       {activeTab === 'projection' && projData.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>PROJECTION REVENUS CARBONE · 10 ANS</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CARBON REVENUE PROJECTION · 10 YEARS</div>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={projData}>
                 <XAxis dataKey="year" tick={{ fill: '#4A6278', fontSize: 10 }} tickFormatter={v => 'An ' + v}/>
@@ -276,7 +276,7 @@ export default function ProjectDetailPage() {
                 ['Début de période', 'periodStart', 'date'],
                 ['Fin de période', 'periodEnd', 'date'],
                 ['Production (MWh)', 'energyMWh', 'number'],
-                ['Disponibilité (%)', 'availabilityPct', 'number'],
+                ['Availability (%)', 'availabilityPct', 'number'],
               ].map(([label, key, type]) => (
                 <div key={key}>
                   <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>{label}</label>
@@ -285,14 +285,14 @@ export default function ProjectDetailPage() {
                 </div>
               ))}
               <div>
-                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>Notes</label>
+                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>Scores</label>
                 <input className="input-dark" placeholder="Optionnel" value={readingForm.notes} onChange={e => setReadingForm(f => ({ ...f, notes: e.target.value }))}/>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-              <button className="btn-ghost" onClick={() => setAddReading(false)} style={{ flex: 1 }}>Annuler</button>
+              <button className="btn-ghost" onClick={() => setAddReading(false)} style={{ flex: 1 }}>Cancel</button>
               <button className="btn-primary" onClick={submitReading} disabled={savingReading} style={{ flex: 1, justifyContent: 'center' }}>
-                {savingReading ? 'Sauvegarde...' : 'Enregistrer'}
+                {savingReading ? 'Sauvegarde...' : 'Save'}
               </button>
             </div>
           </div>

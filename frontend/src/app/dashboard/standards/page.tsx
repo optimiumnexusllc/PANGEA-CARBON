@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const MODULES = [
   { id: 'article6', href: '/dashboard/article6', icon: '🏛️', title: 'Article 6 ITMO', subtitle: 'Marchés carbone souverains', color: '#38BDF8', desc: '×3-5 prix vs Verra classique. Transactions état-à-état sous l\'Accord de Paris.', badge: '$35-55/tCO₂e' },
   { id: 'sdg', href: '/dashboard/sdg', icon: '🌱', title: 'Gold Standard SDG', subtitle: '17 co-bénéfices mesurés', color: '#FCD34D', desc: '+$8-18/tCO₂e premium. Score SDG automatique. Certification Gold Standard 1-5★.', badge: '+$8-18/tCO₂e' },
-  { id: 'dmrv', href: '/dashboard/dmrv', icon: '🛰️', title: 'dMRV Satellite + IoT', subtitle: 'Vérification continue', color: '#A78BFA', desc: 'Sentinel-2 + IoT sensors. Plus besoin d\'auditeur annuel. Score dMRV en temps réel.', badge: 'Continuous MRV' },
+  { id: 'dmrv', href: '/dashboard/dmrv', icon: '🛰️', title: 'dMRV Satellite + IoT', subtitle: 'Vérification continue', color: '#A78BFA', desc: 'Sentinel-2 + IoT sensors. Plus besoin d\'auditeur annuel. dMRV Score en temps réel.', badge: 'Continuous MRV' },
   { id: 'corsia', href: '/dashboard/corsia', icon: '✈️', title: 'CORSIA Aviation', subtitle: 'Marché aviation ICAO', color: '#F87171', desc: '$18-26/tCO₂e prix garanti. Demande structurelle aviation internationale 2024-2035.', badge: '$400M+ marché Afrique' },
   { id: 'registry', href: '/dashboard/registry', icon: '⛓️', title: 'Blockchain Registry', subtitle: 'Hash chain immuable', color: '#00FF94', desc: 'SHA-256 chain. Chaque crédit a un hash unique vérifiable publiquement. Anti-fraude.', badge: 'Trustless verification' },
-  { id: 'baseline', href: '/dashboard/baseline', icon: '🤖', title: 'AI Baseline Setter', subtitle: 'Claude + Satellite', color: '#EF9F27', desc: 'Baseline défensible par IA en 30 secondes. Zéro visite terrain. Données UNFCCC live.', badge: 'Zéro terrain requis' },
+  { id: 'baseline', href: '/dashboard/baseline', icon: '🤖', title: 'AI Baseline Setter', subtitle: 'Claude + Satellite', color: '#EF9F27', desc: 'Baseline défensible par IA en 30 secondes. Zero site visits. Données UNFCCC live.', badge: 'Zéro terrain requis' },
 ];
 
 export default function StandardsPage() {
@@ -68,7 +68,7 @@ export default function StandardsPage() {
       {summary && (
         <div style={{ marginTop: 20, background: 'rgba(56,189,248,0.04)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: 10, padding: '14px 20px', display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>POTENTIEL ARTICLE 6 DE VOTRE PORTFOLIO</div>
-          {[['Projets éligibles', `${summary.eligibleProjects}/${summary.totalProjects}`],['Valeur ITMO', `$${fmt(summary.totalItmoValueUSD)}`],['Premium potentiel', `+$${fmt(summary.totalPremiumUSD)}`],['Multiplicateur', `×${summary.premiumMultiplier}`]].map(([k, v]) => (
+          {[['Projects éligibles', `${summary.eligibleProjects}/${summary.totalProjects}`],['Valeur ITMO', `$${fmt(summary.totalItmoValueUSD)}`],['Potential premium', `+$${fmt(summary.totalPremiumUSD)}`],['Multiplier', `×${summary.premiumMultiplier}`]].map(([k, v]) => (
             <div key={String(k)}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{k}</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#38BDF8', fontFamily: 'Syne, sans-serif' }}>{v}</div>

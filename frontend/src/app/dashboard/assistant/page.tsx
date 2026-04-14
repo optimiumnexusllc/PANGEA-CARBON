@@ -11,7 +11,7 @@ type Message = { role: 'user' | 'assistant'; content: string; };
 export default function AssistantPage() {
   const { t } = useLang();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, propulsé par Claude (Anthropic).\n\nJe peux analyser vos données carbone, expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nQue puis-je faire pour vous ?' }
+    { role: 'assistant', content: '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, powered by Claude (Anthropic).\n\nI can analyze your carbon data, expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nHow can I help you?' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -160,7 +160,7 @@ export default function AssistantPage() {
           </button>
         </div>
         <div style={{ fontSize: 10, color: '#2A3F55', textAlign: 'center', marginTop: 6, fontFamily: 'JetBrains Mono, monospace' }}>
-          Claude by Anthropic · Vos données restent privées · Shift+Entrée pour saut de ligne
+          Claude by Anthropic · Your data stays private · Shift+Enter for new line
         </div>
       </div>
     </div>

@@ -66,7 +66,7 @@ function AccountPage() {
     if (pwNew.length < 8) { flash('Minimum 8 caracteres', false); return; }
     setSaving(true);
     fetchAuthJson('/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword: pwCurrent, newPassword: pwNew }) })
-      .then(() => { setPwCurrent(''); setPwNew(''); setPwConfirm(''); flash('Mot de passe modifie'); })
+      .then(() => { setPwCurrent(''); setPwNew(''); setPwConfirm(''); flash('Password modifie'); })
       .catch((e) => flash(e.message, false))
       .finally(() => setSaving(false));
   }
@@ -125,7 +125,7 @@ function AccountPage() {
       </div>
 
       {loading ? (
-        <div style={card}><p style={{ color: '#4A6278' }}>Chargement...</p></div>
+        <div style={card}><p style={{ color: '#4A6278' }}>Loading...</p></div>
       ) : (
         <div style={card}>
 
@@ -212,7 +212,7 @@ function AccountPage() {
                   </div>
                 )}
               </div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6', marginBottom: 12 }}>Mot de passe</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6', marginBottom: 12 }}>Password</div>
               <label style={lbl}>ACTUEL</label>
               <input type="password" value={pwCurrent} onChange={(e) => setPwCurrent(e.target.value)} style={inp} />
               <label style={lbl}>NOUVEAU</label>
@@ -220,7 +220,7 @@ function AccountPage() {
               <label style={lbl}>CONFIRMER</label>
               <input type="password" value={pwConfirm} onChange={(e) => setPwConfirm(e.target.value)} style={inp} />
               <button onClick={changePassword} disabled={saving} style={btn('#F87171', '#080B0F')}>
-                {saving ? '...' : 'Modifier'}
+                {saving ? '...' : 'Edit'}
               </button>
             </div>
           )}

@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 1) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
+const fmt = (n: number, d = 1) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function DMRVPage() {
   const { t } = useLang();
@@ -45,7 +45,7 @@ export default function DMRVPage() {
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>dMRV · SENTINEL-2 · IoT CONTINUOUS VERIFICATION</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Digital MRV Engine</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Vérification continue via satellite. Zéro visite terrain. Résultats certifiables VVB.</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Continuous satellite verification. Zero site visits. VVB-certifiable results.</p>
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
@@ -55,17 +55,17 @@ export default function DMRVPage() {
         </select>
         <button onClick={runVerification} disabled={running || !selected}
           style={{ background: running ? '#1E2D3D' : '#A78BFA', color: running ? '#4A6278' : '#080B0F', border: 'none', borderRadius: 7, padding: '9px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-          {running ? '🛰️ Acquisition...' : '🛰️ Lancer vérification satellite'}
+          {running ? '🛰️ Acquisition...' : '🛰️ Start vérification satellite'}
         </button>
       </div>
 
       {a && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
           {[
-            { label: 'Score dMRV', value: `${a.dMRVScore}/100`, color: a.dMRVScore >= 85 ? '#00FF94' : '#FCD34D' },
-            { label: 'Déviation moy.', value: `${fmt(a.avgDeviation)}%`, color: a.avgDeviation < 5 ? '#00FF94' : '#F87171' },
-            { label: 'Lectures satellite', value: a.totalSatelliteReadings, color: '#A78BFA' },
-            { label: 'Certification prête', value: a.certificationReady ? 'OUI ✓' : 'NON ✗', color: a.certificationReady ? '#00FF94' : '#F87171' },
+            { label: 'dMRV Score', value: `${a.dMRVScore}/100`, color: a.dMRVScore >= 85 ? '#00FF94' : '#FCD34D' },
+            { label: 'Avg. deviation', value: `${fmt(a.avgDeviation)}%`, color: a.avgDeviation < 5 ? '#00FF94' : '#F87171' },
+            { label: 'Satellite readings', value: a.totalSatelliteReadings, color: '#A78BFA' },
+            { label: 'Certification ready', value: a.certificationReady ? 'OUI ✓' : 'NON ✗', color: a.certificationReady ? '#00FF94' : '#F87171' },
           ].map(k => (
             <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: '14px 16px' }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -83,7 +83,7 @@ export default function DMRVPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                {['Date capture', 'Satellite (MWh)', 'Manuel (MWh)', 'Déviation', 'Confiance', 'Statut'].map(col => (
+                {['Date capture', 'Satellite (MWh)', 'Manuel (MWh)', 'Déviation', 'Confiance', 'Status'].map(col => (
                   <th key={col} style={{ padding: '9px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{col}</th>
                 ))}
               </tr>
@@ -91,7 +91,7 @@ export default function DMRVPage() {
             <tbody>
               {dmrv.comparison.slice(0, 8).map((c: any, i: number) => (
                 <tr key={i} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
-                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(c.date).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })}</td>
+                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(c.date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</td>
                   <td style={{ padding: '9px 14px', fontSize: 13, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(c.satellite)}</td>
                   <td style={{ padding: '9px 14px', fontSize: 13, color: c.manual ? '#E8EFF6' : '#2A3F55', fontFamily: 'JetBrains Mono, monospace' }}>{c.manual ? fmt(c.manual) : '—'}</td>
                   <td style={{ padding: '9px 14px', fontSize: 12, color: c.deviation !== null ? (c.deviation < 5 ? '#00FF94' : c.deviation < 10 ? '#FCD34D' : '#F87171') : '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -114,8 +114,8 @@ export default function DMRVPage() {
       {!loading && (!dmrv?.comparison?.length) && (
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🛰️</div>
-          <div style={{ fontSize: 15, color: '#E8EFF6', marginBottom: 6 }}>Aucune donnée satellite</div>
-          <div style={{ fontSize: 13, color: '#4A6278', marginBottom: 20 }}>Cliquez "Lancer vérification satellite" pour acquérir 6 mois de données Sentinel-2</div>
+          <div style={{ fontSize: 15, color: '#E8EFF6', marginBottom: 6 }}>No satellite data</div>
+          <div style={{ fontSize: 13, color: '#4A6278', marginBottom: 20 }}>Click "Start vérification satellite" to acquire 6 months of Sentinel-2 data</div>
         </div>
       )}
     </div>

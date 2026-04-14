@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function Article6Page() {
   const { t } = useLang();
@@ -20,7 +20,7 @@ export default function Article6Page() {
     ]).then(([d, b]) => { setData(d); setBuyers(b); }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>Chargement...</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>Loading...</div>;
 
   const s = data?.summary || {};
 
@@ -30,7 +30,7 @@ export default function Article6Page() {
         <div>
           <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
           <div style={{ fontSize: 10, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>ARTICLE 6 PARIS AGREEMENT · ITMO TRACKING</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Marchés Carbone Souverains</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Sovereign Carbon Markets</h1>
           <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>International Transferred Mitigation Outcomes · Prix moyen $35-55/tCO₂e (vs $12 Verra)</p>
         </div>
       </div>
@@ -38,10 +38,10 @@ export default function Article6Page() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { label: 'Valeur ITMO totale', value: `$${fmt(s.totalItmoValueUSD)}`, color: '#38BDF8' },
-          { label: 'vs Verra actuel', value: `$${fmt(s.totalVerraValueUSD)}`, color: '#4A6278' },
-          { label: 'Premium potentiel', value: `+$${fmt(s.totalPremiumUSD)}`, color: '#00FF94' },
-          { label: 'Multiplicateur', value: `×${s.premiumMultiplier}`, color: '#FCD34D' },
+          { label: 'Total ITMO value', value: `$${fmt(s.totalItmoValueUSD)}`, color: '#38BDF8' },
+          { label: 'vs current Verra', value: `$${fmt(s.totalVerraValueUSD)}`, color: '#4A6278' },
+          { label: 'Potential premium', value: `+$${fmt(s.totalPremiumUSD)}`, color: '#00FF94' },
+          { label: 'Multiplier', value: `×${s.premiumMultiplier}`, color: '#FCD34D' },
         ].map(k => (
           <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -54,7 +54,7 @@ export default function Article6Page() {
       {buyers && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>PAYS ACHETEURS ACTIFS — PRIX ITMO 2026</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ACTIVE BUYER COUNTRIES — ITMO PRICES 2026</div>
             {buyers.buyers.filter((b: any) => b.active).map((b: any) => (
               <div key={b.code} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                 <div>
@@ -70,19 +70,19 @@ export default function Article6Page() {
           </div>
 
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>MEILLEURES OPPORTUNITÉS BILATÉRALES</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>BEST BILATERAL OPPORTUNITIES</div>
             {buyers.topOpportunities?.map((op: any) => (
               <div key={op.pair} style={{ padding: '10px 0', borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{op.pair}</span>
                   <span style={{ fontSize: 14, fontWeight: 700, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>${op.price}/t</span>
                 </div>
-                {op.bilateral && <span style={{ fontSize: 10, background: 'rgba(56,189,248,0.1)', color: '#38BDF8', borderRadius: 4, padding: '2px 6px' }}>Accord bilatéral signé</span>}
+                {op.bilateral && <span style={{ fontSize: 10, background: 'rgba(56,189,248,0.1)', color: '#38BDF8', borderRadius: 4, padding: '2px 6px' }}>Bilateral agreement signed</span>}
               </div>
             ))}
             <div style={{ marginTop: 14, padding: '12px', background: 'rgba(56,189,248,0.05)', borderRadius: 8, border: '1px solid rgba(56,189,248,0.1)' }}>
-              <div style={{ fontSize: 11, color: '#38BDF8', fontWeight: 600 }}>vs Marché volontaire Verra</div>
-              <div style={{ fontSize: 12, color: '#4A6278', marginTop: 4 }}>Verra: $12/t · Article 6: $45/t · Multiplicateur: ×3.75</div>
+              <div style={{ fontSize: 11, color: '#38BDF8', fontWeight: 600 }}>vs Voluntary carbon market Verra</div>
+              <div style={{ fontSize: 12, color: '#4A6278', marginTop: 4 }}>Verra: $12/t · Article 6: $45/t · Multiplier: ×3.75</div>
             </div>
           </div>
         </div>
@@ -90,11 +90,11 @@ export default function Article6Page() {
 
       {/* Projects */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>VOS PROJETS — ÉLIGIBILITÉ ARTICLE 6</div>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>YOUR PROJECTS — ARTICLE 6 ELIGIBILITY</div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#121920' }}>
-              {['Projet', 'Pays', 'Préparation Art.6', 'Valeur ITMO', 'Valeur Verra', 'Premium', 'Statut'].map(col => (
+              {['Project', 'Country', 'Préparation Art.6', 'Valeur ITMO', 'Valeur Verra', 'Premium', 'Status'].map(col => (
                 <th key={col} style={{ padding: '9px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{col}</th>
               ))}
             </tr>
@@ -120,7 +120,7 @@ export default function Article6Page() {
                     background: p.article6?.eligible ? 'rgba(0,255,148,0.1)' : 'rgba(252,211,77,0.1)',
                     color: p.article6?.eligible ? '#00FF94' : '#FCD34D',
                     border: `1px solid ${p.article6?.eligible ? 'rgba(0,255,148,0.2)' : 'rgba(252,211,77,0.2)'}` }}>
-                    {p.article6?.eligible ? 'ÉLIGIBLE' : 'EN COURS'}
+                    {p.article6?.eligible ? 'ELIGIBLE' : 'IN PROGRESS'}
                   </span>
                 </td>
               </tr>

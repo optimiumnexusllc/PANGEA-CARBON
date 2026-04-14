@@ -10,22 +10,22 @@ const CATEGORIES = [
     id: 'smtp', label: 'Email SMTP', icon: '📧', color: '#38BDF8',
     guide: [
       ['Hostinger', 'smtp.hostinger.com · Port 465 (SSL)'],
-      ['Gmail', 'smtp.gmail.com · Port 587 · Mot de passe app requis'],
+      ['Gmail', 'smtp.gmail.com · Port 587 · Password app requis'],
       ['SendGrid', 'smtp.sendgrid.net · Port 587 · API key comme password'],
     ],
     settings: [
-      { key: 'smtp_host',     label: 'Serveur SMTP',  placeholder: 'smtp.hostinger.com', encrypted: false },
+      { key: 'smtp_host',     label: 'SMTP Server',  placeholder: 'smtp.hostinger.com', encrypted: false },
       { key: 'smtp_port',     label: 'Port',          placeholder: '465',                encrypted: false },
       { key: 'smtp_user',     label: 'Email (login)', placeholder: 'contact@pangea-carbon.com', encrypted: false },
-      { key: 'smtp_password', label: 'Mot de passe',  placeholder: '••••••••',           encrypted: true },
+      { key: 'smtp_password', label: 'Password',  placeholder: '••••••••',           encrypted: true },
     ],
   },
   {
     id: 'stripe', label: 'Stripe Payments', icon: '💳', color: '#635BFF',
     guide: [
       ['1. Dashboard Stripe', 'dashboard.stripe.com → Developers → API keys'],
-      ['2. Secret Key', '→ Reveal live key → Copier sk_live_...'],
-      ['3. Webhook', '→ Webhooks → Add endpoint → /api/billing/webhook → Copier whsec_...'],
+      ['2. Secret Key', '→ Reveal live key → Copy sk_live_...'],
+      ['3. Webhook', '→ Webhooks → Add endpoint → /api/billing/webhook → Copy whsec_...'],
     ],
     settings: [
       { key: 'stripe_secret_key',      label: 'Stripe Secret Key', placeholder: 'sk_live_...', encrypted: true },
@@ -49,10 +49,10 @@ const CATEGORIES = [
   {
     id: 'storage', label: 'Stockage & Ops', icon: '🗄️', color: '#EF9F27',
     guide: [
-      ['AWS S3',  'console.aws.amazon.com → S3 → Créer bucket → IAM → Access Keys'],
+      ['AWS S3',  'console.aws.amazon.com → S3 → Create bucket → IAM → Access Keys'],
       ['MinIO',   'Hébergé sur votre VPS: docker run minio/minio server /data'],
-      ['R2',      'dash.cloudflare.com → R2 → Créer bucket → API tokens'],
-      ['Sentry',  'sentry.io → New Project → Node.js → Copier le DSN'],
+      ['R2',      'dash.cloudflare.com → R2 → Create bucket → API tokens'],
+      ['Sentry',  'sentry.io → New Project → Node.js → Copy le DSN'],
     ],
     settings: [
       { key: 'sentry_dsn',   label: 'Sentry DSN (monitoring)',  placeholder: 'https://xxx@sentry.io/yyy', encrypted: false },
@@ -69,7 +69,7 @@ const CATEGORIES = [
     settings: [
       { key: 'platform_name',   label: 'Nom plateforme',          placeholder: 'PANGEA CARBON',            encrypted: false },
       { key: 'support_email',   label: 'Email support',           placeholder: 'contact@pangea-carbon.com', encrypted: false },
-      { key: 'carbon_price_usd',label: 'Prix carbone ($/tCO₂e)', placeholder: '12',                       encrypted: false },
+      { key: 'carbon_price_usd',label: 'Carbon price ($/tCO₂e)', placeholder: '12',                       encrypted: false },
     ],
   },
 ];
@@ -174,7 +174,7 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
             style={{ background: 'transparent', border: `1px solid ${hasValue ? '#1E2D3D' : 'rgba(0,255,148,0.25)'}`, borderRadius: 7, color: hasValue ? '#4A6278' : '#00CC77', padding: '7px 13px', cursor: 'pointer', fontSize: 12, whiteSpace: 'nowrap', flexShrink: 0, transition: 'all 0.15s' }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = '#4A6278')}
             onMouseLeave={e => (e.currentTarget.style.borderColor = hasValue ? '#1E2D3D' : 'rgba(0,255,148,0.25)')}>
-            {hasValue ? '✏️ Modifier' : '+ Configurer'}
+            {hasValue ? '✏️ Edit' : '+ Configurer'}
           </button>
         )}
       </div>
@@ -264,9 +264,9 @@ export default function AdminSettingsPage() {
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · SECRETS & CONFIGURATION</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: '0 0 4px' }}>Secrets & Configuration</h1>
         <p style={{ fontSize: 12, color: '#4A6278', margin: 0 }}>
-          Secrets chiffrés AES-256-GCM en base de données. Jamais exposés dans les logs.
+          AES-256-GCM encrypted secrets in database. Never exposés dans les logs.
           <span style={{ marginLeft: 10, fontFamily: 'JetBrains Mono, monospace', color: totalConfigured === totalSettings ? '#00FF94' : '#FCD34D' }}>
-            {totalConfigured}/{totalSettings} configurés
+            {totalConfigured}/{totalSettings} configured
           </span>
         </p>
       </div>
@@ -275,9 +275,9 @@ export default function AdminSettingsPage() {
       <div style={{ background: 'rgba(0,255,148,0.04)', border: '1px solid rgba(0,255,148,0.12)', borderRadius: 9, padding: '10px 16px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ fontSize: 16 }}>🔐</span>
         <div style={{ fontSize: 12, color: '#8FA3B8' }}>
-          <span style={{ color: '#00FF94', fontWeight: 600 }}>Chiffrement AES-256-GCM activé</span>
-          {' · '}Clé dérivée PBKDF2 depuis JWT_SECRET
-          {' · '}Audit trail complet de chaque modification
+          <span style={{ color: '#00FF94', fontWeight: 600 }}>AES-256-GCM encryption enabled</span>
+          {' · '}Key derived via PBKDF2 from JWT_SECRET
+          {' · '}Full audit trail of every change
         </div>
       </div>
 
@@ -334,7 +334,7 @@ export default function AdminSettingsPage() {
           {loading ? (
             <div style={{ padding: '24px 0', color: '#4A6278', fontSize: 13, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <div style={{ width: 14, height: 14, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-              Chargement...
+              Loading...
             </div>
           ) : (
             activeCategory.settings.map(def => {
@@ -371,7 +371,7 @@ export default function AdminSettingsPage() {
             <div style={{ marginTop: 12, padding: '10px 14px', background: '#0D1117', borderRadius: 8, border: '1px solid #1E2D3D' }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>CONFIG HOSTINGER (votre serveur)</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                {[['smtp_host','smtp.hostinger.com'],['smtp_port','465'],['smtp_user','contact@pangea-carbon.com'],['smtp_password','Mot de passe Hostinger']].map(([k, v]) => (
+                {[['smtp_host','smtp.hostinger.com'],['smtp_port','465'],['smtp_user','contact@pangea-carbon.com'],['smtp_password','Password Hostinger']].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', gap: 6 }}>
                     <span style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', flexShrink: 0 }}>{k}:</span>
                     <span style={{ fontSize: 10, color: '#00FF94' }}>{v}</span>
@@ -383,7 +383,7 @@ export default function AdminSettingsPage() {
 
           {activeTab === 'integrations' && (
             <div style={{ marginTop: 12, padding: '10px 14px', background: '#0D1117', borderRadius: 8, border: '1px solid #1E2D3D', fontSize: 12, color: '#4A6278', lineHeight: 1.6 }}>
-              💡 <strong style={{ color: '#A78BFA' }}>Priorité :</strong> Configurez d'abord <strong style={{ color: '#E8EFF6' }}>Claude AI</strong> pour activer l'Assistant IA et l'AI Baseline Setter. Mapbox est optionnel (carte déjà fonctionnelle sans).
+              💡 <strong style={{ color: '#A78BFA' }}>Priorité :</strong> Configurez d'abord <strong style={{ color: '#E8EFF6' }}>Claude AI</strong> pour activer l'AI Assistant et l'AI Baseline Setter. Mapbox est optionnel (carte déjà fonctionnelle sans).
             </div>
           )}
         </div>

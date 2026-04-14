@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { maximumFractionDigits: d }) ?? '0';
+const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 
 function PercentileBar({ value, label, unit, benchmark, rating }: any) {
   const pct = Math.min(99, Math.max(0, value));
@@ -32,7 +32,7 @@ function PercentileBar({ value, label, unit, benchmark, rating }: any) {
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: '#2A3F55' }}>
         <span>P25: {fmt(benchmark?.p25)}</span>
-        <span>Médiane: {fmt(benchmark?.median)}</span>
+        <span>Median: {fmt(benchmark?.median)}</span>
         <span>P75: {fmt(benchmark?.p75)}</span>
       </div>
     </div>
@@ -70,8 +70,8 @@ export default function BenchmarkPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>BENCHMARK · IRENA 2024 · PANGEA CARBON DATA</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Benchmark Africain</h1>
-          <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Votre position vs les pairs africains. Données IRENA 2024 + IEA Africa + PANGEA CARBON.</p>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Africa Benchmark</h1>
+          <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Your position vs African peers. IRENA 2024 + IEA Africa + PANGEA CARBON data.</p>
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, minWidth: 240 }}>
@@ -83,11 +83,11 @@ export default function BenchmarkPage() {
       {ranking?.ranking && (
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, marginBottom: 20, overflow: 'hidden' }}>
           <div style={{ padding: '12px 20px', background: '#121920', borderBottom: '1px solid #1E2D3D', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-            CLASSEMENT INTERNE — VOTRE PORTFOLIO
+            INTERNAL RANKING — YOUR PORTFOLIO
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr>
-              {['#', 'Projet', 'Type', 'Pays', 'Rendement', 'Crédits/MW', 'Percentile', 'Note'].map(col => (
+              {['#', 'Project', 'Type', 'Country', 'Yield', 'Credits/MW', 'Percentile', 'Score'].map(col => (
                 <th key={col} style={{ padding: '9px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{col}</th>
               ))}
             </tr></thead>
@@ -129,14 +129,14 @@ export default function BenchmarkPage() {
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
-                <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>POSITION VS PAIRS AFRICAINS — {data.project?.type}</div>
+                <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>POSITION VS AFRICAN PEERS — {data.project?.type}</div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: data.overallRating?.color, fontFamily: 'Syne, sans-serif' }}>
                   {data.overallRating?.label} · P{Math.round(data.overallPercentile)}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 32 }}>{'★'.repeat(data.overallRating?.stars || 0)}</div>
-                <div style={{ fontSize: 10, color: '#4A6278' }}>Note globale</div>
+                <div style={{ fontSize: 10, color: '#4A6278' }}>Score globale</div>
               </div>
             </div>
             {data.metrics?.map((m: any) => (
@@ -147,7 +147,7 @@ export default function BenchmarkPage() {
           {/* Radar chart + context */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, flex: 1 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>PROFIL DE PERFORMANCE — RADAR</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>PERFORMANCE PROFILE — RADAR</div>
               {radarData.length > 0 && (
                 <ResponsiveContainer width="100%" height={220}>
                   <RadarChart data={radarData}>
@@ -161,11 +161,11 @@ export default function BenchmarkPage() {
             </div>
 
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>CONTEXTE PAYS — {data.project?.countryCode}</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>COUNTRY CONTEXT — {data.project?.countryCode}</div>
               {[
-                ['EF grille', `${data.countryContext?.avgEF} tCO₂/MWh`],
-                ['Revenus moy./MW', `$${fmt(data.countryContext?.avgRevenuePerMW)}`],
-                ['Maturité marché', data.countryContext?.marketMaturity],
+                ['Grid EF', `${data.countryContext?.avgEF} tCO₂/MWh`],
+                ['Avg. revenue/MW', `$${fmt(data.countryContext?.avgRevenuePerMW)}`],
+                ['Market maturity', data.countryContext?.marketMaturity],
               ].map(([k, v]) => (
                 <div key={String(k)} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(30,45,61,0.4)', fontSize: 12 }}>
                   <span style={{ color: '#4A6278' }}>{k}</span>

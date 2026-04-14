@@ -30,28 +30,28 @@ export default function AdminAuditPage() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · {total} ÉVÉNEMENTS</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Audit Trail</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Historique immuable de toutes les actions sur la plateforme</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Immutable history of all actions on the platform</p>
       </div>
 
       <input style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '9px 14px', fontSize: 13, marginBottom: 16, boxSizing: 'border-box', outline: 'none' }}
-        placeholder="Filtrer par action (CREATE_USER, UPDATE_SETTING...)"
+        placeholder="Filter par action (CREATE_USER, UPDATE_SETTING...)"
         value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}/>
 
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#121920' }}>
-              {['Timestamp', 'Action', 'Entité', 'ID', 'Utilisateur', 'IP'].map(label => (
+              {['Timestamp', 'Action', 'Entity', 'ID', 'User', 'IP'].map(label => (
                 <th key={label} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{label}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {loading ? <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#4A6278' }}>Chargement...</td></tr>
+            {loading ? <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#4A6278' }}>Loading...</td></tr>
             : logs.map((log: any) => (
               <tr key={log.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.3)' }}>
                 <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>
-                  {new Date(log.createdAt).toLocaleString('fr-FR')}
+                  {new Date(log.createdAt).toLocaleString('en-US')}
                 </td>
                 <td style={{ padding: '9px 14px' }}>
                   <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace',

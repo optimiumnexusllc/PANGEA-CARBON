@@ -86,7 +86,7 @@ export default function MarketplacePage() {
           quantity: parseFloat(orderForm.qty),
           maxPrice: price,
           orderType: orderForm.orderType,
-          buyerNote: orderForm.note,
+          buyerScore: orderForm.note,
         }),
       });
       setOrderResult(result);
@@ -559,7 +559,7 @@ export default function MarketplacePage() {
                   </div>
                 )}
 
-                {/* Note */}
+                {/* Score */}
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>BUYER NOTE (optional)</div>
                   <input placeholder="e.g. For FY2025 carbon neutrality report"

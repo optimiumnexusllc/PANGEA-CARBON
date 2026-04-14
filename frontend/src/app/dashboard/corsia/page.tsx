@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function CORSIAPage() {
   const { t } = useLang();
@@ -37,16 +37,16 @@ export default function CORSIAPage() {
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>CORSIA · ICAO · AVIATION CARBON MARKET</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>CORSIA Eligibility Checker</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Marché aviation garanti 2024-2035 · $18-26/tCO₂e · Demande structurelle de $400M+ pour l'Afrique</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Guaranteed aviation market 2024-2035 · $18-26/tCO₂e · Structural demand of $400M+ for Africa</p>
       </div>
 
       {s && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {[
-            { label: 'Projets éligibles', value: `${s.eligible}/${s.total}`, color: '#F87171' },
-            { label: 'Crédits éligibles', value: `${fmt(s.eligibleCredits)} tCO₂e`, color: '#E8EFF6' },
+            { label: 'Projects éligibles', value: `${s.eligible}/${s.total}`, color: '#F87171' },
+            { label: 'Eligible credits', value: `${fmt(s.eligibleCredits)} tCO₂e`, color: '#E8EFF6' },
             { label: 'Premium/tonne', value: `+$${(s.avgPremiumUSD || 0).toFixed(0)}`, color: '#00FF94' },
-            { label: 'Revenus premium', value: `$${fmt(s.totalPremiumRevenue)}`, color: '#FCD34D' },
+            { label: 'Premium revenue', value: `$${fmt(s.totalPremiumRevenue)}`, color: '#FCD34D' },
           ].map(k => (
             <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -58,14 +58,14 @@ export default function CORSIAPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>VÉRIFIER UN PROJET</div>
+          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CHECK A PROJECT</div>
           <select value={selected} onChange={e => setSelected(e.target.value)}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px', fontSize: 13, marginBottom: 16 }}>
             {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode}</option>)}
           </select>
           <div style={{ background: '#121920', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 10 }}>CRITÈRES CORSIA (6 requis)</div>
-            {['Additionnalité ≥ 2016', 'Permanence prouvée', 'Quantification certifiable MRV', 'Pas de double comptage', 'Co-bénéfices SDG', 'Transparence données'].map((c, i) => (
+            <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 10 }}>CORSIA CRITERIA (6 requis)</div>
+            {['Additionality ≥ 2016', 'Proven permanence', 'MRV-certifiable quantification', 'No double counting', 'SDG co-benefits', 'Data transparency'].map((c, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 7 }}>
                 <div style={{ width: 16, height: 16, borderRadius: '50%', border: '1px solid #F87171', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, color: '#F87171' }}>{i + 1}</div>
                 <span style={{ fontSize: 12, color: '#4A6278' }}>{c}</span>
@@ -79,13 +79,13 @@ export default function CORSIAPage() {
         </div>
 
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>RÉSULTAT CORSIA</div>
+          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CORSIA RESULT</div>
           {result ? (
             <div>
               <div style={{ textAlign: 'center', padding: '16px 0', marginBottom: 16 }}>
                 <div style={{ fontSize: 40, marginBottom: 8 }}>{result.analysis?.eligible ? '✅' : '❌'}</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: result.analysis?.eligible ? '#00FF94' : '#F87171', fontFamily: 'Syne, sans-serif' }}>
-                  {result.analysis?.eligible ? 'PROJET ÉLIGIBLE CORSIA' : 'NON ÉLIGIBLE ACTUELLEMENT'}
+                  {result.analysis?.eligible ? 'PROJET ELIGIBLE CORSIA' : 'NON ELIGIBLE ACTUELLEMENT'}
                 </div>
                 <div style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Score: {result.analysis?.totalScore}/100 · Phase {result.analysis?.corsiaPhase}</div>
               </div>
@@ -117,7 +117,7 @@ export default function CORSIAPage() {
           ) : (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#4A6278' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>✈️</div>
-              <div>Sélectionnez un projet et lancez la vérification pour voir son éligibilité CORSIA et le revenu additionnel potentiel.</div>
+              <div>Select a project and run the check to see CORSIA eligibility and potential additional revenue.</div>
             </div>
           )}
         </div>

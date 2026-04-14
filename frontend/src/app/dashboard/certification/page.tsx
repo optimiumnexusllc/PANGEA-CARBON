@@ -88,7 +88,7 @@ function CertificationPage() {
           Certification Lab
         </h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 6 }}>
-          Emettez des certifications PANGEA pour vos projets · ACMI · CORSIA · Gold Standard · Verra
+          Issue PANGEA certifications pour vos projets · ACMI · CORSIA · Gold Standard · Verra
         </p>
       </div>
 
@@ -129,11 +129,11 @@ function CertificationPage() {
           {/* Liste des certifications */}
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ padding: '12px 20px', background: '#121920', borderBottom: '1px solid #1E2D3D', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-              CERTIFICATIONS ACTIVES
+              ACTIVE CERTIFICATIONS
             </div>
             {portfolio && portfolio.certifications.length === 0 && (
               <div style={{ padding: 48, textAlign: 'center', color: '#4A6278' }}>
-                Aucune certification emise. Allez dans "Emettre" pour certifier un projet.
+                No certifications issued. Go to "Emettre" to certify a project.
               </div>
             )}
             {portfolio && portfolio.certifications.map((c) => {
@@ -158,7 +158,7 @@ function CertificationPage() {
                       )}
                     </div>
                     <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-                      {c.project?.country} · {c.project?.type} · Expire: {new Date(c.expiresAt).toLocaleDateString('fr-FR')}
+                      {c.project?.country} · {c.project?.type} · Expire: {new Date(c.expiresAt).toLocaleDateString('en-US')}
                     </div>
                     {c.standards.length > 0 && (
                       <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -266,7 +266,7 @@ function CertificationPage() {
                           Hash: {cert.hash?.slice(0, 16)}...
                         </div>
                         <div style={{ fontSize: 11, color: '#4A6278', marginTop: 2 }}>
-                          Expire: {cert.expiresAt ? new Date(cert.expiresAt).toLocaleDateString('fr-FR') : '—'}
+                          Expire: {cert.expiresAt ? new Date(cert.expiresAt).toLocaleDateString('en-US') : '—'}
                         </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -276,7 +276,7 @@ function CertificationPage() {
                         </a>
                         <button onClick={revokeCert}
                           style={{ fontSize: 11, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, color: '#F87171', padding: '4px 10px', cursor: 'pointer' }}>
-                          Revoquer
+                          Revoke
                         </button>
                       </div>
                     </div>
@@ -370,22 +370,22 @@ function ACMIStandardsPanel() {
   }, []);
 
   const COUNTRIES_ACMI = [
-    { code: 'CI', name: "Cote d'Ivoire", potential: '45M tCO2e/an', status: 'Actif', color: '#F59E0B' },
+    { code: 'CI', name: "Cote d'Ivoire", potential: '45M tCO2e/an', status: 'Active', color: '#F59E0B' },
     { code: 'KE', name: 'Kenya', potential: '60M tCO2e/an', status: 'Leader', color: '#00FF94' },
-    { code: 'NG', name: 'Nigeria', potential: '120M tCO2e/an', status: 'Actif', color: '#3B82F6' },
-    { code: 'GH', name: 'Ghana', potential: '30M tCO2e/an', status: 'Actif', color: '#8B5CF6' },
+    { code: 'NG', name: 'Nigeria', potential: '120M tCO2e/an', status: 'Active', color: '#3B82F6' },
+    { code: 'GH', name: 'Ghana', potential: '30M tCO2e/an', status: 'Active', color: '#8B5CF6' },
     { code: 'SN', name: 'Senegal', potential: '20M tCO2e/an', status: 'En dev.', color: '#EC4899' },
-    { code: 'ET', name: 'Ethiopie', potential: '80M tCO2e/an', status: 'Actif', color: '#F97316' },
+    { code: 'ET', name: 'Ethiopie', potential: '80M tCO2e/an', status: 'Active', color: '#F97316' },
     { code: 'RW', name: 'Rwanda', potential: '15M tCO2e/an', status: 'Leader', color: '#10B981' },
-    { code: 'ZA', name: 'Afrique du Sud', potential: '90M tCO2e/an', status: 'Actif', color: '#38BDF8' },
+    { code: 'ZA', name: 'Afrique du Sud', potential: '90M tCO2e/an', status: 'Active', color: '#38BDF8' },
     { code: 'TZ', name: 'Tanzanie', potential: '70M tCO2e/an', status: 'En dev.', color: '#A78BFA' },
     { code: 'UG', name: 'Ouganda', potential: '25M tCO2e/an', status: 'En dev.', color: '#FCD34D' },
     { code: 'MZ', name: 'Mozambique', potential: '35M tCO2e/an', status: 'En dev.', color: '#F87171' },
-    { code: 'CM', name: 'Cameroun', potential: '55M tCO2e/an', status: 'Actif', color: '#34D399' },
+    { code: 'CM', name: 'Cameroun', potential: '55M tCO2e/an', status: 'Active', color: '#34D399' },
   ];
 
   const TIER_LABELS = [
-    { tier: 'PANGEA VERIFIED', color: '#38BDF8', desc: 'Donnees MRV verifiees sur la plateforme', req: 'MRV + Lectures', validity: '12 mois', premium: '+$1-2/t' },
+    { tier: 'PANGEA VERIFIED', color: '#38BDF8', desc: 'Donnees MRV verifiees on the platform', req: 'MRV + Lectures', validity: '12 mois', premium: '+$1-2/t' },
     { tier: 'PANGEA CERTIFIED', color: '#00FF94', desc: 'Standard reconnu + audit tiers independant', req: 'VERIFIED + Auditeur + Standard', validity: '24 mois', premium: '+$3-5/t' },
     { tier: 'PANGEA ELITE', color: '#A78BFA', desc: 'Conforme ACMI + co-benefices ODD documentes', req: 'CERTIFIED + ACMI + ODD', validity: '36 mois', premium: '+$6-10/t' },
     { tier: 'PANGEA ELITE + CORSIA', color: '#FCD34D', desc: 'Eligible aviation internationale CORSIA', req: 'ELITE + Validation CORSIA', validity: '36 mois', premium: '+$12-18/t' },
@@ -437,7 +437,7 @@ function ACMIStandardsPanel() {
         </div>
       </div>
 
-      {/* Pays ACMI */}
+      {/* Country ACMI */}
       <div>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12, letterSpacing: '0.1em' }}>PAYS MEMBRES ACMI — POTENTIEL MARCHE</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>

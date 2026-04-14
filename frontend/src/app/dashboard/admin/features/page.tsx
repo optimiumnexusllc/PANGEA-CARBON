@@ -39,12 +39,12 @@ export default function AdminFeaturesPage() {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · FEATURE FLAGS</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Gestion des Fonctionnalités</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Activez/désactivez les features en temps réel sans redémarrage</p>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Feature Management</h1>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Enable/disable features in real time without restart</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-        {loading ? <div style={{ color: '#4A6278', padding: 20 }}>Chargement...</div> :
+        {loading ? <div style={{ color: '#4A6278', padding: 20 }}>Loading...</div> :
           features.map((f: any) => (
             <div key={f.key} style={{ background: '#0D1117', border: `1px solid ${f.enabled ? 'rgba(0,255,148,0.2)' : '#1E2D3D'}`, borderRadius: 10, padding: 16, transition: 'all 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -78,7 +78,7 @@ export default function AdminFeaturesPage() {
                 <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace',
                   background: f.enabled ? 'rgba(0,255,148,0.1)' : 'rgba(74,98,120,0.2)',
                   color: f.enabled ? '#00FF94' : '#4A6278' }}>
-                  {f.enabled ? 'ACTIVÉ' : 'DÉSACTIVÉ'}
+                  {f.enabled ? 'ENABLED' : 'DÉSENABLED'}
                 </span>
               </div>
             </div>

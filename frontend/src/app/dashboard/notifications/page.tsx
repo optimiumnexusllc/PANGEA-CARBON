@@ -115,7 +115,7 @@ function EmailComposerPage() {
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: ACCENT, fontFamily: FONT_MONO, marginBottom: 4 }}>EMAIL COMPOSER · PANGEA CARBON BRANDED</div>
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 24, fontWeight: 800, color: TEXT, margin: 0 }}>Email Composer</h1>
-        <p style={{ fontSize: 13, color: DIM, marginTop: 4 }}>Composez et envoyez des emails professionnels avec la charte PANGEA CARBON</p>
+        <p style={{ fontSize: 13, color: DIM, marginTop: 4 }}>Compose and send professional emails with PANGEA CARBON branding</p>
       </div>
 
       {msg && (
@@ -147,7 +147,7 @@ function EmailComposerPage() {
                 <div style={{ fontSize: 13, color: TEXT, fontWeight: 500, marginBottom: 2 }}>{h.subject || '(sans objet)'}</div>
                 <div style={{ fontSize: 11, color: DIM, fontFamily: FONT_MONO }}>To: {h.to}</div>
               </div>
-              <div style={{ fontSize: 11, color: DIM }}>{h.sentAt ? new Date(h.sentAt).toLocaleString('fr-FR') : ''}</div>
+              <div style={{ fontSize: 11, color: DIM }}>{h.sentAt ? new Date(h.sentAt).toLocaleString('en-US') : ''}</div>
             </div>
           ))}
         </div>
@@ -204,14 +204,14 @@ function EmailComposerPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Recipients */}
             <div style={{ background: CARD, border: '1px solid ' + BORDER, borderRadius: 12, padding: 20 }}>
-              <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO, marginBottom: 14 }}>DESTINATAIRES</div>
+              <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO, marginBottom: 14 }}>RECIPIENTS</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={labelStyle}>A (To) *</label>
+                  <label style={labelStyle}>To *</label>
                   <input value={to} onChange={e => setTo(e.target.value)} placeholder="email@client.com" style={inputStyle} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Copie (CC)</label>
+                  <label style={labelStyle}>CC</label>
                   <input value={cc} onChange={e => setCc(e.target.value)} placeholder="optionnel" style={inputStyle} />
                 </div>
               </div>
@@ -220,7 +220,7 @@ function EmailComposerPage() {
             {/* Subject + Body */}
             <div style={{ background: CARD, border: '1px solid ' + BORDER, borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO }}>CONTENU</div>
+                <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO }}>CONTENT</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button onClick={() => setPreviewMode(false)}
                     style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid ' + BORDER, background: !previewMode ? '#1E2D3D' : 'transparent', color: !previewMode ? TEXT : DIM, cursor: 'pointer', fontSize: 12 }}>
@@ -235,12 +235,12 @@ function EmailComposerPage() {
 
               {!previewMode ? (
                 <div>
-                  <label style={labelStyle}>OBJET DU MESSAGE</label>
+                  <label style={labelStyle}>SUBJECT</label>
                   <input value={subject} onChange={e => setSubject(e.target.value)}
                     placeholder="Objet de l'email..."
                     style={{ ...inputStyle, marginBottom: 14, fontSize: 15, fontWeight: 500 }} />
 
-                  <label style={labelStyle}>CORPS DU MESSAGE</label>
+                  <label style={labelStyle}>MESSAGE BODY</label>
                   <div style={{ position: 'relative' }}>
                     <textarea ref={bodyRef} value={body} onChange={e => setBody(e.target.value)}
                       placeholder={selectedTemplate?.id && selectedTemplate.id !== 'custom'
@@ -282,7 +282,7 @@ function EmailComposerPage() {
             {/* Brand preview strip */}
             <div style={{ background: 'linear-gradient(135deg, #080B0F, #121920)', border: '1px solid rgba(0,255,148,0.2)', borderRadius: 12, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <div style={{ fontSize: 10, color: ACCENT, fontFamily: FONT_MONO, marginBottom: 6 }}>CHARTE GRAPHIQUE APPLIQUEE</div>
+                <div style={{ fontSize: 10, color: ACCENT, fontFamily: FONT_MONO, marginBottom: 6 }}>BRANDING APPLIED</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(0,255,148,0.15)', border: '1px solid rgba(0,255,148,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
                     &#x2B21;
@@ -306,7 +306,7 @@ function EmailComposerPage() {
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={loadPreview} disabled={!subject || loadingPreview}
                 style={{ background: 'transparent', border: '1px solid ' + BORDER, borderRadius: 8, color: DIM, padding: '11px 20px', cursor: 'pointer', fontSize: 13 }}>
-                {loadingPreview ? 'Chargement...' : 'Apercu'}
+                {loadingPreview ? 'Loading...' : 'Apercu'}
               </button>
               <button onClick={sendEmail} disabled={sending || !to || !subject}
                 style={{ background: (sending || !to || !subject) ? '#1E2D3D' : ACCENT, color: (sending || !to || !subject) ? DIM : BG, border: 'none', borderRadius: 8, padding: '11px 28px', fontWeight: 700, fontSize: 14, cursor: (sending || !to || !subject) ? 'default' : 'pointer', transition: 'all 0.15s' }}>

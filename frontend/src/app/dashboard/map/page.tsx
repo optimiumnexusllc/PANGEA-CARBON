@@ -10,7 +10,7 @@ const TYPE_COLORS = {
 const TYPE_ICONS = {
   SOLAR: '☀️', WIND: '💨', HYDRO: '💧', BIOMASS: '🌿', HYBRID: '⚡'
 };
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '—';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '—';
 
 export default function MapPage() {
   const { t } = useLang();
@@ -123,7 +123,7 @@ export default function MapPage() {
                 <div style="font-size:15px;font-weight:700;color:#38BDF8">$${fmt(mrv.revenueUSD)}</div>
               </div>
             </div>
-          ` : `<div style="font-size:11px;color:#4A6278;margin-top:8px">Aucune donnée MRV — ajoutez des lectures</div>`}
+          ` : `<div style="font-size:11px;color:#4A6278;margin-top:8px">No data MRV — ajoutez des lectures</div>`}
           <a href="/dashboard/projects/${p.id}" style="display:block;margin-top:10px;text-align:center;background:#00FF94;color:#080B0F;border-radius:6px;padding:6px;font-size:12px;font-weight:600;text-decoration:none">
             Voir le projet →
           </a>
@@ -152,14 +152,14 @@ export default function MapPage() {
       {/* Top bar */}
       <div style={{ padding: '12px 20px', background: '#0D1117', borderBottom: '1px solid #1E2D3D', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
         <div>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PANGEA CARBON · INTELLIGENCE GÉOSPATIALE</div>
-          <div style={{ fontSize: 15, fontWeight: 600, fontFamily: 'Syne, sans-serif', color: '#E8EFF6' }}>Carte des projets MRV · Afrique</div>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PANGEA CARBON · GEOSPATIAL INTELLIGENCE</div>
+          <div style={{ fontSize: 15, fontWeight: 600, fontFamily: 'Syne, sans-serif', color: '#E8EFF6' }}>MRV Projects Map · Africa</div>
         </div>
         <div style={{ display: 'flex', gap: 16 }}>
           {[
-            ['Projets cartographiés', projectsWithCoords.length, '#38BDF8'],
-            ['Crédits tCO₂e', fmt(totalCredits), '#00FF94'],
-            ['Revenus USD', '$' + fmt(totalRev), '#FCD34D'],
+            ['Projects cartographiés', projectsWithCoords.length, '#38BDF8'],
+            ['Credits tCO₂e', fmt(totalCredits), '#00FF94'],
+            ['Revenue USD', '$' + fmt(totalRev), '#FCD34D'],
           ].map(([label, value, color]) => (
             <div key={String(label)} style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{label}</div>
@@ -191,10 +191,10 @@ export default function MapPage() {
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 1000,
             background: 'rgba(13,17,23,0.95)', border: '1px solid #1E2D3D', borderRadius: 12, padding: '24px 32px', textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>🗺️</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#E8EFF6', marginBottom: 4 }}>Aucun projet géolocalisé</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#E8EFF6', marginBottom: 4 }}>No projects géolocalisé</div>
             <div style={{ fontSize: 12, color: '#4A6278', marginBottom: 16 }}>Ajoutez des coordonnées à vos projets pour les voir sur la carte</div>
             <a href="/dashboard/projects/new" style={{ background: '#00FF94', color: '#080B0F', borderRadius: 7, padding: '8px 16px', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
-              Créer un projet →
+              Create un projet →
             </a>
           </div>
         )}

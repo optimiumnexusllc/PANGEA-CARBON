@@ -46,9 +46,9 @@ export default function ApiKeysPage() {
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>EQUIPMENT API · INTÉGRATIONS</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Clés API</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Connectez vos onduleurs et systèmes tiers via l'Equipment API PANGEA CARBON</p>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>EQUIPMENT API · INTEGRATIONS</div>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>API Keys</h1>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Connect your inverters and third-party systems via the PANGEA CARBON Equipment API</p>
       </div>
 
       {/* New key alert */}
@@ -61,7 +61,7 @@ export default function ApiKeysPage() {
             </code>
             <button onClick={() => { navigator.clipboard.writeText(newKey); }}
               style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '10px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0 }}>
-              📋 Copier
+              📋 Copy
             </button>
           </div>
           <button onClick={() => setNewKey(null)} style={{ marginTop: 10, background: 'transparent', border: 'none', color: '#4A6278', fontSize: 12, cursor: 'pointer' }}>
@@ -72,14 +72,14 @@ export default function ApiKeysPage() {
 
       {/* Quick start */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>DÉMARRAGE RAPIDE</div>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>QUICK START</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {[
-            { title: 'Envoyer une lecture', code: `curl -X POST https://pangea-carbon.com/api/equipment/reading \\
+            { title: 'Send a reading', code: `curl -X POST https://pangea-carbon.com/api/equipment/reading \\
   -H "X-API-Key: pgc_votre_cle" \\
   -H "Content-Type: application/json" \\
   -d '{"project_id":"ID","energy_mwh":125.5}'` },
-            { title: 'Import CSV bulk', code: `curl -X POST .../api/equipment/readings/bulk \\
+            { title: 'Bulk CSV import', code: `curl -X POST .../api/equipment/readings/bulk \\
   -H "X-API-Key: pgc_votre_cle" \\
   -d '{"project_id":"ID","readings":[...]}'` },
           ].map(ex => (
@@ -108,13 +108,13 @@ export default function ApiKeysPage() {
 
       {/* Keys list */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6' }}>Mes clés API ({keys.length})</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6' }}>My API Keys ({keys.length})</div>
         <button onClick={() => setCreating(true)} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '7px 14px', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
           + Nouvelle clé
         </button>
       </div>
 
-      {loading ? <div style={{ color: '#4A6278', padding: 20 }}>Chargement...</div> :
+      {loading ? <div style={{ color: '#4A6278', padding: 20 }}>Loading...</div> :
         keys.length === 0 ? (
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 40, textAlign: 'center', color: '#4A6278' }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>🔑</div>
@@ -130,8 +130,8 @@ export default function ApiKeysPage() {
                   <div style={{ fontSize: 14, fontWeight: 500, color: '#E8EFF6' }}>{key.name}</div>
                   <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginTop: 2 }}>
                     {key.keyPrefix}••••••••••••••••
-                    {key.lastUsedAt && ` · Dernier usage: ${new Date(key.lastUsedAt).toLocaleDateString('fr-FR')}`}
-                    {key.expiresAt && ` · Expire: ${new Date(key.expiresAt).toLocaleDateString('fr-FR')}`}
+                    {key.lastUsedAt && ` · Dernier usage: ${new Date(key.lastUsedAt).toLocaleDateString('en-US')}`}
+                    {key.expiresAt && ` · Expire: ${new Date(key.expiresAt).toLocaleDateString('en-US')}`}
                   </div>
                 </div>
                 <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace',
@@ -155,16 +155,16 @@ export default function ApiKeysPage() {
       {creating && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 12, padding: 28, width: 400 }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', marginTop: 0, marginBottom: 16 }}>Créer une clé API</h2>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', marginTop: 0, marginBottom: 16 }}>Create une clé API</h2>
             <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>Nom (usage)</label>
             <input value={newKeyName} onChange={e => setNewKeyName(e.target.value)} onKeyDown={e => e.key === 'Enter' && create()}
               placeholder="ex: SMA Inverter Abidjan, Huawei Lagos..."
               style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, boxSizing: 'border-box', outline: 'none', marginBottom: 20 }}
               autoFocus/>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>Cancel</button>
               <button onClick={create} disabled={saving || !newKeyName.trim()} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '9px', fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
-                {saving ? '...' : 'Créer'}
+                {saving ? '...' : 'Create'}
               </button>
             </div>
           </div>

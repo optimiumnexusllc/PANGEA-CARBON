@@ -57,15 +57,15 @@ export default function DashboardPage() {
   const timeData = stats?.monthly || [];
 
   // Locale for date based on language
-  const dateLocale = lang === 'fr' ? 'fr-FR' : 'en-US';
+  const dateLocale = lang === 'fr' ? 'en-US' : 'en-US';
   const dateOptions = { weekday: 'long' as const, year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const };
   const greeting = lang === 'fr' ? 'Bonjour' : 'Hello';
 
   const kpis = [
-    { label: lang === 'fr' ? 'Crédits carbone totaux' : 'Total Carbon Credits', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} ${lang === 'fr' ? 'projets' : 'projects'}`, icon: '🌍' },
+    { label: lang === 'fr' ? 'Total carbon credits' : 'Total Carbon Credits', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} ${lang === 'fr' ? 'projets' : 'projects'}`, icon: '🌍' },
     { label: lang === 'fr' ? 'Revenus carbone' : 'Carbon Revenue', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e avg.`, icon: '💰' },
     { label: lang === 'fr' ? 'Production totale' : 'Total Production', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: lang === 'fr' ? 'Toutes années' : 'All years', icon: '⚡' },
-    { label: lang === 'fr' ? 'Potentiel Article 6' : 'Article 6 Potential', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
+    { label: lang === 'fr' ? 'Article 6 Potential' : 'Article 6 Potential', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
   ];
 
   const scoreItems = [
@@ -76,8 +76,8 @@ export default function DashboardPage() {
   ];
 
   const quickActions = [
-    { href: '/dashboard/projects/new', icon: '➕', label: lang === 'fr' ? 'Nouveau projet' : 'New project', color: '#00FF94' },
-    { href: '/dashboard/upload',       icon: '📥', label: lang === 'fr' ? 'Importer CSV' : 'Import CSV',    color: '#38BDF8' },
+    { href: '/dashboard/projects/new', icon: '➕', label: lang === 'fr' ? 'New project' : 'New project', color: '#00FF94' },
+    { href: '/dashboard/upload',       icon: '📥', label: lang === 'fr' ? 'Import CSV' : 'Import CSV',    color: '#38BDF8' },
     { href: '/dashboard/optimization', icon: '⚙️', label: lang === 'fr' ? 'Optimiser MRV' : 'Optimize MRV', color: '#FCD34D' },
     { href: '/dashboard/marketplace',  icon: '🏪', label: 'Marketplace',                                     color: '#A78BFA' },
     { href: '/dashboard/assistant',    icon: '🤖', label: 'AI Assistant',                                    color: '#EF9F27' },
@@ -127,7 +127,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <a href="/dashboard/projection" style={{ fontSize: 12, color: '#A78BFA', textDecoration: 'none', background: 'rgba(167,139,250,0.1)', padding: '4px 10px', borderRadius: 6 }}>
-              📈 {lang === 'fr' ? 'Projection 10 ans →' : '10-year forecast →'}
+              📈 {lang === 'fr' ? '10-Year Forecast →' : '10-year forecast →'}
             </a>
           </div>
           {timeData.length > 0 ? (
@@ -149,10 +149,10 @@ export default function DashboardPage() {
             <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#4A6278' }}>
               <div style={{ fontSize: 32 }}>📊</div>
               <div style={{ fontSize: 13 }}>
-                {lang === 'fr' ? 'Données insuffisantes · Importez des lectures' : 'No data · Import readings first'}
+                {lang === 'fr' ? 'Insufficient data · Importez des lectures' : 'No data · Import readings first'}
               </div>
               <a href="/dashboard/upload" style={{ fontSize: 12, color: '#00FF94', textDecoration: 'none', background: 'rgba(0,255,148,0.08)', padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(0,255,148,0.2)' }}>
-                {lang === 'fr' ? 'Importer des données →' : 'Import data →'}
+                {lang === 'fr' ? 'Import des données →' : 'Import data →'}
               </a>
             </div>
           )}
@@ -237,7 +237,7 @@ export default function DashboardPage() {
             </table>
           ) : (
             <div style={{ padding: '28px', textAlign: 'center', color: '#4A6278', fontSize: 13 }}>
-              {lang === 'fr' ? 'Aucun projet avec données MRV' : 'No projects with MRV data yet'}
+              {lang === 'fr' ? 'No projects avec données MRV' : 'No projects with MRV data yet'}
             </div>
           )}
         </div>

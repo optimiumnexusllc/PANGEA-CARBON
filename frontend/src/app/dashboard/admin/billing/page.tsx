@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const TooltipC = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -49,15 +49,15 @@ export default function AdminBillingPage() {
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · REVENUE INTELLIGENCE</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Revenue & Carbon Intelligence</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Revenus carbone cumulés de tous les projets du portfolio</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Cumulative carbon revenue from all portfolio projects</p>
       </div>
 
       {/* KPI Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { label: 'Crédits carbone totaux', value: fmt(data?.totalCredits) + ' tCO₂e', color: '#00FF94', icon: '🌍' },
-          { label: 'Revenus carbone totaux', value: '$' + fmt(data?.totalRevenue), color: '#FCD34D', icon: '💰' },
-          { label: 'Projets avec MRV', value: topProjects.length, color: '#38BDF8', icon: '📊' },
+          { label: 'Total carbon credits', value: fmt(data?.totalCredits) + ' tCO₂e', color: '#00FF94', icon: '🌍' },
+          { label: 'Total carbon revenue', value: '$' + fmt(data?.totalRevenue), color: '#FCD34D', icon: '💰' },
+          { label: 'Projects avec MRV', value: topProjects.length, color: '#38BDF8', icon: '📊' },
         ].map(k => (
           <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
             <span style={{ fontSize: 28 }}>{k.icon}</span>
@@ -73,9 +73,9 @@ export default function AdminBillingPage() {
       {byYear.length > 0 && (
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 20, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PERFORMANCE PAR ANNÉE</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PERFORMANCE BY YEAR</div>
             <div style={{ display: 'flex', gap: 4, background: '#121920', borderRadius: 6, padding: 3 }}>
-              {[['revenue', 'Revenus $'], ['credits', 'Crédits tCO₂e']].map(([v, label]) => (
+              {[['revenue', 'Revenus $'], ['credits', 'Credits tCO₂e']].map(([v, label]) => (
                 <button key={v} onClick={() => setActiveView(v as any)}
                   style={{ padding: '4px 10px', borderRadius: 4, border: 'none', cursor: 'pointer', fontSize: 11,
                     background: activeView === v ? '#1E2D3D' : 'transparent',
@@ -100,12 +100,12 @@ export default function AdminBillingPage() {
       {/* Top projects table */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: '#121920', borderBottom: '1px solid #1E2D3D' }}>
-          <span style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>TOP PROJETS · REVENUS CARBONE</span>
+          <span style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>TOP PROJECTS · CARBON REVENUE</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#0D1117' }}>
-              {['Projet', 'Pays', 'Type', 'Année', 'Crédits tCO₂e', 'Revenus USD', 'EF grille'].map(col => (
+              {['Project', 'Country', 'Type', 'Année', 'Credits tCO₂e', 'Revenue USD', 'Grid EF'].map(col => (
                 <th key={col} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{col}</th>
               ))}
             </tr>
@@ -137,13 +137,13 @@ export default function AdminBillingPage() {
 
         {/* SaaS MRR simulator */}
         <div style={{ padding: 20, borderTop: '1px solid #1E2D3D', background: 'rgba(0,255,148,0.02)' }}>
-          <div style={{ fontSize: 10, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>SIMULATION MRR SAAS — BASÉ SUR LE PORTFOLIO ACTUEL</div>
+          <div style={{ fontSize: 10, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>SAAS MRR SIMULATION — BASED ON CURRENT PORTFOLIO</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { model: 'Abonnement Pro', calc: `${topProjects.length} projets × $799`, value: '$' + fmt(topProjects.length * 799) + '/mois', color: '#38BDF8' },
+              { model: 'Pro subscription', calc: `${topProjects.length} projets × $799`, value: '$' + fmt(topProjects.length * 799) + '/mois', color: '#38BDF8' },
               { model: 'Revenue Share 3%', calc: `$${fmt(data?.totalRevenue)} × 3%`, value: '$' + fmt((data?.totalRevenue || 0) * 0.03), color: '#00FF94' },
-              { model: 'PDF Reports', calc: `${topProjects.length} rapports × $800`, value: '$' + fmt(topProjects.length * 800), color: '#FCD34D' },
-              { model: 'ARR Projeté', calc: 'Abonnement × 12 mois', value: '$' + fmt(topProjects.length * 799 * 12), color: '#A78BFA' },
+              { model: 'PDF Reports', calc: `${topProjects.length} reports × $800`, value: '$' + fmt(topProjects.length * 800), color: '#FCD34D' },
+              { model: 'ARR Projecté', calc: 'Subscription × 12 months', value: '$' + fmt(topProjects.length * 799 * 12), color: '#A78BFA' },
             ].map(item => (
               <div key={item.model} style={{ background: '#121920', borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 10, color: '#4A6278', marginBottom: 4 }}>{item.model}</div>

@@ -5,19 +5,19 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const SDG_LIST = [
-  { key: 'sdg7', name: 'Énergie propre', emoji: '⚡', core: true },
-  { key: 'sdg13', name: 'Action climatique', emoji: '🌍', core: true },
-  { key: 'sdg8', name: 'Travail décent', emoji: '💼', core: true },
-  { key: 'sdg1', name: 'Pas de pauvreté', emoji: '🏘️', core: false },
-  { key: 'sdg3', name: 'Bonne santé', emoji: '💊', core: false },
-  { key: 'sdg5', name: 'Égalité des sexes', emoji: '⚖️', core: false },
+  { key: 'sdg7', name: 'Clean energy', emoji: '⚡', core: true },
+  { key: 'sdg13', name: 'Climate action', emoji: '🌍', core: true },
+  { key: 'sdg8', name: 'Decent work', emoji: '💼', core: true },
+  { key: 'sdg1', name: 'No poverty', emoji: '🏘️', core: false },
+  { key: 'sdg3', name: 'Good health', emoji: '💊', core: false },
+  { key: 'sdg5', name: 'Gender equality', emoji: '⚖️', core: false },
   { key: 'sdg9', name: 'Innovation', emoji: '🏭', core: false },
-  { key: 'sdg10', name: 'Inégalités réduites', emoji: '⚖️', core: false },
-  { key: 'sdg11', name: 'Villes durables', emoji: '🏙️', core: false },
-  { key: 'sdg15', name: 'Vie terrestre', emoji: '🌲', core: false },
+  { key: 'sdg10', name: 'Reduced inequalities', emoji: '⚖️', core: false },
+  { key: 'sdg11', name: 'Sustainable cities', emoji: '🏙️', core: false },
+  { key: 'sdg15', name: 'Life on land', emoji: '🌲', core: false },
 ];
 
 export default function SDGPage() {
@@ -56,16 +56,16 @@ export default function SDGPage() {
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>GOLD STANDARD · 17 SDG CO-BENEFITS SCORING</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>SDG Impact Scoring</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Évaluez vos 17 ODD. Débloquez la certification Gold Standard et le premium prix.</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Assess your 17 SDGs. Unlock Gold Standard certification and price premium.</p>
       </div>
 
       {summary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {[
-            { label: 'Projets évalués', value: summary.summary?.totalProjects || 0, color: '#FCD34D' },
-            { label: 'Note GS moy.', value: `${(summary.summary?.avgGsStarRating || 0).toFixed(1)}★`, color: '#FCD34D' },
-            { label: 'Premium moyen', value: `$${(summary.summary?.avgPremiumUSD || 0).toFixed(0)}/t`, color: '#00FF94' },
-            { label: 'Emplois créés', value: fmt(summary.summary?.totalJobsCreated || 0), color: '#38BDF8' },
+            { label: 'Projects évalués', value: summary.summary?.totalProjects || 0, color: '#FCD34D' },
+            { label: 'Avg GS score', value: `${(summary.summary?.avgGsStarRating || 0).toFixed(1)}★`, color: '#FCD34D' },
+            { label: 'Avg premium', value: `$${(summary.summary?.avgPremiumUSD || 0).toFixed(0)}/t`, color: '#00FF94' },
+            { label: 'Jobs created', value: fmt(summary.summary?.totalJobsCreated || 0), color: '#38BDF8' },
           ].map(k => (
             <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -78,7 +78,7 @@ export default function SDGPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         {/* Scoring form */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ÉVALUER UN PROJET</div>
+          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ASSESS A PROJECT</div>
           <select value={selected} onChange={e => setSelected(e.target.value)}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px', fontSize: 13, marginBottom: 16 }}>
             {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -100,7 +100,7 @@ export default function SDGPage() {
           ))}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '16px 0' }}>
-            {[['Emplois directs créés', jobs, setJobs], ['Foyers électrifiés', households, setHouseholds]].map(([label, val, setter]) => (
+            {[['Direct jobs created', jobs, setJobs], ['Households electrified', households, setHouseholds]].map(([label, val, setter]) => (
               <div key={String(label)}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>{label}</label>
                 <input type="number" value={String(val)} onChange={(e: any) => (setter as any)(e.target.value)} placeholder="0"
@@ -111,25 +111,25 @@ export default function SDGPage() {
 
           <button onClick={submit} disabled={saving || !selected}
             style={{ width: '100%', background: '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: '11px', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: saving ? 0.7 : 1 }}>
-            {saving ? 'Calcul en cours...' : '🌱 Calculer le score SDG Gold Standard'}
+            {saving ? 'Calcul en cours...' : '🌱 Calculate Gold Standard SDG score'}
           </button>
         </div>
 
         {/* Result */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>RÉSULTAT GOLD STANDARD</div>
+          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>GOLD STANDARD RESULT</div>
           {result ? (
             <div>
               <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 8 }}>CERTIFICATION GOLD STANDARD</div>
+                <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 8 }}>GOLD STANDARD CERTIFICATION</div>
                 <div style={{ fontSize: 32, marginBottom: 4 }}>{'★'.repeat(stars)}{'☆'.repeat(5 - stars)}</div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: '#FCD34D', fontFamily: 'Syne, sans-serif' }}>{stars} Étoile{stars > 1 ? 's' : ''} Gold Standard</div>
-                <div style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Score total: {result.totalScore?.toFixed(1)}/100</div>
+                <div style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Total score: {result.totalScore?.toFixed(1)}/100</div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 {[
-                  { label: 'Premium par tonne', value: `+$${result.premiumUSD}/tCO₂e`, color: '#00FF94' },
+                  { label: 'Premium per tonne', value: `+$${result.premiumUSD}/tCO₂e`, color: '#00FF94' },
                   { label: 'vs Verra standard', value: `+${((result.premiumUSD / 12) * 100).toFixed(0)}%`, color: '#FCD34D' },
                 ].map(k => (
                   <div key={k.label} style={{ background: '#121920', borderRadius: 8, padding: 12, textAlign: 'center' }}>

@@ -3,7 +3,7 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
-const fmt = (n: number) => n?.toLocaleString('fr-FR') ?? '—';
+const fmt = (n: number) => n?.toLocaleString('en-US') ?? '—';
 
 export default function ReportsPage() {
   const { t } = useLang();
@@ -18,17 +18,17 @@ export default function ReportsPage() {
     <div className="p-6 max-w-[1200px] mx-auto">
       <div className="mb-6">
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>VERRA · GOLD STANDARD</div>
-        <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>Rapports MRV</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Rapports certifiables Verra ACM0002 pour soumission aux auditeurs</p>
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>MRV Reports</h1>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Verra ACM0002 certifiable reports for submission to auditors</p>
       </div>
 
       {/* Workflow */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { step: '01', title: 'Données saisies', desc: 'Lectures de production mensuelles enregistrées', color: '#00FF94', done: true },
-          { step: '02', title: 'Calcul MRV', desc: 'Engine ACM0002 — crédits nets calculés', color: '#38BDF8', done: true },
-          { step: '03', title: 'Génération PDF', desc: 'Rapport certifiable pour auditeurs VVB', color: '#FCD34D', done: false },
-          { step: '04', title: 'Soumission', desc: 'Verra/Gold Standard → issuance crédits', color: '#A78BFA', done: false },
+          { step: '01', title: 'Data entered', desc: 'Monthly production readings recorded', color: '#00FF94', done: true },
+          { step: '02', title: 'MRV Calculation', desc: 'ACM0002 engine — net credits calculated', color: '#38BDF8', done: true },
+          { step: '03', title: 'PDF Generation', desc: 'Certifiable report for VVB auditors', color: '#FCD34D', done: false },
+          { step: '04', title: 'Submission', desc: 'Verra/Gold Standard → issuance crédits', color: '#A78BFA', done: false },
         ].map(s => (
           <div key={s.step} className="card" style={{ padding: 16, opacity: s.done ? 1 : 0.6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -44,28 +44,28 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      {/* Projets avec données MRV */}
+      {/* Projects avec données MRV */}
       <div className="card" style={{ padding: 20, marginBottom: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PROJETS AVEC DONNÉES MRV — PRÊTS POUR RAPPORT</div>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PROJECTS WITH MRV DATA — READY FOR REPORT</div>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#4A6278' }}>Chargement...</div>
+          <div style={{ textAlign: 'center', padding: 40, color: '#4A6278' }}>Loading...</div>
         ) : leaderboard.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>📄</div>
             <div style={{ fontSize: 14, color: '#4A6278', marginBottom: 4 }}>Aucun rapport disponible</div>
             <div style={{ fontSize: 12, color: '#2A3F55' }}>Créez un projet, ajoutez des données, calculez le MRV</div>
-            <a href="/dashboard/projects/new" className="btn-primary" style={{ display: 'inline-flex', marginTop: 16 }}>Créer un projet →</a>
+            <a href="/dashboard/projects/new" className="btn-primary" style={{ display: 'inline-flex', marginTop: 16 }}>Create un projet →</a>
           </div>
         ) : (
           <table className="table-dark">
             <thead><tr>
-              <th>Projet</th><th>Pays</th><th>Année</th>
-              <th style={{ textAlign: 'right' }}>Crédits tCO₂e</th>
-              <th style={{ textAlign: 'right' }}>Revenus USD</th>
-              <th>Statut</th><th>Action</th>
+              <th>Project</th><th>Country</th><th>Année</th>
+              <th style={{ textAlign: 'right' }}>Credits tCO₂e</th>
+              <th style={{ textAlign: 'right' }}>Revenue USD</th>
+              <th>Status</th><th>Action</th>
             </tr></thead>
             <tbody>
               {leaderboard.map((p: any) => (
@@ -75,7 +75,7 @@ export default function ReportsPage() {
                   <td style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>{p.year}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#00FF94', fontWeight: 600 }}>{fmt(p.carbonCredits)}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#38BDF8' }}>${fmt(p.revenueUSD)}</td>
-                  <td><span className="badge badge-amber">Prêt</span></td>
+                  <td><span className="badge badge-amber">Ready</span></td>
                   <td>
                     <button onClick={async () => {
                         const token = localStorage.getItem('accessToken');
@@ -92,7 +92,7 @@ export default function ReportsPage() {
                         URL.revokeObjectURL(url);
                       }}
                       className="btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }}>
-                      📄 Télécharger PDF
+                      📄 Download PDF
                     </button>
                   </td>
                 </tr>
@@ -112,7 +112,7 @@ export default function ReportsPage() {
           <div key={s.name} className="card" style={{ padding: 16, borderColor: s.supported ? `${s.color}20` : '#1E2D3D' }}>
             <div style={{ display: 'flex', justify: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: s.supported ? s.color : '#4A6278', fontFamily: 'Syne, sans-serif' }}>{s.name}</div>
-              <span className={`badge ${s.supported ? 'badge-acid' : 'badge-ghost'}`} style={{ marginLeft: 8 }}>{s.supported ? '✓ Supporté' : 'Bientôt'}</span>
+              <span className={`badge ${s.supported ? 'badge-acid' : 'badge-ghost'}`} style={{ marginLeft: 8 }}>{s.supported ? '✓ Supporté' : 'Coming soon'}</span>
             </div>
             <div style={{ fontSize: 11, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{s.method}</div>
             <p style={{ fontSize: 11, color: '#4A6278', margin: 0 }}>{s.desc}</p>

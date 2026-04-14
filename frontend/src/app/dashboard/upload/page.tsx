@@ -49,7 +49,7 @@ export default function UploadPage() {
       try {
         const text = e.target?.result as string;
         const rows = parseCSV(text);
-        if (!rows.length) { setError('Aucune donnée valide trouvée. Vérifiez le format CSV.'); return; }
+        if (!rows.length) { setError('No data valide trouvée. Vérifiez le format CSV.'); return; }
         setParsed(rows);
       } catch (err) { setError('Erreur de parsing. Utilisez le template CSV fourni.'); }
     };
@@ -81,7 +81,7 @@ export default function UploadPage() {
       const res = await api.bulkReadings(selectedProject, readings);
       setResult(res);
 
-      // Lancer le calcul MRV automatiquement
+      // Start le calcul MRV automatiquement
       await api.getMRV(selectedProject).catch(() => {});
 
       setParsed([]);
@@ -103,9 +103,9 @@ export default function UploadPage() {
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>IMPORT · MRV AUTO</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Import CSV / Excel</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Importez vos données de production en masse. Le calcul MRV se lance automatiquement.</p>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>IMPORT · AUTO MRV</div>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>CSV / Excel Import</h1>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Bulk import your production data. MRV calculation starts automatically.</p>
       </div>
 
       {result && (
@@ -122,7 +122,7 @@ export default function UploadPage() {
 
       {/* Project selector */}
       <div style={{ marginBottom: 20 }}>
-        <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Projet cible *</label>
+        <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Project cible *</label>
         <select value={selectedProject} onChange={e => setSelectedProject(e.target.value)}
           style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: selectedProject ? '#E8EFF6' : '#4A6278', padding: '10px 14px', fontSize: 14, outline: 'none' }}>
           <option value="">Sélectionner un projet...</option>
@@ -148,7 +148,7 @@ export default function UploadPage() {
           </div>
         ) : (
           <div>
-            <div style={{ fontSize: 15, fontWeight: 500, color: '#E8EFF6', marginBottom: 6 }}>Glissez votre CSV ici ou cliquez pour parcourir</div>
+            <div style={{ fontSize: 15, fontWeight: 500, color: '#E8EFF6', marginBottom: 6 }}>Drag your CSV here or click to browse</div>
             <div style={{ fontSize: 12, color: '#4A6278' }}>Format: CSV avec colonnes period_start, period_end, energy_mwh</div>
           </div>
         )}
@@ -156,12 +156,12 @@ export default function UploadPage() {
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
         <button onClick={downloadTemplate} style={{ background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px 16px', cursor: 'pointer', fontSize: 13 }}>
-          📥 Télécharger le template CSV
+          📥 Download CSV template
         </button>
         {parsed.length > 0 && (
           <button onClick={upload} disabled={uploading || !selectedProject}
             style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '9px', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>
-            {uploading ? 'Import en cours...' : `✓ Importer ${parsed.length} lectures → MRV auto`}
+            {uploading ? 'Import en cours...' : `✓ Import ${parsed.length} lectures → MRV auto`}
           </button>
         )}
       </div>
@@ -175,7 +175,7 @@ export default function UploadPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#0D1117' }}>
-                {['Période début', 'Période fin', 'Production MWh', 'Puissance MW', 'Dispo %', 'Notes'].map(col => (
+                {['Période début', 'Période fin', 'Production MWh', 'Puissance MW', 'Dispo %', 'Scores'].map(col => (
                   <th key={col} style={{ padding: '9px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', borderBottom: '1px solid #1E2D3D' }}>{col}</th>
                 ))}
               </tr>

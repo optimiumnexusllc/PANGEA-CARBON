@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { maximumFractionDigits: d }) ?? '0';
+const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 const fmtUSD = (n: number) => '$' + fmt(n);
 
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
@@ -44,7 +44,7 @@ export default function AnalyticsPage() {
     { name: '− Irradiance', value: -w.irradianceLoss, fill: '#F87171' },
     { name: '− Température', value: -w.temperatureLoss, fill: '#F97316' },
     { name: '− Salissures', value: -w.soilingLoss, fill: '#FCD34D' },
-    { name: '− Disponibilité', value: -w.availabilityLoss, fill: '#F87171' },
+    { name: '− Availability', value: -w.availabilityLoss, fill: '#F87171' },
     { name: '− Câbles/Onduleurs', value: -w.cableAndInverterLoss, fill: '#6B7280' },
     { name: 'Production réelle', value: w.actual, fill: '#00FF94' },
   ] : [];
@@ -54,9 +54,9 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 10, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ANALYSE DÉTAILLÉE · DÉCOMPOSITION CAUSALE</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Analyse Performance</h1>
-          <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Pourquoi, pas juste quoi. Chaque écart de performance expliqué.</p>
+          <div style={{ fontSize: 10, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>DETAILED ANALYSIS · CAUSAL DECOMPOSITION</div>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Performance Analysis</h1>
+          <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Why, not just what. Every performance gap explained.</p>
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, minWidth: 240 }}>
@@ -70,10 +70,10 @@ export default function AnalyticsPage() {
           {/* KPI row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
             {[
-              { label: 'Rendement spécifique', value: `${fmt(kpi?.specificYield)} kWh/kWc`, color: '#38BDF8', sub: 'médiane africaine: 1380' },
-              { label: 'Disponibilité moy.', value: `${fmt(kpi?.avgAvailability, 1)}%`, color: kpi?.avgAvailability >= 97 ? '#00FF94' : '#FCD34D', sub: 'cible: ≥97%' },
-              { label: 'Volatilité production', value: `${fmt(kpi?.volatility, 1)}%`, color: kpi?.volatility < 20 ? '#00FF94' : '#F87171', sub: 'écart max/min' },
-              { label: 'Croissance YoY', value: data.yoyGrowth ? `${data.yoyGrowth > 0 ? '+' : ''}${data.yoyGrowth}%` : '—', color: (data.yoyGrowth || 0) >= 0 ? '#00FF94' : '#F87171', sub: 'vs année précédente' },
+              { label: 'Specific yield', value: `${fmt(kpi?.specificYield)} kWh/kWc`, color: '#38BDF8', sub: 'African median: 1380' },
+              { label: 'Avg. availability', value: `${fmt(kpi?.avgAvailability, 1)}%`, color: kpi?.avgAvailability >= 97 ? '#00FF94' : '#FCD34D', sub: 'target: ≥97%' },
+              { label: 'Production volatility', value: `${fmt(kpi?.volatility, 1)}%`, color: kpi?.volatility < 20 ? '#00FF94' : '#F87171', sub: 'max/min deviation' },
+              { label: 'YoY growth', value: data.yoyGrowth ? `${data.yoyGrowth > 0 ? '+' : ''}${data.yoyGrowth}%` : '—', color: (data.yoyGrowth || 0) >= 0 ? '#00FF94' : '#F87171', sub: 'vs previous year' },
             ].map(k => (
               <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -86,8 +86,8 @@ export default function AnalyticsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             {/* Loss waterfall */}
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>WATERFALL DES PERTES — IEC 61724</div>
-              <div style={{ fontSize: 12, color: '#2A3F55', marginBottom: 14 }}>Décomposition des écarts de production</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>LOSS WATERFALL — IEC 61724</div>
+              <div style={{ fontSize: 12, color: '#2A3F55', marginBottom: 14 }}>Production gap decomposition</div>
               {w && (
                 <>
                   {waterfallData.map((item, i) => (
@@ -111,8 +111,8 @@ export default function AnalyticsPage() {
 
             {/* Variance mensuelle */}
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>VARIANCE MENSUELLE — PRODUCTION MWh</div>
-              <div style={{ fontSize: 12, color: '#2A3F55', marginBottom: 14 }}>Évolution et causes des écarts</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>MONTHLY VARIANCE — MWh PRODUCTION</div>
+              <div style={{ fontSize: 12, color: '#2A3F55', marginBottom: 14 }}>Evolution and causes of gaps</div>
               {data.variance?.length > 0 ? (
                 <ResponsiveContainer width="100%" height={200}>
                   <AreaChart data={data.variance.slice().reverse()} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
                     <Area dataKey="energyMWh" stroke="#38BDF8" fill="rgba(56,189,248,0.08)" strokeWidth={2} dot={false}/>
                   </AreaChart>
                 </ResponsiveContainer>
-              ) : <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278', fontSize: 13 }}>Données insuffisantes</div>}
+              ) : <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278', fontSize: 13 }}>Insufficient data</div>}
             </div>
           </div>
 
@@ -136,7 +136,7 @@ export default function AnalyticsPage() {
                 {[
                   { label: 'Émissions brutes réduites', value: `${fmt(cd.grossEmissionsReduced)} tCO₂e`, color: '#38BDF8', op: null },
                   { label: '− Déduction leakage (3%)', value: `${fmt(cd.leakageDeduction)} tCO₂e`, color: '#F87171', op: '−' },
-                  { label: '− Déduction incertitude (5%)', value: `${fmt(cd.uncertaintyDeduction)} tCO₂e`, color: '#F97316', op: '−' },
+                  { label: '− Uncertainty deduction (5%)', value: `${fmt(cd.uncertaintyDeduction)} tCO₂e`, color: '#F97316', op: '−' },
                   { label: '= Crédits carbone nets', value: `${fmt(cd.netCarbonCredits)} tCO₂e`, color: '#00FF94', op: '=' },
                   { label: '× Prix $12/tCO₂e', value: fmtUSD(cd.revenueUSD), color: '#FCD34D', op: '$' },
                 ].map((item, i) => (
@@ -150,7 +150,7 @@ export default function AnalyticsPage() {
 
             {/* Insights causaux */}
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ANALYSE CAUSALE · FACTEURS D'ÉCART</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CAUSAL ANALYSIS · GAP FACTORS</div>
               {data.causalInsights?.length > 0 ? (
                 data.causalInsights.map((ins: any, i: number) => (
                   <div key={i} style={{ padding: '12px', background: ins.type === 'warning' ? 'rgba(248,113,113,0.06)' : 'rgba(56,189,248,0.06)', border: `1px solid ${ins.type === 'warning' ? 'rgba(248,113,113,0.2)' : 'rgba(56,189,248,0.15)'}`, borderRadius: 8, marginBottom: 10 }}>
@@ -171,11 +171,11 @@ export default function AnalyticsPage() {
               ) : (
                 <div style={{ padding: 24, textAlign: 'center', color: '#4A6278' }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
-                  <div>Aucun écart significatif détecté. Projet dans les normes.</div>
+                  <div>Aucun écart significatif détecté. Project dans les normes.</div>
                 </div>
               )}
               <div style={{ marginTop: 12, padding: '10px', background: '#121920', borderRadius: 7, fontSize: 11, color: '#4A6278' }}>
-                💡 Qualité des données: {data.dataQuality?.readingsCount} lectures · {data.dataQuality?.completeness}% complétude
+                💡 Data quality: {data.dataQuality?.readingsCount} readings · {data.dataQuality?.completeness}% completeness
               </div>
             </div>
           </div>

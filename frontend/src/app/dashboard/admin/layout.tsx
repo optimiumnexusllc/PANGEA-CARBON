@@ -5,9 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const ADMIN_NAV = [
-  { href: '/dashboard/admin',          label: 'Vue système',     icon: '⬡' },
-  { href: '/dashboard/admin/users',    label: 'Utilisateurs',    icon: '👤' },
-  { href: '/dashboard/admin/orgs',     label: 'Organisations',   icon: '🏢' },
+  { href: '/dashboard/admin',          label: 'System overview',     icon: '⬡' },
+  { href: '/dashboard/admin/users',    label: 'Users',    icon: '👤' },
+  { href: '/dashboard/admin/orgs',     label: 'Organizations',   icon: '🏢' },
   { href: '/dashboard/admin/features', label: 'Feature Flags',   icon: '⚑' },
   { href: '/dashboard/admin/settings', label: 'Secrets & Config',icon: '🔐' },
   { href: '/dashboard/admin/audit',    label: 'Audit Trail',     icon: '📋' },

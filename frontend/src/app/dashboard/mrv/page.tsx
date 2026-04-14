@@ -19,7 +19,7 @@ const COUNTRIES = [
   { code: 'UG', name: 'Ouganda', ef: 0.191 },
 ];
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
+const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function MRVCalculatorPage() {
   const { t } = useLang();
@@ -74,45 +74,45 @@ export default function MRVCalculatorPage() {
   return (
     <div className="p-6 max-w-[1300px] mx-auto">
       <div className="mb-6">
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>OUTIL · VERRA ACM0002</div>
-        <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>Calculateur MRV Interactif</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Simulez en temps réel vos crédits carbone et revenus selon Verra ACM0002</p>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>TOOL · VERRA ACM0002</div>
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>Interactive MRV Calculator</h1>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Simulate your carbon credits in real time et revenus selon Verra ACM0002</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 20, alignItems: 'start' }}>
         {/* Controls */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>PARAMÈTRES DU PROJET</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>PROJECT PARAMETERS</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Pays</label>
+                <label style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Country</label>
                 <select className="input-dark" value={country.code} onChange={e => setCountry(COUNTRIES.find(c => c.code === e.target.value) || COUNTRIES[0])}>
                   {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name} — {c.ef} tCO₂/MWh</option>)}
                 </select>
               </div>
-              <Slider label="Puissance installée" value={mw} setValue={setMw} min={1} max={500} unit=" MW" color="#38BDF8"/>
-              <Slider label="Facteur de charge" value={cf} setValue={setCf} min={10} max={100} unit="%" color="#A78BFA"/>
-              <Slider label="Prix carbone" value={price} setValue={setPrice} min={5} max={50} unit=" $/t" color="#FCD34D"/>
+              <Slider label="Installed capacity" value={mw} setValue={setMw} min={1} max={500} unit=" MW" color="#38BDF8"/>
+              <Slider label="Capacity factor" value={cf} setValue={setCf} min={10} max={100} unit="%" color="#A78BFA"/>
+              <Slider label="Carbon price" value={price} setValue={setPrice} min={5} max={50} unit=" $/t" color="#FCD34D"/>
             </div>
           </div>
 
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>PARAMÈTRES PROJECTION</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>PROJECTION PARAMETERS</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <Slider label="Horizon (années)" value={years} setValue={setYears} min={1} max={20} color="#00FF94"/>
-              <Slider label="Escalade prix carbone" value={priceEscalation} setValue={setPriceEscalation} min={0} max={10} unit="%" color="#F87171"/>
+              <Slider label="Horizon (years)" value={years} setValue={setYears} min={1} max={20} color="#00FF94"/>
+              <Slider label="Carbon price escalation" value={priceEscalation} setValue={setPriceEscalation} min={0} max={10} unit="%" color="#F87171"/>
             </div>
           </div>
 
           {/* Méthodologie box */}
           <div style={{ background: 'rgba(0,255,148,0.04)', border: '1px solid rgba(0,255,148,0.12)', borderRadius: 10, padding: 14 }}>
-            <div style={{ fontSize: 10, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>MÉTHODOLOGIE ACM0002</div>
+            <div style={{ fontSize: 10, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>ACM0002 METHODOLOGY</div>
             {[
-              ['EF grille', country.ef + ' tCO₂/MWh'],
-              ['Déduction fuites', '3%'],
-              ['Déduction incertitude', '5%'],
-              ['Coûts vérification', '8%'],
+              ['Grid EF', country.ef + ' tCO₂/MWh'],
+              ['Leakage deduction', '3%'],
+              ['Uncertainty deduction', '5%'],
+              ['Verification costs', '8%'],
             ].map(([k, v]) => (
               <div key={String(k)} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 6 }}>
                 <span style={{ color: '#4A6278' }}>{k}</span>
@@ -127,9 +127,9 @@ export default function MRVCalculatorPage() {
           {/* KPI Row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: 'Production annuelle', value: fmt(annualMWh) + ' MWh', color: '#38BDF8' },
-              { label: 'Crédits nets/an', value: fmt(netCredits) + ' tCO₂e', color: '#00FF94' },
-              { label: 'Revenus nets/an', value: '$' + fmt(netRev), color: '#FCD34D' },
+              { label: 'Annual production', value: fmt(annualMWh) + ' MWh', color: '#38BDF8' },
+              { label: 'Net credits/year', value: fmt(netCredits) + ' tCO₂e', color: '#00FF94' },
+              { label: 'Net revenue/year', value: '$' + fmt(netRev), color: '#FCD34D' },
               { label: `Total ${years} ans`, value: '$' + fmt(totalRev), color: '#A78BFA' },
             ].map(kpi => (
               <div key={kpi.label} className="stat-card" style={{ textAlign: 'center' }}>
@@ -153,7 +153,7 @@ export default function MRVCalculatorPage() {
           </div>
 
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CRÉDITS tCO₂e CUMULÉS</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CUMULATIVE tCO₂e CREDITS</div>
             <ResponsiveContainer width="100%" height={160}>
               <LineChart data={projData.map((d, i) => ({ ...d, cumCredits: projData.slice(0, i + 1).reduce((s, x) => s + x.credits, 0) }))}>
                 <XAxis dataKey="year" tick={{ fill: '#4A6278', fontSize: 10 }}/>
@@ -166,19 +166,19 @@ export default function MRVCalculatorPage() {
 
           {/* Waterfall calcul détaillé */}
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>CALCUL DÉTAILLÉ ACM0002</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>DETAILED ACM0002 CALCULATION</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                ['Production brute', fmt(annualMWh, 1) + ' MWh', '#E8EFF6', false],
+                ['Gross production', fmt(annualMWh, 1) + ' MWh', '#E8EFF6', false],
                 ['× EF ' + country.code, country.ef + ' tCO₂/MWh', '#E8EFF6', false],
-                ['Réductions brutes', fmt(grossCredits) + ' tCO₂e', '#38BDF8', false],
+                ['Gross reductions', fmt(grossCredits) + ' tCO₂e', '#38BDF8', false],
                 ['- Fuites (3%)', '- ' + fmt(grossCredits * 0.03) + ' tCO₂e', '#F87171', false],
                 ['- Incertitude (5%)', '- ' + fmt(grossCredits * 0.05) + ' tCO₂e', '#F87171', false],
-                ['= Crédits nets', fmt(netCredits) + ' tCO₂e', '#00FF94', true],
+                ['= Net credits', fmt(netCredits) + ' tCO₂e', '#00FF94', true],
                 ['× Prix', '$' + price + '/tCO₂e', '#E8EFF6', false],
-                ['Revenus bruts', '$' + fmt(grossRev), '#38BDF8', false],
+                ['Gross revenue', '$' + fmt(grossRev), '#38BDF8', false],
                 ['- Vérification (8%)', '- $' + fmt(grossRev * 0.08), '#F87171', false],
-                ['= Revenus nets/an', '$' + fmt(netRev), '#FCD34D', true],
+                ['= Net revenue/year', '$' + fmt(netRev), '#FCD34D', true],
               ].map(([k, v, c, bold], i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 8px', borderRadius: 5,
                   background: bold ? 'rgba(0,255,148,0.05)' : 'transparent', border: bold ? '1px solid rgba(0,255,148,0.1)' : 'none' }}>

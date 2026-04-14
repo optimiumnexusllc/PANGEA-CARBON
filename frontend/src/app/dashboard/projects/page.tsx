@@ -15,10 +15,10 @@ const STATUS_BADGE = {
 };
 const STATUS_FR = {
   DRAFT: 'Draft', ACTIVE: 'Active', MONITORING: 'Monitoring',
-  VERIFIED: 'Vérifié', CREDITED: 'Crédité', ARCHIVED: 'Archivé'
+  VERIFIED: 'Verified', CREDITED: 'Credited', ARCHIVED: 'Archived'
 };
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
+const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '—';
 
 export default function ProjectsPage() {
   const { t, lang } = useLang();
@@ -63,7 +63,7 @@ export default function ProjectsPage() {
       if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
       setProjects(prev => prev.filter(p => p.id !== deleteProject.id));
       setDeleteProject(null);
-      flash('Projet supprime: ' + deleteProject.name);
+      flash('Project supprime: ' + deleteProject.name);
     } catch(e) { flash(e.message, false); }
     finally { setDeleting(false); }
   };
@@ -81,7 +81,7 @@ export default function ProjectsPage() {
       if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
       setProjects(prev => prev.map(p => p.id === editProject.id ? { ...p, ...editProject } : p));
       setEditProject(null);
-      flash('Projet mis a jour');
+      flash('Project mis a jour');
     } catch(e) { flash(e.message, false); }
     finally { setSaving(false); }
   };
@@ -97,9 +97,9 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="text-xs font-mono mb-1" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-            PORTEFEUILLE · {total} PROJETS
+            PORTFOLIO · {total} PROJETS
           </div>
-          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>Projets MRV</h1>
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>MRV Projects</h1>
         </div>
         <a href="/dashboard/projects/new" className="btn-primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -115,7 +115,7 @@ export default function ProjectsPage() {
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
           <input className="input-dark" style={{ paddingLeft: 36 }}
-            placeholder="Rechercher un projet, pays..."
+            placeholder="Search un projet, pays..."
             value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
         <select className="input-dark" style={{ width: 'auto' }} value={filterType} onChange={e => setFilterType(e.target.value)}>
@@ -147,16 +147,16 @@ export default function ProjectsPage() {
       ) : filtered.length === 0 ? (
         <div className="card text-center py-16">
           <div style={{ fontSize: 40, marginBottom: 12 }}>🌍</div>
-          <div className="text-sm font-medium mb-2">Aucun projet MRV</div>
+          <div className="text-sm font-medium mb-2">No projects MRV</div>
           <div className="text-xs mb-4" style={{ color: '#4A6278' }}>Créez votre premier projet pour commencer à générer des crédits carbone</div>
-          <a href="/dashboard/projects/new" className="btn-primary" style={{ display: 'inline-flex' }}>Créer un projet →</a>
+          <a href="/dashboard/projects/new" className="btn-primary" style={{ display: 'inline-flex' }}>Create un projet →</a>
         </div>
       ) : view === 'table' ? (
         <div className="card" style={{ overflow: 'hidden' }}>
           <table className="table-dark">
             <thead><tr>
-              <th>Projet</th><th>Pays</th><th>Type</th><th>MW Installés</th>
-              <th>Crédits tCO₂e</th><th>Revenus USD</th><th>Statut</th><th></th>
+              <th>Project</th><th>Country</th><th>Type</th><th>Installed MW</th>
+              <th>Credits tCO₂e</th><th>Revenue USD</th><th>Status</th><th></th>
             </tr></thead>
             <tbody>
               {filtered.map((p: any) => {
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
                     <td>
                       <div style={{ color: '#E8EFF6', fontWeight: 500 }}>{p.name}</div>
                       <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-                        {p._count?.readings || 0} lectures · {p._count?.reports || 0} rapports
+                        {p._count?.readings || 0} readings · {p._count?.reports || 0} reports
                       </div>
                     </td>
                     <td><span className="badge badge-ghost">{p.countryCode}</span></td>
@@ -248,13 +248,13 @@ export default function ProjectsPage() {
       {deleteProject && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 32, maxWidth: 440, width: '90%' }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#F87171', marginBottom: 10 }}>Supprimer ce projet ?</h2>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#F87171', marginBottom: 10 }}>Delete this project ?</h2>
             <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 8 }}>Vous allez supprimer <strong style={{ color: '#E8EFF6' }}>{deleteProject.name}</strong>.</p>
             <div style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: 12, marginBottom: 20, fontSize: 12, color: '#F87171' }}>
               Action irreversible — toutes les donnees MRV et credits associes seront supprimes.
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
               <button onClick={deleteProj} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {deleting ? '...' : Delete}
               </button>
@@ -266,7 +266,7 @@ export default function ProjectsPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 14, padding: 28, maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#E8EFF6', margin: 0 }}>Modifier le projet</h2>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#E8EFF6', margin: 0 }}>Edit le projet</h2>
               <button onClick={() => setEditProject(null)} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 20 }}>x</button>
             </div>
             {[{ label: 'Nom', key: 'name', type: 'text' }, { label: 'MW installe', key: 'installedMW', type: 'number' }, { label: 'Description', key: 'description', type: 'text' }, { label: 'Latitude', key: 'latitude', type: 'number' }, { label: 'Longitude', key: 'longitude', type: 'number' }].map(f => (
@@ -291,7 +291,7 @@ export default function ProjectsPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setEditProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setEditProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
               <button onClick={saveEdit} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '...' : 'Sauvegarder'}
               </button>

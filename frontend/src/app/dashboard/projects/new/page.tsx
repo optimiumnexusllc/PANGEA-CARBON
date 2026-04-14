@@ -56,9 +56,9 @@ export default function NewProjectPage() {
       {/* Header */}
       <div className="mb-8">
         <a href="/dashboard/projects" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 16 }}>
-          ← Retour aux projets
+          ← Back aux projets
         </a>
-        <h1 className="text-2xl font-semibold mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Nouveau projet MRV</h1>
+        <h1 className="text-2xl font-semibold mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>New project MRV</h1>
         <p style={{ fontSize: 13, color: '#4A6278' }}>Enregistrez un projet d'énergie renouvelable pour commencer à générer des crédits carbone</p>
       </div>
 
@@ -122,7 +122,7 @@ export default function NewProjectPage() {
         {step === 1 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
-              <Label>Pays *</Label>
+              <Label>Country *</Label>
               <select className="input-dark" value={form.countryCode} onChange={e => selectCountry(e.target.value)}>
                 <option value="">Sélectionner un pays</option>
                 {countries.map((c: any) => (
@@ -170,11 +170,11 @@ export default function NewProjectPage() {
         {step === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
-              <Label>Puissance installée (MW) *</Label>
+              <Label>Installed capacity (MW) *</Label>
               <input className="input-dark" type="number" step="0.001" min="0.001" placeholder="10.5" value={form.installedMW} onChange={e => set('installedMW', e.target.value)}/>
               {form.installedMW && (
                 <div style={{ marginTop: 8, fontSize: 12, color: '#4A6278' }}>
-                  Production annuelle estimée (85% CF) : <span style={{ color: '#38BDF8' }}>{(parseFloat(form.installedMW) * 8760 * 0.85).toFixed(0)} MWh/an</span>
+                  Annual production estimée (85% CF) : <span style={{ color: '#38BDF8' }}>{(parseFloat(form.installedMW) * 8760 * 0.85).toFixed(0)} MWh/an</span>
                 </div>
               )}
             </div>
@@ -189,7 +189,7 @@ export default function NewProjectPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                   {[
                     ['Production', (parseFloat(form.installedMW) * 8760 * 0.85).toFixed(0) + ' MWh', '#38BDF8'],
-                    ['Crédits nets', ((parseFloat(form.installedMW) * 8760 * 0.85) * parseFloat(form.baselineEF) * 0.92).toFixed(0) + ' tCO₂e', '#00FF94'],
+                    ['Net credits', ((parseFloat(form.installedMW) * 8760 * 0.85) * parseFloat(form.baselineEF) * 0.92).toFixed(0) + ' tCO₂e', '#00FF94'],
                     ['Revenus est.', '$' + (((parseFloat(form.installedMW) * 8760 * 0.85) * parseFloat(form.baselineEF) * 0.92) * 12).toFixed(0), '#FCD34D'],
                   ].map(([label, value, color]) => (
                     <div key={label} style={{ textAlign: 'center' }}>
@@ -207,7 +207,7 @@ export default function NewProjectPage() {
           <div>
             <div style={{ fontSize: 13, color: '#4A6278', marginBottom: 20 }}>Vérifiez les informations avant création</div>
             {[
-              ['Nom', form.name], ['Type', form.type], ['Pays', `${form.country} (${form.countryCode})`],
+              ['Nom', form.name], ['Type', form.type], ['Country', `${form.country} (${form.countryCode})`],
               ['Puissance', `${form.installedMW} MW`], ['Facteur EF', `${form.baselineEF} tCO₂e/MWh`],
               ['Standard', form.standard], ['Démarrage', form.startDate],
             ].map(([k, v]) => v && (
@@ -227,11 +227,11 @@ export default function NewProjectPage() {
           {step < 3 ? (
             <button className="btn-primary" onClick={() => setStep(step + 1)}
               disabled={step === 0 && !form.name || step === 1 && !form.countryCode || step === 2 && (!form.installedMW || !form.baselineEF)}>
-              Suivant →
+              Next →
             </button>
           ) : (
             <button className="btn-primary" onClick={submit} disabled={loading}>
-              {loading ? 'Création...' : '✓ Créer le projet'}
+              {loading ? 'Création...' : '✓ Create le projet'}
             </button>
           )}
         </div>

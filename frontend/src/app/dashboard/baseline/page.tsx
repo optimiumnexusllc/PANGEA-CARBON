@@ -56,7 +56,7 @@ export default function BaselinePage() {
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#EF9F27', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>AI BASELINE SETTER · CLAUDE + UNFCCC + SATELLITE</div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>AI Baseline Setter</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Baseline défensible en 30 secondes. Zéro visite terrain. Données UNFCCC officielles + validation satellite.</p>
+        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Baseline défensible en 30 secondes. Zero site visits. Données UNFCCC officielles + validation satellite.</p>
       </div>
 
       {/* Grid reference table */}
@@ -84,7 +84,7 @@ export default function BaselinePage() {
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
           <div style={{ fontSize: 10, color: '#EF9F27', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>LANCER L'ÉVALUATION IA</div>
 
-          <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Projet cible</label>
+          <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Project cible</label>
           <select value={selected} onChange={e => { setSelected(e.target.value); loadHistory(e.target.value); setResult(null); }}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px', fontSize: 13, marginBottom: 20 }}>
             {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode} · {p.installedMW} MW</option>)}
@@ -92,13 +92,13 @@ export default function BaselinePage() {
 
           {/* Methodology info */}
           <div style={{ background: '#121920', borderRadius: 8, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: '#EF9F27', marginBottom: 10 }}>MÉTHODOLOGIE ACM0002 — Combined Margin</div>
+            <div style={{ fontSize: 11, color: '#EF9F27', marginBottom: 10 }}>ACM0002 METHODOLOGY — Combined Margin</div>
             {[
               ['Sources données', 'UNFCCC NID + IEA + Satellite Sentinel-2'],
               ['Méthode de calcul', 'Operating Margin + Build Margin (50/50)'],
               ['Intervalle de confiance', '90% (standard Verra)'],
               ['Validité', '2 ans (renouvelable)'],
-              ['Terrain requis', 'Zéro visite terrain ✓'],
+              ['Terrain requis', 'Zero site visits ✓'],
             ].map(([k, v]) => (
               <div key={String(k)} style={{ display: 'flex', gap: 10, marginBottom: 6, fontSize: 12 }}>
                 <span style={{ color: '#4A6278', minWidth: 150 }}>{k}</span>
@@ -123,7 +123,7 @@ export default function BaselinePage() {
                 <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(74,98,120,0.3)', borderTopColor: '#4A6278', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
                 Analyse IA en cours...
               </span>
-            ) : '🤖 Lancer l\'évaluation IA baseline'}
+            ) : '🤖 Start l\'évaluation IA baseline'}
           </button>
           <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
@@ -188,7 +188,7 @@ export default function BaselinePage() {
           ) : (
             <div style={{ textAlign: 'center', padding: '50px 20px', color: '#4A6278' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🤖</div>
-              <div style={{ fontSize: 14, color: '#E8EFF6', marginBottom: 8 }}>Prêt pour l'évaluation IA</div>
+              <div style={{ fontSize: 14, color: '#E8EFF6', marginBottom: 8 }}>Ready pour l'évaluation IA</div>
               <div style={{ fontSize: 13 }}>Sélectionnez un projet et lancez l'analyse. Claude va consulter la base UNFCCC, analyser les données satellite et définir un baseline défensible.</div>
               <div style={{ marginTop: 16, fontSize: 11, color: '#2A3F55' }}>Validé: Verra ACM0002 · Gold Standard · Article 6</div>
             </div>
@@ -211,12 +211,12 @@ export default function BaselinePage() {
             <tbody>
               {history.map((a: any) => (
                 <tr key={a.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
-                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(a.assessmentDate).toLocaleDateString('fr-FR')}</td>
+                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(a.assessmentDate).toLocaleDateString('en-US')}</td>
                   <td style={{ padding: '9px 14px', fontSize: 14, color: '#EF9F27', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>{a.baselineEF}</td>
                   <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278' }}>{a.methodology}</td>
                   <td style={{ padding: '9px 14px', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{(a.dataSourcesUsed || []).join(', ')}</td>
                   <td style={{ padding: '9px 14px' }}><span style={{ fontSize: 10, color: a.satelliteValidated ? '#00FF94' : '#4A6278' }}>{a.satelliteValidated ? '✓ Validé' : '—'}</span></td>
-                  <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278' }}>{a.validUntil ? new Date(a.validUntil).toLocaleDateString('fr-FR') : '—'}</td>
+                  <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278' }}>{a.validUntil ? new Date(a.validUntil).toLocaleDateString('en-US') : '—'}</td>
                 </tr>
               ))}
             </tbody>

@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
-const fmt = (n: number) => n?.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) ?? '0';
+const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const EFFORT_STYLE = {
   LOW:    { color: '#00FF94', bg: 'rgba(0,255,148,0.1)',    label: 'Facile' },
@@ -44,9 +44,9 @@ export default function OptimizationPage() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>OPTIMISATION MRV · RECOMMANDATIONS IA</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Optimisation MRV</h1>
-          <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Chaque recommandation a un impact financier calculé. Priorité ROI.</p>
+          <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>MRV OPTIMIZATION · AI RECOMMENDATIONS</div>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>MRV Optimization</h1>
+          <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Every recommendation has a calculated financial impact. ROI priority.</p>
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 8, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, minWidth: 240 }}>
@@ -57,11 +57,11 @@ export default function OptimizationPage() {
       {/* Portfolio gap */}
       {gap && (
         <div style={{ background: 'rgba(0,255,148,0.04)', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 10, padding: '14px 20px', marginBottom: 20, display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center' }}>GAP PORTFOLIO — REVENUS ACTUELS VS OPTIMAL ARTICLE 6</div>
+          <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', alignSelf: 'center' }}>PORTFOLIO GAP — CURRENT VS ARTICLE 6 OPTIMAL REVENUE</div>
           {[
-            ['Revenus actuels', `$${fmt(gap.totalCurrentRevenue)}`, '#4A6278'],
-            ['Potentiel Article 6', `$${fmt(gap.totalOptimalRevenue)}`, '#38BDF8'],
-            ['Gap à combler', `+$${fmt(gap.totalOptimalRevenue - gap.totalCurrentRevenue)}`, '#00FF94'],
+            ['Current revenue', `$${fmt(gap.totalCurrentRevenue)}`, '#4A6278'],
+            ['Article 6 Potential', `$${fmt(gap.totalOptimalRevenue)}`, '#38BDF8'],
+            ['Gap to close', `+$${fmt(gap.totalOptimalRevenue - gap.totalCurrentRevenue)}`, '#00FF94'],
           ].map(([k, v, c]) => (
             <div key={String(k)}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{k}</div>
@@ -74,10 +74,10 @@ export default function OptimizationPage() {
       {s && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
           {[
-            { label: 'Gain potentiel total', value: `$${fmt(s.totalPotentialGain)}`, color: '#00FF94' },
-            { label: 'Uplift vs actuel', value: `+${s.upliftPct}%`, color: '#FCD34D' },
+            { label: 'Total potential gain', value: `$${fmt(s.totalPotentialGain)}`, color: '#00FF94' },
+            { label: 'Uplift vs current', value: `+${s.upliftPct}%`, color: '#FCD34D' },
             { label: 'Quick wins', value: `${s.quickWinsCount} actions`, color: '#38BDF8' },
-            { label: 'Gain quick wins', value: `$${fmt(s.quickWinsGain)}`, color: '#00FF94' },
+            { label: 'Quick win gain', value: `$${fmt(s.quickWinsGain)}`, color: '#00FF94' },
           ].map(k => (
             <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: '14px 16px' }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -125,7 +125,7 @@ export default function OptimizationPage() {
                   )}
                 </div>
                 <div style={{ textAlign: 'right', minWidth: 120 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>GAIN ANNUEL</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ANNUAL GAIN</div>
                   <div style={{ fontSize: 28, fontWeight: 800, color: '#00FF94', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
                     {rec.revenueGainUSD >= 1000 ? `$${fmt(rec.revenueGainUSD)}` : `$${fmt(rec.revenueGainUSD)}`}
                   </div>

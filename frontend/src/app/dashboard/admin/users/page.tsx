@@ -112,7 +112,7 @@ export default function AdminUsersPage() {
       const createdUser = data.user || data;
       setUsers(prev => [{ ...createdUser, isActive: true, emailVerified: true, loginCount: 0, organization: null, _count: { projects: 0 } }, ...prev]);
       setTotal(prev => prev + 1);
-      setSaveSuccess(`✓ Utilisateur ${newUser.name} créé avec succès`);
+      setSaveSuccess(`✓ User ${newUser.name} créé avec succès`);
 
       // Reset le formulaire mais garder la modal ouverte 1s pour voir le succès
       setNewUser({ name: '', email: '', password: '', role: 'ANALYST' });
@@ -137,7 +137,7 @@ export default function AdminUsersPage() {
           <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>
             ADMIN · {total} UTILISATEUR{total > 1 ? 'S' : ''}
           </div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Gestion Utilisateurs</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Gestion Users</h1>
         </div>
         <button onClick={() => { setCreating(true); setSaveError(''); setSaveSuccess(''); }}
           style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '9px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -159,7 +159,7 @@ export default function AdminUsersPage() {
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         <input
           style={{ flex: 1, minWidth: 200, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }}
-          placeholder="Rechercher par nom ou email..."
+          placeholder="Search par nom ou email..."
           value={search} onChange={e => setSearch(e.target.value)}/>
         <select
           style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, cursor: 'pointer' }}
@@ -168,7 +168,7 @@ export default function AdminUsersPage() {
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
         <button onClick={load} style={{ background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px 14px', cursor: 'pointer', fontSize: 12 }}>
-          ↻ Actualiser
+          ↻ Refresh
         </button>
       </div>
 
@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#121920' }}>
-              {['Utilisateur', 'Email', 'Rôle', 'Organisation', 'Connexions', 'Dernière connexion', 'Statut', 'Actions'].map(col => (
+              {['User', 'Email', 'Role', 'Organization', 'Logins', 'Last login', 'Status', 'Actions'].map(col => (
                 <th key={col} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase' as const, borderBottom: '1px solid #1E2D3D', whiteSpace: 'nowrap' }}>
                   {col}
                 </th>
@@ -189,7 +189,7 @@ export default function AdminUsersPage() {
               <tr><td colSpan={8} style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 14, height: 14, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-                  Chargement...
+                  Loading...
                 </div>
               </td></tr>
             ) : users.length === 0 ? (
@@ -226,14 +226,14 @@ export default function AdminUsersPage() {
                   {u.loginCount || 0}
                 </td>
                 <td style={{ padding: '10px 14px', fontSize: 11, color: '#4A6278', whiteSpace: 'nowrap' }}>
-                  {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString('fr-FR') : <span style={{ color: '#2A3F55' }}>Jamais</span>}
+                  {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString('en-US') : <span style={{ color: '#2A3F55' }}>Never</span>}
                 </td>
                 <td style={{ padding: '10px 14px' }}>
                   <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap',
                     background: u.isActive ? 'rgba(0,255,148,0.08)' : 'rgba(248,113,113,0.08)',
                     color: u.isActive ? '#00FF94' : '#F87171',
                     border: `1px solid ${u.isActive ? 'rgba(0,255,148,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
-                    {u.isActive ? 'ACTIF' : 'INACTIF'}
+                    {u.isActive ? 'ACTIVE' : 'INACTIVE'}
                   </span>
                 </td>
                 <td style={{ padding: '10px 14px' }}>
@@ -244,7 +244,7 @@ export default function AdminUsersPage() {
                     </button>
                     <button onClick={() => setDeleteUser(u)}
                       style={{ fontSize: 11, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, color: '#F87171', padding: '4px 9px', cursor: 'pointer' }}>
-                      Supprimer
+                      Delete
                     </button>
                   </div>
                 </td>
@@ -286,11 +286,11 @@ export default function AdminUsersPage() {
               <div><Label>Email *</Label>
                 <Input type="email" value={newUser.email} onChange={(e: any) => setNewUser(u => ({ ...u, email: e.target.value }))} placeholder="aminata@organisation.com"/>
               </div>
-              <div><Label>Mot de passe *</Label>
+              <div><Label>Password *</Label>
                 <Input type="password" value={newUser.password} onChange={(e: any) => setNewUser(u => ({ ...u, password: e.target.value }))} placeholder="8 caractères minimum"/>
               </div>
               <div>
-                <Label>Rôle</Label>
+                <Label>Role</Label>
                 <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value }))}
                   style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, cursor: 'pointer', outline: 'none' }}>
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -301,11 +301,11 @@ export default function AdminUsersPage() {
             <div style={{ display: 'flex', gap: 8, marginTop: 22 }}>
               <button onClick={() => { setCreating(false); setSaveError(''); setSaveSuccess(''); }}
                 style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: '10px', cursor: 'pointer', fontSize: 13 }}>
-                Annuler
+                Cancel
               </button>
               <button onClick={createUser} disabled={saving}
                 style={{ flex: 1, background: saving ? '#1E2D3D' : '#00FF94', color: saving ? '#4A6278' : '#080B0F', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: saving ? 'wait' : 'pointer', fontSize: 13, transition: 'all 0.15s' }}>
-                {saving ? '⏳ Création...' : '✓ Créer l\'utilisateur'}
+                {saving ? '⏳ Création...' : '✓ Create l\'utilisateur'}
               </button>
             </div>
           </div>
@@ -317,14 +317,14 @@ export default function AdminUsersPage() {
       {deleteUser && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 28, maxWidth: 420, width: '90%' }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 8 }}>Supprimer cet utilisateur ?</h2>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 8 }}>Delete cet utilisateur ?</h2>
             <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 16 }}>
               <strong style={{ color: '#E8EFF6' }}>{deleteUser && deleteUser.name}</strong> ({deleteUser && deleteUser.email}) sera supprime.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setDeleteUser(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setDeleteUser(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
               <button onClick={deleteUserFn} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {deleting ? '...' : 'Supprimer'}
+                {deleting ? '...' : 'Delete'}
               </button>
             </div>
           </div>

@@ -59,7 +59,7 @@ export default function AdminOrgsPage() {
       if (!res.ok) throw new Error(d.error);
       setOrgs((prev: any[]) => prev.map((o: any) => o.id === editOrg.id ? { ...o, ...d } : o));
       setEditOrg(null);
-      flash('Organisation mise a jour');
+      flash('Organization mise a jour');
     } catch(e) { flash(e.message, false); }
     finally { setSaving(false); }
   };
@@ -72,7 +72,7 @@ export default function AdminOrgsPage() {
       if (!res.ok) throw new Error(d.error);
       setOrgs((prev: any[]) => prev.filter((o: any) => o.id !== deleteOrg.id));
       setDeleteOrg(null);
-      flash('Organisation supprimee');
+      flash('Organization supprimee');
     } catch(e) { flash(e.message, false); }
     finally { setDeleting(false); }
   };
@@ -82,15 +82,15 @@ export default function AdminOrgsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · MULTI-TENANT · {total} ORGS</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Organisations</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Organizations</h1>
         </div>
         <button onClick={() => setCreating(true)} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '8px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
-          + Nouvelle organisation
+          + New organization
         </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
-        {loading ? <div style={{ color: '#4A6278' }}>Chargement...</div> :
+        {loading ? <div style={{ color: '#4A6278' }}>Loading...</div> :
           orgs.map((org: any) => (
             <div key={org.id} style={{ background: '#0D1117', border: `1px solid ${PLAN_COLOR[org.plan] || '#1E2D3D'}20`, borderRadius: 10, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -105,7 +105,7 @@ export default function AdminOrgsPage() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
-                {[['Projets', org._count?.projects, org.maxProjects],['Users', org._count?.users, org.maxUsers],['MW max', org.maxMW, null]].map(([label, val, max]) => (
+                {[['Projects', org._count?.projects, org.maxProjects],['Users', org._count?.users, org.maxUsers],['MW max', org.maxMW, null]].map(([label, val, max]) => (
                   <div key={String(label)} style={{ background: '#121920', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 2 }}>{label}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#E8EFF6' }}>{String(val)}{max ? `/${max}` : ''}</div>
@@ -126,7 +126,7 @@ export default function AdminOrgsPage() {
 
               {org.trialEndsAt && (
                 <div style={{ marginTop: 8, fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>
-                  Trial expire: {new Date(org.trialEndsAt).toLocaleDateString('fr-FR')}
+                  Trial expire: {new Date(org.trialEndsAt).toLocaleDateString('en-US')}
                 </div>
               )}
             </div>
@@ -138,8 +138,8 @@ export default function AdminOrgsPage() {
       {creating && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 12, padding: 28, width: 460 }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', marginTop: 0, marginBottom: 20 }}>Créer une organisation</h2>
-            {[['Nom', 'name', 'text'], ['Pays', 'country', 'text'], ['Email facturation', 'billingEmail', 'email']].map(([label, key, type]) => (
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', marginTop: 0, marginBottom: 20 }}>Create une organisation</h2>
+            {[['Nom', 'name', 'text'], ['Country', 'country', 'text'], ['Email facturation', 'billingEmail', 'email']].map(([label, key, type]) => (
               <div key={key} style={{ marginBottom: 14 }}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>{label}</label>
                 <input type={type} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
@@ -156,9 +156,9 @@ export default function AdminOrgsPage() {
               ))}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>Cancel</button>
               <button onClick={createOrg} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '9px', fontWeight: 700, cursor: 'pointer' }}>
-                {saving ? '...' : 'Créer'}
+                {saving ? '...' : 'Create'}
               </button>
             </div>
           </div>
@@ -173,14 +173,14 @@ export default function AdminOrgsPage() {
       {deleteOrg && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 28, maxWidth: 420, width: '90%' }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 10 }}>Supprimer cette organisation ?</h2>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 10 }}>Delete cette organisation ?</h2>
             <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 16 }}>
               <strong style={{ color: '#E8EFF6' }}>{deleteOrg && deleteOrg.name}</strong> sera supprimee. Les utilisateurs seront conserves.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setDeleteOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setDeleteOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
               <button onClick={deleteOrgFn} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {deleting ? '...' : 'Supprimer'}
+                {deleting ? '...' : 'Delete'}
               </button>
             </div>
           </div>
@@ -190,7 +190,7 @@ export default function AdminOrgsPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 14, padding: 28, maxWidth: 520, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', margin: 0 }}>Modifier l organisation</h2>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', margin: 0 }}>Edit l organisation</h2>
               <button onClick={() => setEditOrg(null)} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 18 }}>x</button>
             </div>
             {[{ label: 'Nom', key: 'name' }, { label: 'Domaine', key: 'domain' }].map(f => (
@@ -224,7 +224,7 @@ export default function AdminOrgsPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setEditOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setEditOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
               <button onClick={saveOrg} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '...' : 'Sauvegarder'}
               </button>
