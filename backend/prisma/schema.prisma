@@ -79,6 +79,11 @@ model Organization {
   invoices         Invoice[]
   featureAccess    OrgFeature[]
   ghgAudits        GHGAudit[]
+  sellerProfile    SellerProfile?
+  buyerProfile     BuyerProfile?
+  sellerPayouts    SellerPayout[]
+  forwardContracts ForwardContract[] @relation("BuyerOrg")
+  forwardSales     ForwardContract[] @relation("SellerOrg")
 }
 
 model User {
@@ -428,6 +433,7 @@ model CreditIssuance {
   @@index([projectId])
   @@index([status])
   @@index([vintage])
+  carbonScore      CarbonCreditScore?
 }
 
 // ─── AI BASELINE SETTER ──────────────────────────────────────────────────
@@ -508,6 +514,11 @@ model MarketplaceOrder {
   settledAt       DateTime?
   retiredAt       DateTime?
   invoicePdf      String?
+  sellerOrgId     String?   // Organisation qui vend
+  sellerGateway   String?   // Gateway paiement vendeur
+  sellerAmount    Float?    // Montant net vendeur (total - pangeaFee)
+  sellerPaidAt    DateTime? // Date paiement au vendeur
+  payoutId        String?   // SellerPayout.id
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -639,4 +650,148 @@ model PipelineDocument {
   uploadedBy  String
   uploadedAt  DateTime @default(now())
   @@index([pipelineId])
+}
+
+// ─── SELLER PROFILE — Gateway de paiement par organisation ──────────────────
+model SellerProfile {
+  id              String       @id @default(cuid())
+  organizationId  String       @unique
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  
+  // Gateways Afrique
+  mtnMomoNumber   String?      // Ex: +225 07 12 34 56
+  mtnMomoCountry  String?      // CI, GH, UG, RW...
+  orangeMoneyNumber String?
+  orangeMoneyCountry String?
+  waveNumber      String?
+  waveCountry     String?
+  cinetpayApiKey  String?
+  flutterwaveAcct String?      // Account ID Flutterwave
+  paystackAcct    String?      // Account code Paystack
+  
+  // Wire transfer (international)
+  bankName        String?
+  bankIBAN        String?
+  bankSwift       String?
+  bankBeneficiary String?
+  bankCurrency    String?      @default("USD")
+  
+  // Préférence
+  preferredGateway String?     @default("WIRE") // WIRE | MTN_MOMO | ORANGE_MONEY | WAVE | FLUTTERWAVE | PAYSTACK
+  verificationStatus String?   @default("PENDING") // PENDING | VERIFIED | REJECTED
+  verifiedAt      DateTime?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+// ─── PAYOUT — Versements aux vendeurs ────────────────────────────────────────
+model SellerPayout {
+  id              String   @id @default(cuid())
+  organizationId  String
+  orderId         String   // MarketplaceOrder.id
+  amount          Float    // Montant en USD
+  currency        String   @default("USD")
+  gateway         String   // MTN_MOMO | ORANGE_MONEY | WIRE | FLUTTERWAVE...
+  gatewayRef      String?  // Référence transaction gateway
+  status          String   @default("PENDING") // PENDING | PROCESSING | PAID | FAILED
+  initiatedAt     DateTime?
+  paidAt          DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([organizationId])
+  @@index([orderId])
+  @@index([status])
+}
+
+// ─── CARBON CREDIT SCORE — Scoring propriétaire PANGEA ───────────────────────
+model CarbonCreditScore {
+  id              String   @id @default(cuid())
+  issuanceId      String   @unique
+  issuance        CreditIssuance @relation(fields: [issuanceId], references: [id])
+  
+  // Score global (0-100)
+  score           Float    // Score PANGEA composite
+  grade           String   // AAA AA A BBB BB B CCC
+  
+  // Sous-scores (0-10 chacun)
+  additionalityScore  Float  @default(0) // Démonstration d'additionnalité
+  permanenceScore     Float  @default(0) // Durabilité du projet
+  vvbScore            Float  @default(0) // Qualité du VVB (BV=10, SGS=9...)
+  vintageScore        Float  @default(0) // Fraîcheur du vintage (2024=10, 2020=6...)
+  methodologyScore    Float  @default(0) // Robustesse ACM0002=10, autres=variable
+  cobenefitsScore     Float  @default(0) // SDGs, emplois locaux, biodiversité
+  registryScore       Float  @default(0) // Verra=10, GS=10, autres=5
+  
+  // Méta
+  premiumPct      Float    @default(0)   // Prime de prix liée au score (%)
+  scoredAt        DateTime @default(now())
+  scoredBy        String   @default("PANGEA_ENGINE_V1")
+  
+  @@index([issuanceId])
+  @@index([score])
+}
+
+// ─── BUYER PROFILE — Vérification acheteurs ──────────────────────────────────
+model BuyerProfile {
+  id              String   @id @default(cuid())
+  organizationId  String   @unique
+  
+  buyerType       String   @default("VOLUNTARY") // VOLUNTARY | CBAM | CORSIA | COMPLIANCE | SPECULATIVE
+  companyRegNumber String?
+  vatNumber       String?
+  country         String?
+  
+  // Vérification KYC
+  kycStatus       String   @default("PENDING") // PENDING | VERIFIED | REJECTED
+  kycVerifiedAt   DateTime?
+  annualBudgetUSD Float?   // Budget annuel crédits carbone
+  annualVolumeT   Float?   // Volume annuel estimé tCO2e
+  
+  // CBAM specifique
+  cbamOperatorId  String?  // Numéro opérateur CBAM
+  cbamSectors     String?  // Acier, Ciment, Aluminium... (JSON array)
+  cbamExportsToEU Float?   // Valeur exports UE/an (USD)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── FORWARD CONTRACT — Achats de crédits futurs ─────────────────────────────
+model ForwardContract {
+  id              String   @id @default(cuid())
+  buyerOrgId      String
+  buyer           Organization @relation("BuyerOrg", fields: [buyerOrgId], references: [id])
+  sellerOrgId     String
+  seller          Organization @relation("SellerOrg", fields: [sellerOrgId], references: [id])
+  projectId       String
+  
+  vintage         Int      // Année de vintage future
+  quantity        Float    // tCO2e réservées
+  pricePerTonne   Float    // Prix verrouillé $/tCO2e
+  standard        String   // VERRA_VCS | GOLD_STANDARD | ARTICLE6
+  
+  depositPct      Float    @default(20) // % d'acompte payé
+  depositAmount   Float    // Montant acompte
+  depositPaidAt   DateTime?
+  
+  deliveryDeadline DateTime // Date limite livraison des crédits
+  
+  status          String   @default("PENDING") // PENDING | ACTIVE | DELIVERED | EXPIRED | CANCELLED
+  
+  stripeSessionId String?
+  deliveredIssuanceId String? // CreditIssuance.id une fois livré
+  
+  pangeaFee       Float    @default(3.5)
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([buyerOrgId])
+  @@index([sellerOrgId])
+  @@index([projectId])
+  @@index([status])
 }

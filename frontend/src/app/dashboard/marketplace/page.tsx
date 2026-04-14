@@ -286,7 +286,14 @@ export default function MarketplacePage() {
                   <span style={{ fontSize:9, background:(STD_COLOR[listing.standard]||'#4A6278')+'20', color:STD_COLOR[listing.standard]||'#4A6278', border:`1px solid ${STD_COLOR[listing.standard]||'#4A6278'}40`, borderRadius:4, padding:'2px 8px', fontFamily:'JetBrains Mono, monospace' }}>
                     {STD_LABEL[listing.standard]}
                   </span>
-                  {listing.verified && <span style={{ fontSize:9, color:'#00FF94', fontFamily:'JetBrains Mono, monospace' }}>✓ VERIFIED</span>}
+                  <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                    {listing.verified && <span style={{ fontSize:9, color:'#00FF94', fontFamily:'JetBrains Mono, monospace' }}>✓ VVB</span>}
+                    {listing.carbonScore && (
+                      <span style={{ fontSize:9, background:listing.carbonScore.grade==='AAA'?'rgba(0,255,148,0.15)':listing.carbonScore.grade==='AA'||listing.carbonScore.grade==='A'?'rgba(52,211,153,0.15)':'rgba(252,211,77,0.15)', color:listing.carbonScore.grade==='AAA'||listing.carbonScore.grade==='AA'||listing.carbonScore.grade==='A'?'#00FF94':'#FCD34D', border:'1px solid', borderColor:listing.carbonScore.grade==='AAA'||listing.carbonScore.grade==='AA'||listing.carbonScore.grade==='A'?'rgba(0,255,148,0.3)':'rgba(252,211,77,0.3)', borderRadius:4, padding:'2px 7px', fontFamily:'JetBrains Mono, monospace', fontWeight:800 }}>
+                        {listing.carbonScore.grade} {listing.carbonScore.score?.toFixed(0)}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div style={{ fontSize:14, fontWeight:700, color:'#E8EFF6', marginBottom:4 }}>{listing.project?.name}</div>
                 <div style={{ fontSize:11, color:'#4A6278', marginBottom:12 }}>
@@ -296,6 +303,9 @@ export default function MarketplacePage() {
                   <div>
                     <div style={{ fontSize:22, fontWeight:800, color:STD_COLOR[listing.standard]||'#E8EFF6', fontFamily:'Syne, sans-serif' }}>{fmtUSD(listing.askPrice)}</div>
                     <div style={{ fontSize:10, color:'#4A6278' }}>per tCO₂e</div>
+                    {listing.carbonScore?.premiumPct > 0 && (
+                      <div style={{ fontSize:9, color:'#00FF94', fontFamily:'JetBrains Mono, monospace' }}>+{listing.carbonScore.premiumPct}% PANGEA PREMIUM</div>
+                    )}
                   </div>
                   <div style={{ textAlign:'right' }}>
                     <div style={{ fontSize:14, fontWeight:600, color:'#E8EFF6' }}>{fmtK(listing.availableQty||listing.quantity)}</div>

@@ -16,6 +16,7 @@
  */
 
 const router = require('express').Router();
+const { calculateScore } = require('../services/carbon-score.service');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const crypto = require('crypto');
@@ -912,6 +913,51 @@ router.get('/stats', auth, async (req, res, next) => {
       prices: LIVE_PRICES,
     });
   } catch (e) { next(e); }
+});
+
+
+// POST /api/marketplace/score/:issuanceId — Calculer ou mettre à jour le score PANGEA
+router.post('/score/:issuanceId', auth, async (req, res, next) => {
+  try {
+    const issuance = await prisma.creditIssuance.findUnique({
+      where: { id: req.params.issuanceId },
+      include: { project: { include: { readings: { take: 1 } } }, pipeline: true }
+    });
+    if (!issuance) return res.status(404).json({ error: 'Issuance not found' });
+
+    const result = calculateScore({
+      project: issuance.project,
+      pipeline: issuance.pipeline,
+      issuance,
+    });
+
+    const score = await prisma.carbonCreditScore.upsert({
+      where: { issuanceId: issuance.id },
+      update: { ...result, scoredAt: new Date() },
+      create: { issuanceId: issuance.id, ...result },
+    });
+
+    // Mettre à jour le prix askPrice avec la prime
+    if (result.premiumPct > 0) {
+      const basePrice = 12.0; // Prix de base marché
+      await prisma.creditIssuance.update({
+        where: { id: issuance.id },
+        data: { askPrice: parseFloat((basePrice * (1 + result.premiumPct / 100)).toFixed(2)) }
+      });
+    }
+
+    res.json({ score, grade: result.grade, premiumPct: result.premiumPct });
+  } catch(e) { next(e); }
+});
+
+// GET /api/marketplace/score/:issuanceId — Lire le score
+router.get('/score/:issuanceId', auth, async (req, res, next) => {
+  try {
+    const score = await prisma.carbonCreditScore.findUnique({
+      where: { issuanceId: req.params.issuanceId }
+    });
+    res.json(score || { score: null, grade: 'UNRATED' });
+  } catch(e) { next(e); }
 });
 
 module.exports = router;

@@ -106,6 +106,8 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/email-composer', require('./routes/emailcomposer'));
 app.use('/api/certification', require('./routes/certification'));
 app.use('/api/marketplace', require('./routes/marketplace'));
+app.use('/api/seller',      require('./routes/seller-profile'));
+app.use('/api/forward',     require('./routes/forward-contracts'));
 app.use('/api/tokens', require('./routes/tokens'));
 app.use('/api/ghg',     require('./routes/ghg'));
 app.use('/api/pipeline', require('./routes/pipeline')); // Credit Issuance Pipeline // GHG Protocol Audit Engine // Carbon Asset Tokens + QR
