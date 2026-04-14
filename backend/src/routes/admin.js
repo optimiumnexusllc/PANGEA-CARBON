@@ -421,9 +421,13 @@ router.get('/revenue', auth, adminOnly, async (req, res, next) => {
 });
 
 // ── API KEY MANAGEMENT ─────────────────────────────────────────────────────
-router.get('/apikeys', auth, adminOnly, async (req, res, next) => {
+router.get('/apikeys', auth, async (req, res, next) => {
+  if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only ADMIN and SUPER_ADMIN can view API keys' });
+  }
   try {
-    const keys = await prisma.apiKey.findMany({
+    const where = req.user.role === 'SUPER_ADMIN' ? {} : { organizationId: req.user.organizationId };
+    const keys = await prisma.apiKey.findMany({ where,
       include: { user: { select: { name: true, email: true } } },
       orderBy: { createdAt: 'desc' }
     });
@@ -431,7 +435,21 @@ router.get('/apikeys', auth, adminOnly, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.post('/apikeys', auth, adminOnly, async (req, res, next) => {
+router.post('/apikeys', auth, async (req, res, next) => {
+  // Accessible aux ADMIN de leur org + SUPER_ADMIN
+  if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only ADMIN and SUPER_ADMIN can create API keys' });
+  }
+  // Vérifier le plan de l'org
+  if (req.user.organizationId) {
+    const org = await prisma.organization.findUnique({ where: { id: req.user.organizationId } });
+    if (org?.plan === 'TRIAL') {
+      const existing = await prisma.apiKey.count({ where: { organizationId: req.user.organizationId } });
+      if (existing >= 1) {
+        return res.status(403).json({ error: 'TRIAL plan limited to 1 API key. Upgrade to STARTER or higher.' });
+      }
+    }
+  }
   try {
     const { name, userId, expiresAt } = req.body;
     const rawKey = `pgc_${crypto.randomBytes(32).toString('hex')}`;

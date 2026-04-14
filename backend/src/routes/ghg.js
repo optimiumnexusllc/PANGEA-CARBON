@@ -434,4 +434,22 @@ async function recalcAudit(auditId) {
   });
 }
 
+// ─── DELETE /ghg/audits/:id — Supprimer un audit ─────────────────────────────
+router.delete('/audits/:id', auth, async (req, res, next) => {
+  try {
+    const audit = await prisma.gHGAudit.findUnique({ where: { id: req.params.id } });
+    if (!audit) return res.status(404).json({ error: 'Audit not found' });
+    // Vérifier appartenance (même org ou SUPER_ADMIN)
+    if (audit.organizationId !== req.user.organizationId && req.user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    await prisma.gHGAudit.delete({ where: { id: req.params.id } });
+    await prisma.auditLog.create({
+      data: { userId: req.user.userId, action: 'GHG_AUDIT_DELETED', entity: 'GHGAudit', entityId: req.params.id, after: { name: audit.name } }
+    }).catch(() => {});
+    res.json({ deleted: true, id: req.params.id });
+  } catch(e) { next(e); }
+});
+
+
 module.exports = router;

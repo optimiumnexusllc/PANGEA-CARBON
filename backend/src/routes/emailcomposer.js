@@ -4,6 +4,14 @@
  * Templates: MRV Report · Credit Issuance · Digest · Custom
  */
 const router = require('express').Router();
+
+// Middleware: ADMIN et SUPER_ADMIN uniquement
+const adminOrSuperAdmin = (req, res, next) => {
+  if (!req.user || !['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Email Composer reserved for ADMIN and SUPER_ADMIN' });
+  }
+  next();
+};
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
@@ -48,12 +56,12 @@ const TEMPLATES = {
 };
 
 // GET /api/email-composer/templates
-router.get('/templates', auth, (req, res) => {
+router.get('/templates', auth, adminOrSuperAdmin, (req, res) => {
   res.json({ templates: Object.values(TEMPLATES) });
 });
 
 // POST /api/email-composer/preview — Prévisualiser un email
-router.post('/preview', auth, async (req, res, next) => {
+router.post('/preview', auth, adminOrSuperAdmin, async (req, res, next) => {
   try {
     const { templateId, subject, body, variables = {}, recipientName = 'Prénom Nom' } = req.body;
     const html = buildEmailHTML({ subject, body, variables, recipientName, templateId });
@@ -62,7 +70,7 @@ router.post('/preview', auth, async (req, res, next) => {
 });
 
 // POST /api/email-composer/send — Envoyer l'email
-router.post('/send', auth, async (req, res, next) => {
+router.post('/send', auth, adminOrSuperAdmin, async (req, res, next) => {
   try {
     const { to, subject, body, variables = {}, templateId, cc, replyTo } = req.body;
     if (!to || !subject) return res.status(400).json({ error: 'Destinataire et sujet requis' });
@@ -118,7 +126,7 @@ router.post('/send', auth, async (req, res, next) => {
 });
 
 // GET /api/email-composer/history
-router.get('/history', auth, async (req, res, next) => {
+router.get('/history', auth, adminOrSuperAdmin, async (req, res, next) => {
   try {
     const logs = await prisma.auditLog.findMany({
       where: { userId: req.user.userId, action: 'EMAIL_SENT' },

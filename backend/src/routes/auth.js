@@ -35,10 +35,27 @@ router.post('/register', [
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    // Créer une organisation Trial automatiquement pour chaque nouveau signup
+    const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'') + '-' + Date.now().toString(36);
+    const org = await prisma.organization.create({
+      data: {
+        name: name + "'s Organization",
+        slug: orgSlug,
+        plan: 'TRIAL',
+        status: 'TRIAL',
+        maxProjects: 3,
+        maxUsers: 2,
+        maxMW: 50,
+        billingEmail: email,
+        trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      }
+    });
+
     const user = await prisma.user.create({
       data: {
         email, password: hashedPassword, name,
-        role: 'ANALYST',
+        role: 'ADMIN',           // Créateur = ADMIN de son organisation
+        organizationId: org.id,
         isActive: false,         // Inactif jusqu'à vérification email
         emailVerified: false,
         verifyToken,

@@ -171,10 +171,18 @@ export default function GHGAuditPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {view !== 'dashboard' && (
-            <button onClick={() => { setView('dashboard'); setCurrentAudit(null); setOffsetPlan(null); }}
-              style={{ background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: '9px 16px', cursor: 'pointer', fontSize: 12 }}>
-              ← {L('Dashboard', 'Tableau de bord')}
-            </button>
+            <div style={{ display:'flex', gap:6 }}>
+              <button onClick={() => { setView('dashboard'); setCurrentAudit(null); setOffsetPlan(null); }}
+                style={{ background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '7px 14px', cursor: 'pointer', fontSize: 12 }}>
+                ← {L('Dashboard', 'Tableau de bord')}
+              </button>
+              {view === 'audit' && currentAudit && (
+                <button onClick={() => deleteAudit(currentAudit.id, currentAudit.name)}
+                  style={{ background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.25)', borderRadius:7, color:'#F87171', padding:'7px 12px', cursor:'pointer', fontSize:12 }}>
+                  🗑 {L('Delete','Supprimer')}
+                </button>
+              )}
+            </div>
           )}
           <button onClick={() => setView('new')}
             style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 800, cursor: 'pointer', fontSize: 13, fontFamily: 'Syne, sans-serif' }}>
