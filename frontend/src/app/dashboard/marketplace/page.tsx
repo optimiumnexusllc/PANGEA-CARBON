@@ -21,22 +21,20 @@ const FLAG = {
   TZ: '🇹🇿', RW: '🇷🇼', ET: '🇪🇹', ZA: '🇿🇦', BF: '🇧🇫',
 };
 
-type Tab = 'buy' | 'sell' | 'portfolio' | 'orderbook';
-
 export default function MarketplacePage() {
   const { t } = useLang();
-  const [tab, setTab] = useState<Tab>('buy');
-  const [prices, setPrices] = useState<any[]>([]);
-  const [listings, setListings] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [tab, setTab] = useState('buy');
+  const [prices, setPrices] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ standard: '', country: '', maxPrice: '' });
-  const [selectedListing, setSelectedListing] = useState<any>(null);
+  const [selectedListing, setSelectedListing] = useState(null);
   const [orderForm, setOrderForm] = useState({ qty: '', price: '', orderType: 'MARKET', note: '' });
-  const [orderResult, setOrderResult] = useState<any>(null);
+  const [orderResult, setOrderResult] = useState(null);
   const [placing, setPlacing] = useState(false);
-  const [orders, setOrders] = useState<any[]>([]);
-  const [portfolio, setPortfolio] = useState<any[]>([]);
+  const [orders, setOrders] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
   const [tickerIdx, setTickerIdx] = useState(0);
 
   const load = useCallback(() => {
@@ -111,7 +109,7 @@ export default function MarketplacePage() {
     }
   };
 
-  const openBuy = (listing: any) => {
+  const openBuy = (listing) => {
     setSelectedListing(listing);
     setOrderForm({ qty: '', price: String(listing.askPrice.toFixed(2)), orderType: 'MARKET', note: '' });
     setOrderResult(null);
