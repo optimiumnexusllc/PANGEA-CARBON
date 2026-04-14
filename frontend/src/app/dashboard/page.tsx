@@ -1,18 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { api } from '@/lib/api';
 import { apiExt } from '@/lib/api';
+import { useLang } from '@/lib/lang-context';
 
-const fmt = (n: number, d = 0) => n?.toLocaleString('fr-FR', { maximumFractionDigits: d }) ?? '0';
-const fmtM = (n: number) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(0)}K` : `$${fmt(n)}`;
-
-const TT = ({ active, payload, label }: any) => active && payload?.length ? (
-  <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
-    <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-    {payload.map((p: any, i: number) => <div key={i} style={{ color: p.color || '#E8EFF6' }}>{fmt(p.value, 0)}</div>)}
-  </div>
-) : null;
+const fmt = (n, d = 0) => (n ?? 0).toLocaleString('en-US', { maximumFractionDigits: d });
+const fmtM = (n) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(0)}K` : `$${fmt(n)}`;
 
 const SEVERITY_STYLE = {
   critical: { bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', color: '#F87171', icon: '🚨' },
@@ -21,17 +15,30 @@ const SEVERITY_STYLE = {
   info:     { bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.25)',  color: '#38BDF8', icon: 'ℹ️' },
 };
 
+function TT({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
+      <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
+      {payload.map((p, i) => <div key={i} style={{ color: p.color || '#E8EFF6' }}>{fmt(p.value)}</div>)}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
-  const [stats, setStats] = useState<any>(null);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const { t, lang } = useLang();
+  const [stats, setStats] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const u = localStorage.getItem('user');
-    if (u) setUser(JSON.parse(u));
+    try {
+      const u = localStorage.getItem('user');
+      if (u) setUser(JSON.parse(u));
+    } catch(_e) {}
 
     Promise.all([
       api.stats(),
@@ -49,33 +56,57 @@ export default function DashboardPage() {
   const s = stats?.portfolio;
   const timeData = stats?.monthly || [];
 
+  // Locale for date based on language
+  const dateLocale = lang === 'fr' ? 'fr-FR' : 'en-US';
+  const dateOptions = { weekday: 'long' as const, year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const };
+  const greeting = lang === 'fr' ? 'Bonjour' : 'Hello';
+
+  const kpis = [
+    { label: lang === 'fr' ? 'Crédits carbone totaux' : 'Total Carbon Credits', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} ${lang === 'fr' ? 'projets' : 'projects'}`, icon: '🌍' },
+    { label: lang === 'fr' ? 'Revenus carbone' : 'Carbon Revenue', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e avg.`, icon: '💰' },
+    { label: lang === 'fr' ? 'Production totale' : 'Total Production', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: lang === 'fr' ? 'Toutes années' : 'All years', icon: '⚡' },
+    { label: lang === 'fr' ? 'Potentiel Article 6' : 'Article 6 Potential', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
+  ];
+
+  const scoreItems = [
+    { label: 'MRV Engine', score: 92, color: '#00FF94' },
+    { label: 'Data Quality', score: analytics?.dataQuality?.completeness || 70, color: '#38BDF8' },
+    { label: lang === 'fr' ? 'Optimisation' : 'Optimization', score: 45, color: '#FCD34D', note: lang === 'fr' ? 'Voir recommandations' : 'See recommendations' },
+    { label: 'Multi-standard', score: 30, color: '#A78BFA', note: lang === 'fr' ? 'Article 6 potentiel' : 'Article 6 potential' },
+  ];
+
+  const quickActions = [
+    { href: '/dashboard/projects/new', icon: '➕', label: lang === 'fr' ? 'Nouveau projet' : 'New project', color: '#00FF94' },
+    { href: '/dashboard/upload',       icon: '📥', label: lang === 'fr' ? 'Importer CSV' : 'Import CSV',    color: '#38BDF8' },
+    { href: '/dashboard/optimization', icon: '⚙️', label: lang === 'fr' ? 'Optimiser MRV' : 'Optimize MRV', color: '#FCD34D' },
+    { href: '/dashboard/marketplace',  icon: '🏪', label: 'Marketplace',                                     color: '#A78BFA' },
+    { href: '/dashboard/assistant',    icon: '🤖', label: 'AI Assistant',                                    color: '#EF9F27' },
+    { href: '/dashboard/registry',     icon: '⛓️', label: lang === 'fr' ? 'Émettre crédits' : 'Issue credits', color: '#00FF94' },
+  ];
+
   return (
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
+
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>
-          {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date().toLocaleDateString(dateLocale, dateOptions)}
         </div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>
-          Bonjour, {user?.name?.split(' ')[0] || 'Esdras'} 👋
+          {greeting}, {(user as any)?.name?.split(' ')[0] || 'User'} 👋
         </h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>
-          Votre portfolio carbone africain · PANGEA CARBON Intelligence Platform
+          {lang === 'fr' ? 'Votre portfolio carbone africain' : 'Your African carbon portfolio'} · PANGEA CARBON Intelligence Platform
         </p>
       </div>
 
-      {/* KPI Row */}
+      {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-        {[
-          { label: 'Crédits carbone totaux', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} projets`, icon: '🌍' },
-          { label: 'Carbon revenue', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e moy.`, icon: '💰' },
-          { label: 'Production totale', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: 'Toutes années', icon: '⚡' },
-          { label: 'Potentiel Article 6', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
-        ].map(k => (
+        {kpis.map(k => (
           <div key={k.label} style={{ background: '#0D1117', border: `1px solid ${k.color}18`, borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 12, right: 14, fontSize: 22, opacity: 0.4 }}>{k.icon}</div>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>{k.label.toUpperCase()}</div>
-            <div style={{ fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 800, color: k.color, fontFamily: 'Syne, sans-serif', lineHeight: 1.1 }}>
+            <div style={{ fontSize: 'clamp(18px,2.5vw,26px)', fontWeight: 800, color: k.color, fontFamily: 'Syne, sans-serif', lineHeight: 1.1 }}>
               {loading ? <div style={{ width: 80, height: 28, background: '#1E2D3D', borderRadius: 4, animation: 'pulse 1.5s infinite' }}/> : k.value}
             </div>
             <div style={{ fontSize: 11, color: '#2A3F55', marginTop: 4 }}>{k.sub}</div>
@@ -84,15 +115,19 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
-        {/* Tendance crédits */}
+        {/* Chart */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>CRÉDITS CARBONE · TENDANCE MENSUELLE</div>
-              <div style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>Production MWh par mois</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>
+                {lang === 'fr' ? 'CRÉDITS CARBONE · TENDANCE MENSUELLE' : 'CARBON CREDITS · MONTHLY TREND'}
+              </div>
+              <div style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>
+                {lang === 'fr' ? 'Production MWh par mois' : 'Monthly MWh production'}
+              </div>
             </div>
             <a href="/dashboard/projection" style={{ fontSize: 12, color: '#A78BFA', textDecoration: 'none', background: 'rgba(167,139,250,0.1)', padding: '4px 10px', borderRadius: 6 }}>
-              📈 Projection 10 ans →
+              📈 {lang === 'fr' ? 'Projection 10 ans →' : '10-year forecast →'}
             </a>
           </div>
           {timeData.length > 0 ? (
@@ -106,25 +141,29 @@ export default function DashboardPage() {
                 </defs>
                 <XAxis dataKey="month" tick={{ fill: '#4A6278', fontSize: 10 }}/>
                 <YAxis tick={{ fill: '#4A6278', fontSize: 10 }}/>
-                <Tooltip content={<TT/>}/>
+                <Tooltip content={<TT active={undefined} payload={undefined} label={undefined}/>}/>
                 <Area dataKey="energyMWh" stroke="#00FF94" fill="url(#gradMWh)" strokeWidth={2} dot={false}/>
               </AreaChart>
             </ResponsiveContainer>
           ) : (
             <div style={{ height: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#4A6278' }}>
               <div style={{ fontSize: 32 }}>📊</div>
-              <div style={{ fontSize: 13 }}>Données insuffisantes · Importez des lectures</div>
+              <div style={{ fontSize: 13 }}>
+                {lang === 'fr' ? 'Données insuffisantes · Importez des lectures' : 'No data · Import readings first'}
+              </div>
               <a href="/dashboard/upload" style={{ fontSize: 12, color: '#00FF94', textDecoration: 'none', background: 'rgba(0,255,148,0.08)', padding: '6px 14px', borderRadius: 7, border: '1px solid rgba(0,255,148,0.2)' }}>
-                Importer des données →
+                {lang === 'fr' ? 'Importer des données →' : 'Import data →'}
               </a>
             </div>
           )}
         </div>
 
-        {/* Alertes */}
+        {/* Alerts */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>ALERTES RÉCENTES</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
+              {lang === 'fr' ? 'ALERTES RÉCENTES' : 'RECENT ALERTS'}
+            </div>
             {alerts.filter(a => a.severity === 'critical' || a.severity === 'warning').length > 0 && (
               <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#F87171', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {alerts.filter(a => a.severity === 'critical' || a.severity === 'warning').length}
@@ -133,15 +172,17 @@ export default function DashboardPage() {
           </div>
           {alerts.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {alerts.map((alert: any) => {
-                const style = SEVERITY_STYLE[alert.severity] || SEVERITY_STYLE.info;
+              {(alerts as any[]).map((alert) => {
+                const sty = SEVERITY_STYLE[alert.severity] || SEVERITY_STYLE.info;
                 return (
-                  <div key={alert.id} style={{ padding: '10px 12px', background: style.bg, border: `1px solid ${style.border}`, borderRadius: 8, fontSize: 12, color: style.color }}>
+                  <div key={alert.id} style={{ padding: '10px 12px', background: sty.bg, border: `1px solid ${sty.border}`, borderRadius: 8, fontSize: 12, color: sty.color }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
-                      <span style={{ flexShrink: 0 }}>{style.icon}</span>
+                      <span style={{ flexShrink: 0 }}>{sty.icon}</span>
                       <span style={{ color: '#8FA3B8', lineHeight: 1.5 }}>{alert.message}</span>
                     </div>
-                    <div style={{ fontSize: 10, color: '#2A3F55', marginTop: 4 }}>{new Date(alert.createdAt).toLocaleDateString('fr-FR')}</div>
+                    <div style={{ fontSize: 10, color: '#2A3F55', marginTop: 4 }}>
+                      {new Date(alert.createdAt).toLocaleDateString(dateLocale)}
+                    </div>
                   </div>
                 );
               })}
@@ -149,31 +190,35 @@ export default function DashboardPage() {
           ) : (
             <div style={{ padding: '20px 0', textAlign: 'center', color: '#4A6278' }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
-              <div style={{ fontSize: 12 }}>Aucune alerte · Tous les projets sont dans les normes</div>
+              <div style={{ fontSize: 12 }}>
+                {lang === 'fr' ? 'Aucune alerte · Tous les projets sont dans les normes' : 'No alerts · All projects within norms'}
+              </div>
             </div>
           )}
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        {/* Leaderboard projets */}
+        {/* Leaderboard */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '12px 18px', background: '#121920', borderBottom: '1px solid #1E2D3D', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>TOP PROJETS · CRÉDITS CARBONE</div>
-            <a href="/dashboard/benchmark" style={{ fontSize: 11, color: '#FCD34D', textDecoration: 'none' }}>Benchmark →</a>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
+              {lang === 'fr' ? 'TOP PROJETS · CRÉDITS CARBONE' : 'TOP PROJECTS · CARBON CREDITS'}
+            </div>
+            <a href="/dashboard/benchmark" style={{ fontSize: 11, color: '#FCD34D', textDecoration: 'none' }}>
+              {lang === 'fr' ? 'Benchmark →' : 'Benchmark →'}
+            </a>
           </div>
-          {leaderboard.length > 0 ? (
+          {(leaderboard as any[]).length > 0 ? (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
-                {leaderboard.slice(0, 5).map((p: any, i: number) => (
+                {(leaderboard as any[]).slice(0, 5).map((p, i) => (
                   <tr key={p.projectId} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', cursor: 'pointer' }}
                     onClick={() => window.location.href = `/dashboard/projects/${p.projectId}`}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,61,0.3)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <td style={{ padding: '10px 14px', width: 36 }}>
-                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? 'rgba(252,211,77,0.2)' : '#121920', color: i === 0 ? '#FCD34D' : '#4A6278', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
-                        {i + 1}
-                      </div>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? 'rgba(252,211,77,0.2)' : '#121920', color: i === 0 ? '#FCD34D' : '#4A6278', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{i+1}</div>
                     </td>
                     <td style={{ padding: '10px 4px' }}>
                       <div style={{ fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{p.name}</div>
@@ -192,22 +237,19 @@ export default function DashboardPage() {
             </table>
           ) : (
             <div style={{ padding: '28px', textAlign: 'center', color: '#4A6278', fontSize: 13 }}>
-              Aucun projet avec données MRV
+              {lang === 'fr' ? 'Aucun projet avec données MRV' : 'No projects with MRV data yet'}
             </div>
           )}
         </div>
 
-        {/* Quick actions + portfolio score */}
+        {/* Score + Quick Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {/* Portfolio score */}
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 18 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>SCORE PORTFOLIO · PALANTIR INTELLIGENCE</div>
-            {[
-              { label: 'MRV Engine', score: 92, color: '#00FF94' },
-              { label: 'Data Quality', score: analytics?.dataQuality?.completeness || 70, color: '#38BDF8' },
-              { label: 'Optimisation', score: 45, color: '#FCD34D', note: 'Voir recommandations' },
-              { label: 'Multi-standard', score: 30, color: '#A78BFA', note: 'Article 6 potentiel' },
-            ].map(item => (
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>
+              {lang === 'fr' ? 'SCORE PORTFOLIO · PALANTIR INTELLIGENCE' : 'PORTFOLIO SCORE · PALANTIR INTELLIGENCE'}
+            </div>
+            {scoreItems.map(item => (
               <div key={item.label} style={{ marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 12 }}>
                   <span style={{ color: '#8FA3B8' }}>{item.label}</span>
@@ -223,18 +265,13 @@ export default function DashboardPage() {
 
           {/* Quick actions */}
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 16 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>ACTIONS RAPIDES</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>
+              {lang === 'fr' ? 'ACTIONS RAPIDES' : 'QUICK ACTIONS'}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {[
-                { href: '/dashboard/projects/new', icon: '➕', label: 'New project', color: '#00FF94' },
-                { href: '/dashboard/upload', icon: '📥', label: 'Importer CSV', color: '#38BDF8' },
-                { href: '/dashboard/optimization', icon: '⚙️', label: 'Optimiser MRV', color: '#FCD34D' },
-                { href: '/dashboard/marketplace', icon: '🏪', label: 'Marketplace', color: '#A78BFA' },
-                { href: '/dashboard/assistant', icon: '🤖', label: 'AI Assistant', color: '#EF9F27' },
-                { href: '/dashboard/registry', icon: '⛓️', label: 'Émettre crédits', color: '#00FF94' },
-              ].map(action => (
+              {quickActions.map(action => (
                 <a key={action.href} href={action.href}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', background: '#121920', borderRadius: 8, border: '1px solid #1E2D3D', textDecoration: 'none', transition: 'all 0.15s', cursor: 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', background: '#121920', borderRadius: 8, border: '1px solid #1E2D3D', textDecoration: 'none', transition: 'all 0.15s' }}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = `${action.color}40`)}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = '#1E2D3D')}>
                   <span style={{ fontSize: 15 }}>{action.icon}</span>
