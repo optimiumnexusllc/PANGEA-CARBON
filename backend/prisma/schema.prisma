@@ -198,6 +198,7 @@ model Project {
   iotReadings       IoTReading[]
   corsiaEligibility CORSIAEligibility?
   creditIssuances   CreditIssuance[]
+  pipelines         CreditPipeline[]
   baselineAssessments  BaselineAssessment[]
   certification        ProjectCertification?
   createdAt      DateTime      @default(now())
@@ -578,3 +579,64 @@ model GHGReport {
 }
 
 // ─── Ajout relations ──────────────────────────────────────────────────────────
+
+// ─── CREDIT ISSUANCE PIPELINE ────────────────────────────────────────────────
+// Workflow complet: MRV → PDD → VVB → Registre → Émission
+
+model CreditPipeline {
+  id              String   @id @default(cuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id])
+  organizationId  String
+  vintage         Int
+  standard        String   // VERRA_VCS | GOLD_STANDARD | ARTICLE6 | CORSIA
+  estimatedCredits Float
+  confirmedCredits Float?
+  currentStep     String   @default("MRV_DATA")
+  status          String   @default("ACTIVE") // ACTIVE | BLOCKED | COMPLETED | CANCELLED
+  steps           PipelineStep[]
+  documents       PipelineDocument[]
+  issuanceId      String?  // CreditIssuance.id une fois émis
+  vvbName         String?
+  vvbContact      String?
+  registryRef     String?  // Numéro de référence Verra/GS
+  submittedAt     DateTime?
+  approvedAt      DateTime?
+  issuedAt        DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@index([projectId])
+  @@index([status])
+}
+
+model PipelineStep {
+  id          String   @id @default(cuid())
+  pipelineId  String
+  pipeline    CreditPipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stepKey     String   // MRV_DATA | PDD | VVB_VALIDATION | MONITORING | VVB_VERIFICATION | REGISTRY_SUBMISSION | ISSUANCE
+  stepNumber  Int
+  title       String
+  status      String   @default("PENDING") // PENDING | IN_PROGRESS | COMPLETED | BLOCKED | REJECTED
+  startedAt   DateTime?
+  completedAt DateTime?
+  completedBy String?
+  notes       String?
+  data        Json?    // Données spécifiques à l'étape
+  createdAt   DateTime @default(now())
+  @@index([pipelineId])
+  @@unique([pipelineId, stepKey])
+}
+
+model PipelineDocument {
+  id          String   @id @default(cuid())
+  pipelineId  String
+  pipeline    CreditPipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  type        String   // PDD | MONITORING_REPORT | VVB_VALIDATION | VVB_VERIFICATION | REGISTRY_SUBMISSION
+  name        String
+  fileUrl     String?
+  hash        String?  // SHA-256 du document pour intégrité
+  uploadedBy  String
+  uploadedAt  DateTime @default(now())
+  @@index([pipelineId])
+}
