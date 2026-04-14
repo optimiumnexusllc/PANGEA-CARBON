@@ -13,7 +13,7 @@ const TYPE_ICONS = {
 const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '—';
 
 export default function MapPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const mapRef = useRef<any>(null);
   const mapInstance = useRef<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
@@ -153,7 +153,7 @@ export default function MapPage() {
       <div style={{ padding: '12px 20px', background: '#0D1117', borderBottom: '1px solid #1E2D3D', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
         <div>
           <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PANGEA CARBON · GEOSPATIAL INTELLIGENCE</div>
-          <div style={{ fontSize: 15, fontWeight: 600, fontFamily: 'Syne, sans-serif', color: '#E8EFF6' }}>MRV Projects Map · Africa</div>
+          <div style={{ fontSize: 15, fontWeight: 600, fontFamily: 'Syne, sans-serif', color: '#E8EFF6' }}>L('MRV Projects Map · Africa', 'Carte des projets MRV · Afrique')</div>
         </div>
         <div style={{ display: 'flex', gap: 16 }}>
           {[

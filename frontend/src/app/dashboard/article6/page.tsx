@@ -8,7 +8,8 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function Article6Page() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [data, setData] = useState<any>(null);
   const [buyers, setBuyers] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ export default function Article6Page() {
     ]).then(([d, b]) => { setData(d); setBuyers(b); }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>L('Loading...', 'Chargement...')</div>;
 
   const s = data?.summary || {};
 
@@ -30,7 +31,7 @@ export default function Article6Page() {
         <div>
           <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
           <div style={{ fontSize: 10, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>ARTICLE 6 PARIS AGREEMENT · ITMO TRACKING</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Sovereign Carbon Markets</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>L('Sovereign Carbon Markets', 'Marchés Carbone Souverains')</h1>
           <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>International Transferred Mitigation Outcomes · Prix moyen $35-55/tCO₂e (vs $12 Verra)</p>
         </div>
       </div>
@@ -90,7 +91,7 @@ export default function Article6Page() {
 
       {/* Projects */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>YOUR PROJECTS — ARTICLE 6 ELIGIBILITY</div>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('YOUR PROJECTS — ARTICLE 6 ELIGIBILITY', 'VOS PROJETS — ÉLIGIBILITÉ ARTICLE 6')</div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#121920' }}>

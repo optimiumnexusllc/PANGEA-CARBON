@@ -9,9 +9,10 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 type Message = { role: 'user' | 'assistant'; content: string; };
 
 export default function AssistantPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, powered by Claude (Anthropic).\n\nI can analyze your carbon data, expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nHow can I help you?' }
+    { role: 'assistant', content: '🌍 Bonjour ! Je suis l\'Assistant MRV PANGEA CARBON, L('powered by Claude (Anthropic)', 'propulsé par Claude (Anthropic)').\n\nL('I can analyze your carbon data', 'Je peux analyser vos données carbone'), expliquer la méthodologie ACM0002, optimiser votre portfolio, ou répondre à toute question sur les marchés carbone africains.\n\nL('How can I help you?', 'Que puis-je faire pour vous ?')' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -160,7 +161,7 @@ export default function AssistantPage() {
           </button>
         </div>
         <div style={{ fontSize: 10, color: '#2A3F55', textAlign: 'center', marginTop: 6, fontFamily: 'JetBrains Mono, monospace' }}>
-          Claude by Anthropic · Your data stays private · Shift+Enter for new line
+          Claude by Anthropic · L('Your data stays private', 'Vos données restent privées') · L('Shift+Enter for new line', 'Shift+Entrée pour saut de ligne')
         </div>
       </div>
     </div>

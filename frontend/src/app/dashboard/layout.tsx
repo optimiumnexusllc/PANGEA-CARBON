@@ -38,7 +38,8 @@ const INTELLIGENCE_MODULES = [
 ];
 
 function SidebarContent({ user, logout }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const pathname = usePathname();
   const flags = useFeatureFlags();
   const visibleNav = MAIN_NAV.filter(item => item.feature === null || flags[item.feature] === true);

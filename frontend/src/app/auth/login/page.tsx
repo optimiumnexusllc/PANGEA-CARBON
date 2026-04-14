@@ -9,7 +9,8 @@ import { api } from '@/lib/api';
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function LoginPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

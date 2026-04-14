@@ -83,6 +83,7 @@ export default function LandingPage() {
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [lang, setLang] = useState('en');
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [showContact, setShowContact] = useState(false);
   const [cName, setCName] = useState('');
   const [cEmail, setCEmail] = useState('');
@@ -879,7 +880,7 @@ export default function LandingPage() {
                 </div>
                 {cErr && <div style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{cErr}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 11, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
                   <button onClick={doSend} disabled={cSending} style={{ flex: 2, background: cSending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 8, padding: 11, fontWeight: 800, fontSize: 14, cursor: cSending ? 'wait' : 'pointer' }}>
                     {cSending ? 'Sending...' : 'Send my request'}
                   </button>

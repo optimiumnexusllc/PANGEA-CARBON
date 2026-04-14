@@ -20,6 +20,7 @@ const PLANS = [
 
 export default function SignupPage() {
   const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);

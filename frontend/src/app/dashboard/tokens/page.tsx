@@ -1,4 +1,5 @@
 'use client';
+import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 import { api } from '@/lib/api';
@@ -15,6 +16,8 @@ const TOKEN_TYPES = [
 const COUNTRIES = ['CI','GH','NG','KE','SN','TZ','RW','ET','ZA','BF','CH','JP','SE','NO','DE','FR','GB'];
 
 export default function TokensPage() {
+  const { lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState([]);
   const [issuances, setIssuances] = useState([]);
   const [selectedType, setSelectedType] = useState('vcu');

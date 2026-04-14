@@ -18,7 +18,8 @@ const GRID_CONTEXT = [
 ];
 
 export default function BaselinePage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [result, setResult] = useState<any>(null);

@@ -20,7 +20,8 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
 ) : null;
 
 export default function ProjectionPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [portfolioData, setPortfolioData] = useState<any>(null);
@@ -155,7 +156,7 @@ export default function ProjectionPage() {
               <Area dataKey="Conservative" stroke="#F87171" fill="rgba(248,113,113,0.04)" strokeWidth={2} dot={false}/>
             </AreaChart>
           </ResponsiveContainer>
-        ) : <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278' }}>Loading...</div>}
+        ) : <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A6278' }}>L('Loading...', 'Chargement...')</div>}
       </div>
 
       {/* Monte Carlo + insights */}

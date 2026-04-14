@@ -157,7 +157,7 @@ function EmailComposerPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20 }}>
           {/* Templates panel */}
           <div>
-            <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO, marginBottom: 10 }}>TEMPLATES</div>
+            <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO, marginBottom: 10 }}>L('TEMPLATES', 'TEMPLATES')</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {templates.map(tpl => {
                 const color = TEMPLATE_COLORS[tpl.id] || DIM;
@@ -204,7 +204,7 @@ function EmailComposerPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Recipients */}
             <div style={{ background: CARD, border: '1px solid ' + BORDER, borderRadius: 12, padding: 20 }}>
-              <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO, marginBottom: 14 }}>RECIPIENTS</div>
+              <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO, marginBottom: 14 }}>L('RECIPIENTS', 'DESTINATAIRES')</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label style={labelStyle}>To *</label>
@@ -220,7 +220,7 @@ function EmailComposerPage() {
             {/* Subject + Body */}
             <div style={{ background: CARD, border: '1px solid ' + BORDER, borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO }}>CONTENT</div>
+                <div style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO }}>L('CONTENT', 'CONTENU')</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button onClick={() => setPreviewMode(false)}
                     style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid ' + BORDER, background: !previewMode ? '#1E2D3D' : 'transparent', color: !previewMode ? TEXT : DIM, cursor: 'pointer', fontSize: 12 }}>
@@ -235,12 +235,12 @@ function EmailComposerPage() {
 
               {!previewMode ? (
                 <div>
-                  <label style={labelStyle}>SUBJECT</label>
+                  <label style={labelStyle}>L('SUBJECT', 'OBJET')</label>
                   <input value={subject} onChange={e => setSubject(e.target.value)}
                     placeholder="Objet de l'email..."
                     style={{ ...inputStyle, marginBottom: 14, fontSize: 15, fontWeight: 500 }} />
 
-                  <label style={labelStyle}>MESSAGE BODY</label>
+                  <label style={labelStyle}>L('MESSAGE BODY', 'CORPS DU MESSAGE')</label>
                   <div style={{ position: 'relative' }}>
                     <textarea ref={bodyRef} value={body} onChange={e => setBody(e.target.value)}
                       placeholder={selectedTemplate?.id && selectedTemplate.id !== 'custom'

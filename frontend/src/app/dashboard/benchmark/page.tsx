@@ -40,7 +40,8 @@ function PercentileBar({ value, label, unit, benchmark, rating }: any) {
 }
 
 export default function BenchmarkPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [data, setData] = useState<any>(null);
@@ -70,7 +71,7 @@ export default function BenchmarkPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>BENCHMARK · IRENA 2024 · PANGEA CARBON DATA</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Africa Benchmark</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>L('Africa Benchmark', 'Benchmark Africain')</h1>
           <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Your position vs African peers. IRENA 2024 + IEA Africa + PANGEA CARBON data.</p>
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
@@ -147,7 +148,7 @@ export default function BenchmarkPage() {
           {/* Radar chart + context */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, flex: 1 }}>
-              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>PERFORMANCE PROFILE — RADAR</div>
+              <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('PERFORMANCE PROFILE — RADAR', 'PROFIL DE PERFORMANCE — RADAR')</div>
               {radarData.length > 0 && (
                 <ResponsiveContainer width="100%" height={220}>
                   <RadarChart data={radarData}>

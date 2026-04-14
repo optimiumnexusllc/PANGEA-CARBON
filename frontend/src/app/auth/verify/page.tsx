@@ -132,6 +132,7 @@ function ResendForm() {
 }
 
 export default function VerifyEmailPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   return <Suspense fallback={null}><VerifyEmailInner /></Suspense>;
 }

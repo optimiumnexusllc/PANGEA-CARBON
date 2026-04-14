@@ -7,7 +7,8 @@ import { api } from '@/lib/api';
 const STEPS = ['Informations', 'Localisation', 'Paramètres MRV', 'Confirmation'];
 
 export default function NewProjectPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [countries, setCountries] = useState<any[]>([]);

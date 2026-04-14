@@ -22,7 +22,8 @@ const COUNTRIES = [
 const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function MRVCalculatorPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [mw, setMw] = useState(10);
   const [cf, setCf] = useState(85);
   const [country, setCountry] = useState(COUNTRIES[0]);
@@ -83,10 +84,10 @@ export default function MRVCalculatorPage() {
         {/* Controls */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>PROJECT PARAMETERS</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>L('PROJECT PARAMETERS', 'PARAMÈTRES DU PROJET')</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Country</label>
+                <label style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>L('Country', 'Pays')</label>
                 <select className="input-dark" value={country.code} onChange={e => setCountry(COUNTRIES.find(c => c.code === e.target.value) || COUNTRIES[0])}>
                   {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name} — {c.ef} tCO₂/MWh</option>)}
                 </select>
@@ -98,7 +99,7 @@ export default function MRVCalculatorPage() {
           </div>
 
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>PROJECTION PARAMETERS</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>L('PROJECTION PARAMETERS', 'PARAMÈTRES PROJECTION')</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <Slider label="Horizon (years)" value={years} setValue={setYears} min={1} max={20} color="#00FF94"/>
               <Slider label="Carbon price escalation" value={priceEscalation} setValue={setPriceEscalation} min={0} max={10} unit="%" color="#F87171"/>
@@ -107,7 +108,7 @@ export default function MRVCalculatorPage() {
 
           {/* Méthodologie box */}
           <div style={{ background: 'rgba(0,255,148,0.04)', border: '1px solid rgba(0,255,148,0.12)', borderRadius: 10, padding: 14 }}>
-            <div style={{ fontSize: 10, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>ACM0002 METHODOLOGY</div>
+            <div style={{ fontSize: 10, color: '#00CC77', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>L('ACM0002 METHODOLOGY', 'MÉTHODOLOGIE ACM0002')</div>
             {[
               ['Grid EF', country.ef + ' tCO₂/MWh'],
               ['Leakage deduction', '3%'],

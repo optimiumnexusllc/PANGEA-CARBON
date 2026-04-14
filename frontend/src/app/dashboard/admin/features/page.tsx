@@ -12,7 +12,8 @@ const FEATURE_ICONS = {
 };
 
 export default function AdminFeaturesPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [features, setFeatures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string>('');
@@ -39,12 +40,12 @@ export default function AdminFeaturesPage() {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · FEATURE FLAGS</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Feature Management</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>L('Feature Management', 'Gestion des fonctionnalités')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Enable/disable features in real time without restart</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-        {loading ? <div style={{ color: '#4A6278', padding: 20 }}>Loading...</div> :
+        {loading ? <div style={{ color: '#4A6278', padding: 20 }}>L('Loading...', 'Chargement...')</div> :
           features.map((f: any) => (
             <div key={f.key} style={{ background: '#0D1117', border: `1px solid ${f.enabled ? 'rgba(0,255,148,0.2)' : '#1E2D3D'}`, borderRadius: 10, padding: 16, transition: 'all 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>

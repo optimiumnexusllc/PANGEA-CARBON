@@ -16,7 +16,8 @@ const EFFORT_STYLE = {
 const CAT_COLOR = { Standard: '#38BDF8', Marché: '#A78BFA', Performance: '#00FF94', Méthodologie: '#FCD34D', Données: '#8FA3B8', Vérification: '#F97316' };
 
 export default function OptimizationPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [data, setData] = useState<any>(null);
@@ -45,7 +46,7 @@ export default function OptimizationPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>MRV OPTIMIZATION · AI RECOMMENDATIONS</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>MRV Optimization</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>L('MRV Optimization', 'Optimisation MRV')</h1>
           <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Every recommendation has a calculated financial impact. ROI priority.</p>
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}
@@ -125,7 +126,7 @@ export default function OptimizationPage() {
                   )}
                 </div>
                 <div style={{ textAlign: 'right', minWidth: 120 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ANNUAL GAIN</div>
+                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>L('ANNUAL GAIN', 'GAIN ANNUEL')</div>
                   <div style={{ fontSize: 28, fontWeight: 800, color: '#00FF94', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
                     {rec.revenueGainUSD >= 1000 ? `$${fmt(rec.revenueGainUSD)}` : `$${fmt(rec.revenueGainUSD)}`}
                   </div>

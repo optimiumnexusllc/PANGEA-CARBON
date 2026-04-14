@@ -11,6 +11,7 @@ const TIER_CONFIG = {
 
 export default function VerifyPage({ params }: { params: { hash: string } }) {
   const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [cert, setCert] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

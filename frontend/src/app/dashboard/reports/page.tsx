@@ -6,7 +6,8 @@ import { api } from '@/lib/api';
 const fmt = (n: number) => n?.toLocaleString('en-US') ?? '—';
 
 export default function ReportsPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +19,7 @@ export default function ReportsPage() {
     <div className="p-6 max-w-[1200px] mx-auto">
       <div className="mb-6">
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>VERRA · GOLD STANDARD</div>
-        <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>MRV Reports</h1>
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>L('MRV Reports', 'Rapports MRV')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Verra ACM0002 certifiable reports for submission to auditors</p>
       </div>
 
@@ -47,11 +48,11 @@ export default function ReportsPage() {
       {/* Projects avec données MRV */}
       <div className="card" style={{ padding: 20, marginBottom: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PROJECTS WITH MRV DATA — READY FOR REPORT</div>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>L('PROJECTS WITH MRV DATA — READY FOR REPORT', 'PROJETS AVEC DONNÉES MRV — PRÊTS POUR RAPPORT')</div>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#4A6278' }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 40, color: '#4A6278' }}>L('Loading...', 'Chargement...')</div>
         ) : leaderboard.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>📄</div>
@@ -75,7 +76,7 @@ export default function ReportsPage() {
                   <td style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}>{p.year}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#00FF94', fontWeight: 600 }}>{fmt(p.carbonCredits)}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#38BDF8' }}>${fmt(p.revenueUSD)}</td>
-                  <td><span className="badge badge-amber">Ready</span></td>
+                  <td><span className="badge badge-amber">L('Ready', 'Prêt')</span></td>
                   <td>
                     <button onClick={async () => {
                         const token = localStorage.getItem('accessToken');

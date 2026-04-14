@@ -5,7 +5,8 @@ import { useState } from 'react';
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function ForgotPasswordPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);

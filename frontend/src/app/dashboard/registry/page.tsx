@@ -11,7 +11,8 @@ const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0
 const STATUS_COLOR = { ISSUED: '#00FF94', RETIRED: '#F87171', TRANSFERRED: '#38BDF8', CANCELLED: '#4A6278' };
 
 export default function RegistryPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [chain, setChain] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [form, setForm] = useState({ projectId: '', vintage: String(new Date().getFullYear()), quantity: '', standard: 'VERRA_VCS' });
@@ -47,7 +48,7 @@ export default function RegistryPage() {
       <div style={{ marginBottom: 20 }}>
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>BLOCKCHAIN REGISTRY · SHA-256 HASH CHAIN · TRUSTLESS</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Credit Registry</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>L('Credit Registry', 'Registre Crédits')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Every issued credit creates an immutable block. Publicly verifiable SHA-256 hash. Anti-double counting.</p>
       </div>
 
@@ -77,7 +78,7 @@ export default function RegistryPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
         {/* Issue form */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, height: 'fit-content' }}>
-          <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ISSUE CREDITS</div>
+          <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('ISSUE CREDITS', 'ÉMETTRE DES CRÉDITS')</div>
           {[
             ['Project', 'projectId', 'select'],
             ['Vintage (year)', 'vintage', 'number'],

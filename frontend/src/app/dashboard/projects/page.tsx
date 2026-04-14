@@ -22,6 +22,7 @@ const fmt = (n: number, d = 0) => n?.toLocaleString('en-US', { minimumFractionDi
 
 export default function ProjectsPage() {
   const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -97,9 +98,9 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="text-xs font-mono mb-1" style={{ color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-            PORTFOLIO · {total} PROJETS
+            L('PORTFOLIO', 'PORTEFEUILLE') · {total} PROJETS
           </div>
-          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>MRV Projects</h1>
+          <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>L('MRV Projects', 'Projets MRV')</h1>
         </div>
         <a href="/dashboard/projects/new" className="btn-primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -155,8 +156,8 @@ export default function ProjectsPage() {
         <div className="card" style={{ overflow: 'hidden' }}>
           <table className="table-dark">
             <thead><tr>
-              <th>Project</th><th>Country</th><th>Type</th><th>Installed MW</th>
-              <th>Credits tCO₂e</th><th>Revenue USD</th><th>Status</th><th></th>
+              <th>L('Project', 'Projet')</th><th>L('Country', 'Pays')</th><th>L('Type', 'Type')</th><th>L('Installed MW', 'MW installés')</th>
+              <th>L('Credits tCO₂e', 'Crédits tCO₂e')</th><th>L('Revenue USD', 'Revenus USD')</th><th>L('Status', 'Statut')</th><th></th>
             </tr></thead>
             <tbody>
               {filtered.map((p: any) => {
@@ -167,7 +168,7 @@ export default function ProjectsPage() {
                     <td>
                       <div style={{ color: '#E8EFF6', fontWeight: 500 }}>{p.name}</div>
                       <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
-                        {p._count?.readings || 0} readings · {p._count?.reports || 0} reports
+                        {p._count?.readings || 0} L('readings', 'lectures') + ' · '{p._count?.L('reports', 'rapports') || 0} L('reports', 'rapports')
                       </div>
                     </td>
                     <td><span className="badge badge-ghost">{p.countryCode}</span></td>
@@ -254,7 +255,7 @@ export default function ProjectsPage() {
               Action irreversible — toutes les donnees MRV et credits associes seront supprimes.
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
               <button onClick={deleteProj} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {deleting ? '...' : Delete}
               </button>
@@ -291,7 +292,7 @@ export default function ProjectsPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setEditProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setEditProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
               <button onClick={saveEdit} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '...' : 'Sauvegarder'}
               </button>

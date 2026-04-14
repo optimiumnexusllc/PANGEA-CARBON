@@ -22,7 +22,8 @@ const FLAG = {
 };
 
 export default function MarketplacePage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [tab, setTab] = useState('buy');
   const [prices, setPrices] = useState([]);
   const [listings, setListings] = useState([]);

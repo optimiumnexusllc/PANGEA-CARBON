@@ -9,7 +9,8 @@ const PLAN_COLOR = { FREE: '#4A6278', TRIAL: '#FCD34D', STARTER: '#38BDF8', PRO:
 const STATUS_COLOR = { ACTIVE: '#00FF94', TRIAL: '#FCD34D', SUSPENDED: '#F87171', CHURNED: '#4A6278' };
 
 export default function AdminOrgsPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [orgs, setOrgs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -82,7 +83,7 @@ export default function AdminOrgsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · MULTI-TENANT · {total} ORGS</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Organizations</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>L('Organizations', 'Organisations')</h1>
         </div>
         <button onClick={() => setCreating(true)} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '8px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
           + New organization
@@ -90,7 +91,7 @@ export default function AdminOrgsPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
-        {loading ? <div style={{ color: '#4A6278' }}>Loading...</div> :
+        {loading ? <div style={{ color: '#4A6278' }}>L('Loading...', 'Chargement...')</div> :
           orgs.map((org: any) => (
             <div key={org.id} style={{ background: '#0D1117', border: `1px solid ${PLAN_COLOR[org.plan] || '#1E2D3D'}20`, borderRadius: 10, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -156,7 +157,7 @@ export default function AdminOrgsPage() {
               ))}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
               <button onClick={createOrg} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '9px', fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '...' : 'Create'}
               </button>
@@ -178,7 +179,7 @@ export default function AdminOrgsPage() {
               <strong style={{ color: '#E8EFF6' }}>{deleteOrg && deleteOrg.name}</strong> sera supprimee. Les utilisateurs seront conserves.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setDeleteOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setDeleteOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
               <button onClick={deleteOrgFn} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {deleting ? '...' : 'Delete'}
               </button>
@@ -224,7 +225,7 @@ export default function AdminOrgsPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setEditOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setEditOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
               <button onClick={saveOrg} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
                 {saving ? '...' : 'Sauvegarder'}
               </button>

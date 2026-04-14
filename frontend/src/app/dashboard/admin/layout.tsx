@@ -16,6 +16,7 @@ const ADMIN_NAV = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);

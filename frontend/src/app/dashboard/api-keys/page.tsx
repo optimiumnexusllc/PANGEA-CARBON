@@ -7,7 +7,8 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
 
 export default function ApiKeysPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -47,7 +48,7 @@ export default function ApiKeysPage() {
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>EQUIPMENT API · INTEGRATIONS</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>API Keys</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>L('API Keys', 'Clés API')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Connect your inverters and third-party systems via the PANGEA CARBON Equipment API</p>
       </div>
 
@@ -72,7 +73,7 @@ export default function ApiKeysPage() {
 
       {/* Quick start */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>QUICK START</div>
+        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('QUICK START', 'DÉMARRAGE RAPIDE')</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {[
             { title: 'Send a reading', code: `curl -X POST https://pangea-carbon.com/api/equipment/reading \\
@@ -114,7 +115,7 @@ export default function ApiKeysPage() {
         </button>
       </div>
 
-      {loading ? <div style={{ color: '#4A6278', padding: 20 }}>Loading...</div> :
+      {loading ? <div style={{ color: '#4A6278', padding: 20 }}>L('Loading...', 'Chargement...')</div> :
         keys.length === 0 ? (
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 40, textAlign: 'center', color: '#4A6278' }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>🔑</div>
@@ -162,7 +163,7 @@ export default function ApiKeysPage() {
               style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 14px', fontSize: 13, boxSizing: 'border-box', outline: 'none', marginBottom: 20 }}
               autoFocus/>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setCreating(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 7, color: '#4A6278', padding: '9px', cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
               <button onClick={create} disabled={saving || !newKeyName.trim()} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 7, padding: '9px', fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
                 {saving ? '...' : 'Create'}
               </button>

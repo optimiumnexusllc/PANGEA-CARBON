@@ -21,7 +21,8 @@ const SDG_LIST = [
 ];
 
 export default function SDGPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [scores, setScores] = useState({});
@@ -55,7 +56,7 @@ export default function SDGPage() {
       <div style={{ marginBottom: 20 }}>
         <a href="/dashboard/standards" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none' }}>← Carbon Hub</a>
         <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', margin: '8px 0 4px' }}>GOLD STANDARD · 17 SDG CO-BENEFITS SCORING</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>SDG Impact Scoring</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>L('SDG Impact Scoring', 'Évaluation Impact SDG')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Assess your 17 SDGs. Unlock Gold Standard certification and price premium.</p>
       </div>
 
@@ -78,7 +79,7 @@ export default function SDGPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         {/* Scoring form */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>ASSESS A PROJECT</div>
+          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('ASSESS A PROJECT', 'ÉVALUER UN PROJET')</div>
           <select value={selected} onChange={e => setSelected(e.target.value)}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px', fontSize: 13, marginBottom: 16 }}>
             {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -117,7 +118,7 @@ export default function SDGPage() {
 
         {/* Result */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>GOLD STANDARD RESULT</div>
+          <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('GOLD STANDARD RESULT', 'RÉSULTAT GOLD STANDARD')</div>
           {result ? (
             <div>
               <div style={{ textAlign: 'center', marginBottom: 20 }}>

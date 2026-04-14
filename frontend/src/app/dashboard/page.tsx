@@ -27,6 +27,7 @@ function TT({ active, payload, label }) {
 
 export default function DashboardPage() {
   const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [stats, setStats] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [alerts, setAlerts] = useState([]);

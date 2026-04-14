@@ -8,7 +8,8 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const fmt = (n: number, d = 1) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function DMRVPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [dmrv, setDmrv] = useState<any>(null);

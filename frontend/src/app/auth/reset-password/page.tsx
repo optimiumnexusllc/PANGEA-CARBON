@@ -123,7 +123,8 @@ function ResetPasswordInner() {
 }
 
 export default function ResetPasswordPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   return (
     <Suspense fallback={<div style={{ background: '#080B0F', minHeight: '100vh' }}/>}>
       <ResetPasswordInner/>

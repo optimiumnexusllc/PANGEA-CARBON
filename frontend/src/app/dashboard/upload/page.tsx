@@ -12,7 +12,8 @@ const CSV_TEMPLATE = `period_start,period_end,energy_mwh,peak_power_mw,availabil
 2024-03-01,2024-03-31,1340.7,49.1,99.1,Mars production`;
 
 export default function UploadPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState('');
   const [dragging, setDragging] = useState(false);
@@ -104,7 +105,7 @@ export default function UploadPage() {
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>IMPORT · AUTO MRV</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>CSV / Excel Import</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>L('CSV / Excel Import', 'Import CSV / Excel')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Bulk import your production data. MRV calculation starts automatically.</p>
       </div>
 

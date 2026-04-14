@@ -14,7 +14,8 @@ const ACTION_COLOR = {
 };
 
 export default function AdminOverviewPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +35,7 @@ export default function AdminOverviewPage() {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>SUPER ADMIN · SYSTEM</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>System View</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>L('System View', 'Vue système')</h1>
       </div>
 
       {/* KPI Grid */}
@@ -60,7 +61,7 @@ export default function AdminOverviewPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 20 }}>
         {/* Users by Role */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>USERS BY ROLE</div>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>L('USERS BY ROLE', 'UTILISATEURS PAR RÔLE')</div>
           {(data?.usersByRole || []).map((r: any) => (
             <div key={r.role} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{r.role}</span>
@@ -71,7 +72,7 @@ export default function AdminOverviewPage() {
 
         {/* Orgs by Plan */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>ORGS BY PLAN</div>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>L('ORGS BY PLAN', 'ORGS PAR PLAN')</div>
           {(data?.orgsByPlan || []).map((r: any) => (
             <div key={r.plan} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{r.plan}</span>
@@ -82,7 +83,7 @@ export default function AdminOverviewPage() {
 
         {/* Projects by Status */}
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>PROJECTS BY STATUS</div>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>L('PROJECTS BY STATUS', 'PROJETS PAR STATUT')</div>
           {(data?.projectsByStatus || []).map((r: any) => (
             <div key={r.status} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(30,45,61,0.5)' }}>
               <span style={{ fontSize: 12, color: '#8FA3B8' }}>{r.status}</span>
@@ -95,8 +96,8 @@ export default function AdminOverviewPage() {
       {/* Audit Trail récent */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>RECENT ACTIVITY</div>
-          <a href="/dashboard/admin/audit" style={{ fontSize: 11, color: '#38BDF8', textDecoration: 'none' }}>View all →</a>
+          <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>L('RECENT ACTIVITY', 'ACTIVITÉ RÉCENTE')</div>
+          <a href="/dashboard/admin/audit" style={{ fontSize: 11, color: '#38BDF8', textDecoration: 'none' }}>L('View all →', 'Voir tout →')</a>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {(data?.recentAudit || []).map((log: any) => (

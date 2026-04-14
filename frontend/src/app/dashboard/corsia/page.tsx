@@ -9,7 +9,8 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const fmt = (n: number) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function CORSIAPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [result, setResult] = useState<any>(null);
@@ -58,7 +59,7 @@ export default function CORSIAPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CHECK A PROJECT</div>
+          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('CHECK A PROJECT', 'VÉRIFIER UN PROJET')</div>
           <select value={selected} onChange={e => setSelected(e.target.value)}
             style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px', fontSize: 13, marginBottom: 16 }}>
             {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name} · {p.countryCode}</option>)}
@@ -79,7 +80,7 @@ export default function CORSIAPage() {
         </div>
 
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
-          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CORSIA RESULT</div>
+          <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>L('CORSIA RESULT', 'RÉSULTAT CORSIA')</div>
           {result ? (
             <div>
               <div style={{ textAlign: 'center', padding: '16px 0', marginBottom: 16 }}>

@@ -16,7 +16,8 @@ const MODULES = [
 ];
 
 export default function StandardsPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [summary, setSummary] = useState<any>(null);
 
   useEffect(() => {

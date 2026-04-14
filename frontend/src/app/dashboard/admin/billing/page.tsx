@@ -23,7 +23,8 @@ const TooltipC = ({ active, payload, label }: any) => {
 };
 
 export default function AdminBillingPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<'revenue' | 'credits'>('revenue');
@@ -48,7 +49,7 @@ export default function AdminBillingPage() {
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 10, color: '#F87171', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ADMIN · REVENUE INTELLIGENCE</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>Revenue & Carbon Intelligence</h1>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#E8EFF6', margin: 0 }}>L('Revenue & Carbon Intelligence', 'Revenue & Intelligence Carbone')</h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Cumulative carbon revenue from all portfolio projects</p>
       </div>
 
@@ -73,7 +74,7 @@ export default function AdminBillingPage() {
       {byYear.length > 0 && (
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 20, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>PERFORMANCE BY YEAR</div>
+            <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>L('PERFORMANCE BY YEAR', 'PERFORMANCE PAR ANNÉE')</div>
             <div style={{ display: 'flex', gap: 4, background: '#121920', borderRadius: 6, padding: 3 }}>
               {[['revenue', 'Revenus $'], ['credits', 'Credits tCO₂e']].map(([v, label]) => (
                 <button key={v} onClick={() => setActiveView(v as any)}
@@ -100,7 +101,7 @@ export default function AdminBillingPage() {
       {/* Top projects table */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: '#121920', borderBottom: '1px solid #1E2D3D' }}>
-          <span style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>TOP PROJECTS · CARBON REVENUE</span>
+          <span style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>L('TOP PROJECTS · CARBON REVENUE', 'TOP PROJETS · REVENUS CARBONE')</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>

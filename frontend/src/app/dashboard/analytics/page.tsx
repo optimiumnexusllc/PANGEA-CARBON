@@ -17,7 +17,8 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
 ) : null;
 
 export default function AnalyticsPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [projects, setProjects] = useState<any[]>([]);
   const [selected, setSelected] = useState('');
   const [data, setData] = useState<any>(null);
@@ -55,7 +56,7 @@ export default function AnalyticsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 10, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>DETAILED ANALYSIS · CAUSAL DECOMPOSITION</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Performance Analysis</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>L('Performance Analysis', 'Analyse Performance')</h1>
           <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>Why, not just what. Every performance gap explained.</p>
         </div>
         <select value={selected} onChange={e => setSelected(e.target.value)}

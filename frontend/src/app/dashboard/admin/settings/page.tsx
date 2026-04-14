@@ -184,7 +184,8 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
 
 /* ─── Main page ──────────────────────────────── */
 export default function AdminSettingsPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [settingsState, setSettingsState] = useState({});
   const [activeTab, setActiveTab] = useState('smtp');
   const [loading, setLoading] = useState(true);

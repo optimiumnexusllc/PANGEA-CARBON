@@ -9,7 +9,8 @@ const ACTION_COLOR = { CREATE: '#00FF94', UPDATE: '#38BDF8', DELETE: '#F87171', 
 const getColor = (action: string) => ACTION_COLOR[Object.keys(ACTION_COLOR).find(k => action.includes(k)) || ''] || '#4A6278';
 
 export default function AdminAuditPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [logs, setLogs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
@@ -47,7 +48,7 @@ export default function AdminAuditPage() {
             </tr>
           </thead>
           <tbody>
-            {loading ? <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#4A6278' }}>Loading...</td></tr>
+            {loading ? <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#4A6278' }}>L('Loading...', 'Chargement...')</td></tr>
             : logs.map((log: any) => (
               <tr key={log.id} style={{ borderBottom: '1px solid rgba(30,45,61,0.3)' }}>
                 <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>

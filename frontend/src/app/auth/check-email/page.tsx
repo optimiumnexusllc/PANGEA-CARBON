@@ -90,6 +90,7 @@ function CheckEmailInner() {
 }
 
 export default function CheckEmailPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   return <Suspense fallback={null}><CheckEmailInner /></Suspense>;
 }

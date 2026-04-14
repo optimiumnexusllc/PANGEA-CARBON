@@ -20,7 +20,8 @@ const Tooltip_ = ({ active, payload, label }: any) => {
 };
 
 export default function ProjectDetailPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const { id } = useParams();
   const [project, setProject] = useState<any>(null);
   const [mrv, setMrv] = useState<any>(null);
@@ -290,7 +291,7 @@ export default function ProjectDetailPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-              <button className="btn-ghost" onClick={() => setAddReading(false)} style={{ flex: 1 }}>Cancel</button>
+              <button className="btn-ghost" onClick={() => setAddReading(false)} style={{ flex: 1 }}>L('Cancel', 'Annuler')</button>
               <button className="btn-primary" onClick={submitReading} disabled={savingReading} style={{ flex: 1, justifyContent: 'center' }}>
                 {savingReading ? 'Sauvegarde...' : 'Save'}
               </button>
