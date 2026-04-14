@@ -103,7 +103,7 @@ export default function TokensPage() {
           <div style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>SELECT PROJECT</div>
             <select value={selectedProject} onChange={e => setSelectedProject(e.target.value)} style={{ ...inp }}>
-              {(projects as any[]).map(p => <option key={p.id} value={p.id}>{p.name} — {p.countryCode}</option>)}
+              {projects.map(p => <option key={p.id} value={p.id}>{p.name} — {p.countryCode}</option>)}
             </select>
           </div>
 
@@ -139,7 +139,7 @@ export default function TokensPage() {
               <div style={{ marginBottom: 12 }}><div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>CREDIT ISSUANCE *</div>
                 <select style={inp} onChange={e => set('issuanceId', e.target.value)}>
                   <option value="">Select issuance...</option>
-                  {(issuances as any[]).map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
+                  {issuances.map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
                 </select>
               </div>
             )}
@@ -149,7 +149,7 @@ export default function TokensPage() {
                 <div style={{ marginBottom: 12 }}><div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>CREDIT BATCH *</div>
                   <select style={inp} onChange={e => set('issuanceId', e.target.value)}>
                     <option value="">Select issuance...</option>
-                    {(issuances as any[]).map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
+                    {issuances.map(iss => <option key={iss.id} value={iss.id}>{iss.vintage} — {iss.quantity?.toLocaleString()} tCO2e — {iss.standard}</option>)}
                   </select>
                 </div>
                 {selectedType === 'broker-sale' ? (
@@ -198,42 +198,42 @@ export default function TokensPage() {
 
         {/* Right: Result + token list */}
         <div>
-          {result && (
+          {result && 
             <div style={{ background: '#0D1117', border: `2px solid ${typeInfo.color}40`, borderRadius: 14, padding: 24, marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#00FF94', animation: 'pulse 2s infinite' }}/>
-                    <span style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>{(result as any).type} TOKEN GENERATED</span>
+                    <span style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>{(result.type} TOKEN GENERATED</span>
                   </div>
-                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#E8EFF6', margin: 0 }}>{(result as any).label}</h2>
+                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#E8EFF6', margin: 0 }}>{result.label}</h2>
                 </div>
-                {(result as any).qrCode && (
+                {result.qrCode && 
                   <div style={{ padding: 6, background: '#fff', borderRadius: 8 }}>
-                    <img src={(result as any).qrCode} alt="QR Code" style={{ width: 88, height: 88, display: 'block' }}/>
+                    <img src={(result.qrCode} alt="QR Code" style={{ width: 88, height: 88, display: 'block' }}/>
                   </div>
                 )}
               </div>
 
               <div style={{ background: '#121920', borderRadius: 10, padding: '12px 16px', marginBottom: 12 }}>
                 <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>TOKEN ID</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: typeInfo.color, fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>{(result as any).token}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: typeInfo.color, fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>{result.token}</div>
               </div>
 
               <div style={{ background: '#121920', borderRadius: 10, padding: '12px 16px', marginBottom: 12 }}>
                 <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>SHA-256 HASH (immutable)</div>
-                <div style={{ fontSize: 11, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>{(result as any).hash}</div>
+                <div style={{ fontSize: 11, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>{result.hash}</div>
               </div>
 
               <div style={{ background: '#121920', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
                 <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>PUBLIC VERIFICATION URL</div>
-                <a href={(result as any).verifyUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: typeInfo.color, fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all', textDecoration: 'none' }}>
-                  {(result as any).verifyUrl}
+                <a href={result.verifyUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: typeInfo.color, fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all', textDecoration: 'none' }}>
+                  {result.verifyUrl}
                 </a>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
-                {Object.entries(result as any)
+                {Object.entriesresult
                   .filter(([k]) => !['type','label','token','hash','verifyUrl','qrCode','createdAt','payload'].includes(k))
                   .slice(0, 9)
                   .map(([k, v]) => (
@@ -247,12 +247,12 @@ export default function TokensPage() {
               </div>
 
               <div style={{ display: 'flex', gap: 10 }}>
-                {(result as any).qrCode && (
-                  <a href={(result as any).qrCode} download={`${(result as any).token}.png`} style={{ flex: 1, textAlign: 'center', background: typeInfo.color + '15', border: '1px solid ' + typeInfo.color + '40', borderRadius: 8, padding: '11px', color: typeInfo.color, textDecoration: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                {result.qrCode && 
+                  <a href={(result.qrCode} download={`${result.token}.png`} style={{ flex: 1, textAlign: 'center', background: typeInfo.color + '15', border: '1px solid ' + typeInfo.color + '40', borderRadius: 8, padding: '11px', color: typeInfo.color, textDecoration: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                     Download QR Code
                   </a>
                 )}
-                <button onClick={() => navigator.clipboard?.writeText((result as any).verifyUrl)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, padding: '11px', color: '#4A6278', cursor: 'pointer', fontSize: 12 }}>
+                <button onClick={() => navigator.clipboard?.writeText(result.verifyUrl)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, padding: '11px', color: '#4A6278', cursor: 'pointer', fontSize: 12 }}>
                   Copy Verify URL
                 </button>
               </div>
@@ -262,16 +262,16 @@ export default function TokensPage() {
           {/* Existing tokens */}
           <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>
-              PROJECT TOKENS ({(projectTokens as any[]).length})
+              PROJECT TOKENS ({projectTokens.length})
             </div>
-            {(projectTokens as any[]).length === 0 ? (
+            {projectTokens.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '32px 0', color: '#4A6278', fontSize: 13 }}>
                 <div style={{ fontSize: 28, marginBottom: 10 }}>🔐</div>
                 No tokens generated yet for this project
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(projectTokens as any[]).map((tok, i) => {
+                {projectTokens.map((tok, i) => {
                   const tColor = TOKEN_TYPES.find(t => t.id.replace('-','_').toUpperCase() === tok.type)?.color || '#4A6278';
                   return (
                     <div key={i} style={{ background: '#121920', borderRadius: 9, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

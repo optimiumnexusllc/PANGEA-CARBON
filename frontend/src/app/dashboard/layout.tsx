@@ -5,6 +5,7 @@ import LangToggle from '@/components/LangToggle';
 import FloatingLangToggle from '@/components/FloatingLangToggle';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ToastProvider } from '@/components/ui/Toast';
 import { FeatureFlagsProvider, useFeatureFlags, useUserContext, PLAN_METADATA } from '@/lib/features';
 
 const MAIN_NAV = [
@@ -48,8 +49,8 @@ function SidebarContent({ user, logout }) {
   const flags = useFeatureFlags();
   const userCtx = useUserContext();
   const isAdmin = ['SUPER_ADMIN','ADMIN'].includes(userCtx.role);
-  const visibleNav = MAIN_NAV.filter(item => {
-    if ((item as any).adminOnly && !isAdmin) return false;
+  const visibleNav = MAIN_NAV.filteritem => {
+    if ((item.adminOnly && !isAdmin) return false;
     if (item.feature === null) return true;
     return flags[item.feature] === true;
   });
@@ -211,6 +212,7 @@ export default function DashboardLayout({ children }) {
         <main className="main-content">{children}</main>
         <FloatingLangToggle />
       </div>
-    </FeatureFlagsProvider>
+      <ToastProvider />
+      </FeatureFlagsProvider>
   );
 }

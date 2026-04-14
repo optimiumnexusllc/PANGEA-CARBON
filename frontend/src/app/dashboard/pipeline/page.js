@@ -225,25 +225,44 @@ export default function PipelinePage() {
     <div style={{ padding:20, maxWidth:1400, margin:'0 auto' }}>
 
       {toast && (
-        <div style={{ position:'fixed', top:20, right:20, zIndex:9999, background:toast.type==='error'?'#F87171':'#00FF94', color:'#080B0F', padding:'12px 20px', borderRadius:10, fontWeight:700, fontSize:13, boxShadow:'0 4px 24px rgba(0,0,0,0.5)', maxWidth:380 }}>
-          {toast.type==='error'?'❌ ':'✅ '}{toast.msg}
+        <div style={{ position:'fixed', top:20, right:20, zIndex:99999, maxWidth:420, animation:'pgToastIn 0.25s ease', pointerEvents:'auto' }}>
+          <div style={{ background: toast.type==='error'?'rgba(248,113,113,0.1)':toast.type==='warning'?'rgba(252,211,77,0.1)':'rgba(0,255,148,0.08)', border: `1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':toast.type==='warning'?'rgba(252,211,77,0.3)':'rgba(0,255,148,0.3)'}`, borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'flex-start', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', overflow:'hidden', position:'relative' }}>
+            <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:toast.type==='error'?'#F87171':toast.type==='warning'?'#FCD34D':'#00FF94', borderRadius:'12px 0 0 12px' }}/>
+            <div style={{ width:22, height:22, borderRadius:'50%', background:toast.type==='error'?'rgba(248,113,113,0.15)':'rgba(0,255,148,0.15)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.3)':'rgba(0,255,148,0.3)'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:toast.type==='error'?'#F87171':'#00FF94', fontWeight:800, flexShrink:0, marginLeft:6 }}>
+              {toast.type==='error'?'✗':'✓'}
+            </div>
+            <div style={{ fontSize:13, color:'#E8EFF6', lineHeight:1.6, flex:1 }}>{toast.msg}</div>
+          </div>
         </div>
       )}
+      <style>{'.pgToastIn{animation:pgToastIn .25s ease}'}</style>
 
       {confirmBlock && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1100, padding:16 }}>
-          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.4)', borderRadius:16, padding:28, maxWidth:420, width:'100%' }}>
-            <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', marginBottom:8 }}>BLOCK STEP</div>
-            <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, color:'#E8EFF6', marginBottom:16 }}>Block: {ICONS[confirmBlock.stepKey]} {confirmBlock.title}?</h2>
-            <textarea placeholder="Reason for blocking..." id="blockReason" style={{ ...inp, height:80, resize:'vertical', marginBottom:14 }}/>
+        <div onClick={e => { if(e.target===e.currentTarget) setConfirmBlock(null); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000, padding:16, backdropFilter:'blur(10px)' }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.3)', borderRadius:16, padding:28, maxWidth:440, width:'100%', boxShadow:'0 24px 80px rgba(0,0,0,0.6)', animation:'pgDialogIn .2s ease' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🔒</div>
+              <div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', marginBottom:3, letterSpacing:'0.1em' }}>BLOCK STEP · PIPELINE</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#E8EFF6', margin:0 }}>{ICONS[confirmBlock.stepKey]} {confirmBlock.title}</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(248,113,113,0.2) 0%,transparent 100%)', marginBottom:18 }}/>
+            <div style={{ fontSize:12, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>REASON FOR BLOCKING *</div>
+            <textarea placeholder="Ex: VVB document missing, awaiting registry approval..." id="blockReason"
+              style={{ ...inp, height:84, resize:'none', marginBottom:18, fontSize:13, lineHeight:1.6 }}/>
             <div style={{ display:'flex', gap:10 }}>
-              <button onClick={() => setConfirmBlock(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:8, color:'#4A6278', padding:12, cursor:'pointer' }}>Cancel</button>
-              <button onClick={() => blockStep(confirmBlock.stepKey, (document.getElementById('blockReason') ? document.getElementById('blockReason').value : 'Blocked'))}
-                style={{ flex:1, background:'#F87171', color:'#fff', border:'none', borderRadius:8, padding:12, fontWeight:700, cursor:'pointer' }}>
+              <button onClick={() => setConfirmBlock(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:'11px', cursor:'pointer', fontSize:13, transition:'all .15s' }}>
+                Cancel
+              </button>
+              <button onClick={() => blockStep(confirmBlock.stepKey, document.getElementById('blockReason') ? document.getElementById('blockReason').value || 'Blocked' : 'Blocked')}
+                style={{ flex:1, background:'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:9, color:'#F87171', padding:'11px', fontWeight:700, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
                 🔒 Block step
               </button>
             </div>
           </div>
+          <style>{`@keyframes pgDialogIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
         </div>
       )}
 

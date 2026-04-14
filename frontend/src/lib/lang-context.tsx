@@ -48,8 +48,8 @@ export function LangProvider({ children }) {
   }
 
   function t(key) {
-    return (translations as any)[lang]?.[key]
-        || (translations as any).en?.[key]
+    return translations[lang]?.[key]
+        || translations.en?.[key]
         || key;
   }
 

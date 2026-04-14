@@ -140,18 +140,18 @@ export default function AdminOrgsPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 12, padding: 28, width: 460 }}>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', marginTop: 0, marginBottom: 20 }}>Create une organisation</h2>
-            {[['Nom', 'name', 'text'], ['Country', 'country', 'text'], ['Email facturation', 'billingEmail', 'email']].map(([label, key, type]) => (
+            {[['Nom', 'name', 'text'], ['Country', 'country', 'text'], ['Email facturation', 'billingEmail', 'email']].map(([label, key, type]) => 
               <div key={key} style={{ marginBottom: 14 }}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>{label}</label>
-                <input type={type} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                <input type={type} value={(form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                   style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px 12px', fontSize: 13, boxSizing: 'border-box', outline: 'none' }}/>
               </div>
             ))}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
-              {[['Max projets', 'maxProjects'], ['Max MW', 'maxMW'], ['Max users', 'maxUsers']].map(([label, key]) => (
+              {[['Max projets', 'maxProjects'], ['Max MW', 'maxMW'], ['Max users', 'maxUsers']].map(([label, key]) => 
                 <div key={key}>
                   <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 5, textTransform: 'uppercase' }}>{label}</label>
-                  <input type="number" value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: parseInt(e.target.value) }))}
+                  <input type="number" value={(form[key]} onChange={e => setForm(f => ({ ...f, [key]: parseInt(e.target.value) }))}
                     style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px 12px', fontSize: 13, boxSizing: 'border-box', outline: 'none' }}/>
                 </div>
               ))}

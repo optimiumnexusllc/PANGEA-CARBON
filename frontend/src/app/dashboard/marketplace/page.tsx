@@ -221,7 +221,7 @@ export default function MarketplacePage() {
           <span style={{ fontSize: 9, color: '#2A3F55', fontFamily: 'JetBrains Mono, monospace', marginLeft: 'auto' }}>PANGEA FEE: {pangeaFee.toFixed(1)}% · Xpansiv CBL ref.</span>
         </div>
         <div style={{ display: 'flex', gap: 24, overflowX: 'auto', paddingBottom: 2 }}>
-          {(prices as any[]).map(p => (
+          {prices.map(p => (
             <div key={p.standard} style={{ minWidth: 130, flexShrink: 0 }}>
               <div style={{ fontSize: 10, color: STD_COLOR[p.standard] || '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>{STD_LABEL[p.standard]}</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#E8EFF6', fontFamily: 'Syne, sans-serif' }}>{fmtUSD(p.last)}</div>
@@ -235,9 +235,9 @@ export default function MarketplacePage() {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 14 }}>
         {[
-          { label: L('Available Credits','Crédits disponibles'), v: fmtK((stats as any)?.totalAvailable||0)+' tCO2e', c:'#00FF94' },
-          { label: L('Retired Credits','Crédits retirés'),       v: fmtK((stats as any)?.totalRetired||0)+' tCO2e',  c:'#38BDF8' },
-          { label: L('Active Listings','Annonces actives'),      v: String((stats as any)?.activeListings||0),        c:'#FCD34D' },
+          { label: L('Available Credits','Crédits disponibles'), v: fmtK(stats?.totalAvailable||0)+' tCO2e', c:'#00FF94' },
+          { label: L('Retired Credits','Crédits retirés'),       v: fmtK(stats?.totalRetired||0)+' tCO2e',  c:'#38BDF8' },
+          { label: L('Active Listings','Annonces actives'),      v: String(stats?.activeListings||0),        c:'#FCD34D' },
           { label: L('Africa Market','Marché Afrique'),          v: '$400M+',                                         c:'#A78BFA' },
         ].map(s => (
           <div key={s.label} style={{ background: '#0D1117', border: `1px solid ${s.c}20`, borderRadius: 9, padding: '11px 14px' }}>
@@ -251,7 +251,7 @@ export default function MarketplacePage() {
       <div style={{ display: 'flex', gap: 4, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 9, padding: 4, marginBottom: 14, width: 'fit-content' }}>
         {tabBtn('buy', L('Buy Credits','Acheter'))}
         {tabBtn('sell', L('Sell Credits','Vendre'))}
-        {tabBtn('portfolio', `${L('My Orders','Mes ordres')} (${(orders as any[]).length})`)}
+        {tabBtn('portfolio', `${L('My Orders','Mes ordres')} (${orders.length})`)}
       </div>
 
       {/* BUY TAB */}
@@ -278,7 +278,7 @@ export default function MarketplacePage() {
           </div>
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:12 }}>
-            {(filtered as any[]).map(listing => (
+            {filtered.map(listing => (
               <div key={listing.id} style={{ background:'#0D1117', border:`1px solid ${STD_COLOR[listing.standard]||'#1E2D3D'}25`, borderRadius:13, padding:18, transition:'border-color 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor=(STD_COLOR[listing.standard]||'#1E2D3D')+'60')}
                 onMouseLeave={e => (e.currentTarget.style.borderColor=(STD_COLOR[listing.standard]||'#1E2D3D')+'25')}>
@@ -308,7 +308,7 @@ export default function MarketplacePage() {
                 </button>
               </div>
             ))}
-            {(filtered as any[]).length === 0 && (
+            {filtered.length === 0 && (
               <div style={{ gridColumn:'1/-1', textAlign:'center', padding:60, color:'#4A6278' }}>
                 {L('No listings match your filters','Aucune annonce ne correspond aux filtres')}
               </div>
@@ -344,14 +344,14 @@ export default function MarketplacePage() {
       {tab === 'portfolio' && (
         <div style={{ background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:12, overflow:'hidden' }}>
           <div style={{ padding:'14px 18px', background:'#121920', borderBottom:'1px solid #1E2D3D', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <span style={{ fontSize:10, color:'#4A6278', fontFamily:'JetBrains Mono, monospace' }}>{L('MY ORDERS','MES ORDRES')} — {(orders as any[]).length}</span>
+            <span style={{ fontSize:10, color:'#4A6278', fontFamily:'JetBrains Mono, monospace' }}>{L('MY ORDERS','MES ORDRES')} — {orders.length}</span>
             <button onClick={loadAll} style={{ background:'transparent', border:'none', color:'#4A6278', cursor:'pointer', fontSize:12 }}>↺ {L('Refresh','Actualiser')}</button>
           </div>
-          {(orders as any[]).length === 0 ? (
+          {orders.length === 0 ? (
             <div style={{ padding:40, textAlign:'center', color:'#4A6278', fontSize:13 }}>
               {L('No orders yet — place your first buy order above','Aucun ordre — passez votre premier ordre ci-dessus')}
             </div>
-          ) : (orders as any[]).map((order, i) => {
+          ) : orders.map((order, i) => {
             const sc = { PAID:'#00FF94', PAYMENT_PENDING:'#FCD34D', PENDING:'#8FA3B8', CANCELLED:'#F87171' };
             const gi = { STRIPE_CARD:'💳', STRIPE_INVOICE:'📧', CINETPAY:'🌍', FLUTTERWAVE:'🦋', manual:'📞' };
             const isPaid = ['PAID','SETTLED','RETIRED'].includes(order.status);
@@ -485,13 +485,13 @@ export default function MarketplacePage() {
                     { k: L('Subtotal','Sous-total'),       v: fmtUSD(subtotal) },
                     { k: `PANGEA Fee (${pangeaFee.toFixed(1)}%)`, v: fmtUSD(fee), sub: '→ PANGEA Stripe' },
                     { k: 'TOTAL',                          v: fmtUSD(grand), bold: true },
-                  ].map(r => (
+                  ].mapr => (
                     <div key={r.k} style={{ display:'flex', justifyContent:'space-between', marginBottom:6, fontSize:13 }}>
                       <span style={{ color:'#4A6278' }}>
                         {r.k}
-                        {(r as any).sub && <span style={{ fontSize:10, color:'#2A3F55', marginLeft:6 }}>{(r as any).sub}</span>}
+                        {(r.sub && <span style={{ fontSize:10, color:'#2A3F55', marginLeft:6 }}>{r.sub}</span>}
                       </span>
-                      <span style={{ color:(r as any).bold?'#00FF94':'#E8EFF6', fontFamily:'JetBrains Mono, monospace', fontWeight:(r as any).bold?800:400 }}>{r.v}</span>
+                      <span style={{ color:r.bold?'#00FF94':'#E8EFF6', fontFamily:'JetBrains Mono, monospace', fontWeight:r.bold?800:400 }}>{r.v}</span>
                     </div>
                   ))}
                 </div>
@@ -558,11 +558,11 @@ export default function MarketplacePage() {
                       { k: L('You pay','Vous payez'),         v: fmtUSD(orderResult.splitBreakdown.buyerPays), color:'#E8EFF6' },
                       { k: `PANGEA Fee (${pangeaFee.toFixed(1)}%)`, v: fmtUSD(orderResult.splitBreakdown.pangeaFee.amount), sub:'→ PANGEA Stripe', color:'#A78BFA' },
                       { k: L('Seller receives','Vendeur reçoit'), v: fmtUSD(orderResult.splitBreakdown.sellerGets.amount), sub:'→ Africa gateway', color:'#00FF94' },
-                    ].map(r => (
+                    ].mapr => (
                       <div key={r.k} style={{ display:'flex', justifyContent:'space-between', marginBottom:8, fontSize:13, alignItems:'center' }}>
                         <div>
                           <span style={{ color:'#8FA3B8' }}>{r.k}</span>
-                          {(r as any).sub && <div style={{ fontSize:10, color:'#2A3F55' }}>{(r as any).sub}</div>}
+                          {(r.sub && <div style={{ fontSize:10, color:'#2A3F55' }}>{r.sub}</div>}
                         </div>
                         <span style={{ color:r.color, fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{r.v}</span>
                       </div>

@@ -96,11 +96,11 @@ export default function SettingsPage() {
       {user && (
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(0,255,148,0.12)', border: '1px solid rgba(0,255,148,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: '#00FF94' }}>
-            {(user as any).name?.charAt(0)?.toUpperCase() || 'U'}
+            {user.name?.charAt(0)?.toUpperCase() || 'U'}
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#E8EFF6' }}>{(user as any).name}</div>
-            <div style={{ fontSize: 12, color: '#4A6278' }}>{(user as any).email} · <span style={{ color: '#00FF94' }}>FREE plan</span></div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#E8EFF6' }}>{user.name}</div>
+            <div style={{ fontSize: 12, color: '#4A6278' }}>{user.email} · <span style={{ color: '#00FF94' }}>FREE plan</span></div>
           </div>
         </div>
       )}

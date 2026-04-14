@@ -104,7 +104,7 @@ export default function SDGPage() {
             {[['Direct jobs created', jobs, setJobs], ['Households electrified', households, setHouseholds]].map(([label, val, setter]) => (
               <div key={String(label)}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>{label}</label>
-                <input type="number" value={String(val)} onChange={(e) => (setter as any)(e.target.value)} placeholder="0"
+                <input type="number" value={String(val)} onChange={(e) => setter(e.target.value)} placeholder="0"
                   style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 6, color: '#E8EFF6', padding: '8px 10px', fontSize: 13, boxSizing: 'border-box', outline: 'none' }}/>
               </div>
             ))}
