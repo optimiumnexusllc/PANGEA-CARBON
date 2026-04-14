@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); setError(''); setPendingVerif(false);
     try {

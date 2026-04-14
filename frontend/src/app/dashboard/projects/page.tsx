@@ -64,7 +64,7 @@ export default function ProjectsPage() {
       setProjects(prev => prev.filter(p => p.id !== deleteProject.id));
       setDeleteProject(null);
       flash('Projet supprime: ' + deleteProject.name);
-    } catch (e: any) { flash(e.message, false); }
+    } catch(e) { flash(e.message, false); }
     finally { setDeleting(false); }
   };
 
@@ -82,7 +82,7 @@ export default function ProjectsPage() {
       setProjects(prev => prev.map(p => p.id === editProject.id ? { ...p, ...editProject } : p));
       setEditProject(null);
       flash('Projet mis a jour');
-    } catch (e: any) { flash(e.message, false); }
+    } catch(e) { flash(e.message, false); }
     finally { setSaving(false); }
   };
 

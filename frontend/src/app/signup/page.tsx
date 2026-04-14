@@ -81,7 +81,7 @@ export default function SignupPage() {
       }
 
       router.push(`/auth/check-email?email=${encodeURIComponent(form.email)}`);
-    } catch (e: any) { setError(e.message); }
+    } catch(e) { setError(e.message); }
     finally { setLoading(false); }
   };
 

@@ -50,7 +50,7 @@ export default function ProjectDetailPage() {
       setReadingForm({ periodStart: '', periodEnd: '', energyMWh: '', availabilityPct: '', notes: '' });
       const [p, m] = await Promise.all([api.getProject(String(id)), api.getMRV(String(id), year).catch(() => null)]);
       setProject(p); setMrv(m);
-    } catch (e: any) { alert(e.message); }
+    } catch(e) { alert(e.message); }
     setSavingReading(false);
   };
 

@@ -104,7 +104,7 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
       } else {
         setFeedback({ msg: result.error || 'Erreur de sauvegarde', ok: false });
       }
-    } catch (e: any) {
+    } catch(e) {
       setFeedback({ msg: e.message || 'Erreur réseau', ok: false });
     } finally {
       setSaving(false);
@@ -209,7 +209,7 @@ export default function AdminSettingsPage() {
         });
       }
       setSettingsState(map);
-    } catch (e: any) {
+    } catch(e) {
       setLoadError(e.message || 'Impossible de charger les paramètres');
     } finally {
       setLoading(false);
@@ -227,7 +227,7 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       if (!res.ok) return { success: false, error: data.error || `Erreur ${res.status}` };
       return { success: true, masked: data.masked };
-    } catch (e: any) {
+    } catch(e) {
       return { success: false, error: e.message || 'Erreur réseau — vérifiez votre connexion' };
     }
   };

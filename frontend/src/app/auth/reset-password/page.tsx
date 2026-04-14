@@ -20,7 +20,7 @@ function ResetPasswordInner() {
     if (!token) setError('Lien invalide — token manquant.');
   }, [token]);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (password.length < 8) { setError('Minimum 8 caractères.'); return; }
     if (password !== confirm) { setError('Les mots de passe ne correspondent pas.'); return; }

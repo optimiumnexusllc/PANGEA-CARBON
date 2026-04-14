@@ -57,7 +57,7 @@ export default function DashboardPage() {
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>
-          Bonjour, {user?.name?.spli' '[0] || 'Esdras'} 👋
+          Bonjour, {user?.name?.split(' ')[0] || 'Esdras'} 👋
         </h1>
         <p style={{ fontSize: 13, color: '#4A6278', marginTop: 4 }}>
           Votre portfolio carbone africain · PANGEA CARBON Intelligence Platform
@@ -68,7 +68,7 @@ export default function DashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
         {[
           { label: 'Crédits carbone totaux', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} projets`, icon: '🌍' },
-          { label: '''', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e moy.`, icon: '💰' },
+          { label: 'Carbon revenue', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e moy.`, icon: '💰' },
           { label: 'Production totale', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: 'Toutes années', icon: '⚡' },
           { label: 'Potentiel Article 6', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
         ].map(k => (
@@ -226,7 +226,7 @@ export default function DashboardPage() {
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12 }}>ACTIONS RAPIDES</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
-                { href: '/dashboard/projects/new', icon: '➕', label: '''', color: '#00FF94' },
+                { href: '/dashboard/projects/new', icon: '➕', label: 'New project', color: '#00FF94' },
                 { href: '/dashboard/upload', icon: '📥', label: 'Importer CSV', color: '#38BDF8' },
                 { href: '/dashboard/optimization', icon: '⚙️', label: 'Optimiser MRV', color: '#FCD34D' },
                 { href: '/dashboard/marketplace', icon: '🏪', label: 'Marketplace', color: '#A78BFA' },

@@ -42,7 +42,7 @@ export default function NewProjectPage() {
         longitude: form.longitude ? parseFloat(form.longitude) : null,
       });
       router.push(`/dashboard/projects/${project.id}`);
-    } catch (e: any) { setError(e.message); setLoading(false); }
+    } catch(e) { setError(e.message); setLoading(false); }
   };
 
   const Label = ({ children }: any) => (

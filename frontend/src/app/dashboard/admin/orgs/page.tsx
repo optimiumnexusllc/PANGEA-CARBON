@@ -60,7 +60,7 @@ export default function AdminOrgsPage() {
       setOrgs((prev: any[]) => prev.map((o: any) => o.id === editOrg.id ? { ...o, ...d } : o));
       setEditOrg(null);
       flash('Organisation mise a jour');
-    } catch (e: any) { flash(e.message, false); }
+    } catch(e) { flash(e.message, false); }
     finally { setSaving(false); }
   };
 
@@ -73,7 +73,7 @@ export default function AdminOrgsPage() {
       setOrgs((prev: any[]) => prev.filter((o: any) => o.id !== deleteOrg.id));
       setDeleteOrg(null);
       flash('Organisation supprimee');
-    } catch (e: any) { flash(e.message, false); }
+    } catch(e) { flash(e.message, false); }
     finally { setDeleting(false); }
   };
 

@@ -104,7 +104,7 @@ export default function MarketplacePage() {
       const updated = [newOrder, ...orders].slice(0, 50);
       setOrders(updated);
       localStorage.setItem('pgc_orders', JSON.stringify(updated));
-    } catch (e: any) {
+    } catch(e) {
       setOrderResult({ error: e.message || 'Order failed' });
     } finally {
       setPlacing(false);

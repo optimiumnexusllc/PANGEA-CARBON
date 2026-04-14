@@ -56,7 +56,7 @@ export default function UploadPage() {
     reader.readAsText(file);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e) => {
     e.preventDefault(); setDragging(false);
     const file = e.dataTransfer.files[0];
     if (file && (file.name.endsWith('.csv') || file.name.endsWith('.txt'))) handleFile(file);
@@ -86,7 +86,7 @@ export default function UploadPage() {
 
       setParsed([]);
       setFileName('');
-    } catch (e: any) { setError(e.message); }
+    } catch(e) { setError(e.message); }
     finally { setUploading(false); }
   };
 

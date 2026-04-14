@@ -59,7 +59,7 @@ export default function AdminUsersPage() {
       const data = await res.json();
       setUsers(data.users || []);
       setTotal(data.total || data.users?.length || 0);
-    } catch (e: any) {
+    } catch(e) {
       setLoadError(e.message || 'Impossible de charger les utilisateurs');
       setUsers([]);
     } finally {
@@ -74,7 +74,7 @@ export default function AdminUsersPage() {
       await fetchAuth(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify(data)  });
       // Mise à jour locale immédiate
       setUsers(prev => prev.map(u => u.id === id ? { ...u, ...data } : u));
-    } catch (e: any) {
+    } catch(e) {
       alert('Erreur: ' + e.message);
     }
   };
@@ -88,7 +88,7 @@ export default function AdminUsersPage() {
       setUsers(prev => prev.filter(u => u.id !== deleteUser.id));
       setTotal(prev => prev - 1);
       setDeleteUser(null);
-    } catch (e: any) { alert('Erreur: ' + e.message); }
+    } catch(e) { alert('Erreur: ' + e.message); }
     finally { setDeleting(false); }
   };
 
@@ -122,7 +122,7 @@ export default function AdminUsersPage() {
         // Re-fetch pour s'assurer de la synchro
         load();
       }, 1200);
-    } catch (e: any) {
+    } catch(e) {
       setSaveError(e.message || 'Erreur réseau');
     } finally {
       setSaving(false);
