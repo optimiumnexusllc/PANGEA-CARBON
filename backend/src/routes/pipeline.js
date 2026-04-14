@@ -1,182 +1,243 @@
 /**
  * PANGEA CARBON — Credit Issuance Pipeline Engine
- * Palantir god+++ — Workflow complet de création de crédits carbone
+ * Verra ACM0002 · Gold Standard · Article 6 ITMO · CORSIA
  *
- * LE VRAI WORKFLOW D'UN CRÉDIT CARBONE (Verra ACM0002):
- * ─────────────────────────────────────────────────────
- * ÉTAPE 1: MRV DATA          → Données de production collectées (API/CSV)
- * ÉTAPE 2: MRV CALCULATION   → Calcul ACM0002 (crédits estimés)
- * ÉTAPE 3: PDD               → Project Design Document rédigé
- * ÉTAPE 4: VVB VALIDATION    → Auditeur tiers valide la méthodologie
- * ÉTAPE 5: MONITORING PERIOD → Période de monitoring (1 an minimum)
- * ÉTAPE 6: MONITORING REPORT → Rapport annuel compilé
- * ÉTAPE 7: VVB VERIFICATION  → Auditeur vérifie les données réelles
- * ÉTAPE 8: REGISTRY SUBMIT   → Soumission à Verra/Gold Standard
- * ÉTAPE 9: REGISTRY REVIEW   → Verra examine et approuve (4-12 semaines)
- * ÉTAPE 10: CREDIT ISSUANCE  → VCUs/GS crédits émis sur le registre
- * ÉTAPE 11: MARKET LISTING   → Disponibles sur la marketplace PANGEA
+ * WORKFLOW 11 ÉTAPES (6-24 mois):
+ *  1. MRV_DATA          → Collecte données production
+ *  2. MRV_CALCULATION   → Calcul ACM0002 v22.0
+ *  3. PDD               → Project Design Document
+ *  4. VVB_VALIDATION    → Validation par auditeur tiers
+ *  5. MONITORING_PERIOD → Période de monitoring (≥12 mois)
+ *  6. MONITORING_REPORT → Rapport annuel compilé
+ *  7. VVB_VERIFICATION  → Vérification indépendante
+ *  8. REGISTRY_SUBMISSION → Soumission Verra/GS
+ *  9. REGISTRY_REVIEW   → Examen + approbation Verra
+ * 10. CREDIT_ISSUANCE   → VCUs émis + blockchain PANGEA
+ * 11. MARKET_LISTING    → Listing marketplace
  */
 
-const router = require('express').Router();
-const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../services/registry.service');
+const router  = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
-const auth = require('../middleware/auth');
-const crypto = require('crypto');
-const prisma = new PrismaClient();
+const auth    = require('../middleware/auth');
+const crypto  = require('crypto');
+const prisma  = new PrismaClient();
 const { MRVEngine } = require('../services/mrv.service');
+const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../services/registry.service');
 
-// ─── Définition des étapes du pipeline ───────────────────────────────────────
-const PIPELINE_STEPS = [
-  {
-    key: 'MRV_DATA', number: 1, title: 'MRV Data Collection',
-    titleFr: 'Collecte données MRV',
-    description: 'Energy production data collected via API or CSV import. Minimum 12 months required.',
-    icon: '📊', duration: '1-12 months', requirement: 'min 12 readings',
-    autoComplete: true, // Complété automatiquement si données présentes
-  },
-  {
-    key: 'MRV_CALCULATION', number: 2, title: 'MRV Calculation (ACM0002)',
-    titleFr: 'Calcul MRV ACM0002',
-    description: 'Gross emission reductions calculated per Verra ACM0002 v22.0. Leakage and uncertainty deducted.',
-    icon: '🧮', duration: '1 day', requirement: 'MRV data complete',
-    autoComplete: true,
-  },
-  {
-    key: 'PDD', number: 3, title: 'Project Design Document',
-    titleFr: 'Document de Conception de Projet',
-    description: 'PDD describes the project activity, methodology, baseline, additionality demonstration, and monitoring plan.',
-    icon: '📄', duration: '2-6 weeks', requirement: 'Technical team',
-    autoComplete: false,
-  },
-  {
-    key: 'VVB_VALIDATION', number: 4, title: 'VVB Validation',
-    titleFr: 'Validation par le VVB',
-    description: 'Accredited Validation & Verification Body (VVB) reviews and validates the PDD and methodology.',
-    icon: '🏛️', duration: '4-16 weeks', requirement: 'Accredited VVB (Bureau Veritas, SGS, DNV, etc.)',
-    autoComplete: false,
-  },
-  {
-    key: 'MONITORING_PERIOD', number: 5, title: 'Monitoring Period',
-    titleFr: 'Période de Monitoring',
-    description: 'Continuous monitoring of energy production during the crediting period. IoT/SCADA data required.',
-    icon: '📡', duration: '12 months minimum', requirement: 'Continuous IoT/SCADA',
-    autoComplete: true,
-  },
-  {
-    key: 'MONITORING_REPORT', number: 6, title: 'Monitoring Report',
-    titleFr: 'Rapport de Monitoring',
-    description: 'Annual monitoring report compiled with all production data, grid emission factors, and credit calculations.',
-    icon: '📋', duration: '2-4 weeks', requirement: 'Monitoring data + QA/QC',
-    autoComplete: false,
-  },
-  {
-    key: 'VVB_VERIFICATION', number: 7, title: 'VVB Verification',
-    titleFr: 'Vérification par le VVB',
-    description: 'VVB independently verifies the monitoring report, spot-checks data, and issues verification statement.',
-    icon: '✅', duration: '4-8 weeks', requirement: 'Same or different VVB',
-    autoComplete: false,
-  },
-  {
-    key: 'REGISTRY_SUBMISSION', number: 8, title: 'Registry Submission',
-    titleFr: 'Soumission au Registre',
-    description: 'All documents submitted to Verra/Gold Standard registry. Registry fee paid.',
-    icon: '📤', duration: '1 week', requirement: 'Registry account + fees',
-    autoComplete: false,
-  },
-  {
-    key: 'REGISTRY_REVIEW', number: 9, title: 'Registry Review & Approval',
-    titleFr: 'Examen Registre',
-    description: 'Verra/GS reviews the submission. Public stakeholder consultation period (30 days). Final approval.',
-    icon: '🔍', duration: '4-12 weeks', requirement: 'Registry process',
-    autoComplete: false,
-  },
-  {
-    key: 'CREDIT_ISSUANCE', number: 10, title: 'Credit Issuance',
-    titleFr: 'Émission des Crédits',
-    description: 'VCUs issued on the official registry and recorded on PANGEA CARBON blockchain. Serial numbers assigned.',
-    icon: '🌿', duration: '1 day', requirement: 'Registry approval',
-    autoComplete: false,
-  },
-  {
-    key: 'MARKET_LISTING', number: 11, title: 'Marketplace Listing',
-    titleFr: 'Listing Marketplace',
-    description: 'Credits listed on PANGEA CARBON Exchange. Priced based on live CBL market reference.',
-    icon: '🏪', duration: '1 day', requirement: 'Credits issued',
-    autoComplete: true,
-  },
+// ─── Step definitions ─────────────────────────────────────────────────────────
+const STEPS = [
+  { key:'MRV_DATA',            n:1,  title:'MRV Data Collection',      icon:'📊', duration:'1-12 months',  auto:true,  requirement:'≥12 monthly readings' },
+  { key:'MRV_CALCULATION',     n:2,  title:'MRV Calculation (ACM0002)',icon:'🧮', duration:'1 day',        auto:true,  requirement:'MRV data complete' },
+  { key:'PDD',                 n:3,  title:'Project Design Document',  icon:'📄', duration:'2-6 weeks',    auto:false, requirement:'Technical team' },
+  { key:'VVB_VALIDATION',      n:4,  title:'VVB Validation',           icon:'🏛️', duration:'4-16 weeks',   auto:false, requirement:'Accredited VVB' },
+  { key:'MONITORING_PERIOD',   n:5,  title:'Monitoring Period',        icon:'📡', duration:'12 months min', auto:true,  requirement:'IoT/SCADA data' },
+  { key:'MONITORING_REPORT',   n:6,  title:'Monitoring Report',        icon:'📋', duration:'2-4 weeks',    auto:false, requirement:'QA/QC complete' },
+  { key:'VVB_VERIFICATION',    n:7,  title:'VVB Verification',         icon:'✅', duration:'4-8 weeks',    auto:false, requirement:'Verification statement' },
+  { key:'REGISTRY_SUBMISSION', n:8,  title:'Registry Submission',      icon:'📤', duration:'1 week',       auto:false, requirement:'Registry account + fees' },
+  { key:'REGISTRY_REVIEW',     n:9,  title:'Registry Review & Approval',icon:'🔍',duration:'4-12 weeks',  auto:false, requirement:'Registry process' },
+  { key:'CREDIT_ISSUANCE',     n:10, title:'Credit Issuance',          icon:'🌿', duration:'1 day',        auto:false, requirement:'Registry approval' },
+  { key:'MARKET_LISTING',      n:11, title:'Marketplace Listing',      icon:'🏪', duration:'1 day',        auto:true,  requirement:'Credits issued' },
 ];
+const STEP_MAP = Object.fromEntries(STEPS.map(s => [s.key, s]));
+const STD_DESC = { MRV_DATA:'Energy production data collected via IoT/SCADA or CSV import.', MRV_CALCULATION:'Gross reductions = EG_RE × EF_grid. Leakage (3%) and uncertainty (5%) deducted per ACM0002 §4.2 and §8.1.', PDD:'PDD describes methodology, baseline, additionality, monitoring plan. Template: Verra VCS v4.0 / Gold Standard v1.2.', VVB_VALIDATION:'Accredited VVB verifies PDD against Verra/GS methodology. Validates additionality, baseline, monitoring plan.', MONITORING_PERIOD:'Continuous IoT/SCADA monitoring. Minimum 1 year. Data collected and archived with SHA-256 integrity.', MONITORING_REPORT:'Annual compilation of production data, emission calculations, quality assurance.', VVB_VERIFICATION:'Independent spot-checks, data verification, uncertainty assessment. Issues verification statement.', REGISTRY_SUBMISSION:'Package: PDD + Monitoring Report + VVB Statements + Supporting Docs submitted to Verra/GS.', REGISTRY_REVIEW:'Verra/GS technical review + 30-day public stakeholder consultation. Final approval or requests for clarification.', CREDIT_ISSUANCE:'VCUs/GS Credits issued on official registry + PANGEA blockchain. Serial numbers assigned per UNFCCC protocol.', MARKET_LISTING:'Credits listed on PANGEA CARBON Exchange at live CBL market price.' };
 
-const STEP_MAP = Object.fromEntries(PIPELINE_STEPS.map(s => [s.key, s]));
-
-// ─── Helper: créer les étapes d'un pipeline ──────────────────────────────────
-async function createPipelineSteps(pipelineId) {
-  for (const step of PIPELINE_STEPS) {
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+async function initSteps(pipelineId) {
+  for (const s of STEPS) {
     await prisma.pipelineStep.create({
       data: {
-        pipelineId, stepKey: step.key, stepNumber: step.number,
-        title: step.title, status: step.number === 1 ? 'IN_PROGRESS' : 'PENDING',
-        data: { description: step.description, icon: step.icon, duration: step.duration },
+        pipelineId, stepKey: s.key, stepNumber: s.n,
+        title: s.title, status: s.n === 1 ? 'IN_PROGRESS' : 'PENDING',
+        data: { description: STD_DESC[s.key] || '', icon: s.icon, duration: s.duration, requirement: s.requirement },
       }
     });
   }
 }
 
-// ─── Helper: avancer le pipeline ─────────────────────────────────────────────
-async function advancePipeline(pipelineId, completedKey, data = {}, userId = 'system') {
-  const step = await prisma.pipelineStep.findUnique({
+async function advanceStep(pipelineId, completedKey, extraData = {}, userId = 'system') {
+  const current = await prisma.pipelineStep.findUnique({
     where: { pipelineId_stepKey: { pipelineId, stepKey: completedKey } }
   });
-  if (!step || step.status === 'COMPLETED') return;
+  if (!current) throw new Error(`Step ${completedKey} not found`);
+  if (current.status === 'COMPLETED') return { alreadyDone: true };
 
-  // Marquer l'étape courante comme complète
+  // Complete current step
   await prisma.pipelineStep.update({
-    where: { id: step.id },
-    data: { status: 'COMPLETED', completedAt: new Date(), completedBy: userId, data: { ...step.data, ...data } }
+    where: { id: current.id },
+    data: {
+      status: 'COMPLETED',
+      completedAt: new Date(),
+      completedBy: userId,
+      data: { ...(current.data || {}), ...extraData }
+    }
   });
 
-  // Trouver et activer la prochaine étape
-  const nextStepDef = PIPELINE_STEPS.find(s => s.number === step.stepNumber + 1);
-  if (nextStepDef) {
+  // Activate next step
+  const nextDef = STEPS.find(s => s.n === current.stepNumber + 1);
+  if (nextDef) {
     await prisma.pipelineStep.update({
-      where: { pipelineId_stepKey: { pipelineId, stepKey: nextStepDef.key } },
+      where: { pipelineId_stepKey: { pipelineId, stepKey: nextDef.key } },
       data: { status: 'IN_PROGRESS', startedAt: new Date() }
     });
-    // Mettre à jour currentStep du pipeline
     await prisma.creditPipeline.update({
       where: { id: pipelineId },
-      data: { currentStep: nextStepDef.key, updatedAt: new Date() }
+      data: { currentStep: nextDef.key }
     });
   }
+  return { advanced: true, nextStep: nextDef?.key || null };
 }
 
-// ─── POST /pipeline — Démarrer un nouveau pipeline ───────────────────────────
+async function issueCarbonCredits(pipeline, confirmedQty, userId) {
+  const qty = confirmedQty || pipeline.estimatedCredits || 0;
+  if (!qty || qty <= 0) throw new Error('Invalid credit quantity');
+
+  const lastBlock = await prisma.creditIssuance.findFirst({ orderBy: { blockNumber: 'desc' } }).catch(() => null);
+  const blockNumber  = (lastBlock?.blockNumber || 0) + 1;
+  const previousHash = lastBlock?.blockHash || '0'.repeat(64);
+
+  const prefix     = `PGC-${pipeline.projectId.slice(-6).toUpperCase()}-${pipeline.vintage}`;
+  const serialFrom = `${prefix}-${String(blockNumber * 10000 + 1).padStart(8, '0')}`;
+  const serialTo   = `${prefix}-${String(blockNumber * 10000 + Math.ceil(qty)).padStart(8, '0')}`;
+
+  const payload   = JSON.stringify({ previousHash, projectId: pipeline.projectId, vintage: pipeline.vintage, quantity: qty, standard: pipeline.standard, serialFrom, serialTo, pipelineId: pipeline.id, timestamp: new Date().toISOString() });
+  const blockHash  = crypto.createHash('sha256').update(payload).digest('hex');
+  const merkleRoot = crypto.createHash('sha256').update(JSON.stringify({ pipelineId: pipeline.id, qty, ts: Date.now() })).digest('hex');
+
+  const issuance = await prisma.creditIssuance.create({
+    data: {
+      projectId: pipeline.projectId,
+      vintage:   pipeline.vintage,
+      quantity:  qty,
+      standard:  pipeline.standard,
+      serialFrom, serialTo,
+      status:    'ISSUED',
+      previousHash, blockHash, blockNumber, merkleRoot,
+      metadata: { pipelineId: pipeline.id, vvbName: pipeline.vvbName, registryRef: pipeline.registryRef, issuedViaWorkflow: true }
+    }
+  });
+
+  await prisma.creditPipeline.update({
+    where: { id: pipeline.id },
+    data: { issuanceId: issuance.id, confirmedCredits: qty, issuedAt: new Date() }
+  });
+
+  await prisma.auditLog.create({
+    data: { userId, action: 'CREDITS_ISSUED_VIA_PIPELINE', entity: 'CreditIssuance', entityId: issuance.id,
+      after: { blockHash: blockHash.slice(0,16)+'...', blockNumber, qty, standard: pipeline.standard, pipelineId: pipeline.id } }
+  }).catch(() => {});
+
+  return issuance;
+}
+
+async function loadFullPipeline(id) {
+  const pipeline = await prisma.creditPipeline.findUnique({
+    where: { id },
+    include: {
+      steps:     { orderBy: { stepNumber: 'asc' } },
+      documents: { orderBy: { uploadedAt: 'desc' } },
+      project:   { select: { name:true, countryCode:true, type:true, installedMW:true, gridEmissionFactor:true } }
+    }
+  });
+  if (!pipeline) return null;
+  const completedSteps = pipeline.steps.filter(s => s.status === 'COMPLETED').length;
+  const progress = Math.round((completedSteps / STEPS.length) * 100);
+  return { pipeline, progress, stepDefinitions: STEPS };
+}
+
+// ─── ROUTES (ordre critique: spécifiques AVANT /:id) ─────────────────────────
+
+// GET /pipeline/stats/global — DOIT être avant /:id
+router.get('/stats/global', auth, async (req, res, next) => {
+  try {
+    let stats = { total:0, active:0, completed:0, blocked:0, creditsInPipeline:0, creditsIssued:0 };
+    try {
+      const [total, active, completed, blocked, inPipe, issued] = await Promise.all([
+        prisma.creditPipeline.count(),
+        prisma.creditPipeline.count({ where:{ status:'ACTIVE' } }),
+        prisma.creditPipeline.count({ where:{ status:'COMPLETED' } }),
+        prisma.creditPipeline.count({ where:{ status:'BLOCKED' } }),
+        prisma.creditPipeline.aggregate({ where:{ status:{ in:['ACTIVE','BLOCKED'] } }, _sum:{ estimatedCredits:true } }),
+        prisma.creditPipeline.aggregate({ where:{ status:'COMPLETED' }, _sum:{ confirmedCredits:true } }),
+      ]);
+      stats = { total, active, completed, blocked,
+        creditsInPipeline: inPipe._sum.estimatedCredits || 0,
+        creditsIssued:      issued._sum.confirmedCredits || 0 };
+    } catch(_e) {}
+    res.json({ ...stats, stepDefinitions: STEPS });
+  } catch(e) { next(e); }
+});
+
+// GET /pipeline/vvbs — DOIT être avant /:id
+router.get('/vvbs', auth, (req, res, next) => {
+  try {
+    const { country, standard, speciality } = req.query;
+    res.json(getAccreditedVVBs({ country, standard, speciality }));
+  } catch(e) { next(e); }
+});
+
+// GET /pipeline/verra-projects — DOIT être avant /:id
+router.get('/verra-projects', auth, async (req, res, next) => {
+  try {
+    const { country, methodology } = req.query;
+    const [projects, stats] = await Promise.all([
+      searchVerraProjects({ country, methodology }).catch(() => ({ projects:[], total:0, source:'error' })),
+      getVerraStats().catch(() => ({})),
+    ]);
+    res.json({ ...projects, globalStats: stats });
+  } catch(e) { next(e); }
+});
+
+// GET /pipeline/project/:projectId — DOIT être avant /:id
+router.get('/project/:projectId', auth, async (req, res, next) => {
+  try {
+    const pipelines = await prisma.creditPipeline.findMany({
+      where:   { projectId: req.params.projectId },
+      include: { steps:{ orderBy:{ stepNumber:'asc' } }, _count:{ select:{ documents:true } } },
+      orderBy: { createdAt:'desc' }
+    });
+    res.json({ pipelines, total: pipelines.length, stepDefinitions: STEPS });
+  } catch(e) { next(e); }
+});
+
+// POST /pipeline — Créer un pipeline
 router.post('/', auth, async (req, res, next) => {
   try {
     const { projectId, vintage, standard } = req.body;
-    if (!projectId || !vintage) return res.status(400).json({ error: 'projectId and vintage required' });
+    if (!projectId) return res.status(400).json({ error: 'projectId required' });
+    if (!vintage)   return res.status(400).json({ error: 'vintage required' });
 
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        energyReadings: { where: { periodStart: { gte: new Date(`${vintage}-01-01`), lte: new Date(`${vintage}-12-31`) } } },
-        mRVRecords: { where: { year: parseInt(vintage) } },
+        energyReadings: { where:{ periodStart:{ gte:new Date(`${vintage}-01-01`) }, periodEnd:{ lte:new Date(`${vintage}-12-31`) } } },
+        mRVRecords:     { where:{ year:parseInt(vintage) }, take:1 }
       }
     });
     if (!project) return res.status(404).json({ error: 'Project not found' });
 
-    const orgId = project.organizationId || req.user.organizationId || 'default';
+    // Vérifier pas de pipeline dupliqué
+    const existing = await prisma.creditPipeline.findFirst({
+      where: { projectId, vintage:parseInt(vintage), standard: standard||'VERRA_VCS', status:{ not:'CANCELLED' } }
+    });
+    if (existing) return res.status(409).json({ error:`Pipeline already exists for ${project.name} vintage ${vintage}`, pipelineId: existing.id });
 
-    // Calculer l'estimation initiale via MRV Engine
+    // Estimer les crédits
     let estimatedCredits = 0;
+    let mrvData = null;
     if (project.energyReadings.length > 0) {
-      const mrvResult = MRVEngine.calculateAnnual(project.energyReadings, project);
-      estimatedCredits = mrvResult.emissions.netCarbonCredits;
-    } else if (project.installedMW) {
-      // Estimation sans données: CF moyen africain 25%
-      estimatedCredits = project.installedMW * 8760 * 0.25 * 0.85 * (project.gridEmissionFactor || 0.4) * 0.92;
+      try {
+        const mrv = MRVEngine.calculateAnnual(project.energyReadings, project);
+        estimatedCredits = mrv.emissions.netCarbonCredits;
+        mrvData = { grossReductions:mrv.emissions.grossReductions, leakage:mrv.emissions.leakageDeduction, netCredits:mrv.emissions.netCarbonCredits, gridEF:mrv.input.gridEmissionFactor, methodology:'ACM0002 v22.0' };
+      } catch(_e) {}
+    }
+    if (!estimatedCredits && project.installedMW) {
+      // Estimation: MW * 8760h * 25% CF * EF * 0.92 (leakage+uncertainty)
+      const ef = project.gridEmissionFactor || 0.4;
+      estimatedCredits = Math.round(project.installedMW * 8760 * 0.25 * ef * 0.92);
     }
 
-    // Créer le pipeline
+    const orgId = project.organizationId || req.user.organizationId || 'system';
     const pipeline = await prisma.creditPipeline.create({
       data: {
         projectId, organizationId: orgId,
@@ -188,295 +249,184 @@ router.post('/', auth, async (req, res, next) => {
       }
     });
 
-    await createPipelineSteps(pipeline.id);
+    await initSteps(pipeline.id);
 
-    // Auto-compléter MRV_DATA si données présentes
-    if (project.energyReadings.length >= 12) {
-      await advancePipeline(pipeline.id, 'MRV_DATA', {
-        readingsCount: project.energyReadings.length,
-        totalMWh: project.energyReadings.reduce((s, r) => s + r.energyMWh, 0),
-      }, req.user.userId);
-      // Auto-compléter MRV_CALCULATION
-      await advancePipeline(pipeline.id, 'MRV_CALCULATION', {
-        estimatedCredits,
-        methodology: 'ACM0002 v22.0',
-        gridEF: project.gridEmissionFactor,
-      }, req.user.userId);
+    // Auto-avancer si données MRV présentes
+    const readingCount = project.energyReadings.length;
+    if (readingCount >= 12 || project.mRVRecords.length > 0) {
+      await advanceStep(pipeline.id, 'MRV_DATA', { readingsCount:readingCount, totalMWh: project.energyReadings.reduce((s,r)=>s+r.energyMWh,0), autoCompleted:true }, req.user.userId);
+      if (mrvData) {
+        await advanceStep(pipeline.id, 'MRV_CALCULATION', { ...mrvData, autoCompleted:true }, req.user.userId);
+      }
     }
 
     await prisma.auditLog.create({
-      data: {
-        userId: req.user.userId,
-        action: 'PIPELINE_CREATED',
-        entity: 'CreditPipeline', entityId: pipeline.id,
-        after: { projectId, vintage, standard, estimatedCredits }
-      }
-    });
+      data: { userId:req.user.userId, action:'PIPELINE_CREATED', entity:'CreditPipeline', entityId:pipeline.id,
+        after:{ projectId, vintage, standard, estimatedCredits, readingCount } }
+    }).catch(()=>{});
 
-    const full = await prisma.creditPipeline.findUnique({
-      where: { id: pipeline.id },
-      include: { steps: { orderBy: { stepNumber: 'asc' } }, project: { select: { name: true, countryCode: true, type: true } } }
-    });
-
-    res.status(201).json({ pipeline: full, steps: PIPELINE_STEPS, message: `Pipeline créé — ${estimatedCredits.toFixed(0)} tCO₂e estimés` });
+    const full = await loadFullPipeline(pipeline.id);
+    res.status(201).json({ ...full, message:`Pipeline created — ${Math.round(estimatedCredits).toLocaleString()} tCO₂e estimated` });
   } catch(e) { next(e); }
 });
 
-// ─── GET /pipeline — Liste des pipelines ─────────────────────────────────────
+// GET /pipeline — Liste
 router.get('/', auth, async (req, res, next) => {
   try {
     let pipelines = [];
     try {
       pipelines = await prisma.creditPipeline.findMany({
-        where: { organizationId: req.user.organizationId || undefined },
+        where:   { organizationId: req.user.organizationId || undefined },
         include: {
-          steps: { orderBy: { stepNumber: 'asc' } },
-          project: { select: { name: true, countryCode: true, type: true, installedMW: true } },
-          _count: { select: { documents: true } }
+          steps:   { orderBy:{ stepNumber:'asc' } },
+          project: { select:{ name:true, countryCode:true, type:true, installedMW:true } },
+          _count:  { select:{ documents:true } }
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt:'desc' }
       });
-    } catch(_dbErr) { pipelines = []; }
-    res.json({ pipelines, total: pipelines.length, stepDefinitions: PIPELINE_STEPS });
+    } catch(_e) {}
+    res.json({ pipelines, total:pipelines.length, stepDefinitions:STEPS });
   } catch(e) { next(e); }
 });
 
-// ─── GET /pipeline/:id — Détail d'un pipeline ────────────────────────────────
+// GET /pipeline/:id — Détail (APRÈS les routes statiques)
 router.get('/:id', auth, async (req, res, next) => {
   try {
-    const pipeline = await prisma.creditPipeline.findUnique({
-      where: { id: req.params.id },
-      include: {
-        steps: { orderBy: { stepNumber: 'asc' } },
-        documents: { orderBy: { uploadedAt: 'desc' } },
-        project: { include: {
-          energyReadings: { take: 5, orderBy: { periodStart: 'desc' } },
-          mRVRecords: { take: 3, orderBy: { year: 'desc' } },
-        }}
-      }
-    });
-    if (!pipeline) return res.status(404).json({ error: 'Pipeline not found' });
-
-    const completedSteps = pipeline.steps.filter(s => s.status === 'COMPLETED').length;
-    const progress = Math.round((completedSteps / PIPELINE_STEPS.length) * 100);
-
-    res.json({ pipeline, progress, stepDefinitions: PIPELINE_STEPS });
+    const full = await loadFullPipeline(req.params.id);
+    if (!full) return res.status(404).json({ error:'Pipeline not found' });
+    res.json(full);
   } catch(e) { next(e); }
 });
 
-// ─── POST /pipeline/:id/advance — Valider une étape ──────────────────────────
+// POST /pipeline/:id/advance — Valider une étape
 router.post('/:id/advance', auth, async (req, res, next) => {
   try {
-    const { stepKey, data, notes } = req.body;
-    if (!stepKey) return res.status(400).json({ error: 'stepKey required' });
+    const { stepKey, notes, confirmedCredits } = req.body;
+    if (!stepKey) return res.status(400).json({ error:'stepKey required' });
 
-    const pipeline = await prisma.creditPipeline.findUnique({ where: { id: req.params.id } });
-    if (!pipeline) return res.status(404).json({ error: 'Pipeline not found' });
+    const pipeline = await prisma.creditPipeline.findUnique({ where:{ id:req.params.id } });
+    if (!pipeline) return res.status(404).json({ error:'Pipeline not found' });
+    if (pipeline.currentStep !== stepKey) {
+      return res.status(400).json({ error:`Cannot advance ${stepKey} — current step is ${pipeline.currentStep}` });
+    }
 
-    await advancePipeline(req.params.id, stepKey, { ...data, notes }, req.user.userId);
+    // Avancer l'étape
+    await advanceStep(req.params.id, stepKey, { notes, completedBy:req.user.userId }, req.user.userId);
 
-    // Logique spéciale pour l'émission finale
+    // Logique spéciale par étape
     if (stepKey === 'REGISTRY_REVIEW') {
-      // Émettre les crédits sur la blockchain PANGEA CARBON
-      const credits = await issueCarbonCredits(pipeline, req.user.userId);
-      await prisma.creditPipeline.update({
-        where: { id: req.params.id },
-        data: { issuanceId: credits.id, approvedAt: new Date() }
-      });
+      // Émettre les crédits sur la blockchain
+      const fresh = await prisma.creditPipeline.findUnique({ where:{ id:req.params.id } });
+      const qty = confirmedCredits || fresh.confirmedCredits || fresh.estimatedCredits;
+      try {
+        await issueCarbonCredits(fresh, qty, req.user.userId);
+      } catch(issueErr) {
+        console.error('[pipeline] issueCarbonCredits failed:', issueErr.message);
+        // Ne pas bloquer l'avancement — log l'erreur
+      }
+      await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ approvedAt:new Date() } });
     }
 
     if (stepKey === 'CREDIT_ISSUANCE') {
-      await prisma.creditPipeline.update({
-        where: { id: req.params.id },
-        data: { status: 'ACTIVE', issuedAt: new Date() }
-      });
+      if (confirmedCredits) {
+        await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ confirmedCredits:parseFloat(confirmedCredits), issuedAt:new Date() } });
+      }
     }
 
     if (stepKey === 'MARKET_LISTING') {
-      await prisma.creditPipeline.update({
-        where: { id: req.params.id },
-        data: { status: 'COMPLETED' }
-      });
+      await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ status:'COMPLETED' } });
     }
 
     await prisma.auditLog.create({
-      data: {
-        userId: req.user.userId, action: 'PIPELINE_STEP_ADVANCED',
-        entity: 'CreditPipeline', entityId: req.params.id,
-        after: { stepKey, notes }
-      }
-    });
+      data: { userId:req.user.userId, action:'PIPELINE_STEP_ADVANCED', entity:'CreditPipeline', entityId:req.params.id,
+        after:{ stepKey, notes, confirmedCredits } }
+    }).catch(()=>{});
 
-    const updated = await prisma.creditPipeline.findUnique({
-      where: { id: req.params.id },
-      include: { steps: { orderBy: { stepNumber: 'asc' } } }
-    });
-    res.json({ pipeline: updated });
+    const full = await loadFullPipeline(req.params.id);
+    res.json({ ...full, message:`Step ${stepKey} completed` });
   } catch(e) { next(e); }
 });
 
-// ─── POST /pipeline/:id/block — Bloquer une étape ────────────────────────────
+// POST /pipeline/:id/block — Bloquer une étape
 router.post('/:id/block', auth, async (req, res, next) => {
   try {
     const { stepKey, reason } = req.body;
+    if (!stepKey) return res.status(400).json({ error:'stepKey required' });
     await prisma.pipelineStep.update({
-      where: { pipelineId_stepKey: { pipelineId: req.params.id, stepKey } },
-      data: { status: 'BLOCKED', notes: reason }
+      where: { pipelineId_stepKey:{ pipelineId:req.params.id, stepKey } },
+      data:  { status:'BLOCKED', notes:reason }
     });
-    await prisma.creditPipeline.update({ where: { id: req.params.id }, data: { status: 'BLOCKED' } });
-    res.json({ blocked: true, stepKey, reason });
+    await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ status:'BLOCKED' } });
+    const full = await loadFullPipeline(req.params.id);
+    res.json({ ...full, message:`Step ${stepKey} blocked: ${reason}` });
   } catch(e) { next(e); }
 });
 
-// ─── POST /pipeline/:id/documents — Uploader un document ─────────────────────
+// POST /pipeline/:id/unblock — Débloquer
+router.post('/:id/unblock', auth, async (req, res, next) => {
+  try {
+    const { stepKey } = req.body;
+    await prisma.pipelineStep.update({
+      where: { pipelineId_stepKey:{ pipelineId:req.params.id, stepKey } },
+      data:  { status:'IN_PROGRESS', notes:null }
+    });
+    await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ status:'ACTIVE' } });
+    const full = await loadFullPipeline(req.params.id);
+    res.json({ ...full, message:`Step ${stepKey} unblocked` });
+  } catch(e) { next(e); }
+});
+
+// POST /pipeline/:id/assign-vvb — Assigner un VVB
+router.post('/:id/assign-vvb', auth, async (req, res, next) => {
+  try {
+    const { vvbName, vvbContact } = req.body;
+    if (!vvbName) return res.status(400).json({ error:'vvbName required' });
+    await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ vvbName, vvbContact } });
+    // Si le PDD est terminé, activer VVB_VALIDATION
+    const pddStep = await prisma.pipelineStep.findUnique({
+      where: { pipelineId_stepKey:{ pipelineId:req.params.id, stepKey:'PDD' } }
+    });
+    if (pddStep?.status === 'COMPLETED') {
+      await prisma.pipelineStep.update({
+        where: { pipelineId_stepKey:{ pipelineId:req.params.id, stepKey:'VVB_VALIDATION' } },
+        data:  { data:{ vvbName, vvbContact }, notes:`Assigned: ${vvbName}` }
+      });
+    }
+    const full = await loadFullPipeline(req.params.id);
+    res.json({ ...full, message:`VVB assigned: ${vvbName}` });
+  } catch(e) { next(e); }
+});
+
+// POST /pipeline/:id/documents — Ajouter un document
 router.post('/:id/documents', auth, async (req, res, next) => {
   try {
-    const { type, name, fileUrl } = req.body;
-    const hash = crypto.createHash('sha256').update(fileUrl || name).digest('hex').slice(0, 16);
+    const { type, name, fileUrl, notes } = req.body;
+    if (!name) return res.status(400).json({ error:'name required' });
+    const hash = crypto.createHash('sha256').update((fileUrl||'') + name + Date.now()).digest('hex').slice(0, 24);
     const doc = await prisma.pipelineDocument.create({
-      data: { pipelineId: req.params.id, type, name, fileUrl: fileUrl || null, hash, uploadedBy: req.user.userId }
+      data: { pipelineId:req.params.id, type:type||'OTHER', name, fileUrl:fileUrl||null, hash, uploadedBy:req.user.userId }
     });
     res.status(201).json(doc);
   } catch(e) { next(e); }
 });
 
-// ─── POST /pipeline/:id/assign-vvb — Assigner un VVB ────────────────────────
-router.post('/:id/assign-vvb', auth, async (req, res, next) => {
+// DELETE /pipeline/:id/documents/:docId
+router.delete('/:id/documents/:docId', auth, async (req, res, next) => {
   try {
-    const { vvbName, vvbContact } = req.body;
-    const pipeline = await prisma.creditPipeline.update({
-      where: { id: req.params.id },
-      data: { vvbName, vvbContact }
-    });
-    // Démarrer VVB_VALIDATION si PDD complété
-    const pdd = await prisma.pipelineStep.findUnique({
-      where: { pipelineId_stepKey: { pipelineId: req.params.id, stepKey: 'PDD' } }
-    });
-    if (pdd?.status === 'COMPLETED') {
-      await prisma.pipelineStep.update({
-        where: { pipelineId_stepKey: { pipelineId: req.params.id, stepKey: 'VVB_VALIDATION' } },
-        data: { status: 'IN_PROGRESS', startedAt: new Date(), data: { vvbName, vvbContact } }
-      });
-    }
-    res.json({ pipeline, vvbName, vvbContact });
+    await prisma.pipelineDocument.delete({ where:{ id:req.params.docId } });
+    res.json({ deleted:true });
   } catch(e) { next(e); }
 });
 
-// ─── GET /pipeline/project/:projectId — Pipelines d'un projet ───────────────
-router.get('/project/:projectId', auth, async (req, res, next) => {
+// DELETE /pipeline/:id — Annuler un pipeline
+router.delete('/:id', auth, async (req, res, next) => {
   try {
-    const pipelines = await prisma.creditPipeline.findMany({
-      where: { projectId: req.params.projectId },
-      include: { steps: { orderBy: { stepNumber: 'asc' } }, _count: { select: { documents: true } } },
-      orderBy: { createdAt: 'desc' }
-    });
-    res.json({ pipelines, total: pipelines.length });
-  } catch(e) { next(e); }
-});
-
-// ─── Helper: émettre les crédits sur la blockchain ───────────────────────────
-async function issueCarbonCredits(pipeline, userId) {
-  const lastBlock = await prisma.creditIssuance.findFirst({ orderBy: { blockNumber: 'desc' } });
-  const blockNumber = (lastBlock?.blockNumber || 0) + 1;
-  const previousHash = lastBlock?.blockHash || '0'.repeat(64);
-
-  const credits = pipeline.confirmedCredits || pipeline.estimatedCredits;
-  const prefix = `PGC-${pipeline.projectId.slice(-6).toUpperCase()}-${pipeline.vintage}`;
-  const serialFrom = `${prefix}-${String(blockNumber * 10000 + 1).padStart(8, '0')}`;
-  const serialTo   = `${prefix}-${String(blockNumber * 10000 + Math.ceil(credits)).padStart(8, '0')}`;
-
-  const payload = JSON.stringify({
-    previousHash, projectId: pipeline.projectId, vintage: pipeline.vintage,
-    quantity: credits, standard: pipeline.standard, serialFrom, serialTo,
-    pipelineId: pipeline.id, registryRef: pipeline.registryRef,
-    timestamp: new Date().toISOString(),
-  });
-  const blockHash = crypto.createHash('sha256').update(payload).digest('hex');
-  const merkleRoot = crypto.createHash('sha256').update(JSON.stringify({ pipeline: pipeline.id, credits, timestamp: Date.now() })).digest('hex');
-
-  const issuance = await prisma.creditIssuance.create({
-    data: {
-      projectId: pipeline.projectId,
-      vintage: pipeline.vintage,
-      quantity: credits,
-      standard: pipeline.standard,
-      serialFrom, serialTo,
-      status: 'ISSUED',
-      previousHash, blockHash, blockNumber, merkleRoot,
-      metadata: {
-        pipelineId: pipeline.id,
-        vvbName: pipeline.vvbName,
-        registryRef: pipeline.registryRef,
-        issuedViaWorkflow: true,
-      }
-    }
-  });
-
-  await prisma.creditPipeline.update({
-    where: { id: pipeline.id },
-    data: { issuanceId: issuance.id, confirmedCredits: credits, issuedAt: new Date() }
-  });
-
-  await prisma.auditLog.create({
-    data: {
-      userId, action: 'CREDITS_ISSUED_VIA_PIPELINE',
-      entity: 'CreditIssuance', entityId: issuance.id,
-      after: { blockHash, blockNumber, credits, standard: pipeline.standard, pipelineId: pipeline.id }
-    }
-  });
-
-  return issuance;
-}
-
-// ─── GET /pipeline/stats/global — Stats globales ─────────────────────────────
-router.get('/stats/global', auth, async (req, res, next) => {
-  try {
-    let total = 0, active = 0, completed = 0, blocked = 0;
-    let creditsInPipeline = { _sum: { estimatedCredits: 0 } };
-    let creditsIssued = { _sum: { confirmedCredits: 0 } };
-    try {
-      [total, active, completed, blocked] = await Promise.all([
-        prisma.creditPipeline.count(),
-        prisma.creditPipeline.count({ where: { status: 'ACTIVE' } }),
-        prisma.creditPipeline.count({ where: { status: 'COMPLETED' } }),
-        prisma.creditPipeline.count({ where: { status: 'BLOCKED' } }),
-      ]);
-      creditsInPipeline = await prisma.creditPipeline.aggregate({
-        where: { status: { in: ['ACTIVE', 'BLOCKED'] } },
-        _sum: { estimatedCredits: true }
-      });
-      creditsIssued = await prisma.creditPipeline.aggregate({
-        where: { status: 'COMPLETED' },
-        _sum: { confirmedCredits: true }
-      });
-    } catch(_dbErr) {}
-    res.json({
-      total, active, completed, blocked,
-      creditsInPipeline: creditsInPipeline._sum.estimatedCredits || 0,
-      creditsIssued: creditsIssued._sum.confirmedCredits || 0,
-      stepDefinitions: PIPELINE_STEPS,
-    });
-  } catch(e) { next(e); }
-});
-
-// GET /pipeline/vvbs — Liste VVBs accrédités Verra réels
-router.get('/vvbs', auth, async (req, res, next) => {
-  try {
-    const { country, standard, speciality } = req.query;
-    const result = getAccreditedVVBs({ country, standard, speciality });
-    res.json(result);
-  } catch(e) { next(e); }
-});
-
-// GET /pipeline/verra-projects — Projets Verra réels
-router.get('/verra-projects', auth, async (req, res, next) => {
-  try {
-    const { country, methodology } = req.query;
-    const [projects, stats] = await Promise.all([
-      searchVerraProjects({ country, methodology }),
-      getVerraStats(),
-    ]);
-    res.json({ ...projects, globalStats: stats });
+    const p = await prisma.creditPipeline.findUnique({ where:{ id:req.params.id } });
+    if (!p) return res.status(404).json({ error:'Not found' });
+    if (['COMPLETED'].includes(p.status)) return res.status(400).json({ error:'Cannot delete a completed pipeline' });
+    await prisma.creditPipeline.update({ where:{ id:req.params.id }, data:{ status:'CANCELLED' } });
+    await prisma.auditLog.create({ data:{ userId:req.user.userId, action:'PIPELINE_CANCELLED', entity:'CreditPipeline', entityId:req.params.id, after:{} } }).catch(()=>{});
+    res.json({ cancelled:true });
   } catch(e) { next(e); }
 });
 
