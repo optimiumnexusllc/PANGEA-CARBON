@@ -41,8 +41,9 @@ export default function MarketplacePage() {
   const [placing, setPlacing]       = useState(false);
   const [orders, setOrders]         = useState([]);
   const [pangeaFee, setPangeaFee]   = useState(3.5);
-  const [deleteTarget, setDeleteTarget] = useState(null); // ordre à supprimer
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting]     = useState(false);
+  const [paymentBanner, setPaymentBanner] = useState(null); // bannière retour Stripe
 
   const loadAll = useCallback(() => {
     setLoading(true);
@@ -69,6 +70,35 @@ export default function MarketplacePage() {
     const iv1 = setInterval(() => {
       fetchAuthJson('/marketplace/prices').then(p => { setPrices(p.prices || []); }).catch(() => {});
     }, 30000);
+
+    // Détecter le retour depuis Stripe / CinetPay / Flutterwave
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('order');
+      const status  = params.get('status');
+      if (orderId && status === 'success') {
+        setTab('portfolio');
+        // Poller le statut de l'ordre
+        let attempts = 0;
+        const poll = setInterval(async () => {
+          attempts++;
+          try {
+            const order = await fetchAuthJson('/marketplace/order/' + orderId);
+            if (order.status === 'PAID' || order.status === 'SETTLED') {
+              setPaymentBanner({ type: 'success', orderId, total: order.total, qty: order.quantity });
+              clearInterval(poll);
+              loadAll(); // Rafraîchir les listings avec nouvelles quantités
+            }
+          } catch(_e) {}
+          if (attempts >= 10) clearInterval(poll);
+        }, 2000);
+        // Nettoyer l'URL
+        window.history.replaceState({}, '', '/dashboard/marketplace');
+      } else if (orderId && status === 'cancelled') {
+        setPaymentBanner({ type: 'cancelled', orderId });
+        window.history.replaceState({}, '', '/dashboard/marketplace');
+      }
+    }
     return () => clearInterval(iv1);
   }, [loadAll]);
 
@@ -157,6 +187,31 @@ export default function MarketplacePage() {
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: '#E8EFF6', margin: '4px 0 2px' }}>PANGEA CARBON Exchange</h1>
         <p style={{ fontSize: 12, color: '#4A6278' }}>{L('African carbon credits · ACM0002 · ACMI · Real-time settlement','Crédits carbone africains · ACM0002 · ACMI · Règlement temps réel')}</p>
       </div>
+
+      {/* Bannière retour paiement */}
+      {paymentBanner && (
+        <div style={{ borderRadius:10, padding:'14px 18px', marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'center',
+          background: paymentBanner.type === 'success' ? 'rgba(0,255,148,0.08)' : 'rgba(248,113,113,0.08)',
+          border: `1px solid ${paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <span style={{ fontSize:22 }}>{paymentBanner.type === 'success' ? '✅' : '❌'}</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:700, color: paymentBanner.type === 'success' ? '#00FF94' : '#F87171' }}>
+                {paymentBanner.type === 'success' ? L('Payment confirmed!','Paiement confirmé !') : L('Payment cancelled','Paiement annulé')}
+              </div>
+              {paymentBanner.type === 'success' && paymentBanner.total && (
+                <div style={{ fontSize:11, color:'#4A6278' }}>
+                  {L('Order','Ordre')} {paymentBanner.orderId?.slice(-8)} · {fmtUSD(paymentBanner.total)} · {L('Credits transferred','Crédits transférés')}
+                </div>
+              )}
+              {paymentBanner.type === 'cancelled' && (
+                <div style={{ fontSize:11, color:'#4A6278' }}>{L('Your order has been cancelled','Votre ordre a été annulé')}</div>
+              )}
+            </div>
+          </div>
+          <button onClick={() => setPaymentBanner(null)} style={{ background:'transparent', border:'none', color:'#4A6278', cursor:'pointer', fontSize:18 }}>✕</button>
+        </div>
+      )}
 
       {/* Ticker */}
       <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: '10px 16px', marginBottom: 14 }}>

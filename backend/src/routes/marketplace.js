@@ -270,6 +270,70 @@ const LIVE_PRICES = {
   BIOMASS:      { bid:  8.50, ask: 10.50, last:  9.50, change: -0.50, changeP: -5.0 },
 };
 
+
+// ─── settleOrder — déclenché par webhook après confirmation paiement ───────────
+async function settleOrder(orderId, metadata = {}) {
+  try {
+    const order = await prisma.marketplaceOrder.findUnique({
+      where: { id: orderId }
+    });
+    if (!order || order.status === 'SETTLED') return;
+
+    // 1. Mettre l'ordre en PAID + SETTLED
+    await prisma.marketplaceOrder.update({
+      where: { id: orderId },
+      data: { status: 'SETTLED', paidAt: order.paidAt || new Date(), settledAt: new Date(), ...metadata }
+    }).catch(() => {});
+
+    // 2. Réduire la quantité disponible de l'issuance
+    const issuance = await prisma.creditIssuance.findUnique({
+      where: { id: order.listingId }
+    });
+
+    if (issuance && issuance.status === 'ISSUED') {
+      const newQty = Math.max(0, issuance.quantity - order.quantity);
+      const newStatus = newQty <= 0 ? 'RETIRED' : 'ISSUED';
+
+      await prisma.creditIssuance.update({
+        where: { id: order.listingId },
+        data: {
+          quantity: newQty,
+          status: newStatus,
+          buyerEntity: order.buyerEntity || `Order ${orderId}`,
+          retiredAt: newStatus === 'RETIRED' ? new Date() : null,
+          retiredFor: newStatus === 'RETIRED' ? `Sold via marketplace — Order ${orderId}` : null,
+        }
+      });
+    }
+
+    // 3. Audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: order.userId,
+        action: 'MARKETPLACE_ORDER_SETTLED',
+        entity: 'MarketplaceOrder', entityId: orderId,
+        after: {
+          qty: order.quantity, listingId: order.listingId,
+          total: order.total, settledAt: new Date().toISOString(),
+          remainingQty: issuance ? Math.max(0, issuance.quantity - order.quantity) : null,
+        }
+      }
+    }).catch(() => {});
+
+    // 4. Payout vendeur (async, ne bloque pas)
+    const feePct = await getPangeaFee();
+    splitPayment({
+      orderId, total: order.subtotal,
+      currency: 'USD', sellerConfig: null, feePct,
+    }).catch(() => {});
+
+    return { settled: true, orderId };
+  } catch(e) {
+    console.error('[settleOrder] error:', e.message);
+    return { settled: false, error: e.message };
+  }
+}
+
 // ─── GET /prices ──────────────────────────────────────────────────────────────
 router.get('/prices', auth, async (req, res) => {
   const PANGEA_FEE_PCT = await getPangeaFee();
@@ -598,6 +662,16 @@ router.get('/order/:id', auth, async (req, res, next) => {
     } catch(_e) { order = null; }
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
+    // Récupérer la quantité restante de l'issuance
+    let remainingQty = null;
+    try {
+      const issuance = await prisma.creditIssuance.findUnique({
+        where: { id: order.listingId },
+        select: { quantity: true, status: true }
+      });
+      if (issuance) remainingQty = { qty: issuance.quantity, status: issuance.status };
+    } catch(_e) {}
+
     // Sync Stripe status
     if (order.stripeSessionId || order.stripeInvoiceId) {
       try {
@@ -622,7 +696,7 @@ router.get('/order/:id', auth, async (req, res, next) => {
         }
       } catch(_e) {}
     }
-    res.json(order);
+    res.json({ ...order, remainingQty });
   } catch (e) { next(e); }
 });
 
@@ -679,23 +753,13 @@ router.post('/webhook/stripe', async (req, res) => {
       const s = event.data.object;
       const orderId = s.metadata?.order_id;
       if (orderId && s.payment_status === 'paid') {
+        // Marquer PAID d'abord
         await prisma.marketplaceOrder.update({
           where: { id: orderId },
-          data: { status: 'PAID', paidAt: new Date() }
+          data: { status: 'PAID', paidAt: new Date(), stripeReceiptUrl: s.receipt_url || null }
         }).catch(() => {});
-
-        // Déclencher le split seller payout
-        try {
-          const order = await prisma.marketplaceOrder.findUnique({ where: { id: orderId } });
-          if (order) {
-            await splitPayment({
-              orderId,
-              total: order.subtotal, // seller gets subtotal (PANGEA fee already collected via Stripe)
-              currency: 'USD',
-              sellerConfig: null, // TODO: seller payout preferences
-            });
-          }
-        } catch(_e) {}
+        // Settle: réduit la quantité issuance + payout vendeur
+        await settleOrder(orderId, { stripeReceiptUrl: s.receipt_url || null });
       }
       break;
     }
@@ -708,6 +772,7 @@ router.post('/webhook/stripe', async (req, res) => {
             where: { id: order.id },
             data: { status: 'PAID', paidAt: new Date() }
           });
+          await settleOrder(order.id);
         }
       } catch(_e) {}
       break;
@@ -725,6 +790,7 @@ router.post('/webhook/cinetpay', async (req, res) => {
         where: { id: transaction_id },
         data: { status: 'PAID', paidAt: new Date(), paymentMethod: 'CINETPAY' }
       }).catch(() => {});
+      await settleOrder(transaction_id);
     }
     res.json({ code: '00', message: 'OK' });
   } catch(_e) {
@@ -732,6 +798,27 @@ router.post('/webhook/cinetpay', async (req, res) => {
   }
 });
 
+
+
+// ─── POST /orders/:id/settle — Confirmer paiement manuellement (admin) ────────
+router.post('/orders/:id/settle', auth, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (req.user.role !== 'SUPER_ADMIN' && req.user.role !== 'ADMIN')
+      return res.status(403).json({ error: 'Admin only' });
+
+    const order = await prisma.marketplaceOrder.findUnique({ where: { id } }).catch(() => null);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    await prisma.marketplaceOrder.update({
+      where: { id },
+      data: { status: 'PAID', paidAt: new Date(), paymentMethod: 'MANUAL_CONFIRM' }
+    }).catch(() => {});
+
+    const result = await settleOrder(id);
+    res.json({ ...result, message: 'Order settled — issuance quantity updated' });
+  } catch(e) { next(e); }
+});
 
 // ─── DELETE /orders/:id — Supprimer un ordre ─────────────────────────────────
 router.delete('/orders/:id', auth, async (req, res, next) => {
