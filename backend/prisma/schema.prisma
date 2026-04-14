@@ -689,6 +689,7 @@ model SellerProfile {
 model SellerPayout {
   id              String   @id @default(cuid())
   organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
   orderId         String   // MarketplaceOrder.id
   amount          Float    // Montant en USD
   currency        String   @default("USD")
@@ -738,6 +739,7 @@ model CarbonCreditScore {
 model BuyerProfile {
   id              String   @id @default(cuid())
   organizationId  String   @unique
+  organization    Organization @relation(fields: [organizationId], references: [id])
   
   buyerType       String   @default("VOLUNTARY") // VOLUNTARY | CBAM | CORSIA | COMPLIANCE | SPECULATIVE
   companyRegNumber String?
