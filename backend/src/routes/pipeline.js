@@ -204,7 +204,7 @@ router.get('/project/:projectId', auth, async (req, res, next) => {
 });
 
 // POST /pipeline — Créer un pipeline
-router.post('/', auth, async (req, res, next) => {
+router.post('/', auth, requirePermission('pipeline.create'), async (req, res, next) => {
   try {
     const { projectId, vintage, standard } = req.body;
     if (!projectId) return res.status(400).json({ error: 'projectId required' });
@@ -318,7 +318,7 @@ router.get('/:id', auth, async (req, res, next) => {
 });
 
 // POST /pipeline/:id/advance — Valider une étape
-router.post('/:id/advance', auth, async (req, res, next) => {
+router.post('/:id/advance', auth, requirePermission('pipeline.advance'), async (req, res, next) => {
   try {
     const { stepKey, notes, confirmedCredits } = req.body;
     if (!stepKey) return res.status(400).json({ error:'stepKey required' });
@@ -459,7 +459,7 @@ router.post('/:id/advance', auth, async (req, res, next) => {
 });
 
 // POST /pipeline/:id/block — Bloquer une étape
-router.post('/:id/block', auth, async (req, res, next) => {
+router.post('/:id/block', auth, requirePermission('pipeline.block'), async (req, res, next) => {
   try {
     const { stepKey, reason } = req.body;
     if (!stepKey) return res.status(400).json({ error:'stepKey required' });

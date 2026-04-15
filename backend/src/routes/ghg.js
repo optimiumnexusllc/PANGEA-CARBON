@@ -15,6 +15,7 @@ const router = require('express').Router();
 const { ghgWhere } = require('../middleware/isolation');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // ─── Facteurs d'émission GHG Protocol (IPCC AR6 + IEA 2024) ─────────────────

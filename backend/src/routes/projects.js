@@ -3,6 +3,7 @@ const { validate, rules } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { AFRICAN_GRID_EMISSION_FACTORS } = require('../services/mrv.service');
 const prisma = new PrismaClient();
 
@@ -64,7 +65,7 @@ router.get('/:id', auth, async (req, res, next) => {
 });
 
 // POST /api/projects
-router.post('/', auth, [
+router.post('/', auth, requirePermission('projects.create'), [
   body('name').trim().notEmpty(),
   body('type').isIn(['SOLAR', 'WIND', 'HYDRO', 'BIOMASS', 'HYBRID']),
   body('country').trim().notEmpty(),
@@ -103,7 +104,7 @@ router.post('/', auth, [
 });
 
 // PUT /api/projects/:id
-router.put('/:id', auth, rules.project.map(r => r.optional()), validate, async (req, res, next) => {
+router.put('/:id', auth, requirePermission('projects.update'), rules.project.map(r => r.optional()), validate, async (req, res, next) => {
   try {
     const project = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!project) return res.status(404).json({ error: 'Projet introuvable' });
@@ -138,7 +139,7 @@ router.get('/meta/countries', auth, (req, res) => {
 module.exports = router;
 
 // DELETE /api/projects/:id — Supprimer un projet (cascade)
-router.delete('/:id', auth, async (req, res, next) => {
+router.delete('/:id', auth, requirePermission('projects.delete'), async (req, res, next) => {
   try {
     const project = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!project) return res.status(404).json({ error: 'Projet introuvable' });

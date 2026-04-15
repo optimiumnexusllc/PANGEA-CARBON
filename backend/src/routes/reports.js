@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { MRVEngine } = require('../services/mrv.service');
 const { generateMRVReport } = require('../services/pdf.service');
 const prisma = new PrismaClient();

@@ -7,6 +7,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // ─── Questions ESG (triées par pilier + catégorie) ───────────────────────────
