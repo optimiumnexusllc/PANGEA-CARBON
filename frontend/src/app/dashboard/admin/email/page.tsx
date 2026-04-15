@@ -346,7 +346,7 @@ export default function EmailAdminPage() {
                   <label style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',display:'block',marginBottom:6 }}>
                     {L('SENDER EMAIL','EMAIL EXPÉDITEUR')}
                     {settings['smtp_from_email']&&settings['smtp_user']&&settings['smtp_from_email']!==settings['smtp_user']&&(
-                      <span style={{ color:C.yellow,marginLeft:8 }}>⚠ {L('must match login for Hostinger','doit correspondre au login pour Hostinger')}</span>
+                      <span style={{ color:C.yellow,marginLeft:8 }}>⚠ {lang==='fr'?'doit = email de connexion (Hostinger)':'must match login email (Hostinger)'}</span>
                     )}
                   </label>
                   <input value={settings['smtp_from_email']||''} onChange={e=>set('smtp_from_email',e.target.value)} placeholder="contact@pangea-carbon.com" style={{ ...inp, borderColor:settings['smtp_from_email']&&settings['smtp_user']&&settings['smtp_from_email']!==settings['smtp_user']?C.yellow:C.border }}/>
@@ -356,7 +356,9 @@ export default function EmailAdminPage() {
               {/* Hostinger note */}
             {settings['smtp_host']&&settings['smtp_host'].includes('hostinger')&&(
               <div style={{ padding:'10px 14px',background:'rgba(124,58,237,0.06)',border:'1px solid rgba(124,58,237,0.2)',borderRadius:8,marginBottom:14,fontSize:11,color:'#A78BFA',lineHeight:1.7 }}>
-                🟣 {L('Hostinger rule: Sender Email MUST be identical to the Login Email (contact@pangea-carbon.com). Different addresses are rejected with error 553.','Règle Hostinger: l'Email Expéditeur DOIT être identique à l'Email de connexion (contact@pangea-carbon.com). Les adresses différentes sont rejetées avec l'erreur 553.')}
+                🟣 {lang==='fr'
+                  ?'Regle Hostinger: Email Expediteur = Email de connexion (contact@pangea-carbon.com). Adresses differentes rejetees avec erreur 553.'
+                  :'Hostinger rule: Sender Email must equal Login Email (contact@pangea-carbon.com). Different addresses are rejected with error 553.'}
               </div>
             )}
             {/* Config score bar */}
