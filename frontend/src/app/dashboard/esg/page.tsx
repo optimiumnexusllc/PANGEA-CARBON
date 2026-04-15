@@ -146,7 +146,7 @@ export default function ESGPage() {
     setCreating(true);
     try {
       const a = await fetchAuthJson('/esg/assessments',{method:'POST',body:JSON.stringify(newForm)});
-      showToast_SKIP('Évaluation créée !'));
+      showToast(lang==='fr'?'Évaluation créée !':'Assessment created!');
       await load(); setCurrent(a); setResponses({}); setTab('assess');
     } catch(e) { showToast(e.message,'error'); }
     finally { setCreating(false); }
