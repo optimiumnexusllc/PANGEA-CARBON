@@ -35,6 +35,20 @@ const fmt   = (n) => (n||0).toLocaleString('fr-FR', {maximumFractionDigits:2});
 const fmtT  = (n) => n>=1000?((n)/1000).toFixed(1)+'k':((n)||0).toFixed(2);
 const fmtUSD= (n) => '$'+(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
 
+
+// ─── Standards audit GHG (9 actifs) ──────────────────────────────────────────
+const AUDIT_STANDARDS = [
+  { id:'GHG_PROTOCOL',  nameEn:'GHG Protocol',           nameFr:'GHG Protocol',              icon:'🌍', color:'#2563EB', edition:'WRI/WBCSD 2025',             badgeEn:'Corporate Standard', badgeFr:'Standard Corporate' },
+  { id:'ISO_14064',     nameEn:'ISO 14064-1',             nameFr:'ISO 14064-1',               icon:'📋', color:'#7C3AED', edition:'ISO 2018',                    badgeEn:'ISO Certification',  badgeFr:'Certification ISO' },
+  { id:'BILAN_CARBONE', nameEn:'Bilan Carbone',           nameFr:'Bilan Carbone®',            icon:'🇫🇷', color:'#059669', edition:'ADEME v8',                     badgeEn:'ADEME France',       badgeFr:'ADEME France' },
+  { id:'CSRD_ESRS',     nameEn:'CSRD / ESRS E1',          nameFr:'CSRD / ESRS E1',            icon:'🇪🇺', color:'#0369A1', edition:'EFRAG 2024',                   badgeEn:'EU Mandatory 2025',  badgeFr:'UE Obligatoire 2025' },
+  { id:'TCFD',          nameEn:'TCFD Framework',          nameFr:'Cadre TCFD',                icon:'🏦', color:'#B45309', edition:'FSB 2024',                     badgeEn:'Financial Disclosure',badgeFr:'Divulgation Fin.' },
+  { id:'SBTi',          nameEn:'SBTi Net-Zero',           nameFr:'SBTi Net Zéro',             icon:'🎯', color:'#065F46', edition:'Corporate Standard v1.2',      badgeEn:'1.5°C Aligned',      badgeFr:'Aligné 1.5°C' },
+  { id:'CDP',           nameEn:'CDP Climate',             nameFr:'CDP Climat',                icon:'🌊', color:'#6B21A8', edition:'CDP 2024',                     badgeEn:'Investor Disclosure', badgeFr:'Divulgation Invest.' },
+  { id:'SEC_CLIMATE',   nameEn:'SEC Climate Rule',        nameFr:'Règle SEC Climat',          icon:'🇺🇸', color:'#B91C1C', edition:'Rule 33-11275 2025',           badgeEn:'US Listed Required',  badgeFr:'Cotés US Requis' },
+  { id:'VCMI_CCP',      nameEn:'VCMI Claims Code',        nameFr:'VCMI Code Réclamations',    icon:'🏆', color:'#0E7490', edition:'VCMI 2024',                    badgeEn:'Voluntary Markets',   badgeFr:'Marchés Volontaires' },
+];
+
 export default function GHGAuditPage() {
   const { lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
@@ -57,6 +71,8 @@ export default function GHGAuditPage() {
   const [confirmDeleteEntry, setConfirmDeleteEntry] = useState(null);
   const [activeTab, setActiveTab] = useState('entries');
   const [searchEntry, setSearchEntry] = useState('');
+  const [generatingKey, setGeneratingKey] = useState(null);
+  const [showReportPanel, setShowReportPanel] = useState(false);
 
   const showToast = (msg, type='success') => { setToast({msg,type}); setTimeout(()=>setToast(null),4000); };
 
@@ -141,6 +157,27 @@ export default function GHGAuditPage() {
       setView('dashboard');
       await load();
     } catch(e) { showToast(e.message,'error'); }
+  };
+
+  const downloadAuditReport = async (auditId, auditName, reportingYear, stdId, lang) => {
+    const key = auditId+'-'+stdId+'-'+lang;
+    setGeneratingKey(key);
+    showToast(L('Generating','Génération')+' '+stdId+' ('+lang.toUpperCase()+')...', 'info');
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
+      const url = (process.env.NEXT_PUBLIC_API_URL||'')+'/ghg/audits/'+auditId+'/report?lang='+lang+'&standard='+stdId;
+      const res = await fetch(url, { headers:{ Authorization:'Bearer '+token } });
+      if (!res.ok) { const e=await res.json().catch(()=>({error:'Error'})); throw new Error(e.error); }
+      const blob = await res.blob();
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=objUrl;
+      a.download = 'PANGEA-GHG-'+stdId+'-'+auditName.replace(/[^a-zA-Z0-9]/g,'-').slice(0,20)+'-'+reportingYear+'-'+lang.toUpperCase()+'.pdf';
+      a.click();
+      URL.revokeObjectURL(objUrl);
+      showToast(L('Report downloaded!','Rapport téléchargé !')+' ('+stdId+' · '+lang.toUpperCase()+')');
+    } catch(e) { showToast(e.message||'Error', 'error'); }
+    finally { setGeneratingKey(null); }
   };
 
   const runAI = async () => {
@@ -569,6 +606,52 @@ export default function GHGAuditPage() {
               {aiLoading ? '⟳ '+L('Analyzing...','Analyse...') : '🤖 AI '+L('Analysis','Analyse')}
             </button>
           </div>
+
+          {/* Report download panel */}
+          {showReportPanel && (
+            <div style={{ background:C.card,border:'1px solid rgba(0,255,148,0.2)',borderRadius:14,padding:20,marginBottom:20,position:'relative',overflow:'hidden' }}>
+              <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,'+C.green+' 0%,transparent 100%)' }}/>
+              <div style={{ fontSize:9,color:C.green,fontFamily:'JetBrains Mono, monospace',marginBottom:14,letterSpacing:'0.1em' }}>
+                📥 {L('AUDIT REPORTS — 9 STANDARDS × 2 LANGUAGES','RAPPORTS D'AUDIT — 9 STANDARDS × 2 LANGUES')} · {AUDIT_STANDARDS.length*2} PDF
+              </div>
+              <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8 }}>
+                {AUDIT_STANDARDS.map(std=>{
+                  const keyEN = currentAudit.id+'-'+std.id+'-en';
+                  const keyFR = currentAudit.id+'-'+std.id+'-fr';
+                  const isGenEN = generatingKey===keyEN;
+                  const isGenFR = generatingKey===keyFR;
+                  return (
+                    <div key={std.id} style={{ background:C.card2,border:'1px solid '+std.color+'20',borderRadius:10,padding:'12px 14px' }}>
+                      <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:8 }}>
+                        <span style={{ fontSize:16 }}>{std.icon}</span>
+                        <div style={{ flex:1,minWidth:0 }}>
+                          <div style={{ fontSize:11,fontWeight:700,color:std.color,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>
+                            {lang==='fr'?std.nameFr:std.nameEn}
+                          </div>
+                          <div style={{ fontSize:8,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>
+                            {std.edition}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display:'flex',gap:5 }}>
+                        <button onClick={()=>downloadAuditReport(currentAudit.id,currentAudit.name,currentAudit.reportingYear,std.id,'en')} disabled={!!isGenEN}
+                          style={{ flex:1,background:isGenEN?C.card:'rgba(56,189,248,0.08)',border:'1px solid rgba(56,189,248,0.2)',borderRadius:6,color:isGenEN?C.muted:C.blue,padding:'6px 0',cursor:isGenEN?'wait':'pointer',fontSize:10,fontWeight:700 }}>
+                          {isGenEN?'⟳':'📥'} EN
+                        </button>
+                        <button onClick={()=>downloadAuditReport(currentAudit.id,currentAudit.name,currentAudit.reportingYear,std.id,'fr')} disabled={!!isGenFR}
+                          style={{ flex:1,background:isGenFR?C.card:'rgba(167,139,250,0.08)',border:'1px solid rgba(167,139,250,0.2)',borderRadius:6,color:isGenFR?C.muted:C.purple,padding:'6px 0',cursor:isGenFR?'wait':'pointer',fontSize:10,fontWeight:700 }}>
+                          {isGenFR?'⟳':'📥'} FR
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop:10,fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>
+                ⚡ {AUDIT_STANDARDS.length} {L('standards','standards')} × 2 {L('languages','langues')} = {AUDIT_STANDARDS.length*2} {L('PDF reports','rapports PDF')} · {L('Click to download instantly','Cliquez pour télécharger instantanément')}
+              </div>
+            </div>
+          )}
 
           {/* Scope cards + total */}
           <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20 }}>

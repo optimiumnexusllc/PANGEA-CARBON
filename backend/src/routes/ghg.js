@@ -502,4 +502,36 @@ router.delete('/audits/:id', auth, async (req, res, next) => {
 });
 
 
+
+// GET /ghg/audits/:id/report?lang=fr&standard=GHG_PROTOCOL
+// Génère un rapport PDF certifiable pour un audit GHG
+router.get('/audits/:id/report', auth, async (req, res, next) => {
+  try {
+    const lang = req.query.lang === 'fr' ? 'fr' : 'en';
+    const VALID_STDS = ['GHG_PROTOCOL','ISO_14064','BILAN_CARBONE','CSRD_ESRS','TCFD','SBTi','CDP','SEC_CLIMATE','VCMI_CCP'];
+    const standardId = VALID_STDS.includes(req.query.standard) ? req.query.standard : 'GHG_PROTOCOL';
+
+    const audit = await prisma.gHGAudit.findUnique({
+      where: { id: req.params.id },
+      include: { entries: { orderBy: { co2e: 'desc' } } },
+    });
+    if (!audit) return res.status(404).json({ error: 'Audit not found' });
+
+    const { generateAuditReport } = require('../services/audit-pdf.service');
+    const pdfBuffer = await generateAuditReport(audit, lang, standardId);
+
+    const filename = 'PANGEA-GHG-'+standardId+'-'+(audit.reportingYear||2024)+'-'+lang.toUpperCase()+'.pdf';
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="'+filename+'"');
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.send(pdfBuffer);
+
+    // Log
+    await prisma.auditLog.create({ data: {
+      userId: req.user.userId, action: 'GHG_REPORT_GENERATED', entity: 'GHGAudit', entityId: req.params.id,
+      after: { standard: standardId, lang, auditName: audit.name }
+    }}).catch(()=>{});
+  } catch(e) { next(e); }
+});
+
 module.exports = router;
