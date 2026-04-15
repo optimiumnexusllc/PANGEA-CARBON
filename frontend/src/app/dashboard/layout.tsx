@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ToastProvider } from '@/components/ui/Toast';
 import { FeatureFlagsProvider, useFeatureFlags, useUserContext, PLAN_METADATA } from '@/lib/features';
+import { FeatureLock, UpgradeModal, GATED_FEATURES, usePlanGate } from '@/components/PlanGate';
 
 const MAIN_NAV = [
   { href: '/dashboard',           label: "Vue d'ensemble", labelKey: 'dash_overview',    icon: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v2h-2zm0 4h2v2h-2zm4-4h2v6h-2z', feature: null },
@@ -17,8 +18,8 @@ const MAIN_NAV = [
   { href: '/dashboard/assistant', label: 'AI Assistant', labelKey: 'dash_assistant',      icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z', feature: 'ai_assistant' },
   { href: '/dashboard/reports',   label: 'PDF Reports', labelKey: 'dash_reports',      icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m2-8H8', feature: 'pdf_reports' },
   { href: '/dashboard/pipeline',   label: 'Credit Pipeline', labelKey: 'dash_pipeline', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', feature: null },
-  { href: '/dashboard/carbon-tax', label: 'Carbon Tax Engine', labelKey: 'dash_carbontax', icon: 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z', feature: null },
-  { href: '/dashboard/esg',          label: 'ESG Intelligence Engine', labelKey: 'dash_esg',         icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', feature: null },
+  { href: '/dashboard/carbon-tax', label: 'Carbon Tax Engine', labelKey: 'dash_carbontax', icon: 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z', feature: null, planGate: 'carbon_tax' },
+  { href: '/dashboard/esg',          label: 'ESG Intelligence Engine', labelKey: 'dash_esg',         icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', feature: null, planGate: 'esg' },
   { href: '/dashboard/ghg-audit',   label: 'GHG Audit',   labelKey: 'dash_ghg',         icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01', feature: null },
   { href: '/dashboard/marketplace', label: 'Marketplace', labelKey: 'dash_marketplace',       icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z', feature: 'carbon_marketplace', plan: 'STARTER' },
   { href: '/dashboard/seller', label: 'Seller Portal', labelKey: 'Seller Portal', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', feature: 'carbon_marketplace', adminOnly: false },

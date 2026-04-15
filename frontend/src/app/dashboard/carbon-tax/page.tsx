@@ -1,4 +1,5 @@
 'use client';
+import { PlanBanner } from '@/components/PlanGate';
 import { useState, useMemo } from 'react';
 import { useLang } from '@/lib/lang-context';
 import {
@@ -141,6 +142,7 @@ export default function CarbonTaxPage() {
     if (!active||!payload?.length) return null;
     return (
       <div style={{ background:C.card, border:'1px solid '+C.border, borderRadius:8, padding:'10px 14px', fontSize:11 }}>
+      <PlanBanner featureKey="carbon_tax"/>
         <div style={{ color:C.muted, marginBottom:6, fontFamily:'JetBrains Mono, monospace' }}>{label}</div>
         {payload.map((p: any, i: number) => (
           <div key={i} style={{ color:p.color||C.text, marginBottom:2 }}>

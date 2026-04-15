@@ -61,5 +61,15 @@ export async function fetchAuthJson(path, options: RequestInit = {}) {
     throw error;
   }
   if (res.status === 204) return null;
+  if (res.status === 402) {
+    const err = await res.json().catch(() => ({ error: 'Plan upgrade required' }));
+    const error = new Error(err.error||'Plan upgrade required') as any;
+    error.status = 402;
+    error.code = err.code||'PLAN_REQUIRED';
+    error.requiredPlan = err.requiredPlan||null;
+    error.currentPlan = err.currentPlan||null;
+    error.apiError = err;
+    throw error;
+  }
   return res.json();
 }

@@ -1,4 +1,5 @@
 'use client';
+import { PlanBanner } from '@/components/PlanGate';
 import { useLang } from '@/lib/lang-context';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
@@ -207,6 +208,7 @@ export default function ESGPage() {
 
   return (
     <div style={{ padding:20, maxWidth:1500, margin:'0 auto' }}>
+      <PlanBanner featureKey="esg"/>
 
       {/* Toast */}
       {toast && (

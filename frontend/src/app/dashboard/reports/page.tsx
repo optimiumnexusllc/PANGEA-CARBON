@@ -1,4 +1,5 @@
 'use client';
+import { PlanBanner } from '@/components/PlanGate';
 import { useLang } from '@/lib/lang-context';
 import { useEffect, useState, useCallback } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
@@ -123,6 +124,7 @@ export default function ReportsPage() {
 
   return (
     <div style={{ padding:24,maxWidth:1500,margin:'0 auto' }}>
+      <PlanBanner featureKey="pdf_reports"/>
 
       {/* Toast */}
       {toast&&(
