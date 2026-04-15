@@ -32,3 +32,10 @@ Thumbs.db
 
 # SSL (ne jamais committer les certs)
 nginx/ssl/
+certbot/certs/
+frontend/next-env.d.ts
+frontend/package-lock.json
+*.local.bak
+*.pem
+*.key
+private_key.json
