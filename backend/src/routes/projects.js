@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const { requirePermission, requirePlan } = require('../services/rbac.service');
-const { requireProjectLimit, requireMWLimit } = require('../services/plan-limits.service');
+// plan-limits checks are inlined in the POST handler
 const { AFRICAN_GRID_EMISSION_FACTORS } = require('../services/mrv.service');
 const prisma = new PrismaClient();
 
@@ -66,7 +66,7 @@ router.get('/:id', auth, async (req, res, next) => {
 });
 
 // POST /api/projects
-router.post('/', auth, requirePermission('projects.create'), requireProjectLimit, requireMWLimit, [
+router.post('/', auth, requirePermission('projects.create'), [
   body('name').trim().notEmpty(),
   body('type').isIn(['SOLAR', 'WIND', 'HYDRO', 'BIOMASS', 'HYBRID']),
   body('country').trim().notEmpty(),

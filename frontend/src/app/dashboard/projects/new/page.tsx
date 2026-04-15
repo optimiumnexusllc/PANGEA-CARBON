@@ -1,5 +1,5 @@
 'use client';
-import { UpgradeModal } from '@/components/PlanGate';
+import { PlanLimitModal } from '@/components/PlanGate';
 import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ export default function NewProjectPage() {
   const [step, setStep] = useState(0);
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [planLimitModal, setPlanLimitModal] = useState(false);
+  const [planLimitError, setPlanLimitError] = useState(null);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     name: '', description: '', type: 'SOLAR',
@@ -35,7 +35,7 @@ export default function NewProjectPage() {
   };
 
   const submit = async () => {
-    setPlanLimitModal(false);
+    setPlanLimitError(null);
     setLoading(true); setError('');
     try {
       const project = await api.createProject({
@@ -47,10 +47,11 @@ export default function NewProjectPage() {
       });
       router.push('/dashboard/projects/'+project.id);
     } catch(e) {
-      if ((e as any).status === 402 || (e as any).code === 'PLAN_LIMIT_REACHED' || (e as any).code === 'PLAN_REQUIRED') {
-        setPlanLimitModal(true);
+      const err = e as any;
+      if (err.status === 402 || err.code === 'PLAN_PROJECT_LIMIT' || err.code === 'PLAN_MW_LIMIT' || err.code === 'PLAN_REQUIRED' || err.code === 'PLAN_LIMIT_REACHED') {
+        setPlanLimitError({ code: err.code, currentPlan: err.currentPlan, requiredPlan: err.requiredPlan, max: err.maxProjects || err.max, current: err.currentCount || err.current, error: err.message || err.error });
       } else {
-        setError((e as any).message || 'Error creating project');
+        setError(err.message || 'Error creating project');
       }
     } finally { setLoading(false); }
   };
@@ -63,7 +64,7 @@ export default function NewProjectPage() {
 
   return (
     <div className="p-6" style={{ maxWidth: 720, margin: '0 auto' }}>
-      {planLimitModal && <UpgradeModal featureKey="pdf_reports" onClose={()=>setPlanLimitModal(false)}/>}
+      {planLimitError && <PlanLimitModal error={planLimitError} onClose={()=>setPlanLimitError(null)}/>}
       {/* Header */}
       <div className="mb-8">
         <a href="/dashboard/projects" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 16 }}>

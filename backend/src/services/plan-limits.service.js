@@ -26,9 +26,18 @@ function nextPlan(plan) {
 }
 
 // ─── RÉSOLUTION DU PLAN EFFECTIF ─────────────────────────────────────────────
+// Singleton Prisma pour éviter les connexions multiples
+let _prisma = null;
+function getPrisma() {
+  if (!_prisma) {
+    const { PrismaClient } = require('@prisma/client');
+    _prisma = new PrismaClient({ log: [] });
+  }
+  return _prisma;
+}
+
 async function getUserPlanContext(userId) {
-  const { PrismaClient } = require('@prisma/client');
-  const prisma = new PrismaClient();
+  const prisma = getPrisma();
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: { organization: { select: { id:true, plan:true, maxProjects:true, maxUsers:true, maxMW:true, maxApiKeys:true, status:true } } }
@@ -60,6 +69,7 @@ async function getUserPlanContext(userId) {
 // ─── CHECKS ATOMIQUES ─────────────────────────────────────────────────────────
 
 async function checkProjectLimit(userId) {
+  const prisma = getPrisma();
   const ctx = await getUserPlanContext(userId);
   const where = ctx.hasOrg
     ? { organizationId: ctx.orgId }
@@ -75,6 +85,7 @@ async function checkProjectLimit(userId) {
 }
 
 async function checkMWLimit(userId, newMW) {
+  const prisma = getPrisma();
   const ctx = await getUserPlanContext(userId);
   const where = ctx.hasOrg ? { organizationId: ctx.orgId } : { userId };
   const result = await prisma.project.aggregate({ where, _sum: { installedMW: true } });
@@ -90,6 +101,7 @@ async function checkMWLimit(userId, newMW) {
 }
 
 async function checkUserLimit(orgId) {
+  const prisma = getPrisma();
   const org = await prisma.organization.findUnique({
     where: { id: orgId },
     select: { plan:true, maxUsers:true, _count: { select: { users: true } } }
@@ -107,6 +119,7 @@ async function checkUserLimit(orgId) {
 }
 
 async function checkApiKeyLimit(userId) {
+  const prisma = getPrisma();
   const ctx = await getUserPlanContext(userId);
   const where = ctx.hasOrg
     ? { organizationId: ctx.orgId, isActive: true }
@@ -126,22 +139,27 @@ async function checkApiKeyLimit(userId) {
 function limitMiddleware(checkFn, errorCode, getMessage) {
   return async (req, res, next) => {
     try {
+      if (!req.user) return next();
       if (['SUPER_ADMIN','ADMIN'].includes(req.user?.role)) return next();
       const result = await checkFn(req);
       if (!result.allowed) {
         return res.status(402).json({
           error: getMessage(result),
           code: errorCode,
-          current: result.current,
-          max: result.max,
-          currentPlan: result.plan,
-          requiredPlan: result.required,
+          current: result.current || 0,
+          max: result.max || 0,
+          currentPlan: result.plan || 'FREE',
+          requiredPlan: result.required || 'STARTER',
           upgradeUrl: '/dashboard/settings',
         });
       }
       req.planContext = result;
       next();
-    } catch(e) { next(e); }
+    } catch(e) {
+      console.error('[PlanLimits]', errorCode, e.message);
+      // Non-fatal: si le check échoue, laisser passer mais logger
+      next();
+    }
   };
 }
 

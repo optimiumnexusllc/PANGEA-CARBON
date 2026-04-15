@@ -314,13 +314,13 @@ export function PlanBanner({ featureKey }) {
         <div style={{ flex:1 }}>
           <div style={{ fontSize:12, fontWeight:700, color:C.yellow, marginBottom:3 }}>
             {lang==='fr'
-              ?`${name} — Plan ${feature.minPlan} requis`
-              :`${name} — ${feature.minPlan} plan required`}
+              ?(name+' — Plan '+feature.minPlan+' requis')
+              :(name+' — '+feature.minPlan+' plan required')}
           </div>
           <div style={{ fontSize:11, color:C.text2, lineHeight:1.6 }}>
             {lang==='fr'
-              ?`Votre plan actuel (${userPlan||'TRIAL'}) ne permet pas l\'accès à ce module. Passez au plan ${feature.minPlan} pour déverrouiller ${name}.`
-              :`Your current plan (${userPlan||'TRIAL'}) doesn't include this module. Upgrade to ${feature.minPlan} to unlock ${name}.`}
+              ?('Votre plan actuel ('+(userPlan||'TRIAL')+') ne permet pas l\'acces a ce module. Passez au plan '+feature.minPlan+' pour deverrouiller '+name+'.')
+              :('Your current plan ('+(userPlan||'TRIAL')+') does not include this module. Upgrade to '+feature.minPlan+' to unlock '+name+'.')}
           </div>
         </div>
         <div style={{ display:'flex', gap:8, flexShrink:0 }}>
@@ -374,3 +374,112 @@ export function usePlanGate() {
 }
 
 export { planSatisfies, PLAN_ORDER };
+
+
+// ─── PLAN LIMIT MODAL (spécifique aux erreurs 402 numériques) ────────────────
+export function PlanLimitModal({ error, onClose }) {
+  const { lang } = useLang();
+  const router = useRouter();
+  if (!error) return null;
+
+  const isProject = error.code === 'PLAN_PROJECT_LIMIT';
+  const isMW      = error.code === 'PLAN_MW_LIMIT';
+  const isUser    = error.code === 'PLAN_USER_LIMIT';
+  const isApiKey  = error.code === 'PLAN_APIKEY_LIMIT';
+
+  const icon = isProject ? '📁' : isMW ? '⚡' : isUser ? '👤' : isApiKey ? '🔑' : '⚠️';
+  const color = C.yellow;
+
+  const title = isProject
+    ? (lang==='fr' ? 'Limite de projets atteinte' : 'Project limit reached')
+    : isMW
+    ? (lang==='fr' ? 'Limite de capacité MW atteinte' : 'MW capacity limit reached')
+    : isUser
+    ? (lang==='fr' ? 'Limite d'utilisateurs atteinte' : 'User limit reached')
+    : (lang==='fr' ? 'Limite atteinte' : 'Limit reached');
+
+  const desc = isProject
+    ? (lang==='fr'
+      ? 'Votre plan ' + (error.currentPlan||'') + ' est limité à ' + (error.max||0) + ' projet(s). Vous en avez actuellement ' + (error.current||0) + '.'
+      : 'Your ' + (error.currentPlan||'') + ' plan is limited to ' + (error.max||0) + ' project(s). You currently have ' + (error.current||0) + '.')
+    : isMW
+    ? (lang==='fr'
+      ? 'La capacité MW totale de votre plan ' + (error.currentPlan||'') + ' est de ' + (error.max||0) + ' MW.'
+      : 'Your ' + (error.currentPlan||'') + ' plan MW capacity is ' + (error.max||0) + ' MW.')
+    : error.error || (lang==='fr' ? 'Limite de plan atteinte.' : 'Plan limit reached.');
+
+  const currentMeta = { FREE:'#4A6278', TRIAL:'#4A6278', STARTER:'#38BDF8', PRO:'#A78BFA', GROWTH:'#A78BFA', ENTERPRISE:'#FCD34D' };
+  const currentColor = currentMeta[error.currentPlan] || C.muted;
+  const requiredColor = currentMeta[error.requiredPlan] || C.green;
+
+  return (
+    <div onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}
+      style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.92)', backdropFilter:'blur(16px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:99999, padding:16 }}>
+      <div style={{ background:C.card, border:'1px solid rgba(252,211,77,0.4)', borderRadius:20, padding:0, width:'100%', maxWidth:480, boxShadow:'0 40px 120px rgba(0,0,0,0.85)', overflow:'hidden', position:'relative' }}>
+
+        <div style={{ height:4, background:'linear-gradient(90deg,'+color+' 0%,'+color+'40 60%,transparent 100%)' }}/>
+
+        <div style={{ padding:'24px 28px 0' }}>
+          <div style={{ display:'flex', gap:14, alignItems:'flex-start', marginBottom:20 }}>
+            <div style={{ width:60, height:60, borderRadius:15, background:'rgba(252,211,77,0.1)', border:'1px solid rgba(252,211,77,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28, flexShrink:0 }}>
+              {icon}
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:9, color:color, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.14em', marginBottom:4 }}>
+                PANGEA CARBON · {lang==='fr'?'LIMITE DE PLAN':'PLAN LIMIT'} · {error.currentPlan||''}
+              </div>
+              <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:19, fontWeight:800, color:C.text, margin:'0 0 6px' }}>
+                {title}
+              </h2>
+              <p style={{ fontSize:13, color:C.text2, margin:0, lineHeight:1.7 }}>{desc}</p>
+            </div>
+            <button onClick={onClose} style={{ background:'transparent', border:'none', color:C.muted, cursor:'pointer', fontSize:20, flexShrink:0, padding:0 }}>×</button>
+          </div>
+
+          <div style={{ background:C.card2, borderRadius:12, padding:'14px 16px', marginBottom:20 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr', gap:10, alignItems:'center' }}>
+              <div style={{ textAlign:'center', padding:'10px', background:'rgba(248,113,113,0.05)', border:'1px solid rgba(248,113,113,0.15)', borderRadius:9 }}>
+                <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>
+                  {lang==='fr'?'VOTRE PLAN':'YOUR PLAN'}
+                </div>
+                <div style={{ fontSize:15, fontWeight:800, color:currentColor }}>{error.currentPlan||'FREE'}</div>
+                <div style={{ fontSize:10, color:C.red, marginTop:2 }}>✗ {lang==='fr'?'Limite atteinte':'Limit reached'}</div>
+              </div>
+              <div style={{ fontSize:22, color:C.muted, textAlign:'center' }}>→</div>
+              <div style={{ textAlign:'center', padding:'10px', background:'rgba(0,255,148,0.05)', border:'1px solid rgba(0,255,148,0.2)', borderRadius:9, position:'relative', overflow:'hidden' }}>
+                <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:C.green }}/>
+                <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>
+                  {lang==='fr'?'REQUIS':'REQUIRED'}
+                </div>
+                <div style={{ fontSize:15, fontWeight:800, color:requiredColor }}>{error.requiredPlan||'STARTER'}</div>
+                <div style={{ fontSize:10, color:C.green, marginTop:2 }}>✓ {lang==='fr'?'Inclus':'Included'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding:'0 28px 24px' }}>
+          <button onClick={()=>{ router.push('/dashboard/settings'); onClose(); }}
+            style={{ width:'100%', background:C.green, color:C.bg, border:'none', borderRadius:10, padding:'14px 0', fontWeight:800, fontSize:14, cursor:'pointer', fontFamily:'Syne, sans-serif', marginBottom:10, transition:'opacity .15s' }}
+            onMouseEnter={e=>e.currentTarget.style.opacity='0.9'}
+            onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+            ⚡ {lang==='fr'?'Passer au plan '+(error.requiredPlan||'STARTER')+' →':'Upgrade to '+(error.requiredPlan||'STARTER')+' →'}
+          </button>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+            <button onClick={()=>{ router.push('/dashboard/settings'); onClose(); }}
+              style={{ background:'transparent', border:'1px solid '+C.border, borderRadius:9, color:C.text2, padding:'10px 0', cursor:'pointer', fontSize:12 }}>
+              {lang==='fr'?'Voir les plans':'View all plans'}
+            </button>
+            <button onClick={onClose}
+              style={{ background:'transparent', border:'1px solid '+C.border, borderRadius:9, color:C.muted, padding:'10px 0', cursor:'pointer', fontSize:12 }}>
+              {lang==='fr'?'Plus tard':'Maybe later'}
+            </button>
+          </div>
+          <div style={{ textAlign:'center', marginTop:12, fontSize:10, color:C.muted }}>
+            🔒 {lang==='fr'?'Stripe · Annulation à tout moment · Support 24/7':'Stripe · Cancel anytime · 24/7 Support'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
