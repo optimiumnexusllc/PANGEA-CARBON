@@ -239,7 +239,7 @@ export default function GHGAuditPage() {
           {/* Audit list + new audit CTA */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
             <div>
-              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}><>
+              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>
                   {L('AUDITS','AUDITS')} — {audits.length}
                 </div>
@@ -293,7 +293,7 @@ export default function GHGAuditPage() {
                     </div>
                   );
                 })}
-              </></div>}
+              </div>
             </div>
 
             {/* Right: Standards info */}
@@ -305,13 +305,13 @@ export default function GHGAuditPage() {
                   <div style={{ fontSize: 11, color: '#4A6278' }}>{fw.desc}</div>
                 </div>
               ))}
-              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}><>
+              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>AUDIT → OFFSET BRIDGE</div>
                 <div style={{ fontSize: 12, color: '#8FA3B8', lineHeight: 1.7 }}>
                   {L('After your audit, PANGEA CARBON automatically calculates the carbon credits needed to offset your footprint and connects you to the African marketplace.',
                      'Après votre audit, PANGEA CARBON calcule automatiquement les crédits carbone nécessaires à la compensation et vous connecte à la marketplace africaine.')}
                 </div>
-              </></div>}
+              </div>
             </div>
           </div>
         </>
@@ -320,7 +320,7 @@ export default function GHGAuditPage() {
       {/* ── NEW AUDIT FORM ────────────────────────────────────────────────── */}
       {view === 'new' && (
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}><>
+          <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 10, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>NEW CARBON AUDIT</div>
 
             <div style={{ marginBottom: 14 }}>
@@ -370,10 +370,10 @@ export default function GHGAuditPage() {
               </button>
               <button onClick={createAudit} disabled={creating||!newAuditForm.name}
                 style={{ flex:2, background:creating||!newAuditForm.name?'#1E2D3D':'#00FF94', color:'#080B0F', border:'none', borderRadius:9, padding:13, fontWeight:800, fontSize:14, cursor:creating?'wait':'pointer', fontFamily:'Syne, sans-serif' }}>
-                {creating ? '⟳ Creating...' : `${L('Create Audit →','Créer l\'audit →')}`}
+                {creating ? '⟳ Creating...' : L('Create Audit →', "Créer l'audit →")}
               </button>
             </div>
-          </></div>}
+          </div>
         </div>
       )}
 
@@ -454,7 +454,7 @@ export default function GHGAuditPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 16 }}>
             {/* Add entry panel */}
             <div>
-              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}><>
+              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>
                   {L('ADD EMISSION SOURCE','AJOUTER UNE SOURCE')}
                 </div>
@@ -509,14 +509,14 @@ export default function GHGAuditPage() {
 
                 <button onClick={addEntryFn} disabled={addingEntry||!addEntry.factorKey||!addEntry.quantity}
                   style={{ width:'100%', background:addingEntry||!addEntry.factorKey||!addEntry.quantity?'#1E2D3D':'#00FF94', color:'#080B0F', border:'none', borderRadius:9, padding:13, fontWeight:800, fontSize:13, cursor:'pointer', fontFamily:'Syne, sans-serif' }}>
-                  {addingEntry ? '⟳' : `+ ${L('Add Entry','Ajouter l\'entrée')}`}
+                  {addingEntry ? '⟳' : '+ '+L('Add Entry',"Ajouter l'entrée")}
                 </button>
-              </></div>}
+              </div>
             </div>
 
             {/* Entries table */}
             <div>
-              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}><>
+              <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
                     EMISSION ENTRIES ({currentAudit.entries?.length || 0})
@@ -577,7 +577,7 @@ export default function GHGAuditPage() {
                     </table>
                   </div>
                 )}
-              </></div>}
+              </div>
 
               {/* AI Analysis panel */}
               {currentAudit.aiAnalysis && (
@@ -641,7 +641,7 @@ export default function GHGAuditPage() {
             <div style={{ height:1, background:'linear-gradient(90deg,rgba(167,139,250,0.25) 0%,transparent 100%)', marginBottom:18 }}/>
             <p style={{ fontSize:13, color:'#8FA3B8', marginBottom:20, lineHeight:1.7 }}>
               {L('This emission entry will be permanently removed from the GHG audit. The totals will be recalculated automatically.',
-                 'Cette entrée d'émission sera définitivement supprimée de l'audit GHG. Les totaux seront recalculés automatiquement.')}
+                 "Cette entrée d'émission sera définitivement supprimée de l'audit GHG. Les totaux seront recalculés automatiquement.")}
             </p>
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={() => setConfirmDeleteEntry(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:12, cursor:'pointer', fontSize:13 }}>
@@ -649,7 +649,7 @@ export default function GHGAuditPage() {
               </button>
               <button onClick={executeDeleteEntry}
                 style={{ flex:1, background:'rgba(167,139,250,0.1)', border:'1px solid rgba(167,139,250,0.35)', borderRadius:9, color:'#A78BFA', padding:12, fontWeight:800, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
-                🗑 {L('Delete entry','Supprimer l'entrée')}
+                🗑 {L('Delete entry', "Supprimer l'entrée")}
               </button>
             </div>
           </div>
