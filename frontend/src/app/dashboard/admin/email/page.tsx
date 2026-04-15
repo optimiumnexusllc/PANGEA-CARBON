@@ -69,7 +69,9 @@ export default function EmailAdminPage() {
     setLoading(true);
     try {
       const res = await fetchAuth('/admin/settings');
-      const data = await res.json();
+      const text2 = await res.text();
+      let data;
+      try { data = JSON.parse(text2); } catch(e) { throw new Error('Settings load failed: '+text2.slice(0,80)); }
       const s = {};
       (data.settings||[]).forEach(x => { s[x.key] = x.value||''; });
       setSettings(s);
@@ -85,13 +87,38 @@ export default function EmailAdminPage() {
 
   const set = (key, val) => setSettings(s => ({...s, [key]:val}));
 
-  const bulkSave = async (items) => {
-    const res = await fetchAuth('/admin/settings/bulk', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ settings: items })
+  const saveOneSetting = async (key, value) => {
+    const res = await fetchAuth('/admin/settings/'+key, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ value })
     });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error||'Save failed'); }
-    return res.json();
+    const text = await res.text();
+    try { const d = JSON.parse(text); if(!res.ok) throw new Error(d.error); return d; }
+    catch(e) { if(!res.ok) throw new Error('Save failed: '+key+' ('+res.status+')'); return {}; }
+  };
+
+  const bulkSave = async (items) => {
+    // Essayer d'abord le endpoint bulk
+    try {
+      const res = await fetchAuth('/admin/settings/bulk', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ settings: items })
+      });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch(e) { throw new Error('not_json'); }
+      if (!res.ok) throw new Error(data.error||'bulk_failed');
+      return data;
+    } catch(bulkErr) {
+      // Fallback: sauvegarder setting par setting
+      console.warn('[SMTP] Bulk failed, using individual saves:', bulkErr.message);
+      let saved = 0;
+      for (const { key, value } of items) {
+        try { await saveOneSetting(key, value||''); saved++; }
+        catch(e) { console.warn('[SMTP] Failed to save', key, e.message); }
+      }
+      return { saved, total: items.length };
+    }
   };
 
   const saveSmtp = async () => {
