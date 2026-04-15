@@ -612,7 +612,7 @@ export default function GHGAuditPage() {
             <div style={{ background:C.card,border:'1px solid rgba(0,255,148,0.2)',borderRadius:14,padding:20,marginBottom:20,position:'relative',overflow:'hidden' }}>
               <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,'+C.green+' 0%,transparent 100%)' }}/>
               <div style={{ fontSize:9,color:C.green,fontFamily:'JetBrains Mono, monospace',marginBottom:14,letterSpacing:'0.1em' }}>
-                📥 {L('AUDIT REPORTS — 9 STANDARDS × 2 LANGUAGES','RAPPORTS D'AUDIT — 9 STANDARDS × 2 LANGUES')} · {AUDIT_STANDARDS.length*2} PDF
+                📥 {L('AUDIT REPORTS — 9 STANDARDS × 2 LANGUAGES',"RAPPORTS D'AUDIT — 9 STANDARDS × 2 LANGUES")} · {AUDIT_STANDARDS.length*2} PDF
               </div>
               <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8 }}>
                 {AUDIT_STANDARDS.map(std=>{
