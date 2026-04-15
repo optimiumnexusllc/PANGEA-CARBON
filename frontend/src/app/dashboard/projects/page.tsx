@@ -64,7 +64,7 @@ export default function ProjectsPage() {
       if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
       setProjects(prev => prev.filter(p => p.id !== deleteProject.id));
       setDeleteProject(null);
-      flash('Project supprime: ' + deleteProject.name);
+      flash(L('Project deleted: ','Projet supprimé : ') + deleteProject.name);
     } catch(e) { flash(e.message, false); }
     finally { setDeleting(false); }
   };
@@ -156,8 +156,8 @@ export default function ProjectsPage() {
         <div className="card" style={{ overflow: 'hidden' }}>
           <table className="table-dark">
             <thead><tr>
-              <th>L('Project', 'Projet')</th><th>L('Country', 'Pays')</th><th>L('Type', 'Type')</th><th>L('Installed MW', 'MW installés')</th>
-              <th>L('Credits tCO₂e', 'Crédits tCO₂e')</th><th>L('Revenue USD', 'Revenus USD')</th><th>L('Status', 'Statut')</th><th></th>
+              <th>{L('Project', 'Projet')}</th><th>{L('Country', 'Pays')}</th><th>{L('Type', 'Type')</th><th>L('Installed MW', 'MW installés')</th>
+              <th>{L('Credits tCO₂e', 'Crédits tCO₂e')}</th><th>{L('Revenue USD', 'Revenus USD')}</th><th>{L('Status', 'Statut')}</th><th></th>
             </tr></thead>
             <tbody>
               {filtered.map((p) => {
@@ -247,54 +247,86 @@ export default function ProjectsPage() {
         </div>
       )}
       {deleteProject && (
-        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 32, maxWidth: 440, width: '90%' }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#F87171', marginBottom: 10 }}>Delete this project ?</h2>
-            <p style={{ fontSize: 13, color: '#8FA3B8', lineHeight: 1.7, marginBottom: 8 }}>Vous allez supprimer <strong style={{ color: '#E8EFF6' }}>{deleteProject.name}</strong>.</p>
-            <div style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: 12, marginBottom: 20, fontSize: 12, color: '#F87171' }}>
-              Action irreversible — toutes les donnees MRV et credits associes seront supprimes.
+        <div onClick={e=>{if(e.target===e.currentTarget)setDeleteProject(null);}}
+          style={{ position:'fixed',inset:0,background:'rgba(8,11,15,0.9)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:10001,padding:16 }}>
+          <div style={{ background:'#0D1117',border:'1px solid rgba(248,113,113,0.35)',borderRadius:18,padding:28,maxWidth:460,width:'100%',boxShadow:'0 32px 80px rgba(0,0,0,0.8)',position:'relative',overflow:'hidden' }}>
+            <div style={{ position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#F87171 0%,rgba(248,113,113,0.3) 70%,transparent 100%)' }}/>
+            <div style={{ display:'flex',gap:14,alignItems:'center',marginBottom:16 }}>
+              <div style={{ width:52,height:52,borderRadius:13,background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0 }}>🗑</div>
+              <div>
+                <div style={{ fontSize:9,color:'#F87171',fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.13em',marginBottom:4 }}>PANGEA CARBON · PROJECT · {L('DELETE','SUPPRESSION')}</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:17,fontWeight:800,color:'#F87171',margin:0 }}>{L('Delete this project?','Supprimer ce projet ?')}</h2>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setDeleteProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
-              <button onClick={deleteProj} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {deleting ? '...' : Delete}
+            <div style={{ height:1,background:'linear-gradient(90deg,rgba(248,113,113,0.3) 0%,transparent 100%)',marginBottom:20 }}/>
+            <div style={{ background:'rgba(248,113,113,0.05)',border:'1px solid rgba(248,113,113,0.15)',borderRadius:10,padding:'14px 16px',marginBottom:20 }}>
+              <div style={{ fontSize:13,color:'#E8EFF6',fontWeight:700,marginBottom:6 }}>{deleteProject.name}</div>
+              <p style={{ fontSize:12,color:'#8FA3B8',margin:0,lineHeight:1.7 }}>
+                {L('All MRV readings, carbon credits and reports will be permanently deleted. This action cannot be undone.','Toutes les lectures MRV, crédits carbone et rapports seront définitivement supprimés. Cette action est irréversible.')}
+              </p>
+            </div>
+            <div style={{ display:'flex',gap:10 }}>
+              <button onClick={()=>setDeleteProject(null)} style={{ flex:1,background:'transparent',border:'1px solid #1E2D3D',borderRadius:9,color:'#4A6278',padding:12,cursor:'pointer',fontSize:13 }}>{L('Cancel','Annuler')}</button>
+              <button onClick={deleteProj} disabled={deleting} style={{ flex:1,background:'rgba(248,113,113,0.12)',border:'1px solid rgba(248,113,113,0.4)',borderRadius:9,color:'#F87171',padding:12,fontWeight:800,cursor:deleting?'wait':'pointer',fontSize:13,fontFamily:'Syne, sans-serif' }}>
+                {deleting ? '⟳ '+L('Deleting...','Suppression...') : '🗑 '+L('Delete permanently','Supprimer définitivement')}
               </button>
             </div>
           </div>
         </div>
       )}
       {editProject && (
-        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
-          <div style={{ background: '#0D1117', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 16, padding: 28, maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, color: '#E8EFF6', margin: 0 }}>Edit le projet</h2>
-              <button onClick={() => setEditProject(null)} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 20 }}>x</button>
+        <div onClick={e=>{if(e.target===e.currentTarget)setEditProject(null);}}
+          style={{ position:'fixed',inset:0,background:'rgba(8,11,15,0.9)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:10001,padding:20 }}>
+          <div style={{ background:'#0D1117',border:'1px solid rgba(0,255,148,0.25)',borderRadius:18,padding:28,maxWidth:580,width:'100%',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 32px 80px rgba(0,0,0,0.8)',position:'relative',overflow:'hidden' }}>
+            <div style={{ position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#00FF94 0%,rgba(0,255,148,0.3) 70%,transparent 100%)' }}/>
+            <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16 }}>
+              <div style={{ display:'flex',gap:14,alignItems:'center' }}>
+                <div style={{ width:48,height:48,borderRadius:12,background:'rgba(0,255,148,0.08)',border:'1px solid rgba(0,255,148,0.25)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22 }}>✏️</div>
+                <div>
+                  <div style={{ fontSize:9,color:'#00FF94',fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.13em',marginBottom:3 }}>PANGEA CARBON · PROJECT · {L('EDIT','MODIFIER')}</div>
+                  <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:17,fontWeight:800,color:'#E8EFF6',margin:0 }}>{L('Edit project','Modifier le projet')}</h2>
+                </div>
+              </div>
+              <button onClick={()=>setEditProject(null)} style={{ background:'transparent',border:'1px solid #1E2D3D',borderRadius:8,color:'#4A6278',cursor:'pointer',width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16 }}>✕</button>
             </div>
-            {[{ label: 'Nom', key: 'name', type: 'text' }, { label: 'MW installe', key: 'installedMW', type: 'number' }, { label: 'Description', key: 'description', type: 'text' }, { label: 'Latitude', key: 'latitude', type: 'number' }, { label: 'Longitude', key: 'longitude', type: 'number' }].map(f => (
-              <div key={f.key} style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
-                <input type={f.type} value={editProject[f.key] || ''} onChange={e => setEditProject((p) => ({ ...p, [f.key]: e.target.value }))}
-                  style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13, outline: 'none' }}/>
-              </div>
-            ))}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>TYPE</label>
-                <select value={editProject.type} onChange={e => setEditProject((p) => ({ ...p, type: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
-                  {['SOLAR','WIND','HYDRO','BIOMASS','HYBRID'].map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>STATUT</label>
-                <select value={editProject.status} onChange={e => setEditProject((p) => ({ ...p, status: e.target.value }))} style={{ width: '100%', background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '9px 12px', fontSize: 13 }}>
-                  {['DRAFT','ACTIVE','MONITORING','VERIFIED','CREDITED','ARCHIVED'].map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
+            <div style={{ height:1,background:'linear-gradient(90deg,rgba(0,255,148,0.25) 0%,transparent 100%)',marginBottom:20 }}/>
+
+            <div style={{ display:'flex',flexDirection:'column',gap:12,overflowY:'auto' }}>
+              {[
+                { label:L('Name','Nom'), key:'name', type:'text' },
+                { label:'MW '+L('Installed','Installés'), key:'installedMW', type:'number' },
+                { label:'Description', key:'description', type:'text' },
+                { label:'Latitude', key:'latitude', type:'number' },
+                { label:'Longitude', key:'longitude', type:'number' },
+              ].map(f=>(
+                <div key={f.key}>
+                  <label style={{ fontSize:9,color:'#4A6278',fontFamily:'JetBrains Mono, monospace',display:'block',marginBottom:5 }}>{f.label.toUpperCase()}</label>
+                  <input type={f.type} value={editProject[f.key]||''} onChange={e=>setEditProject(p=>({...p,[f.key]:e.target.value}))}
+                    style={{ width:'100%',background:'#121920',border:'1px solid #1E2D3D',borderRadius:8,color:'#E8EFF6',padding:'10px 13px',fontSize:13,outline:'none',boxSizing:'border-box' }}/>
+                </div>
+              ))}
+              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:12 }}>
+                <div>
+                  <label style={{ fontSize:9,color:'#4A6278',fontFamily:'JetBrains Mono, monospace',display:'block',marginBottom:5 }}>TYPE</label>
+                  <select value={editProject.type} onChange={e=>setEditProject(p=>({...p,type:e.target.value}))}
+                    style={{ width:'100%',background:'#121920',border:'1px solid #1E2D3D',borderRadius:8,color:'#E8EFF6',padding:'10px 13px',fontSize:13,outline:'none' }}>
+                    {['SOLAR','WIND','HYDRO','BIOMASS','HYBRID'].map(t=><option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize:9,color:'#4A6278',fontFamily:'JetBrains Mono, monospace',display:'block',marginBottom:5 }}>{L('STATUS','STATUT')}</label>
+                  <select value={editProject.status} onChange={e=>setEditProject(p=>({...p,status:e.target.value}))}
+                    style={{ width:'100%',background:'#121920',border:'1px solid #1E2D3D',borderRadius:8,color:'#E8EFF6',padding:'10px 13px',fontSize:13,outline:'none' }}>
+                    {['DRAFT','ACTIVE','MONITORING','VERIFIED','CREDITED','ARCHIVED'].map(s=><option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setEditProject(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
-              <button onClick={saveEdit} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {saving ? '...' : 'Sauvegarder'}
+
+            <div style={{ display:'flex',gap:10,marginTop:20 }}>
+              <button onClick={()=>setEditProject(null)} style={{ flex:1,background:'transparent',border:'1px solid #1E2D3D',borderRadius:9,color:'#4A6278',padding:12,cursor:'pointer',fontSize:13 }}>{L('Cancel','Annuler')}</button>
+              <button onClick={saveEdit} disabled={saving} style={{ flex:2,background:saving?'#1E2D3D':'#00FF94',color:saving?'#4A6278':'#080B0F',border:'none',borderRadius:9,padding:12,fontWeight:800,cursor:saving?'wait':'pointer',fontSize:13,fontFamily:'Syne, sans-serif' }}>
+                {saving ? '⟳ '+L('Saving...','Sauvegarde...') : '✓ '+L('Save changes','Sauvegarder les modifications')}
               </button>
             </div>
           </div>

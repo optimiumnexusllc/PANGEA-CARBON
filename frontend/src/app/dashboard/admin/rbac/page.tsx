@@ -188,16 +188,16 @@ export default function RBACPage() {
       {/* Header */}
       <div style={{marginBottom:28}}>
         <div style={{fontSize:9,color:C.red,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.15em',marginBottom:8}}>PANGEA CARBON · RBAC ENGINE v2.0</div>
-        <h1 style={{fontFamily:'Syne, sans-serif',fontSize:26,fontWeight:800,color:C.text,margin:0,marginBottom:6}}>Gestion des Rôles & Permissions</h1>
-        <p style={{fontSize:13,color:C.muted,margin:0}}>Matrice RBAC complète — Définissez qui peut faire quoi sur PANGEA CARBON</p>
+        <h1 style={{fontFamily:'Syne, sans-serif',fontSize:26,fontWeight:800,color:C.text,margin:0,marginBottom:6}}>{L('Roles & Permissions','Gestion des Rôles & Permissions')}</h1>
+        <p style={{fontSize:13,color:C.muted,margin:0}}>{L('Full RBAC matrix — Define who can do what on PANGEA CARBON','Matrice RBAC complète — Définissez qui peut faire quoi sur PANGEA CARBON')}</p>
       </div>
 
       {/* Tabs */}
       <div style={{display:'flex',gap:2,marginBottom:24,borderBottom:`1px solid ${C.border}`}}>
         {([
-          ['matrix','Matrice Permissions','🗂'],
-          ['groups','Groupes','👥'],
-          ['users','Permissions Users','👤'],
+          ['matrix',L('Permissions Matrix','Matrice Permissions'),'🗂'],
+          ['groups',L('Groups','Groupes'),'👥'],
+          ['users',L('User Permissions','Permissions Users'),'👤'],
           ['audit','Audit Log','📋'],
         ] as [string,string,string][]).map(([id,label,icon])=>(
           <button key={id} onClick={()=>setTab(id as any)}
@@ -224,7 +224,7 @@ export default function RBACPage() {
                   <span style={{fontSize:14}}>{m?.icon}</span>
                   <div>
                     <div style={{fontSize:11,fontWeight:700,color:m?.color||C.muted,fontFamily:'JetBrains Mono, monospace'}}>{m?.label||role}</div>
-                    <div style={{fontSize:9,color:C.muted}}>{m?.desc}</div>
+                    <div style={{fontSize:9,color:C.muted}}>{lang==='fr'?(m?.descFr||m?.desc):(m?.descEn||m?.desc)}</div>
                   </div>
                 </div>
               );
@@ -296,7 +296,7 @@ export default function RBACPage() {
             <div style={{fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace'}}>{groups.length} GROUPES</div>
             <button onClick={()=>{setShowGroupForm(true);setEditGroup(null);setGroupForm({name:'',description:'',color:'#00FF94',icon:'👥',permissions:[],priority:0});}}
               style={{background:'rgba(0,255,148,0.1)',border:'1px solid rgba(0,255,148,0.3)',borderRadius:9,color:C.green,padding:'9px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-              + Nouveau groupe
+              + {L('New group','Nouveau groupe')}
             </button>
           </div>
 
@@ -305,7 +305,7 @@ export default function RBACPage() {
             <div onClick={e=>{if(e.target===e.currentTarget){setShowGroupForm(false);setEditGroup(null);}}} style={{position:'fixed',inset:0,background:'rgba(8,11,15,0.88)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:10000,backdropFilter:'blur(10px)'}}>
               <div style={{background:C.card,border:`1px solid rgba(0,255,148,0.25)`,borderRadius:16,padding:28,maxWidth:600,width:'90%',maxHeight:'90vh',overflowY:'auto'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-                  <h2 style={{fontFamily:'Syne, sans-serif',fontSize:18,fontWeight:800,color:C.green,margin:0}}>{editGroup ? 'Modifier le groupe' : 'Nouveau groupe'}</h2>
+                  <h2 style={{fontFamily:'Syne, sans-serif',fontSize:18,fontWeight:800,color:C.green,margin:0}}>{editGroup ? L('Edit group','Modifier le groupe') : L('New group','Nouveau groupe')}</h2>
                   <button onClick={()=>{setShowGroupForm(false);setEditGroup(null);}} style={{background:'transparent',border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,cursor:'pointer',width:30,height:30,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
                 </div>
 

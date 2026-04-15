@@ -75,6 +75,9 @@ const ALL_PERMISSIONS = {
   billing:      ['view','manage'],
   features:     ['manage_features'],
   super:        ['impersonate','delete_org','view_all_data'],
+  esg:          ['create','read','update','delete','generate_report','list_all'],
+  carbon_tax:   ['view','simulate','export'],
+  email_comp:   ['send','view_history','manage_templates'],
 };
 
 // ─── Résolution des permissions pour un user ─────────────────────────────────
