@@ -558,8 +558,26 @@ export default function EmailAdminPage() {
                       </div>
                     )}
                     {!testResult.ok&&(
-                      <div style={{ marginTop:12,padding:'10px 12px',background:'rgba(252,211,77,0.06)',border:'1px solid rgba(252,211,77,0.2)',borderRadius:8,fontSize:11,color:C.yellow,lineHeight:1.7 }}>
-                        💡 {L('Hostinger tips: (1) Use email password (not hPanel password) (2) Try port 587 instead of 465 (3) Verify email account exists in Hostinger panel','Hostinger: (1) Utilisez le mot de passe email (pas le mot de passe hPanel) (2) Essayez le port 587 au lieu de 465 (3) Vérifiez que le compte email existe dans le panel Hostinger')}
+                      <div style={{ marginTop:12,display:'flex',flexDirection:'column',gap:8 }}>
+                        {testResult.diagnostic&&testResult.diagnostic.tcpReachable===false&&(
+                          <div style={{ padding:'10px 12px',background:'rgba(248,113,113,0.06)',border:'1px solid rgba(248,113,113,0.2)',borderRadius:8,fontSize:11,color:C.red,lineHeight:1.7 }}>
+                            🚫 {L('TCP port blocked — your VPS provider is blocking outbound SMTP. Solution: use SendGrid or Mailgun (free tier available).','Port TCP bloqué — votre fournisseur VPS bloque le SMTP sortant. Solution : utilisez SendGrid ou Mailgun (tier gratuit disponible).')}
+                          </div>
+                        )}
+                        {testResult.diagnostic&&testResult.diagnostic.authError&&(
+                          <div style={{ padding:'10px 12px',background:'rgba(252,211,77,0.06)',border:'1px solid rgba(252,211,77,0.2)',borderRadius:8,fontSize:11,color:C.yellow,lineHeight:1.8 }}>
+                            🔑 {L('Authentication failed. Steps to fix:','Authentification échouée. Étapes pour corriger:')}<br/>
+                            {L('1. Go to Hostinger hPanel → Emails → Manage','1. Allez dans hPanel Hostinger → Emails → Gérer')}<br/>
+                            {L('2. Click on contact@pangea-carbon.com → Change Password','2. Cliquez contact@pangea-carbon.com → Changer le mot de passe')}<br/>
+                            {L('3. Set a new password (alphanumeric, no special chars)','3. Définissez un nouveau mot de passe (alphanumérique, sans caractères spéciaux)')}<br/>
+                            {L('4. Re-enter the NEW password in the SMTP config above and save','4. Re-saisissez le NOUVEAU mot de passe dans la config SMTP ci-dessus et sauvegardez')}
+                          </div>
+                        )}
+                        {(!testResult.diagnostic||(testResult.diagnostic.tcpReachable!==false&&!testResult.diagnostic.authError))&&(
+                          <div style={{ padding:'10px 12px',background:'rgba(252,211,77,0.06)',border:'1px solid rgba(252,211,77,0.2)',borderRadius:8,fontSize:11,color:C.yellow,lineHeight:1.7 }}>
+                            💡 {L('Try: (1) port 587 instead of 465  (2) verify email account exists in Hostinger panel','Essayez: (1) port 587 au lieu de 465  (2) vérifiez que le compte email existe dans Hostinger')}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

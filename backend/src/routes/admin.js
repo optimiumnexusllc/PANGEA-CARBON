@@ -571,28 +571,54 @@ router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
       });
     }
 
-    // Créer le transporteur avec config optimale Hostinger
+    // Test connectivité TCP d'abord
+    const net = require('net');
+    const tcpOk = await new Promise(resolve => {
+      const sock = new net.Socket();
+      sock.setTimeout(5000);
+      sock.connect(smtpPort, smtpHost, () => { sock.destroy(); resolve(true); });
+      sock.on('error', () => resolve(false));
+      sock.on('timeout', () => { sock.destroy(); resolve(false); });
+    });
+
+    if (!tcpOk) {
+      return res.status(400).json({
+        error: 'TCP connection failed to ' + smtpHost + ':' + smtpPort + ' — port may be blocked by VPS firewall',
+        diagnostic: {
+          host: smtpHost, port: smtpPort, tcpReachable: false,
+          user: smtpUser, passLength: smtpPass ? smtpPass.length : 0,
+          hint: 'VPS providers often block outbound SMTP ports. Try port 587, or use SendGrid/Mailgun.',
+        }
+      });
+    }
+
+    // Créer le transporteur — config Hostinger optimale
     const secure = smtpPort === 465;
     const transporter = nodemailer.createTransport({
       host: smtpHost, port: smtpPort, secure,
-      auth: { user: smtpUser, pass: smtpPass },
-      tls: { rejectUnauthorized: false, ciphers: 'SSLv3' },
-      ...(smtpPort === 587 ? { requireTLS: true } : {}),
-      debug: false, logger: false,
+      auth: { type: 'login', user: smtpUser, pass: smtpPass },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
 
     // Vérifier la connexion SMTP
     try { await transporter.verify(); }
     catch(verifyErr) {
+      const msg = verifyErr.message || '';
+      const is535 = msg.includes('535') || msg.includes('authentication');
       return res.status(400).json({
-        error: 'SMTP connection failed: ' + verifyErr.message,
+        error: 'SMTP connection failed: ' + msg,
         diagnostic: {
           host: smtpHost, port: smtpPort, secure,
+          tcpReachable: true,
           user: smtpUser,
           passLength: smtpPass ? smtpPass.length : 0,
-          hint: smtpPort === 465
-            ? 'Port 465 SSL: check host and credentials'
-            : 'Port 587 TLS: check host and credentials',
+          authError: is535,
+          hint: is535
+            ? 'Authentication failed — verify the email password in Hostinger hPanel: Emails > Manage > contact@pangea-carbon.com > Change Password'
+            : (smtpPort === 465 ? 'Port 465 SSL error — try port 587' : 'Port 587 TLS error — try port 465'),
         }
       });
     }
