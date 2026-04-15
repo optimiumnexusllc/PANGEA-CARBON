@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { fetchAuthJson } from '@/lib/fetch-auth';
+import { useLang } from '@/lib/lang-context';
 
 const C = {
   bg:'#080B0F', card:'#0D1117', card2:'#0A1628', border:'#1E2D3D',
@@ -9,13 +10,13 @@ const C = {
 };
 
 const ROLE_META: Record<string,{label:string;color:string;icon:string;desc:string}> = {
-  SUPER_ADMIN: { label:'Super Admin',  color:'#F87171', icon:'⚡', desc:'Accès total — équipe PANGEA' },
-  ADMIN:       { label:'Admin',        color:'#FCD34D', icon:'🛡', desc:'Console admin restreinte' },
-  ORG_OWNER:   { label:'Org Owner',    color:'#00FF94', icon:'👑', desc:'Propriétaire de compte' },
-  ANALYST:     { label:'Analyst',      color:'#38BDF8', icon:'📊', desc:'Collaborateur standard' },
-  AUDITOR:     { label:'Auditor',      color:'#A78BFA', icon:'🔍', desc:'Accès audit uniquement' },
-  CLIENT:      { label:'Client',       color:'#8FA3B8', icon:'🏢', desc:'Acheteur externe' },
-  VIEWER:      { label:'Viewer',       color:'#4A6278', icon:'👁', desc:'Lecture seule' },
+  SUPER_ADMIN: { label:'Super Admin',  color:'#F87171', icon:'⚡', descEn:'Full access — PANGEA team only', descFr:'Accès total — équipe PANGEA uniquement' },
+  ADMIN:       { label:'Admin',        color:'#FCD34D', icon:'🛡', descEn:'Restricted admin console', descFr:'Console admin restreinte' },
+  ORG_OWNER:   { label:'Org Owner',    color:'#00FF94', icon:'👑', descEn:'Account owner — all business features', descFr:'Propriétaire de compte — toutes les fonctionnalités' },
+  ANALYST:     { label:'Analyst',      color:'#38BDF8', icon:'📊', descEn:'Standard collaborator', descFr:'Collaborateur standard' },
+  AUDITOR:     { label:'Auditor',      color:'#A78BFA', icon:'🔍', descEn:'Audit access only', descFr:'Accès audit uniquement' },
+  CLIENT:      { label:'Client',       color:'#8FA3B8', icon:'🏢', descEn:'External buyer', descFr:'Acheteur externe' },
+  VIEWER:      { label:'Viewer',       color:'#4A6278', icon:'👁', descEn:'Read-only access', descFr:'Lecture seule' },
 };
 
 const MODULE_META: Record<string,{label:string;icon:string;color:string}> = {
@@ -35,6 +36,9 @@ const MODULE_META: Record<string,{label:string;icon:string;color:string}> = {
   billing:     { label:'Billing',      icon:'💳', color:'#F87171' },
   features:    { label:'Features',     icon:'⚙️', color:'#F87171' },
   super:       { label:'Super',        icon:'⚡', color:'#F87171' },
+  esg:         { label:'ESG Engine',   icon:'⬡', color:'#60A5FA' },
+  carbon_tax:  { label:'Carbon Tax',   icon:'📊', color:'#F97316' },
+  email_comp:  { label:'Email Composer',icon:'✉️', color:'#A78BFA' },
 };
 
 const GROUP_COLORS = ['#00FF94','#38BDF8','#A78BFA','#FCD34D','#F97316','#F87171','#8FA3B8'];
@@ -42,6 +46,8 @@ const GROUP_COLORS = ['#00FF94','#38BDF8','#A78BFA','#FCD34D','#F97316','#F87171
 const inp = { background:C.card2, border:`1px solid ${C.border}`, borderRadius:8, color:C.text, padding:'10px 14px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
 
 export default function RBACPage() {
+  const { lang } = useLang();
+  const L = (en: string, fr: string) => lang === 'fr' ? fr : en;
   const [tab, setTab] = useState<'matrix'|'groups'|'users'|'audit'>('matrix');
   const [matrix, setMatrix] = useState<any>({});
   const [allPerms, setAllPerms] = useState<any>({});
@@ -205,7 +211,7 @@ export default function RBACPage() {
       {tab === 'matrix' && (
         <div>
           <div style={{fontSize:11,color:C.muted,marginBottom:16,lineHeight:1.7}}>
-            ⚡ Cliquez sur une cellule pour accorder/révoquer une permission. Les changements sont persistés en DB et pris en compte immédiatement.<br/>
+            {L('⚡ Click a cell to grant/revoke a permission. Changes are persisted to DB and effective immediately.','⚡ Cliquez sur une cellule pour accorder/révoquer une permission. Les changements sont persistés en DB et pris en compte immédiatement.')}<br/>
             <span style={{color:C.yellow}}>⚠ SUPER_ADMIN a toujours accès à tout — non modifiable.</span>
           </div>
 

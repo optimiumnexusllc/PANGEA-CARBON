@@ -10,21 +10,9 @@ import { useRouter } from 'next/navigation';
    Mobile / Tablet / Desktop / Ultrawide
 ───────────────────────────────────────────── */
 
-const STATS = [
-  { value: 697, suffix: 'K+', label: 'tCO₂e certified', sub: 'Verra ACM0002' },
-  { value: 7.7, suffix: 'M$', label: 'carbon revenue', sub: 'Portfolio actif' },
-  { value: 18, suffix: '', label: 'African countries', sub: 'EF UNFCCC officiels' },
-  { value: 6, suffix: '', label: 'live projects', sub: 'Solar · Wind · Hydro' },
-];
+// STATS are defined inside component for i18n — see below
 
-const FEATURES = [
-  { icon: '⚡', title: 'Native Equipment API', desc: 'SMA, Huawei, SolarEdge, Fronius. REST ou webhook. MRV calculé automatiquement à chaque lecture.', tag: 'API REST' },
-  { icon: '🧮', title: 'Certifiable MRV ACM0002', desc: 'Méthodologie Verra v19.0. 18 African countries. Calcul en millisecondes. Rapport PDF audit-ready.', tag: 'Verra · Gold Standard' },
-  { icon: '🛰️', title: 'dMRV Satellite + IoT', desc: 'Sentinel-2 + IoT sensors. Vérification continue. Plus d\'auditeur annuel requis. Score dMRV live.', tag: 'Continuous MRV' },
-  { icon: '🏛️', title: 'Article 6 ITMO', desc: 'Sovereign carbon markets. Price $35-55/tCO₂e. State-to-state Paris Agreement transactions.', tag: '×3-5 prix Verra' },
-  { icon: '🤖', title: 'AI Carbon Assistant', desc: 'Claude (Anthropic) with African carbon context. Analyzes portfolio, answers ACM0002 questions.', tag: 'Claude · Anthropic' },
-  { icon: '⛓️', title: 'Blockchain Registry', desc: 'SHA-256 hash chain. Anti-double counting. Every credit publicly verifiable by unique hash.', tag: 'Trustless' },
-];
+
 
 const STANDARDS = [
   { name: 'Verra VCS', color: '#00FF94' },
@@ -32,14 +20,11 @@ const STANDARDS = [
   { name: 'Article 6', color: '#38BDF8' },
   { name: 'CORSIA', color: '#F87171' },
   { name: 'ICVCM CCPs', color: '#A78BFA' },
+  { name: 'GRI ESG', color: '#60A5FA' },
+  { name: 'CSRD', color: '#0369A1' },
 ];
 
-const FLOW = [
-  { n: '01', title: 'Create a project', desc: 'Enregistrez votre parc en 2 min. Facteur d\'émission défini automatiquement.' },
-  { n: '02', title: 'Connect equipment', desc: 'REST API for SMA, Huawei, SolarEdge. Or import CSV. Real-time data.' },
-  { n: '03', title: 'Automatic MRV', desc: 'Every reading triggers calculation. Credits, revenue, equivalents. All tracked.' },
-  { n: '04', title: 'Download & sell', desc: 'Certifiable PDF in 1 click. Submit to VVB. Sell on our marketplace.' },
-];
+
 
 const TESTIMONIALS = [
   { name: 'Aminata Diallo', role: 'CFO · SolarAfrica Mali', text: 'Our MRV report went from 3 weeks to 1 click. Verra auditors are impressed.' },
@@ -112,7 +97,30 @@ export default function LandingPage() {
     </div>
   );
 
-  const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
+  const prices = { free: 0, starter: annual ? 249 : 299, pro: annual ? 649 : 799, esg: annual ? 149 : 199 };
+
+  const STATS = [
+    { value:697, suffix:'K+', label:L('tCO₂e certified','tCO₂e certifiés'), sub:'Verra ACM0002' },
+    { value:7.7, suffix:'M$', label:L('carbon revenue','revenus carbone'), sub:L('Active portfolio','Portfolio actif') },
+    { value:18,  suffix:'',   label:L('African countries','pays africains'), sub:L('UNFCCC official EFs','EF UNFCCC officiels') },
+    { value:6,   suffix:'',   label:L('live projects','projets actifs'), sub:'Solar · Wind · Hydro' },
+  ];
+
+  const FEATURES = [
+    { icon:'⚡', title:L('Native Equipment API','API Équipements Native'), desc:L('SMA, Huawei, SolarEdge, Fronius. REST or webhook. MRV calculated automatically at each reading.','SMA, Huawei, SolarEdge, Fronius. REST ou webhook. MRV calculé automatiquement à chaque lecture.'), tag:'API REST' },
+    { icon:'🧮', title:L('Certifiable MRV ACM0002','MRV ACM0002 Certifiable'), desc:L('Verra v19.0 methodology. 18 African countries. Calculation in milliseconds. Audit-ready PDF report.','Méthodologie Verra v19.0. 18 pays africains. Calcul en millisecondes. Rapport PDF audit-ready.'), tag:'Verra · Gold Standard' },
+    { icon:'⬡',  title:'ESG Intelligence Engine', desc:L('Full E+S+G assessment. GRI, CSRD/ESRS, SASB, IFRS S2, King IV. ESG Certificate in EN+FR. PANGEA is the first African E+S+G platform.','Évaluation E+S+G complète. GRI, CSRD/ESRS, SASB, IFRS S2, King IV. Certificat ESG EN+FR. PANGEA est la première plateforme africaine E+S+G.'), tag:'CSRD · GRI · ESG' },
+    { icon:'🏛️', title:L('Article 6 ITMO','Article 6 ITMO'), desc:L('Sovereign carbon markets. Price $35–55/tCO₂e. State-to-state Paris Agreement transactions.','Marchés carbone souverains. Prix $35–55/tCO₂e. Transactions état-à-état Accord de Paris.'), tag:'×3–5 vs Verra' },
+    { icon:'🛰️', title:L('dMRV Satellite + IoT','dMRV Satellite + IoT'), desc:L('Sentinel-2 + IoT sensors. Continuous verification. No annual auditor required. Live dMRV score.','Sentinel-2 + capteurs IoT. Vérification continue. Plus d'auditeur annuel requis. Score dMRV live.'), tag:'Continuous MRV' },
+    { icon:'🤖', title:L('AI Carbon Assistant','Assistant IA Carbone'), desc:L('Claude (Anthropic) with African carbon context. Analyzes your portfolio, answers ACM0002 questions in EN/FR.','Claude (Anthropic) avec contexte carbone africain. Analyse votre portfolio, répond aux questions ACM0002 en FR/EN.'), tag:'Claude · Anthropic' },
+  ];
+
+  const FLOW = [
+    { n:'01', title:L('Create a project','Créer un projet'), desc:L('Register your plant in 2 min. Emission factor set automatically by UNFCCC country.','Enregistrez votre parc en 2 min. Facteur d'émission défini automatiquement par pays UNFCCC.') },
+    { n:'02', title:L('Connect equipment','Connecter les équipements'), desc:L('REST API for SMA, Huawei, SolarEdge. Or import CSV. Real-time data.','API REST pour SMA, Huawei, SolarEdge. Ou import CSV. Données en temps réel.') },
+    { n:'03', title:L('Automatic MRV','MRV Automatique'), desc:L('Every reading triggers calculation. Credits, revenue, equivalents. All tracked and certifiable.','Chaque lecture déclenche le calcul. Crédits, revenus, équivalents. Tout tracé et certifiable.') },
+    { n:'04', title:L('Download & sell','Télécharger & vendre'), desc:L('Certifiable PDF in 1 click. Submit to VVB. Sell on our marketplace. ESG certificate included.','PDF certifiable en 1 clic. Soumettez au VVB. Vendez sur notre marketplace. Certificat ESG inclus.') },
+  ];
 
   const doSend = async () => {
     if (!cName || !cEmail) { setCerr('Name and email required'); return; }
@@ -143,10 +151,7 @@ export default function LandingPage() {
           </a>
 
           <div className="pgc-nav__links">
-            <a href="#features" className="pgc-nav__link">Features</a>
-            <a href="#how" className="pgc-nav__link">How it works</a>
-            <a href="#pricing" className="pgc-nav__link">Pricing</a>
-            <a href="#contact" className="pgc-nav__link">Contact</a>
+            {[[L('Features','Fonctionnalités'),'#features'],[L('How it works','Comment ça marche'),'#how'],[L('Pricing','Tarifs'),'#pricing'],['Contact','#contact']].map(([label,href])=>(<a key={String(href)} href={href} className="pgc-nav__link">{label}</a>))}
           </div>
 
           <div className="pgc-nav__actions">
@@ -191,22 +196,22 @@ export default function LandingPage() {
             <span>Carbon Credit Intelligence · Africa · Verra ACM0002</span>
           </div>
           <h1 className="pgc-hero__title">
-            The MRV platform making<br className="pgc-br-desktop"/>
-            <span className="pgc-text-green"> Africa the leader</span><br className="pgc-br-desktop"/>
-            of global carbon
+            {L('The MRV platform making','La plateforme MRV qui fait')}<br className="pgc-br-desktop"/>
+            <span className="pgc-text-green">{L(' Africa the leader',' l\'Afrique leader')}</span><br className="pgc-br-desktop"/>
+            {L('of global carbon','du carbone mondial')}
           </h1>
           <p className="pgc-hero__desc">
-            Connect your equipment. Calculate carbon credits automatically per Verra ACM0002. Generate certifiable reports. Sell on our marketplace.
+            {L('Connect your equipment. Calculate carbon credits automatically per Verra ACM0002. Generate certifiable reports. Sell on our marketplace.','Connectez vos équipements. Calculez les crédits carbone automatiquement selon Verra ACM0002. Générez des rapports certifiables. Vendez sur notre marketplace.')}
           </p>
           <div className="pgc-hero__cta">
             <a href="/signup" className="pgc-btn pgc-btn--primary pgc-btn--lg">
-              Get started for free →
+              {L('Get started for free →','Commencer gratuitement →')}
             </a>
             <a href="/auth/login" className="pgc-btn pgc-btn--outline pgc-btn--lg">
-              Watch demo
+              {L('Watch demo','Voir la démo')}
             </a>
           </div>
-          <p className="pgc-hero__note">14-day free trial · No credit card · Setup in 10 min</p>
+          <p className="pgc-hero__note">{L('14-day free trial · No credit card · Setup in 10 min','Essai gratuit 14 jours · Sans carte bancaire · Installation en 10 min')}</p>
 
           {/* Standards */}
           <div className="pgc-standards">
@@ -240,8 +245,7 @@ export default function LandingPage() {
         <div className="pgc-container">
           <div className="pgc-section__header">
             <div className="pgc-eyebrow">FEATURES</div>
-            <h2 className="pgc-section__title">Everything an African EPC/IPP needs</h2>
-            <p className="pgc-section__sub">One platform. Zero Excel. Zero external MRV consultant.</p>
+            {[null,null].map((_,_i)=><span key={_i}/>)} <h2 className="pgc-section__title">{L('Everything an African EPC/IPP needs','Tout ce qu'une EPC/IPP africaine nécessite')}</h2><p className="pgc-section__sub">{L('One platform. Zero Excel. Zero external MRV consultant.','Une plateforme. Zéro Excel. Zéro consultant MRV externe.')}</p>
           </div>
           <div className="pgc-features-grid">
             {FEATURES.map(f => (
@@ -337,48 +341,62 @@ export default function LandingPage() {
         <div className="pgc-container">
           <div className="pgc-section__header">
             <div className="pgc-eyebrow">PRICING</div>
-            <h2 className="pgc-section__title">Start free, scale without limits</h2>
+            <h2 className="pgc-section__title">{L('Start free, scale without limits','Commencez gratuitement, grandissez sans limites')}</h2>
             <div className="pgc-toggle">
-              <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>Mensuel</button>
+              <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>{L('Monthly','Mensuel')}</button>
               <button onClick={() => setAnnual(true)} className={`pgc-toggle__btn ${annual ? 'active' : ''}`}>
-                Annuel <span className="pgc-toggle__save">−17%</span>
+                {L('Annual','Annuel')} <span className="pgc-toggle__save">−17%</span>
               </button>
             </div>
           </div>
 
-          <div className="pgc-pricing-grid">
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:16, marginBottom:24 }}>
             {[
-              { name: 'Starter', price: prices.starter, color: '#38BDF8', features: ['5 projects', '50 MW max', 'MRV ACM0002', 'Dashboard', 'Import CSV', '2 users', 'Email support'] },
-              { name: 'Pro', price: prices.pro, color: '#00FF94', highlight: true, features: ['Unlimited projects', 'MW illimités', 'Certifiable PDFs', 'Equipment API', 'AI Assistant', '6 modules Elite', '10 users', 'Priority support'] },
-              { name: 'Enterprise', price: null, color: '#A78BFA', features: ['Everything in Pro', 'White-label', 'SSO SAML', 'SLA 99.9%', 'Dedicated CSM', 'Custom integrations', 'Unlimited users'] },
-            ].map(plan => (
-              <div key={plan.name} className={`pgc-pricing-card ${plan.highlight ? 'pgc-pricing-card--highlight' : ''}`} style={{ '--plan-color': plan.color } as any}>
-                {plan.highlight && <div className="pgc-pricing-card__badge">RECOMMENDED</div>}
-                <div className="pgc-pricing-card__name" style={{ color: plan.color }}>{plan.name.toUpperCase()}</div>
-                <div className="pgc-pricing-card__price">
-                  {plan.price ? (
-                    <><span className="pgc-pricing-card__amount" style={{ color: plan.color }}>${plan.price}</span><span className="pgc-pricing-card__period">/mois</span></>
-                  ) : (
-                    <span className="pgc-pricing-card__amount" style={{ color: plan.color }}>Custom pricing</span>
-                  )}
+              { name:L('Free','Gratuit'), price:0, color:'#4A6278', icon:'🌱', badge:null,
+                features:[L('1 project','1 projet'),L('10 MW max','10 MW max'),'MRV ACM0002',L('Dashboard','Tableau de bord'),'CSV import',L('1 user','1 utilisateur')],
+                cta:L('Get started','Commencer'), href:'/signup', ghost:true },
+              { name:'Starter', price:prices.starter, color:'#38BDF8', icon:'⚡', badge:null,
+                features:[L('5 projects','5 projets'),L('50 MW max','50 MW max'),'MRV ACM0002',L('Certifiable PDFs','PDFs certifiables'),'Equipment API',L('2 users','2 utilisateurs'),L('Email support','Support email')],
+                cta:L('Start trial','Démarrer essai'), href:'/signup', ghost:false },
+              { name:'Pro', price:prices.pro, color:'#00FF94', icon:'🏆', badge:L('RECOMMENDED','RECOMMANDÉ'),
+                features:[L('Unlimited projects','Projets illimités'),'MW unlimited','9 MRV standards × EN/FR',L('ESG Engine + Certificate','ESG Engine + Certificat'),'Equipment API (14 brands)',L('AI Assistant','Assistant IA'),'10 users',L('Priority support','Support prioritaire')],
+                cta:L('Start Pro trial','Démarrer essai Pro'), href:'/signup', ghost:false },
+              { name:L('ESG Cert','Cert ESG'), price:prices.esg, color:'#60A5FA', icon:'⬡', badge:null,
+                features:['GRI + CSRD + SASB + IFRS S2','King IV (Africa)','33 E+S+G questions',L('ESG Certificate PDF EN+FR','Certificat ESG PDF EN+FR'),L('SDG alignment report','Rapport alignement ODD'),L('Compliance tracker','Suivi conformité')],
+                cta:L('Get ESG Certificate','Obtenir Certificat ESG'), href:'/signup', ghost:false },
+              { name:'Enterprise', price:null, color:'#A78BFA', icon:'🏛️', badge:null,
+                features:[L('Everything in Pro','Tout le Pro'),'White-label','SSO SAML','SLA 99.9%',L('Dedicated CSM','CSM dédié'),L('Custom integrations','Intégrations custom'),L('Unlimited users','Utilisateurs illimités'),L('ESG verification service','Service vérification ESG')],
+                cta:L('Contact us','Nous contacter'), href:null, ghost:true },
+            ].map(plan=>(
+              <div key={plan.name} style={{ background:'#0D1117', border:`2px solid ${plan.badge?plan.color+'40':plan.color+'18'}`, borderRadius:16, padding:'22px 20px', position:'relative', overflow:'hidden', display:'flex', flexDirection:'column' }}>
+                {plan.badge && <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:plan.color }}/>}
+                {plan.badge && <div style={{ position:'absolute', top:12, right:12, fontSize:8, color:plan.color, background:plan.color+'15', border:`1px solid ${plan.color}40`, borderRadius:20, padding:'2px 8px', fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{plan.badge}</div>}
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
+                  <span style={{ fontSize:22 }}>{plan.icon}</span>
+                  <span style={{ fontSize:14, fontWeight:800, color:plan.color, fontFamily:'Syne, sans-serif' }}>{plan.name.toUpperCase()}</span>
                 </div>
-                {annual && plan.price && <div className="pgc-pricing-card__annual">Facturé annuellement</div>}
-                <div className="pgc-pricing-card__features">
-                  {plan.features.map(f => (
-                    <div key={f} className="pgc-pricing-feature">
-                      <div className="pgc-pricing-feature__dot" style={{ background: plan.color }}/>
+                <div style={{ marginBottom:16 }}>
+                  {plan.price===0?(<div style={{ fontSize:28, fontWeight:800, color:plan.color, fontFamily:'Syne, sans-serif' }}>{L('Free','Gratuit')}</div>):
+                   plan.price?(<><span style={{ fontSize:32, fontWeight:800, color:plan.color, fontFamily:'Syne, sans-serif' }}>${plan.price}</span><span style={{ fontSize:12, color:'#4A6278' }}>/{L('mo','mois')}</span></>):
+                   (<span style={{ fontSize:18, fontWeight:700, color:plan.color }}>{L('Custom pricing','Prix sur mesure')}</span>)}
+                  {annual&&plan.price&&plan.price>0&&<div style={{ fontSize:10, color:'#4A6278', marginTop:3 }}>{L('Billed annually','Facturé annuellement')}</div>}
+                </div>
+                <div style={{ flex:1, marginBottom:16 }}>
+                  {plan.features.map(f=>(
+                    <div key={f} style={{ display:'flex', gap:8, alignItems:'flex-start', marginBottom:6, fontSize:12, color:'#8FA3B8' }}>
+                      <div style={{ width:5, height:5, borderRadius:'50%', background:plan.color, flexShrink:0, marginTop:5 }}/>
                       <span>{f}</span>
                     </div>
                   ))}
                 </div>
-                {plan.name === 'Enterprise' ? (
-                  <button onClick={() => setShowContact(true)} className="pgc-btn pgc-btn--full pgc-btn--outline" style={{ cursor: 'pointer' }}>
-                    Contact us
-                  </button>
-                ) : (
-                  <a href="/signup" className={`pgc-btn pgc-btn--full ${plan.highlight ? 'pgc-btn--primary' : 'pgc-btn--outline'}`}>
-                    Get started
+                {plan.href?(
+                  <a href={plan.href} className={`pgc-btn pgc-btn--full ${plan.badge?'pgc-btn--primary':plan.ghost?'pgc-btn--outline':''}`} style={plan.badge?{}:{borderColor:plan.color+'50',color:plan.color}}>
+                    {plan.cta}
                   </a>
+                ):(
+                  <button onClick={()=>setShowContact(true)} className="pgc-btn pgc-btn--full pgc-btn--outline" style={{ cursor:'pointer', borderColor:plan.color+'50', color:plan.color }}>
+                    {plan.cta}
+                  </button>
                 )}
               </div>
             ))}
@@ -387,10 +405,10 @@ export default function LandingPage() {
           <div className="pgc-revenue-share">
             <div>
               <span className="pgc-revenue-share__title">Revenue Share</span>
-              <span className="pgc-revenue-share__price"> — $0/mois</span>
-              <span className="pgc-revenue-share__desc"> · Payez uniquement 3% sur vos carbon revenue générés</span>
+              <span className="pgc-revenue-share__price"> — $0/{L('mo','mois')}</span>
+              <span className="pgc-revenue-share__desc"> · {L('Pay only 3% on carbon revenue generated via PANGEA','Payez uniquement 3% sur vos revenus carbone générés via PANGEA')}</span>
             </div>
-            <a href="/signup" className="pgc-btn pgc-btn--ghost pgc-btn--sm">Learn more →</a>
+            <a href="/signup" className="pgc-btn pgc-btn--ghost pgc-btn--sm">{L('Learn more →','En savoir plus →')}</a>
           </div>
         </div>
       </section>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { api } from '@/lib/api';
 import { apiExt } from '@/lib/api';
+import { fetchAuthJson } from '@/lib/fetch-auth';
 import { useLang } from '@/lib/lang-context';
 
 const fmt = (n, d = 0) => (n ?? 0).toLocaleString('en-US', { maximumFractionDigits: d });
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [esgDashboard, setEsgDashboard] = useState(null);
 
   useEffect(() => {
     try {
@@ -46,11 +48,13 @@ export default function DashboardPage() {
       api.leaderboard(),
       apiExt.getAlerts().catch(() => ({ alerts: [] })),
       apiExt.getPortfolioAnalytics().catch(() => null),
-    ]).then(([s, l, a, an]) => {
+      fetchAuthJson('/esg/dashboard').catch(()=>null),
+    ]).then(([s, l, a, an, esg]) => {
       setStats(s);
       setLeaderboard(l?.leaderboard || []);
       setAlerts(a?.alerts?.slice(0, 5) || []);
       setAnalytics(an);
+      setEsgDashboard(esg);
     }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
@@ -63,21 +67,24 @@ export default function DashboardPage() {
   const greeting = lang === 'fr' ? 'Bonjour' : 'Hello';
 
   const kpis = [
-    { label: lang === 'fr' ? 'Total carbon credits' : 'Total Carbon Credits', value: s ? `${fmt(s.totalCarbonCredits)} tCO₂e` : '—', color: '#00FF94', sub: `${s?.projectCount || 0} ${lang === 'fr' ? 'projets' : 'projects'}`, icon: '🌍' },
-    { label: lang === 'fr' ? 'Revenus carbone' : 'Carbon Revenue', value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: `$12/tCO₂e avg.`, icon: '💰' },
-    { label: lang === 'fr' ? 'Production totale' : 'Total Production', value: s ? `${fmt(s.totalEnergyMWh)} MWh` : '—', color: '#38BDF8', sub: lang === 'fr' ? 'Toutes années' : 'All years', icon: '⚡' },
-    { label: lang === 'fr' ? 'Article 6 Potential' : 'Article 6 Potential', value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
+    { label: L('Total Carbon Credits','Total Crédits Carbone'), value: s ? fmt(s.totalCarbonCredits)+' tCO₂e' : '—', color: '#00FF94', sub: (s?.projectCount || 0)+' '+(lang==='fr'?'projets':'projects'), icon: '🌍' },
+    { label: L('Carbon Revenue','Revenus Carbone'), value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: '$12/tCO₂e avg.', icon: '💰' },
+    { label: L('Total Production','Production totale'), value: s ? fmt(s.totalEnergyMWh)+' MWh' : '—', color: '#38BDF8', sub: L('All years','Toutes années'), icon: '⚡' },
+    { label: 'ESG Score', value: esgDashboard?.latestScore!=null ? Math.round(esgDashboard.latestScore)+'% · '+esgDashboard.latestRating : '—', color: '#60A5FA', sub: esgDashboard?.latestLevel||L('No assessment','Pas d'évaluation'), icon: '⬡' },
+    { label: L('Article 6 Potential','Potentiel Article 6'), value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
   ];
 
   const scoreItems = [
     { label: 'MRV Engine', score: 92, color: '#00FF94' },
-    { label: 'Data Quality', score: analytics?.dataQuality?.completeness || 70, color: '#38BDF8' },
-    { label: lang === 'fr' ? 'Optimisation' : 'Optimization', score: 45, color: '#FCD34D', note: lang === 'fr' ? 'Voir recommandations' : 'See recommendations' },
-    { label: 'Multi-standard', score: 30, color: '#A78BFA', note: lang === 'fr' ? 'Article 6 potentiel' : 'Article 6 potential' },
+    { label: L('Data Quality','Qualité données'), score: analytics?.dataQuality?.completeness || 70, color: '#38BDF8' },
+    { label: L('Optimization','Optimisation'), score: 45, color: '#FCD34D', note: L('See recommendations','Voir recommandations') },
+    { label: 'ESG Score', score: esgDashboard?.latestScore||0, color: '#60A5FA', note: esgDashboard?.latestLevel||L('Start assessment','Démarrer évaluation') },
+    { label: 'Multi-standard', score: 30, color: '#A78BFA', note: L('Article 6 potential','Article 6 potentiel') },
   ];
 
   const quickActions = [
-    { href: '/dashboard/projects/new', icon: '➕', label: lang === 'fr' ? 'New project' : 'New project', color: '#00FF94' },
+    { href: '/dashboard/projects/new', icon: '➕', label: L('New project','Nouveau projet'), color: '#00FF94' },
+    { href: '/dashboard/esg', icon: '⬡', label: L('ESG Assessment','Évaluation ESG'), color: '#60A5FA' },
     { href: '/dashboard/upload',       icon: '📥', label: lang === 'fr' ? 'Import CSV' : 'Import CSV',    color: '#38BDF8' },
     { href: '/dashboard/optimization', icon: '⚙️', label: lang === 'fr' ? 'Optimiser MRV' : 'Optimize MRV', color: '#FCD34D' },
     { href: '/dashboard/marketplace',  icon: '🏪', label: 'Marketplace',                                     color: '#A78BFA' },
