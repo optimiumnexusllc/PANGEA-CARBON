@@ -204,7 +204,7 @@ export default function ESGPage() {
   const answeredQ = Object.keys(responses).length;
   const progressPct = Math.round(answeredQ/totalQ*100);
 
-  const inp = { background:C.card2, border:'1px solid '+C.border, borderRadius:8, color:C.text, padding:'9px 12px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
+  const inp = { background:C.card2, border:'1px solid '+C.border, borderRadius:8, color:C.text, padding:'9px 12px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' };
 
   return (
     <div style={{ padding:20, maxWidth:1500, margin:'0 auto' }}>
