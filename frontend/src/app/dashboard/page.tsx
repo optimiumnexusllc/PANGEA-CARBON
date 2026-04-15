@@ -70,7 +70,7 @@ export default function DashboardPage() {
     { label: L('Total Carbon Credits','Total Crédits Carbone'), value: s ? fmt(s.totalCarbonCredits)+' tCO₂e' : '—', color: '#00FF94', sub: (s?.projectCount || 0)+' '+(lang==='fr'?'projets':'projects'), icon: '🌍' },
     { label: L('Carbon Revenue','Revenus Carbone'), value: s ? fmtM(s.totalRevenueUSD) : '—', color: '#FCD34D', sub: '$12/tCO₂e avg.', icon: '💰' },
     { label: L('Total Production','Production totale'), value: s ? fmt(s.totalEnergyMWh)+' MWh' : '—', color: '#38BDF8', sub: L('All years','Toutes années'), icon: '⚡' },
-    { label: 'ESG Score', value: esgDashboard?.latestScore!=null ? Math.round(esgDashboard.latestScore)+'% · '+esgDashboard.latestRating : '—', color: '#60A5FA', sub: esgDashboard?.latestLevel||L('No assessment','Pas d'évaluation'), icon: '⬡' },
+    { label: 'ESG Score', value: esgDashboard?.latestScore!=null ? Math.round(esgDashboard.latestScore)+'% · '+esgDashboard.latestRating : '—', color: '#60A5FA', sub: esgDashboard?.latestLevel||L('No assessment',"Pas d'évaluation"), icon: '⬡' },
     { label: L('Article 6 Potential','Potentiel Article 6'), value: s ? fmtM(s.totalCarbonCredits * 45) : '—', color: '#A78BFA', sub: '×3.75 vs Verra', icon: '🏛️' },
   ];
 
