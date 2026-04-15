@@ -323,11 +323,103 @@ router.post('/:id/advance', auth, async (req, res, next) => {
     const { stepKey, notes, confirmedCredits } = req.body;
     if (!stepKey) return res.status(400).json({ error:'stepKey required' });
 
-    const pipeline = await prisma.creditPipeline.findUnique({ where:{ id:req.params.id } });
+    const pipeline = await prisma.creditPipeline.findUnique({
+      where:{ id:req.params.id },
+      include:{ documents:true }
+    });
     if (!pipeline) return res.status(404).json({ error:'Pipeline not found' });
     if (pipeline.currentStep !== stepKey) {
-      return res.status(400).json({ error:`Cannot advance ${stepKey} — current step is ${pipeline.currentStep}` });
+      return res.status(400).json({ error:'Cannot advance '+stepKey+' — current step is '+pipeline.currentStep });
     }
+
+    // ─── Contrôle rigoureux par étape ───────────────────────────────────────
+    const docs = pipeline.documents || [];
+    const hasDoc = (type) => docs.some(d => d.type === type && d.name);
+    const readingsCount = await prisma.energyReading.count({ where:{ projectId: pipeline.projectId } });
+    const mrvRecord = await prisma.mRVRecord.findFirst({ where:{ projectId: pipeline.projectId } });
+
+    const STEP_GATES = {
+      // Étape 1: Données MRV — minimum 12 lectures mensuelles
+      MRV_DATA: () => {
+        if (readingsCount < 1) return 'Au moins 1 lecture de production requise. Ajoutez des données dans Projets → Lectures.';
+        return null;
+      },
+      // Étape 2: Calcul MRV — le calcul doit avoir été exécuté
+      MRV_CALCULATION: () => {
+        if (!mrvRecord && readingsCount < 1) return 'Exécutez le calcul MRV depuis le module MRV avant de valider cette étape.';
+        return null;
+      },
+      // Étape 3: PDD — document PDD obligatoire
+      PDD: () => {
+        if (!hasDoc('PDD')) return 'Le Project Design Document (PDD) doit être uploadé avant de valider cette étape.';
+        return null;
+      },
+      // Étape 4: VVB Validation — VVB assigné + statement
+      VVB_VALIDATION: () => {
+        if (!pipeline.vvbName) return 'Un VVB accrédité doit être assigné. Utilisez le bouton "Assigner VVB".';
+        if (!hasDoc('VVB_VALIDATION_STATEMENT')) return 'Le Statement de Validation VVB doit être uploadé.';
+        return null;
+      },
+      // Étape 5: Monitoring Period — période de suivi active
+      MONITORING_PERIOD: () => {
+        if (readingsCount < 1) return 'Aucune donnée de monitoring enregistrée pour cette période.';
+        return null;
+      },
+      // Étape 6: Monitoring Report — rapport annuel compilé
+      MONITORING_REPORT: () => {
+        if (!hasDoc('MONITORING_REPORT')) return 'Le Rapport de Monitoring annuel doit être uploadé avant de valider.';
+        return null;
+      },
+      // Étape 7: VVB Verification — statement de vérification
+      VVB_VERIFICATION: () => {
+        if (!pipeline.vvbName) return 'Aucun VVB assigné. La vérification nécessite un VVB accrédité.';
+        if (!hasDoc('VVB_VERIFICATION_STATEMENT')) return 'Le Statement de Vérification VVB doit être uploadé.';
+        return null;
+      },
+      // Étape 8: Registry Submission — package complet
+      REGISTRY_SUBMISSION: () => {
+        const missing = [];
+        if (!hasDoc('PDD')) missing.push('PDD');
+        if (!hasDoc('MONITORING_REPORT')) missing.push('Monitoring Report');
+        if (!hasDoc('VVB_VALIDATION_STATEMENT')) missing.push('VVB Validation Statement');
+        if (!hasDoc('VVB_VERIFICATION_STATEMENT')) missing.push('VVB Verification Statement');
+        if (missing.length > 0) return 'Documents manquants pour la soumission: '+missing.join(', ')+'. Le package Verra/GS requiert tous les documents.';
+        if (!hasDoc('REGISTRY_SUBMISSION_PACKAGE')) return 'Le Package de Soumission Registre doit être uploadé (PDD+Monitoring+VVB compilés).';
+        return null;
+      },
+      // Étape 9: Registry Review — attendre l'approbation officielle
+      REGISTRY_REVIEW: () => {
+        if (!confirmedCredits && !pipeline.estimatedCredits) return 'Le nombre de crédits confirmés doit être renseigné avant validation du Registry Review.';
+        if (confirmedCredits && parseFloat(confirmedCredits) <= 0) return 'Le nombre de crédits doit être supérieur à 0.';
+        return null;
+      },
+      // Étape 10: Credit Issuance — montant confirmé obligatoire
+      CREDIT_ISSUANCE: () => {
+        if (!confirmedCredits && !pipeline.confirmedCredits) return "Renseignez le nombre de VCUs/crédits confirmés par le registre avant d'émettre.";
+        return null;
+      },
+      // Étape 11: Market Listing — crédits émis requis
+      MARKET_LISTING: () => {
+        const credits = pipeline.confirmedCredits || pipeline.estimatedCredits;
+        if (!credits || credits <= 0) return 'Des crédits carbone doivent être émis avant la mise en vente sur le marketplace.';
+        return null;
+      },
+    };
+
+    // Appliquer le contrôle
+    const gateCheck = STEP_GATES[stepKey];
+    if (gateCheck) {
+      const gateError = gateCheck();
+      if (gateError) {
+        return res.status(422).json({
+          error: 'Contrôle qualité échoué',
+          detail: gateError,
+          step: stepKey,
+          code: 'GATE_CHECK_FAILED',
+        });
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Avancer l'étape
     await advanceStep(req.params.id, stepKey, { notes, completedBy:req.user.userId }, req.user.userId);

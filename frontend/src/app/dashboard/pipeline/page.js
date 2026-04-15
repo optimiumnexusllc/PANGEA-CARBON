@@ -36,6 +36,21 @@ const DOC_TYPE_LABELS = {
 };
 
 const DOC_TYPES=['PDD','MONITORING_REPORT','VVB_VALIDATION_STATEMENT','VVB_VERIFICATION_STATEMENT','REGISTRY_SUBMISSION_PACKAGE','BASELINE_STUDY','STAKEHOLDER_CONSULTATION','OTHER'];
+
+const STEP_REQUIREMENTS = {
+  MRV_DATA:            { docs:[], desc:'≥1 lecture de production enregistrée dans Projets' },
+  MRV_CALCULATION:     { docs:[], desc:'Calcul MRV exécuté depuis le module MRV' },
+  PDD:                 { docs:['PDD'], desc:'Project Design Document uploadé' },
+  VVB_VALIDATION:      { docs:['VVB_VALIDATION_STATEMENT'], desc:'VVB assigné + Validation Statement uploadé' },
+  MONITORING_PERIOD:   { docs:[], desc:'Données de monitoring enregistrées' },
+  MONITORING_REPORT:   { docs:['MONITORING_REPORT'], desc:'Rapport de Monitoring annuel uploadé' },
+  VVB_VERIFICATION:    { docs:['VVB_VERIFICATION_STATEMENT'], desc:'VVB Verification Statement uploadé' },
+  REGISTRY_SUBMISSION: { docs:['PDD','MONITORING_REPORT','VVB_VALIDATION_STATEMENT','VVB_VERIFICATION_STATEMENT','REGISTRY_SUBMISSION_PACKAGE'], desc:'Package complet: PDD + Monitoring + 2 VVB Statements + Package Registre' },
+  REGISTRY_REVIEW:     { docs:[], desc:'Crédits confirmés renseignés (quantité officielle registre)' },
+  CREDIT_ISSUANCE:     { docs:[], desc:'Quantité de crédits confirmée par le registre officiel' },
+  MARKET_LISTING:      { docs:[], desc:'Crédits émis sur blockchain PANGEA CARBON' },
+};
+
 const STDS=['VERRA_VCS','GOLD_STANDARD','ARTICLE6','CORSIA'];
 const STEP_DESC={
   MRV_DATA:'Energy production data collected via IoT/SCADA or CSV. Minimum 12 monthly readings required.',
@@ -74,6 +89,7 @@ export default function PipelinePage() {
   const [advNotes, setAdvNotes] = useState('');
   const [confirmedCredits, setConfirmedCredits] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [gateError, setGateError] = useState(null);
 
   const toast$ = (msg, type='success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 4000); };
 
