@@ -64,7 +64,7 @@ export default function ProjectsPage() {
       if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
       setProjects(prev => prev.filter(p => p.id !== deleteProject.id));
       setDeleteProject(null);
-      flash(L('Project deleted: ','Projet supprimé : ') + deleteProject.name);
+      flash((lang==='fr'?'Projet supprimé : ':'Project deleted: ') + deleteProject.name);
     } catch(e) { flash(e.message, false); }
     finally { setDeleting(false); }
   };
