@@ -66,7 +66,7 @@ router.get('/users', auth, adminOnly, async (req, res, next) => {
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where, skip: (parseInt(page) - 1) * parseInt(limit), take: parseInt(limit),
-        include: { organization: { select: { name: true, plan: true } }, _count: { select: { projects: true } } },
+        include: { organization: { select: { name: true, plan: true } }, _count: { select: { projects: true } }, twoFactorAuth: { select: { enabled: true, backupCodes: true } } },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count({ where }),
@@ -323,6 +323,36 @@ router.get('/settings', auth, adminOnly, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+
+
+// POST /api/admin/users/:id/mfa/disable — Admin désactive le 2FA d'un user
+router.post('/users/:id/mfa/disable', auth, adminOnly, async (req, res, next) => {
+  try {
+    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.params.id } });
+    if (!twofa) return res.status(404).json({ error: '2FA not configured for this user' });
+    await prisma.twoFactorAuth.update({ where: { userId: req.params.id }, data: { enabled: false } });
+    await prisma.auditLog.create({
+      data: { userId: req.user.userId, action: 'ADMIN_DISABLE_2FA', entity: 'User', entityId: req.params.id, ipAddress: req.ip }
+    }).catch(() => {});
+    res.json({ success: true, message: '2FA disabled for user' });
+  } catch(e) { next(e); }
+});
+
+// POST /api/admin/users/:id/mfa/reset — Admin reset les backup codes
+router.post('/users/:id/mfa/reset', auth, adminOnly, async (req, res, next) => {
+  try {
+    const crypto = require('crypto');
+    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.params.id } });
+    if (!twofa) return res.status(404).json({ error: '2FA not configured for this user' });
+    const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(4).toString('hex'));
+    const hashedBackups = backupCodes.map(c => crypto.createHash('sha256').update(c).digest('hex'));
+    await prisma.twoFactorAuth.update({ where: { userId: req.params.id }, data: { backupCodes: hashedBackups } });
+    await prisma.auditLog.create({
+      data: { userId: req.user.userId, action: 'ADMIN_RESET_2FA_BACKUP', entity: 'User', entityId: req.params.id, ipAddress: req.ip }
+    }).catch(() => {});
+    res.json({ success: true, backupCodes });
+  } catch(e) { next(e); }
+});
 
 // POST /api/admin/settings/bulk — Sauvegarder plusieurs settings en une fois
 router.post('/settings/bulk', auth, adminOnly, async (req, res, next) => {

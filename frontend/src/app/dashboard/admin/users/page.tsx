@@ -38,6 +38,7 @@ export default function AdminUsersPage() {
   const [confirmHardDelete, setConfirmHardDelete] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [mfaModal, setMfaModal] = useState(null);
 
   const toast$ = (msg, type='success') => { setToast({msg,type}); setTimeout(()=>setToast(null),3500); };
 
@@ -45,7 +46,7 @@ export default function AdminUsersPage() {
     setLoading(true); setError('');
     try {
       const q = new URLSearchParams({ limit:'100', page:'1', ...(search&&{search}), ...(roleFilter&&{role:roleFilter}) });
-      const data = await fetchAuthJson(`/admin/users?${q}`);
+      const data = await fetchAuthJson('/admin/users?'+q.toString());
       setUsers(data.users || []);
       setTotal(data.total || data.users?.length || 0);
     } catch(e) { setError(e.message); setUsers([]); }
@@ -53,6 +54,23 @@ export default function AdminUsersPage() {
   }, [search, roleFilter]);
 
   useEffect(() => { load(); }, [load]);
+
+
+  const disableMFA = async (u) => {
+    if (!u.twoFactorAuth?.enabled) return;
+    try {
+      await fetchAuthJson('/admin/users/'+u.id+'/mfa/disable', { method:'POST' });
+      setUsers(prev => prev.map(x => x.id===u.id ? {...x, twoFactorAuth:{...x.twoFactorAuth, enabled:false}} : x));
+      toast$(lang==='fr'?'MFA désactivé pour '+u.name:'MFA disabled for '+u.name);
+    } catch(e) { toast$(e.message,'error'); }
+  };
+
+  const resetMFABackup = async (u) => {
+    try {
+      const r = await fetchAuthJson('/admin/users/'+u.id+'/mfa/reset', { method:'POST' });
+      toast$(lang==='fr'?'8 nouveaux codes de secours générés':'8 new backup codes generated');
+    } catch(e) { toast$(e.message,'error'); }
+  };
 
   const openEdit = (u) => {
     setEditUser(u);
@@ -69,7 +87,7 @@ export default function AdminUsersPage() {
     if (!editUser) return;
     setSaving(true);
     try {
-      const updated = await fetchAuthJson(`/admin/users/${editUser.id}`, {
+      const updated = await fetchAuthJson('/admin/users/'+editUser.id, {
         method:'PATCH', body:JSON.stringify(editForm)
       });
       setUsers(prev => prev.map(u => u.id === editUser.id ? { ...u, ...updated } : u));
@@ -81,7 +99,7 @@ export default function AdminUsersPage() {
 
   const toggleActive = async (u) => {
     try {
-      await fetchAuthJson(`/admin/users/${u.id}`, { method:'PATCH', body:JSON.stringify({ isActive:!u.isActive }) });
+      await fetchAuthJson('/admin/users/'+u.id, { method:'PATCH', body:JSON.stringify({ isActive:!u.isActive }) });
       setUsers(prev => prev.map(x => x.id===u.id ? {...x, isActive:!u.isActive} : x));
       toast$(u.isActive ? 'User disabled' : 'User activated');
     } catch(e) { toast$(e.message,'error'); }
@@ -89,7 +107,7 @@ export default function AdminUsersPage() {
 
   const changeRole = async (u, role) => {
     try {
-      await fetchAuthJson(`/admin/users/${u.id}`, { method:'PATCH', body:JSON.stringify({ role }) });
+      await fetchAuthJson('/admin/users/'+u.id, { method:'PATCH', body:JSON.stringify({ role }) });
       setUsers(prev => prev.map(x => x.id===u.id ? {...x, role} : x));
     } catch(e) { toast$(e.message,'error'); }
   };
@@ -98,7 +116,7 @@ export default function AdminUsersPage() {
     if (!deleteModal) return;
     setDeleting(true);
     try {
-      await fetchAuthJson(`/admin/users/${deleteModal.id}`, { method:'DELETE' });
+      await fetchAuthJson('/admin/users/'+deleteModal.id, { method:'DELETE' });
       setUsers(prev => prev.filter(u => u.id !== deleteModal.id));
       setTotal(prev => prev - 1);
       setDeleteModal(null);
@@ -117,7 +135,7 @@ export default function AdminUsersPage() {
     setConfirmHardDelete(false);
     setDeleting(true);
     try {
-      await fetchAuthJson(`/admin/users/${deleteModal.id}?hard=true`, { method:'DELETE' });
+      await fetchAuthJson('/admin/users/'+deleteModal.id+'?hard=true', { method:'DELETE' });
       setUsers(prev => prev.filter(u => u.id !== deleteModal.id));
       setTotal(prev => prev - 1);
       setDeleteModal(null);
@@ -137,7 +155,7 @@ export default function AdminUsersPage() {
       setTotal(prev => prev+1);
       setNewUser({ name:'', email:'', password:'', role:'ANALYST' });
       setCreateModal(false);
-      toast$(`User ${created.name} created!`);
+      toast$('User '+created.name+' created!');
     } catch(e) { toast$(e.message||'Error','error'); }
     finally { setCreating(false); }
   };
@@ -252,6 +270,14 @@ export default function AdminUsersPage() {
                 <td style={{ padding:'10px 12px', fontSize:11, color:'#4A6278', whiteSpace:'nowrap' }}>
                   {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : <span style={{ color:'#2A3F55' }}>Never</span>}
                 </td>
+                {/* MFA */}
+                <td style={{ padding:'10px 12px' }}>
+                  <button onClick={()=>setMfaModal(u)}
+                    title={u.twoFactorAuth?.enabled?(lang==='fr'?'MFA activé — cliquer pour gérer':'MFA enabled — click to manage'):(lang==='fr'?'MFA désactivé':'MFA disabled')}
+                    style={{ fontSize:10, padding:'3px 8px', borderRadius:4, fontFamily:'JetBrains Mono, monospace', cursor:'pointer', border:'1px solid '+(u.twoFactorAuth?.enabled?'rgba(0,255,148,0.3)':'rgba(74,98,120,0.4)'), background:u.twoFactorAuth?.enabled?'rgba(0,255,148,0.08)':'transparent', color:u.twoFactorAuth?.enabled?'#00FF94':'#4A6278', display:'flex', alignItems:'center', gap:4 }}>
+                    {u.twoFactorAuth?.enabled?'🔐 ON':'🔓 OFF'}
+                  </button>
+                </td>
                 {/* Status */}
                 <td style={{ padding:'10px 12px' }}>
                   <span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, fontFamily:'JetBrains Mono, monospace',
@@ -271,6 +297,10 @@ export default function AdminUsersPage() {
                     <button onClick={() => toggleActive(u)}
                       style={{ fontSize:11, background:'transparent', border:'1px solid #1E2D3D', borderRadius:5, color:u.isActive?'#F87171':'#00FF94', padding:'4px 9px', cursor:'pointer' }}>
                       {u.isActive ? '⊘ Disable' : '✓ Enable'}
+                    </button>
+                    <button onClick={() => setMfaModal(u)}
+                      style={{ fontSize:11, background:'rgba(167,139,250,0.08)', border:'1px solid rgba(167,139,250,0.25)', borderRadius:5, color:'#A78BFA', padding:'4px 9px', cursor:'pointer' }}>
+                      🔐 MFA
                     </button>
                     <button onClick={() => setDeleteModal(u)}
                       style={{ fontSize:11, background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.25)', borderRadius:5, color:'#F87171', padding:'4px 9px', cursor:'pointer' }}>
@@ -489,5 +519,85 @@ export default function AdminUsersPage() {
       )}
 
     </div>
+      {/* ── MFA MODAL ───────────────────────────────────────────────────── */}
+      {mfaModal && (
+        <div onClick={e=>{if(e.target===e.currentTarget)setMfaModal(null);}}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.92)', backdropFilter:'blur(12px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10001, padding:16 }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(167,139,250,0.35)', borderRadius:18, padding:28, width:'100%', maxWidth:460, boxShadow:'0 32px 80px rgba(0,0,0,0.8)', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#A78BFA 0%,transparent 100%)' }}/>
+
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:20 }}>
+              <div style={{ width:52, height:52, borderRadius:13, background:'rgba(167,139,250,0.1)', border:'1px solid rgba(167,139,250,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, flexShrink:0 }}>
+                {mfaModal.twoFactorAuth?.enabled?'🔐':'🔓'}
+              </div>
+              <div>
+                <div style={{ fontSize:9, color:'#A78BFA', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.13em', marginBottom:3 }}>
+                  PANGEA CARBON · ADMIN · MFA {lang==='fr'?'GESTION':'MANAGEMENT'}
+                </div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#E8EFF6', margin:0 }}>
+                  {lang==='fr'?'Authentification MFA — ':'MFA Authentication — '}{mfaModal.name}
+                </h2>
+              </div>
+            </div>
+
+            <div style={{ background:'#121920', border:'1px solid #1E2D3D', borderRadius:10, padding:'14px 16px', marginBottom:18 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                <div>
+                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>{lang==='fr'?'STATUT MFA':'MFA STATUS'}</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:mfaModal.twoFactorAuth?.enabled?'#00FF94':'#F87171' }}>
+                    {mfaModal.twoFactorAuth?.enabled?(lang==='fr'?'🔐 Activé':'🔐 Enabled'):(lang==='fr'?'🔓 Désactivé':'🔓 Disabled')}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>{lang==='fr'?'CODES RESTANTS':'REMAINING CODES'}</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#FCD34D' }}>
+                    {mfaModal.twoFactorAuth?.backupCodes?.length||0}
+                    <span style={{ fontSize:10, color:'#4A6278', marginLeft:4 }}>{lang==='fr'?'codes':'codes'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:20 }}>
+              {mfaModal.twoFactorAuth?.enabled&&(
+                <button onClick={()=>{ disableMFA(mfaModal); setMfaModal(null); }}
+                  style={{ width:'100%', background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.3)', borderRadius:10, color:'#F87171', padding:'12px 16px', cursor:'pointer', fontSize:13, fontWeight:700, textAlign:'left', display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ fontSize:20 }}>🔓</span>
+                  <div>
+                    <div>{lang==='fr'?'Désactiver le MFA pour cet utilisateur':'Disable MFA for this user'}</div>
+                    <div style={{ fontSize:10, color:'#8FA3B8', marginTop:2 }}>{lang==='fr'?'L'utilisateur pourra se connecter sans code 2FA':'User will be able to login without 2FA code'}</div>
+                  </div>
+                </button>
+              )}
+              {mfaModal.twoFactorAuth?.enabled&&(
+                <button onClick={()=>{ resetMFABackup(mfaModal); }}
+                  style={{ width:'100%', background:'rgba(252,211,77,0.06)', border:'1px solid rgba(252,211,77,0.25)', borderRadius:10, color:'#FCD34D', padding:'12px 16px', cursor:'pointer', fontSize:13, fontWeight:700, textAlign:'left', display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ fontSize:20 }}>🗝</span>
+                  <div>
+                    <div>{lang==='fr'?'Régénérer les codes de secours':'Regenerate backup codes'}</div>
+                    <div style={{ fontSize:10, color:'#8FA3B8', marginTop:2 }}>{lang==='fr'?'8 nouveaux codes usage unique générés':'8 new single-use codes generated'}</div>
+                  </div>
+                </button>
+              )}
+              {!mfaModal.twoFactorAuth?.enabled&&(
+                <div style={{ padding:'12px 16px', background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.15)', borderRadius:10, fontSize:12, color:'#8FA3B8', lineHeight:1.7 }}>
+                  💡 {lang==='fr'
+                    ?'Le MFA n'est pas activé sur ce compte. L'utilisateur peut l'activer depuis Dashboard → Security & 2FA.'
+                    :'MFA is not enabled on this account. The user can enable it from Dashboard → Security & 2FA.'}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={()=>setMfaModal(null)}
+                style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#8FA3B8', padding:12, cursor:'pointer', fontSize:13 }}>
+                {lang==='fr'?'Fermer':'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
   );
 }
