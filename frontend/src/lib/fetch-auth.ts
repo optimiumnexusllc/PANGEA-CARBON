@@ -47,12 +47,19 @@ export async function fetchAuth(path, options: RequestInit = {}) {
   return res;
 }
 
-export async function fetchAuthJson(path, options = {}) {
+export async function fetchAuthJson(path, options: RequestInit = {}) {
   const res = await fetchAuth(path, options);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Erreur inconnue' }));
-    throw new Error(err.error || `Erreur ${res.status}`);
+    const msg = err.detail || err.error || ('Erreur '+res.status);
+    const error = new Error(msg) as any;
+    error.detail   = err.detail || null;
+    error.code     = err.code   || null;
+    error.step     = err.step   || null;
+    error.status   = res.status;
+    error.apiError = err;
+    throw error;
   }
-  if (res.status === 204) return null as T;
+  if (res.status === 204) return null;
   return res.json();
 }

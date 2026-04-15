@@ -136,6 +136,7 @@ export default function PipelinePage() {
 
   const advance = async (stepKey) => {
     if (!current || advancing) return;
+    setGateError(null);
     setAdvancing(stepKey);
     try {
       const body = { stepKey, notes:advNotes };
@@ -152,7 +153,13 @@ export default function PipelinePage() {
       setConfirmedCredits('');
       toast$(r.message || 'Step completed!');
       loadList();
-    } catch(e) { toast$(e.message||'Failed','error'); }
+    } catch(e) {
+      if (e.code === 'GATE_CHECK_FAILED' || e.status === 422) {
+        setGateError({ step: e.step || stepKey, msg: e.detail || e.message });
+      } else {
+        toast$(e.message||'Failed','error');
+      }
+    }
     finally { setAdvancing(''); }
   };
 
@@ -579,28 +586,97 @@ export default function PipelinePage() {
                   </div>
                 )}
 
+                {/* ── CONTRÔLE QUALITÉ PAR ÉTAPE ──────────────────────── */}
+                {(() => {
+                  const req = STEP_REQUIREMENTS[p.currentStep];
+                  const pDocs = (current.documents||[]).map(d=>d.type);
+                  const missingDocs = req?.docs?.filter(d => !pDocs.includes(d)) || [];
+                  const allGood = missingDocs.length === 0;
+                  return (
+                    <div style={{ marginBottom:14, border:'1px solid '+(allGood?'rgba(0,255,148,0.2)':'rgba(252,211,77,0.25)'), borderRadius:10, overflow:'hidden' }}>
+                      <div style={{ padding:'10px 14px', background:allGood?'rgba(0,255,148,0.04)':'rgba(252,211,77,0.04)', display:'flex', alignItems:'center', gap:10 }}>
+                        <div style={{ width:22, height:22, borderRadius:'50%', background:allGood?'rgba(0,255,148,0.15)':'rgba(252,211,77,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:800, color:allGood?'#00FF94':'#FCD34D', flexShrink:0 }}>
+                          {allGood?'✓':'!'}
+                        </div>
+                        <div style={{ fontSize:9, color:allGood?'#00FF94':'#FCD34D', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', fontWeight:700 }}>
+                          {allGood ? L('REQUIREMENTS MET — READY TO ADVANCE','PRÉREQUIS VALIDÉS — PRÊT À AVANCER') : L('REQUIREMENTS MISSING','PRÉREQUIS MANQUANTS')}
+                        </div>
+                      </div>
+                      <div style={{ padding:'10px 14px', background:'rgba(255,255,255,0.01)' }}>
+                        <div style={{ fontSize:11, color:'#8FA3B8', marginBottom:missingDocs.length?10:0, lineHeight:1.6 }}>{req?.desc}</div>
+                        {missingDocs.length > 0 && (
+                          <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                            {missingDocs.map(d => (
+                              <div key={d} style={{ display:'flex', alignItems:'center', gap:8, padding:'7px 10px', background:'rgba(252,211,77,0.05)', borderRadius:7, border:'1px solid rgba(252,211,77,0.15)' }}>
+                                <span style={{ fontSize:11, color:'#F87171' }}>✗</span>
+                                <span style={{ fontSize:11, color:'#FCD34D' }}>{DOC_TYPE_LABELS[d]||d}</span>
+                                <span style={{ fontSize:9, color:'#4A6278', marginLeft:'auto' }}>{L('Required — upload below','Requis — importez ci-dessous')}</span>
+                              </div>
+                            ))}
+                            {req?.docs?.filter(d => pDocs.includes(d)).map(d => (
+                              <div key={d} style={{ display:'flex', alignItems:'center', gap:8, padding:'7px 10px', background:'rgba(0,255,148,0.04)', borderRadius:7, border:'1px solid rgba(0,255,148,0.12)' }}>
+                                <span style={{ fontSize:11, color:'#00FF94' }}>✓</span>
+                                <span style={{ fontSize:11, color:'#00FF94' }}>{DOC_TYPE_LABELS[d]||d}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {allGood && req?.docs?.length > 0 && (
+                          <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
+                            {req.docs.map(d => (
+                              <span key={d} style={{ fontSize:9, padding:'2px 8px', background:'rgba(0,255,148,0.08)', border:'1px solid rgba(0,255,148,0.2)', borderRadius:4, color:'#00FF94', fontFamily:'JetBrains Mono, monospace' }}>
+                                ✓ {(DOC_TYPE_LABELS[d]||d).replace(/^[^ ]+ /,'')}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Gate error */}
+                {gateError && gateError.step === p.currentStep && (
+                  <div style={{ marginBottom:14, background:'rgba(248,113,113,0.06)', border:'1px solid rgba(248,113,113,0.3)', borderRadius:10, padding:'12px 14px', position:'relative', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:'#F87171' }}/>
+                    <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', marginBottom:6, paddingLeft:8, letterSpacing:'0.08em' }}>⛔ {L('GATE CHECK FAILED','CONTRÔLE QUALITÉ ÉCHOUÉ')}</div>
+                    <div style={{ fontSize:12, color:'#E8EFF6', lineHeight:1.7, paddingLeft:8 }}>{gateError.msg}</div>
+                    <button onClick={()=>setGateError(null)} style={{ position:'absolute', top:8, right:8, background:'transparent', border:'none', color:'#4A6278', cursor:'pointer', fontSize:14 }}>✕</button>
+                  </div>
+                )}
+
                 <div style={{ marginBottom:12 }}>
                   <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:5 }}>NOTES / EVIDENCE REFERENCE</div>
                   <input placeholder={L('e.g. VVB statement BV-2026-CI-0042, PDD v2.1...','ex. Rapport VVB BV-2026-CI-0042, PDD v2.1...')}
                     value={advNotes} onChange={e => setAdvNotes(e.target.value)} style={inp}/>
                 </div>
 
-                {/* BOUTON NEXT — BIEN VISIBLE */}
-                <div style={{ background:'rgba(0,255,148,0.04)', border:'1px solid rgba(0,255,148,0.15)', borderRadius:10, padding:'14px', marginTop:4 }}>
-                  <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:8, textAlign:'center' }}>
-                    {L('COMPLETE THIS STEP & ADVANCE','VALIDER CETTE ÉTAPE & PASSER À LA SUIVANTE')}
-                    {curDef && stepDefs[stepDefs.findIndex(s=>s.key===p.currentStep)+1] && (
-                      <span style={{ color:'#2A3F55' }}> → {stepDefs[stepDefs.findIndex(s=>s.key===p.currentStep)+1]?.title}</span>
-                    )}
-                  </div>
-                  <button onClick={() => advance(p.currentStep)} disabled={!!advancing}
-                    style={{ width:'100%', background:advancing?'#1E2D3D':'#00FF94', color:'#080B0F', border:'none', borderRadius:9, padding:'14px', fontWeight:800, fontSize:15, cursor:advancing?'wait':'pointer', fontFamily:'Syne, sans-serif', letterSpacing:'0.02em' }}>
-                    {advancing===p.currentStep ? '⟳ Processing...'
-                      : p.currentStep==='REGISTRY_REVIEW' ? `🌿 ${L('Issue Credits → Step 10','Émettre Crédits → Étape 10')}`
-                      : p.currentStep==='MARKET_LISTING' ? `🏪 ${L('Complete Pipeline → Marketplace','Finaliser → Marketplace')}`
-                      : `✓ ${L('Next step','Étape suivante')} →`}
-                  </button>
-                </div>
+                {/* BOUTON NEXT */}
+                {(() => {
+                  const req = STEP_REQUIREMENTS[p.currentStep];
+                  const pDocs = (current.documents||[]).map(d=>d.type);
+                  const missingDocs = req?.docs?.filter(d => !pDocs.includes(d)) || [];
+                  const canAdvance = missingDocs.length === 0 && !advancing;
+                  const nextStep = stepDefs[stepDefs.findIndex(s=>s.key===p.currentStep)+1];
+                  return (
+                    <div style={{ background:canAdvance?'rgba(0,255,148,0.04)':'rgba(30,45,61,0.3)', border:'1px solid '+(canAdvance?'rgba(0,255,148,0.2)':'rgba(30,45,61,0.6)'), borderRadius:10, padding:14, marginTop:4 }}>
+                      <div style={{ fontSize:9, color:canAdvance?'#4A6278':'#2A3F55', fontFamily:'JetBrains Mono, monospace', marginBottom:8, textAlign:'center' }}>
+                        {canAdvance
+                          ? (L('COMPLETE THIS STEP','VALIDER CETTE ÉTAPE') + (nextStep ? ' → '+nextStep.title : ''))
+                          : L('UPLOAD REQUIRED DOCUMENTS FIRST','IMPORTEZ LES DOCUMENTS REQUIS')}
+                      </div>
+                      <button onClick={() => canAdvance && advance(p.currentStep)}
+                        disabled={!canAdvance}
+                        style={{ width:'100%', background:!canAdvance?'#1E2D3D':advancing?'#1E2D3D':'#00FF94', color:!canAdvance?'#2A3F55':'#080B0F', border:'none', borderRadius:9, padding:14, fontWeight:800, fontSize:15, cursor:!canAdvance?'not-allowed':advancing?'wait':'pointer', fontFamily:'Syne, sans-serif', letterSpacing:'0.02em', opacity:!canAdvance?0.5:1 }}>
+                        {advancing===p.currentStep ? '⟳ Processing...'
+                          : !canAdvance ? '🔒 '+L('Upload documents to unlock','Importez les documents requis')
+                          : p.currentStep==='REGISTRY_REVIEW' ? '🌿 '+L('Issue Credits → Step 10','Émettre Crédits → Étape 10')
+                          : p.currentStep==='MARKET_LISTING' ? '🏪 '+L('Complete Pipeline → Marketplace','Finaliser → Marketplace')
+                          : '✓ '+L('Next step','Étape suivante')+' →'}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
