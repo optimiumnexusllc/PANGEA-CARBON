@@ -468,8 +468,23 @@ router.post('/apikeys', auth, async (req, res, next) => {
 
 router.delete('/apikeys/:id', auth, adminOnly, async (req, res, next) => {
   try {
-    await prisma.apiKey.update({ where: { id: req.params.id }, data: { isActive: false } });
-    res.json({ success: true });
+    const hard = req.query.hard === 'true';
+    if (hard) {
+      // Suppression définitive (uniquement si déjà révoquée)
+      const key = await prisma.apiKey.findUnique({ where: { id: req.params.id } });
+      if (!key) return res.status(404).json({ error: 'Clé introuvable' });
+      if (key.isActive) return res.status(400).json({ error: 'Révoquez la clé avant de la supprimer définitivement' });
+      await prisma.apiKey.delete({ where: { id: req.params.id } });
+      await prisma.auditLog.create({ data: {
+        userId: req.user.userId, action: 'APIKEY_DELETED', entity: 'ApiKey', entityId: req.params.id,
+        before: { name: key.name, keyPrefix: key.keyPrefix }, ipAddress: req.ip,
+      }}).catch(() => {});
+      res.json({ success: true, deleted: true });
+    } else {
+      // Révocation (soft delete)
+      await prisma.apiKey.update({ where: { id: req.params.id }, data: { isActive: false } });
+      res.json({ success: true, revoked: true });
+    }
   } catch (e) { next(e); }
 });
 

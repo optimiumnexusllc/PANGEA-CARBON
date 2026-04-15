@@ -439,6 +439,7 @@ export default function ApiKeysPage() {
   const [selectedIntegration, setSelectedIntegration] = useState(null);
   const [toast, setToast] = useState(null);
   const [integFilter, setIntegFilter] = useState('all');
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const showToast = (msg, type='success') => {
     setToast({msg,type}); setTimeout(()=>setToast(null),4000);
@@ -480,6 +481,17 @@ export default function ApiKeysPage() {
     } catch(e: any) {
       showToast(e.message, 'error');
     } finally { setSaving(false); }
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDelete) return;
+    const key = confirmDelete;
+    setConfirmDelete(null);
+    try {
+      await fetchAuth('/admin/apikeys/'+key.id+'?hard=true', { method: 'DELETE' });
+      showToast(L('Key permanently deleted','Clé supprimée définitivement'));
+      load();
+    } catch(e) { showToast(e.message,'error'); }
   };
 
   const executeRevoke = async () => {
@@ -649,9 +661,16 @@ export default function ApiKeysPage() {
                         <div style={{ width:8,height:8,borderRadius:'50%',background:C.red,flexShrink:0 }}/>
                         <div style={{ flex:1 }}>
                           <div style={{ fontSize:13,color:C.text2 }}>{key.name}</div>
-                          <div style={{ fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>{key.keyPrefix || 'pgc_'}••••••••••••••••</div>
+                          <div style={{ display:'flex',gap:10,alignItems:'center',marginTop:3 }}>
+                            <code style={{ fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>{key.keyPrefix || 'pgc_'}••••••••••••••••</code>
+                            {key.lastUsedAt && <span style={{ fontSize:9,color:C.muted }}>Dernier usage: {new Date(key.lastUsedAt).toLocaleDateString('fr-FR')}</span>}
+                          </div>
                         </div>
-                        <span style={{ fontSize:9,color:C.red,fontFamily:'JetBrains Mono, monospace' }}>RÉVOQUÉE</span>
+                        <span style={{ fontSize:9,color:C.red,background:'rgba(248,113,113,0.08)',border:'1px solid rgba(248,113,113,0.15)',borderRadius:4,padding:'2px 7px',fontFamily:'JetBrains Mono, monospace',flexShrink:0 }}>RÉVOQUÉE</span>
+                        <button onClick={() => setConfirmDelete(key)}
+                          style={{ background:'rgba(248,113,113,0.08)',border:'1px solid rgba(248,113,113,0.2)',borderRadius:8,color:C.red,padding:'7px 12px',cursor:'pointer',fontSize:11,fontWeight:600,flexShrink:0 }}>
+                          🗑 Supprimer
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -1028,6 +1047,46 @@ export default function ApiKeysPage() {
               <button onClick={() => setConfirmRevoke(null)} style={{ flex:1,background:'transparent',border:`1px solid ${C.border}`,borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>Annuler</button>
               <button onClick={executeRevoke} style={{ flex:1,background:'rgba(252,211,77,0.1)',border:'1px solid rgba(252,211,77,0.35)',borderRadius:9,color:C.yellow,padding:12,fontWeight:800,cursor:'pointer',fontSize:13,fontFamily:'Syne, sans-serif' }}>
                 🔑 Révoquer la clé
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODALE SUPPRESSION DÉFINITIVE ──────────────────────────────────── */}
+      {confirmDelete && (
+        <div onClick={e => { if(e.target===e.currentTarget) setConfirmDelete(null); }}
+          style={{ position:'fixed',inset:0,background:'rgba(8,11,15,0.88)',backdropFilter:'blur(10px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:10002,padding:16 }}>
+          <div style={{ background:C.card,border:'1px solid rgba(248,113,113,0.35)',borderRadius:16,padding:28,maxWidth:460,width:'100%',boxShadow:'0 24px 80px rgba(0,0,0,0.7)',position:'relative',overflow:'hidden' }}>
+            {/* Barre accent top */}
+            <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,#F87171 0%,rgba(248,113,113,0.2) 100%)' }}/>
+            {/* Header */}
+            <div style={{ display:'flex',gap:14,alignItems:'center',marginBottom:16 }}>
+              <div style={{ width:48,height:48,borderRadius:12,background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0 }}>🗑</div>
+              <div>
+                <div style={{ fontSize:9,color:C.red,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.12em',marginBottom:4 }}>API KEYS · SUPPRESSION DÉFINITIVE</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:17,fontWeight:800,color:C.red,margin:0 }}>Supprimer cette clé ?</h2>
+              </div>
+            </div>
+            <div style={{ height:1,background:'linear-gradient(90deg,rgba(248,113,113,0.25) 0%,transparent 100%)',marginBottom:18 }}/>
+            {/* Clé concernée */}
+            <div style={{ background:'rgba(248,113,113,0.05)',border:'1px solid rgba(248,113,113,0.15)',borderRadius:10,padding:'14px 16px',marginBottom:20 }}>
+              <div style={{ fontSize:13,color:C.text,fontWeight:700,marginBottom:6 }}>{confirmDelete.name}</div>
+              <code style={{ fontSize:11,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>{confirmDelete.keyPrefix || 'pgc_'}••••••••••••••••</code>
+              <p style={{ fontSize:12,color:C.text2,margin:'12px 0 0',lineHeight:1.7 }}>
+                Cette clé <strong style={{ color:C.red }}>sera supprimée définitivement</strong> de la base de données.
+                Elle est déjà révoquée et ne peut plus être utilisée. Cette action est <strong style={{ color:C.red }}>irréversible</strong>.
+              </p>
+            </div>
+            {/* Actions */}
+            <div style={{ display:'flex',gap:10 }}>
+              <button onClick={() => setConfirmDelete(null)}
+                style={{ flex:1,background:'transparent',border:`1px solid ${C.border}`,borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>
+                Annuler
+              </button>
+              <button onClick={executeDelete}
+                style={{ flex:1,background:'rgba(248,113,113,0.12)',border:'1px solid rgba(248,113,113,0.4)',borderRadius:9,color:C.red,padding:12,fontWeight:800,cursor:'pointer',fontSize:13,fontFamily:'Syne, sans-serif' }}>
+                🗑 Supprimer définitivement
               </button>
             </div>
           </div>
