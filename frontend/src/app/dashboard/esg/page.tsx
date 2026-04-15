@@ -552,6 +552,37 @@ export default function ESGPage() {
               );
             })}
           </div>
+
+          {/* ── BOUTON NEXT / SUIVANT ── */}
+          <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:20,padding:'16px 0',borderTop:'1px solid '+C.border }}>
+            <div style={{ fontSize:11,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>
+              {QUESTIONS_FLAT[filterPillar as 'E'|'S'|'G'].filter(q=>responses[q.id]!==undefined&&responses[q.id]!==null&&responses[q.id]!=='').length}
+              {' / '}{QUESTIONS_FLAT[filterPillar as 'E'|'S'|'G'].length} {L('answered in this pillar','répondues dans ce pilier')}
+            </div>
+            <div style={{ display:'flex',gap:10 }}>
+              {filterPillar !== 'E' && (
+                <button onClick={()=>setFilterPillar(filterPillar==='G'?'S':'E')}
+                  style={{ background:'transparent',border:'1px solid '+C.border,borderRadius:9,color:C.muted,padding:'11px 20px',cursor:'pointer',fontSize:13,fontWeight:600,display:'flex',alignItems:'center',gap:8 }}>
+                  ← {L('Previous','Précédent')}
+                </button>
+              )}
+              {filterPillar !== 'G' ? (
+                <button onClick={()=>setFilterPillar(filterPillar==='E'?'S':'G')}
+                  style={{ background:PILLAR_C[filterPillar==='E'?'S':'G'],color:C.bg,border:'none',borderRadius:9,padding:'11px 24px',cursor:'pointer',fontSize:13,fontWeight:800,fontFamily:'Syne, sans-serif',display:'flex',alignItems:'center',gap:10 }}>
+                  {filterPillar==='E'?(
+                    <>{L('Next','Suivant')}: 👥 Social →</>
+                  ):(
+                    <>{L('Next','Suivant')}: 🏛 {L('Governance','Gouvernance')} →</>
+                  )}
+                </button>
+              ) : (
+                <button onClick={()=>{ saveResponses(responses); setTab('score'); }}
+                  style={{ background:C.green,color:C.bg,border:'none',borderRadius:9,padding:'11px 24px',cursor:'pointer',fontSize:13,fontWeight:800,fontFamily:'Syne, sans-serif',display:'flex',alignItems:'center',gap:10 }}>
+                  🏆 {L('View my ESG Score →','Voir mon Score ESG →')}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
