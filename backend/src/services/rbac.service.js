@@ -208,27 +208,62 @@ function requirePermission(...permissions) {
   return async (req, res, next) => {
     try {
       if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      const role = req.user.role;
 
-      const prisma = getRbacPrisma();
-      const effectivePerms = await resolvePermissions(req.user, prisma);
-      const hasAll = permissions.every(p => effectivePerms.has('*') || effectivePerms.has(p));
+      // ── FAST-PATH: vérifier les permissions du rôle de base SANS requête DB ──
+      // Si le rôle de base accorde déjà TOUTES les permissions → approuver immédiatement
+      const rolePerms = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.VIEWER;
+      const baseSet = new Set();
+      if (rolePerms.includes('*')) {
+        // SUPER_ADMIN: accès total
+        req.permissions = new Set(['*']);
+        return next();
+      }
+      rolePerms.forEach(p => {
+        if (p.endsWith('.*')) {
+          const mod = p.slice(0, -2);
+          (ALL_PERMISSIONS[mod] || []).forEach(pp => baseSet.add(mod + '.' + pp));
+        } else baseSet.add(p);
+      });
 
-      if (!hasAll) {
-        const missing = permissions.filter(p => !effectivePerms.has('*') && !effectivePerms.has(p));
-        return res.status(403).json({
-          error: lang403(req, permissions, missing),
-          required: permissions,
-          missing,
-          role: req.user?.role,
-          code: 'PERMISSION_DENIED',
-        });
+      const allGrantedByRole = permissions.every(p => baseSet.has(p));
+
+      if (allGrantedByRole) {
+        // Fast-path: pas de DB, permission accordée par le rôle de base
+        req.permissions = baseSet;
+        return next();
       }
 
-      req.permissions = effectivePerms;
-      next();
+      // ── SLOW-PATH: vérifier les overrides DB (groupes, user-specific) ────────
+      try {
+        const prisma = getRbacPrisma();
+        const effectivePerms = await resolvePermissions(req.user, prisma);
+        const hasAll = permissions.every(p => effectivePerms.has('*') || effectivePerms.has(p));
+        if (!hasAll) {
+          const missing = permissions.filter(p => !effectivePerms.has('*') && !effectivePerms.has(p));
+          return res.status(403).json({
+            error: lang403(req, permissions, missing),
+            required: permissions,
+            missing,
+            role,
+            code: 'PERMISSION_DENIED',
+          });
+        }
+        req.permissions = effectivePerms;
+        return next();
+      } catch(dbErr) {
+        // DB fail: si le rôle de base a déjà une partie des perms → refuser (sécurité)
+        // Si aucune perm de base → refuser
+        console.error('[requirePermission] DB error, denying:', dbErr.message);
+        return res.status(403).json({
+          error: 'Permission check failed — please retry',
+          code: 'PERMISSION_CHECK_FAILED',
+          role,
+        });
+      }
     } catch(e) {
-      console.error('[requirePermission] Error:', e.message);
-      next(e);
+      console.error('[requirePermission] Fatal error:', e.message);
+      return res.status(500).json({ error: 'Internal permission error' });
     }
   };
 }
