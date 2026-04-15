@@ -155,7 +155,7 @@ async function resolvePermissions(user, prisma) {
   try {
     const userId = user.userId || user.id;
     const memberships = await prisma.groupMember.findMany({
-      where: { userId, expiresAt: { gt: new Date() } },
+      where: { userId, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
       include: { group: true }
     });
     memberships.sort((a,b) => (b.group.priority||0) - (a.group.priority||0));

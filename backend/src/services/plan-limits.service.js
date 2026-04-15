@@ -45,9 +45,12 @@ async function getUserPlanContext(userId) {
 
   if (!user) return { plan: 'FREE', limits: PLAN_LIMITS.FREE, hasOrg: false, orgId: null };
 
-  // Pas d'organisation → compte FREE
+  // Pas d'organisation:
+  // ORG_OWNER sans org → compte TRIAL (en attente de création d'org)
+  // Autres rôles sans org → compte FREE
   if (!user.organizationId || !user.organization) {
-    return { plan: 'FREE', limits: PLAN_LIMITS.FREE, hasOrg: false, orgId: null, userId };
+    const noOrgPlan = ['ORG_OWNER','ANALYST','AUDITOR'].includes(user.role) ? 'TRIAL' : 'FREE';
+    return { plan: noOrgPlan, limits: PLAN_LIMITS[noOrgPlan], hasOrg: false, orgId: null, userId };
   }
 
   const org = user.organization;

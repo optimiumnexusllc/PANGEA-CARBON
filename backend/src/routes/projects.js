@@ -78,6 +78,46 @@ router.post('/', auth, requirePermission('projects.create'), [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
+    // ─── Vérification limite de plan ──────────────────────────────────────
+    if (!['SUPER_ADMIN', 'ADMIN'].includes(req.user.role)) {
+      try {
+        const { checkProjectLimit, checkMWLimit } = require('../services/plan-limits.service');
+        const uid = req.user.userId;
+        const newMW = parseFloat(req.body.installedMW) || 0;
+
+        const projCheck = await checkProjectLimit(uid);
+        if (!projCheck.allowed) {
+          return res.status(402).json({
+            error: 'Limite de projets atteinte (' + projCheck.current + '/' + projCheck.max + ') — Plan ' + projCheck.plan,
+            code: 'PLAN_PROJECT_LIMIT',
+            current: projCheck.current,
+            max: projCheck.max,
+            currentPlan: projCheck.plan,
+            requiredPlan: projCheck.required,
+            upgradeUrl: '/dashboard/settings',
+          });
+        }
+
+        if (newMW > 0) {
+          const mwCheck = await checkMWLimit(uid, newMW);
+          if (!mwCheck.allowed) {
+            return res.status(402).json({
+              error: 'Limite MW atteinte (' + mwCheck.currentMW + '+' + newMW + '/' + mwCheck.maxMW + ' MW) — Plan ' + mwCheck.plan,
+              code: 'PLAN_MW_LIMIT',
+              currentMW: mwCheck.currentMW,
+              newMW,
+              max: mwCheck.maxMW,
+              currentPlan: mwCheck.plan,
+              requiredPlan: mwCheck.required,
+              upgradeUrl: '/dashboard/settings',
+            });
+          }
+        }
+      } catch (limitErr) {
+        console.error('[PlanCheck] Error:', limitErr.message);
+        // Non-fatal: si le check échoue, on laisse passer (et on log)
+      }
+    }
 
     const { name, description, type, country, countryCode, latitude, longitude,
             installedMW, startDate, endDate, standard } = req.body;
@@ -86,20 +126,26 @@ router.post('/', auth, requirePermission('projects.create'), [
     const countryData = AFRICAN_GRID_EMISSION_FACTORS[countryCode.toUpperCase()];
     const baselineEF = req.body.baselineEF || (countryData?.ef ?? 0.5);
 
-    const project = await prisma.project.create({
-      data: {
-        name, description, type, country,
-        countryCode: countryCode.toUpperCase(),
-        latitude: latitude ? parseFloat(latitude) : null,
-        longitude: longitude ? parseFloat(longitude) : null,
-        installedMW: parseFloat(installedMW),
-        startDate: new Date(startDate),
-        endDate: endDate ? new Date(endDate) : null,
-        baselineEF: parseFloat(baselineEF),
-        standard: standard || 'Verra VCS',
-        userId: req.user.userId,
-      }
-    });
+    const createData = {
+      name,
+      description: description || null,
+      type,
+      country,
+      countryCode: countryCode.toUpperCase(),
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
+      installedMW: parseFloat(installedMW),
+      startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : null,
+      baselineEF: parseFloat(baselineEF),
+      standard: standard || 'Verra VCS',
+      userId: req.user.userId,
+    };
+    // Lier à l'organisation si l'utilisateur en a une
+    if (req.user.organizationId) {
+      createData.organizationId = req.user.organizationId;
+    }
+    const project = await prisma.project.create({ data: createData });
 
     res.status(201).json(project);
   } catch (e) { next(e); }
