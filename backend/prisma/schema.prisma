@@ -768,8 +768,7 @@ model ForwardContract {
   buyer           Organization @relation("BuyerOrg", fields: [buyerOrgId], references: [id])
   sellerOrgId     String
   seller          Organization @relation("SellerOrg", fields: [sellerOrgId], references: [id])
-  projectId       String
-  project         Project  @relation(fields: [projectId], references: [id])
+  projectId       String   // Project.id (référence non contrainte)
   
   vintage         Int      // Année de vintage future
   quantity        Float    // tCO2e réservées
