@@ -112,7 +112,6 @@ export default function ESGPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generatingKey, setGeneratingKey] = useState(null);
-  const [qrVisible, setQrVisible] = useState(false);
   const [toast, setToast] = useState(null);
   const [showReports, setShowReports] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -147,7 +146,7 @@ export default function ESGPage() {
     setCreating(true);
     try {
       const a = await fetchAuthJson('/esg/assessments',{method:'POST',body:JSON.stringify(newForm)});
-      showToast(lang==='fr'?'Évaluation créée !':'Assessment created!');
+      showToast_SKIP('Évaluation créée !'));
       await load(); setCurrent(a); setResponses({}); setTab('assess');
     } catch(e) { showToast(e.message,'error'); }
     finally { setCreating(false); }
@@ -554,32 +553,29 @@ export default function ESGPage() {
             })}
           </div>
 
-          {/* ── BOUTON NEXT / SUIVANT ── */}
+          {/* ── NEXT / PREVIOUS ── */}
           <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:20,padding:'16px 0',borderTop:'1px solid '+C.border }}>
             <div style={{ fontSize:11,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>
               {QUESTIONS_FLAT[filterPillar as 'E'|'S'|'G'].filter(q=>responses[q.id]!==undefined&&responses[q.id]!==null&&responses[q.id]!=='').length}
-              {' / '}{QUESTIONS_FLAT[filterPillar as 'E'|'S'|'G'].length} {L('answered in this pillar','répondues dans ce pilier')}
+              {' / '}{QUESTIONS_FLAT[filterPillar as 'E'|'S'|'G'].length} {lang==='fr'?'répondues dans ce pilier':'answered in this pillar'}
             </div>
             <div style={{ display:'flex',gap:10 }}>
               {filterPillar !== 'E' && (
                 <button onClick={()=>setFilterPillar(filterPillar==='G'?'S':'E')}
-                  style={{ background:'transparent',border:'1px solid '+C.border,borderRadius:9,color:C.muted,padding:'11px 20px',cursor:'pointer',fontSize:13,fontWeight:600,display:'flex',alignItems:'center',gap:8 }}>
-                  ← {L('Previous','Précédent')}
+                  style={{ background:'transparent',border:'1px solid '+C.border,borderRadius:9,color:C.muted,padding:'11px 20px',cursor:'pointer',fontSize:13,fontWeight:600 }}>
+                  ← {lang==='fr'?'Précédent':'Previous'}
                 </button>
               )}
               {filterPillar !== 'G' ? (
                 <button onClick={()=>setFilterPillar(filterPillar==='E'?'S':'G')}
-                  style={{ background:PILLAR_C[filterPillar==='E'?'S':'G'],color:C.bg,border:'none',borderRadius:9,padding:'11px 24px',cursor:'pointer',fontSize:13,fontWeight:800,fontFamily:'Syne, sans-serif',display:'flex',alignItems:'center',gap:10 }}>
-                  {filterPillar==='E'?(
-                    <>{L('Next','Suivant')}: 👥 Social →</>
-                  ):(
-                    <>{L('Next','Suivant')}: 🏛 {L('Governance','Gouvernance')} →</>
-                  )}
+                  style={{ background:filterPillar==='E'?PILLAR_C['S']:PILLAR_C['G'],color:'#080B0F',border:'none',borderRadius:9,padding:'11px 24px',cursor:'pointer',fontSize:13,fontWeight:800,fontFamily:'Syne, sans-serif' }}>
+                  {filterPillar==='E'?'Next: 👥 Social →':'Next: 🏛 Governance →'}
+                  {lang==='fr'&&filterPillar==='E'?' / Suivant: 👥 Social →':lang==='fr'?' / Gouvernance →':''}
                 </button>
               ) : (
                 <button onClick={()=>{ saveResponses(responses); setTab('score'); }}
-                  style={{ background:C.green,color:C.bg,border:'none',borderRadius:9,padding:'11px 24px',cursor:'pointer',fontSize:13,fontWeight:800,fontFamily:'Syne, sans-serif',display:'flex',alignItems:'center',gap:10 }}>
-                  🏆 {L('View my ESG Score →','Voir mon Score ESG →')}
+                  style={{ background:C.green,color:'#080B0F',border:'none',borderRadius:9,padding:'11px 24px',cursor:'pointer',fontSize:13,fontWeight:800,fontFamily:'Syne, sans-serif' }}>
+                  {lang==='fr'?'🏆 Voir mon Score ESG →':'🏆 View my ESG Score →'}
                 </button>
               )}
             </div>
@@ -761,26 +757,17 @@ export default function ESGPage() {
         </div>
       )}
 
-      {/* ── PASSPORT ESG ───────────────────────────────────────────────── */}
+      {/* ── PASSPORT ESG ─────────────────────────────────────────────── */}
       {tab==='passport' && current && (
         <div style={{ maxWidth:760, margin:'0 auto' }}>
-          {/* Passport card */}
           <div style={{ background:C.card, border:'2px solid '+levelCfg.color+'50', borderRadius:20, overflow:'hidden', boxShadow:'0 24px 80px rgba(0,0,0,0.6)' }}>
-            {/* Header gradient */}
             <div style={{ background:'linear-gradient(135deg,#080B0F 0%,'+levelCfg.color+'18 100%)', padding:'28px 32px', borderBottom:'2px solid '+levelCfg.color+'30', position:'relative' }}>
               <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,'+levelCfg.color+' 0%,transparent 100%)' }}/>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
                 <div>
-                  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-                    <div style={{ fontSize:9, color:C.green, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.15em' }}>PANGEA CARBON · ESG INTELLIGENCE ENGINE</div>
-                  </div>
-                  <div style={{ fontSize:9, color:levelCfg.color, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.2em', marginBottom:8 }}>
-                    {L('ESG COMPLIANCE PASSPORT','PASSEPORT DE CONFORMITÉ ESG')}
-                  </div>
+                  <div style={{ fontSize:9, color:C.green, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.15em', marginBottom:6 }}>PANGEA CARBON · {lang==='fr'?'PASSEPORT DE CONFORMITÉ ESG':'ESG COMPLIANCE PASSPORT'}</div>
                   <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:22, fontWeight:800, color:C.text, margin:'0 0 6px' }}>{current.companyName}</h2>
-                  <div style={{ fontSize:12, color:C.muted }}>
-                    {current.framework} · {current.sector} · {current.country} · {L('Reporting Year','Année de référence')}: {current.reportingYear}
-                  </div>
+                  <div style={{ fontSize:12, color:C.muted }}>{current.framework} · {current.sector} · {current.country} · {current.reportingYear}</div>
                 </div>
                 <div style={{ textAlign:'center', background:levelCfg.bg, border:'2px solid '+levelCfg.border, borderRadius:14, padding:'16px 20px', minWidth:110 }}>
                   <div style={{ fontSize:36 }}>{levelCfg.icon}</div>
@@ -790,65 +777,63 @@ export default function ESGPage() {
               </div>
             </div>
 
-            {/* Score section */}
             <div style={{ padding:'24px 32px', borderBottom:'1px solid '+C.border, display:'grid', gridTemplateColumns:'140px 1fr', gap:24, alignItems:'center' }}>
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>{L('ESG SCORE','SCORE ESG')}</div>
+                <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>ESG SCORE</div>
                 <div style={{ fontSize:60, fontWeight:800, color:levelCfg.color, fontFamily:'Syne, sans-serif', lineHeight:1 }}>{score.total}</div>
                 <div style={{ fontSize:12, color:C.muted }}>/100</div>
               </div>
               <div>
-                {[
-                  { l:'E — '+L('Environmental','Environnement'), v:score.eScore, c:C.green, w:'40%' },
-                  { l:'S — Social', v:score.sScore, c:C.blue, w:'35%' },
-                  { l:'G — '+L('Governance','Gouvernance'), v:score.gScore, c:C.purple, w:'25%' },
-                ].map(p=>(
-                  <div key={p.l} style={{ marginBottom:12 }}>
+                {([
+                  ['E', lang==='fr'?'Environnement':'Environmental', score.eScore, C.green, '40%'],
+                  ['S', 'Social', score.sScore, C.blue, '35%'],
+                  ['G', lang==='fr'?'Gouvernance':'Governance', score.gScore, C.purple, '25%'],
+                ] as [string,string,number,string,string][]).map(([code,name,val,col,weight])=>(
+                  <div key={code} style={{ marginBottom:12 }}>
                     <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                      <span style={{ fontSize:12, color:C.text }}>{p.l}</span>
+                      <span style={{ fontSize:12, color:C.text }}>{code} — {name}</span>
                       <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                        <span style={{ fontSize:10, color:C.muted }}>{L('weight','poids')} {p.w}</span>
-                        <span style={{ fontSize:13, color:p.c, fontWeight:800, fontFamily:'JetBrains Mono, monospace' }}>{Math.round(p.v)}%</span>
+                        <span style={{ fontSize:10, color:C.muted }}>{weight}</span>
+                        <span style={{ fontSize:13, color:col, fontWeight:800, fontFamily:'JetBrains Mono, monospace' }}>{Math.round(val)}%</span>
                       </div>
                     </div>
                     <div style={{ height:8, background:C.border, borderRadius:4 }}>
-                      <div style={{ width:Math.round(p.v)+'%', height:'100%', background:'linear-gradient(90deg,'+p.c+' 0%,'+p.c+'80 100%)', borderRadius:4, transition:'width 0.8s ease' }}/>
+                      <div style={{ width:Math.round(val)+'%', height:'100%', background:col, borderRadius:4, transition:'width 0.8s ease' }}/>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Compliance grid */}
             <div style={{ padding:'24px 32px', borderBottom:'1px solid '+C.border }}>
-              <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:16, letterSpacing:'0.1em' }}>
-                {L('COMPLIANCE STATUS — 8 INTERNATIONAL STANDARDS','STATUT DE CONFORMITÉ — 8 STANDARDS INTERNATIONAUX')}
+              <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:16 }}>
+                {lang==='fr'?'STATUT DE CONFORMITÉ — 8 STANDARDS INTERNATIONAUX':'COMPLIANCE STATUS — 8 INTERNATIONAL STANDARDS'}
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10 }}>
                 {([
-                  { std:'GRI',      req:['E1','S1','G9','G5'],     icon:'🌍', color:C.green },
-                  { std:'CSRD',     req:['E1','E2','E4','S11','G1','G9','G10'], icon:'🇪🇺', color:C.blue },
-                  { std:'SASB',     req:['E1','E3','S1','G9'],     icon:'📊', color:C.purple },
-                  { std:'IFRS S2',  req:['E1','E2','E4','G11'],    icon:'📋', color:C.yellow },
-                  { std:'UNGC',     req:['S5','S6','S12','G5','G7','E10'], icon:'🇺🇳', color:'#0E7490' },
-                  { std:'King IV',  req:['G1','G2','G3','G5','G6','G9'], icon:'👑', color:C.red },
-                  { std:'TCFD',     req:['E2','E4','G1','G4','G11'], icon:'🏦', color:C.orange },
-                  { std:'B Corp',   req:['S3','S6','S7','G5','E7'], icon:'🏆', color:'#065F46' },
-                ] as any[]).map((item: any)=>{
-                  const met = item.req.filter((id: string)=>responses[id]===true||responses[id]).length;
-                  const total = item.req.length;
+                  ['GRI','🌍',C.green,['E1','S1','G9','G5']],
+                  ['CSRD','🇪🇺',C.blue,['E1','E2','E4','S11','G1','G9','G10']],
+                  ['SASB','📊',C.purple,['E1','E3','S1','G9']],
+                  ['IFRS S2','📋',C.yellow,['E1','E2','E4','G11']],
+                  ['UNGC','🇺🇳','#0E7490',['S5','S6','S12','G5','G7','E10']],
+                  ['King IV','👑',C.red,['G1','G2','G3','G5','G6','G9']],
+                  ['TCFD','🏦',C.orange,['E2','E4','G1','G4','G11']],
+                  ['B Corp','🏆','#065F46',['S3','S6','S7','G5','E7']],
+                ] as [string,string,string,string[]][]).map(([std,icon,col,req])=>{
+                  const met = req.filter(id=>responses[id]===true||responses[id]).length;
+                  const total = req.length;
                   const pct = Math.round(met/total*100);
-                  const col = pct>=80?C.green:pct>=50?C.yellow:C.red;
+                  const barCol = pct>=80?C.green:pct>=50?C.yellow:C.red;
                   return (
-                    <div key={item.std} style={{ background:C.card2, border:'1px solid '+col+'25', borderRadius:10, padding:'12px 14px' }}>
+                    <div key={std} style={{ background:C.card2, border:'1px solid '+barCol+'25', borderRadius:10, padding:'12px 14px' }}>
                       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                        <span style={{ fontSize:15 }}>{item.icon}</span>
-                        <span style={{ fontSize:10, padding:'2px 6px', background:col+'15', color:col, borderRadius:4, fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{pct}%</span>
+                        <span style={{ fontSize:15 }}>{icon}</span>
+                        <span style={{ fontSize:10, padding:'2px 6px', background:barCol+'15', color:barCol, borderRadius:4, fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{pct}%</span>
                       </div>
-                      <div style={{ fontSize:11, fontWeight:700, color:item.color, marginBottom:4 }}>{item.std}</div>
-                      <div style={{ fontSize:9, color:C.muted }}>{met}/{total} {L('met','atteints')}</div>
+                      <div style={{ fontSize:11, fontWeight:700, color:col, marginBottom:4 }}>{std}</div>
+                      <div style={{ fontSize:9, color:C.muted }}>{met}/{total} {lang==='fr'?'atteints':'met'}</div>
                       <div style={{ height:3, background:C.border, borderRadius:2, marginTop:6 }}>
-                        <div style={{ width:pct+'%', height:'100%', background:col, borderRadius:2 }}/>
+                        <div style={{ width:pct+'%', height:'100%', background:barCol, borderRadius:2 }}/>
                       </div>
                     </div>
                   );
@@ -856,88 +841,53 @@ export default function ESGPage() {
               </div>
             </div>
 
-            {/* QR Code + Verify */}
             <div style={{ padding:'24px 32px', display:'flex', gap:24, alignItems:'center' }}>
-              {/* QR Code SVG */}
               <div style={{ background:'white', padding:12, borderRadius:12, flexShrink:0 }}>
-                <svg width="100" height="100" viewBox="0 0 100 100" style={{ display:'block' }}>
-                  {/* QR Code pattern — PANGEA ESG verify */}
+                <svg width="100" height="100" viewBox="0 0 100 100">
                   <rect width="100" height="100" fill="white"/>
-                  {/* Finder patterns */}
-                  <rect x="2" y="2" width="26" height="26" fill="black" rx="2"/>
-                  <rect x="4" y="4" width="22" height="22" fill="white"/>
-                  <rect x="6" y="6" width="18" height="18" fill="black" rx="1"/>
-                  <rect x="72" y="2" width="26" height="26" fill="black" rx="2"/>
-                  <rect x="74" y="4" width="22" height="22" fill="white"/>
-                  <rect x="76" y="6" width="18" height="18" fill="black" rx="1"/>
-                  <rect x="2" y="72" width="26" height="26" fill="black" rx="2"/>
-                  <rect x="4" y="74" width="22" height="22" fill="white"/>
-                  <rect x="6" y="76" width="18" height="18" fill="black" rx="1"/>
-                  {/* Data modules - PANGEA pattern */}
-                  {([
-                    [34,2],[38,2],[42,2],[50,2],[54,2],[62,2],[66,2],
-                    [34,6],[46,6],[50,6],[58,6],[62,6],
-                    [34,10],[38,10],[42,10],[54,10],[62,10],[66,10],
-                    [34,14],[46,14],[50,14],[54,14],
-                    [34,18],[38,18],[50,18],[58,18],[62,18],
-                    [2,34],[6,34],[14,34],[18,34],[26,34],[30,34],[34,34],[42,34],[50,34],[58,34],[66,34],[70,34],[78,34],[82,34],[90,34],[94,34],
-                    [2,38],[10,38],[18,38],[26,38],[34,38],[46,38],[54,38],[62,38],[70,38],[78,38],[86,38],[94,38],
-                    [6,42],[14,42],[22,42],[30,42],[38,42],[50,42],[58,42],[66,42],[74,42],[82,42],[90,42],
-                    [2,46],[10,46],[18,46],[30,46],[42,46],[54,46],[66,46],[78,46],[86,46],[94,46],
-                    [6,50],[14,50],[26,50],[38,50],[46,50],[58,50],[70,50],[82,50],[90,50],
-                    [2,54],[10,54],[22,54],[34,54],[50,54],[62,54],[74,54],[86,54],[94,54],
-                    [6,58],[18,58],[30,58],[42,58],[54,58],[66,58],[78,58],[90,58],
-                    [2,62],[14,62],[26,62],[38,62],[50,62],[58,62],[70,62],[78,62],[90,62],[94,62],
-                    [34,72],[42,72],[54,72],[62,72],[70,72],[78,72],[86,72],[94,72],
-                    [38,76],[50,76],[58,76],[66,76],[74,76],[82,76],[90,76],[94,76],
-                    [34,80],[46,80],[58,80],[70,80],[78,80],[86,80],
-                    [38,84],[50,84],[62,84],[70,84],[78,84],[90,84],[94,84],
-                    [34,88],[42,88],[54,88],[66,88],[74,88],[82,88],
-                    [38,92],[46,92],[58,92],[70,92],[78,92],[86,92],[94,92],
-                    [34,96],[42,96],[50,96],[62,96],[74,96],[82,96],
-                  ] as number[][]).map(([x,y],i)=>(
-                    <rect key={i} x={x} y={y} width="4" height="4" fill="black"/>
-                  ))}
-                  {/* PANGEA logo in center */}
+                  <rect x="2" y="2" width="26" height="26" fill="black" rx="2"/><rect x="4" y="4" width="22" height="22" fill="white"/><rect x="6" y="6" width="18" height="18" fill="black" rx="1"/>
+                  <rect x="72" y="2" width="26" height="26" fill="black" rx="2"/><rect x="74" y="4" width="22" height="22" fill="white"/><rect x="76" y="6" width="18" height="18" fill="black" rx="1"/>
+                  <rect x="2" y="72" width="26" height="26" fill="black" rx="2"/><rect x="4" y="74" width="22" height="22" fill="white"/><rect x="6" y="76" width="18" height="18" fill="black" rx="1"/>
+                  <rect x="34" y="2" width="4" height="4" fill="black"/><rect x="42" y="2" width="4" height="4" fill="black"/><rect x="50" y="2" width="4" height="4" fill="black"/><rect x="62" y="2" width="4" height="4" fill="black"/>
+                  <rect x="34" y="10" width="4" height="4" fill="black"/><rect x="46" y="10" width="4" height="4" fill="black"/><rect x="54" y="10" width="4" height="4" fill="black"/>
+                  <rect x="34" y="18" width="4" height="4" fill="black"/><rect x="42" y="18" width="4" height="4" fill="black"/><rect x="50" y="18" width="4" height="4" fill="black"/>
+                  <rect x="2" y="34" width="4" height="4" fill="black"/><rect x="14" y="34" width="4" height="4" fill="black"/><rect x="26" y="34" width="4" height="4" fill="black"/><rect x="38" y="34" width="4" height="4" fill="black"/><rect x="50" y="34" width="4" height="4" fill="black"/><rect x="62" y="34" width="4" height="4" fill="black"/><rect x="74" y="34" width="4" height="4" fill="black"/><rect x="86" y="34" width="4" height="4" fill="black"/><rect x="94" y="34" width="4" height="4" fill="black"/>
+                  <rect x="6" y="42" width="4" height="4" fill="black"/><rect x="18" y="42" width="4" height="4" fill="black"/><rect x="34" y="42" width="4" height="4" fill="black"/><rect x="50" y="42" width="4" height="4" fill="black"/><rect x="66" y="42" width="4" height="4" fill="black"/><rect x="82" y="42" width="4" height="4" fill="black"/>
+                  <rect x="2" y="50" width="4" height="4" fill="black"/><rect x="14" y="50" width="4" height="4" fill="black"/><rect x="30" y="50" width="4" height="4" fill="black"/><rect x="46" y="50" width="4" height="4" fill="black"/><rect x="62" y="50" width="4" height="4" fill="black"/><rect x="78" y="50" width="4" height="4" fill="black"/><rect x="90" y="50" width="4" height="4" fill="black"/>
+                  <rect x="34" y="72" width="4" height="4" fill="black"/><rect x="46" y="72" width="4" height="4" fill="black"/><rect x="62" y="72" width="4" height="4" fill="black"/><rect x="78" y="72" width="4" height="4" fill="black"/><rect x="90" y="72" width="4" height="4" fill="black"/>
+                  <rect x="38" y="80" width="4" height="4" fill="black"/><rect x="54" y="80" width="4" height="4" fill="black"/><rect x="70" y="80" width="4" height="4" fill="black"/><rect x="86" y="80" width="4" height="4" fill="black"/>
+                  <rect x="34" y="88" width="4" height="4" fill="black"/><rect x="50" y="88" width="4" height="4" fill="black"/><rect x="66" y="88" width="4" height="4" fill="black"/><rect x="82" y="88" width="4" height="4" fill="black"/>
                   <rect x="42" y="42" width="16" height="16" fill="white" rx="2"/>
                   <text x="50" y="53" textAnchor="middle" fontSize="10" fill="#00FF94" fontWeight="bold">⬡</text>
                 </svg>
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ fontSize:9, color:C.green, fontFamily:'JetBrains Mono, monospace', marginBottom:8, letterSpacing:'0.1em' }}>
-                  🔗 {L('VERIFY THIS PASSPORT','VÉRIFIER CE PASSEPORT')}
+                  {lang==='fr'?'🔗 VÉRIFIER CE PASSEPORT':'🔗 VERIFY THIS PASSPORT'}
                 </div>
                 <div style={{ fontSize:13, color:C.text, fontFamily:'JetBrains Mono, monospace', marginBottom:6, wordBreak:'break-all' }}>
                   pangea-carbon.com/verify/{current.id}
                 </div>
-                <div style={{ fontSize:11, color:C.muted, lineHeight:1.7, marginBottom:14 }}>
-                  {L('This ESG Passport is independently verifiable. Scan QR or visit the URL to confirm authenticity, score, and compliance status.','Ce Passeport ESG est vérifiable de façon indépendante. Scannez le QR ou visitez l'URL pour confirmer l'authenticité, le score et le statut de conformité.')}
-                </div>
-                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                  <button onClick={()=>{navigator.clipboard?.writeText('https://pangea-carbon.com/verify/'+current.id); alert(L('Link copied!','Lien copié !'));}}
+                <div style={{ display:'flex', gap:8, marginTop:12, flexWrap:'wrap' }}>
+                  <button onClick={()=>{navigator.clipboard?.writeText('https://pangea-carbon.com/verify/'+current.id);}}
                     style={{ background:'rgba(0,255,148,0.08)', border:'1px solid rgba(0,255,148,0.25)', borderRadius:8, color:C.green, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700 }}>
-                    🔗 {L('Copy verify link','Copier le lien')}
+                    🔗 {lang==='fr'?'Copier le lien':'Copy verify link'}
                   </button>
                   <button onClick={()=>window.print()}
                     style={{ background:'transparent', border:'1px solid '+C.border, borderRadius:8, color:C.muted, padding:'8px 16px', cursor:'pointer', fontSize:12 }}>
-                    🖨️ {L('Print passport','Imprimer le passeport')}
+                    🖨️ {lang==='fr'?'Imprimer':'Print'}
                   </button>
                   <button onClick={()=>setTab('reports')}
                     style={{ background:'rgba(167,139,250,0.08)', border:'1px solid rgba(167,139,250,0.25)', borderRadius:8, color:C.purple, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700 }}>
-                    📥 {L('Download PDF →','Télécharger PDF →')}
+                    📥 {lang==='fr'?'Télécharger PDF →':'Download PDF →'}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Footer */}
             <div style={{ padding:'16px 32px', background:'rgba(0,255,148,0.03)', borderTop:'1px solid '+C.border, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace' }}>
-                PANGEA CARBON Africa · ESG Intelligence Platform · pangea-carbon.com
-              </div>
-              <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace' }}>
-                ID: {current.id} · {current.status}
-              </div>
+              <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace' }}>PANGEA CARBON Africa · ESG Intelligence Platform</div>
+              <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace' }}>ID: {current.id}</div>
             </div>
           </div>
         </div>
