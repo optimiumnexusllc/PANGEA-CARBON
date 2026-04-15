@@ -130,6 +130,18 @@ export default function AdminOrgsPage() {
                   Trial expires: {new Date(org.trialEndsAt).toLocaleDateString('en-US')}
                 </div>
               )}
+
+              {/* Actions */}
+              <div style={{ display:'flex', gap:8, marginTop:12, paddingTop:12, borderTop:'1px solid #1E2D3D' }}>
+                <button onClick={() => setEditOrg({...org})}
+                  style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 12px', background:'rgba(0,255,148,0.06)', border:'1px solid rgba(0,255,148,0.15)', borderRadius:8, color:'#00FF94', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'JetBrains Mono, monospace', transition:'all .15s' }}>
+                  ✏ Modifier
+                </button>
+                <button onClick={() => setDeleteOrg(org)}
+                  style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px 12px', background:'rgba(248,113,113,0.06)', border:'1px solid rgba(248,113,113,0.15)', borderRadius:8, color:'#F87171', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'JetBrains Mono, monospace', transition:'all .15s' }}>
+                  🗑 Supprimer
+                </button>
+              </div>
             </div>
           ))
         }
@@ -172,28 +184,51 @@ export default function AdminOrgsPage() {
         </div>
       )}
       {deleteOrg && (
-        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#121920', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 14, padding: 28, maxWidth: 420, width: '90%' }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#F87171', marginBottom: 10 }}>Delete cette organisation ?</h2>
-            <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 16 }}>
-              <strong style={{ color: '#E8EFF6' }}>{deleteOrg && deleteOrg.name}</strong> sera supprimee. Les utilisateurs seront conserves.
-            </p>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setDeleteOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
-              <button onClick={deleteOrgFn} disabled={deleting} style={{ flex: 1, background: '#F87171', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {deleting ? '...' : 'Delete'}
+        <div onClick={e => { if(e.target===e.currentTarget) setDeleteOrg(null); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000, padding:16 }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.3)', borderRadius:16, padding:28, maxWidth:460, width:'100%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)', animation:'pgDlg .2s ease' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:48, height:48, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>🗑</div>
+              <div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.12em', marginBottom:4 }}>ADMIN · SUPPRESSION ORGANISATION</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:18, fontWeight:800, color:'#F87171', margin:0 }}>Supprimer cette organisation ?</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(248,113,113,0.25) 0%,transparent 100%)', marginBottom:18 }}/>
+            <div style={{ background:'rgba(248,113,113,0.05)', border:'1px solid rgba(248,113,113,0.15)', borderRadius:10, padding:'14px 16px', marginBottom:20 }}>
+              <p style={{ fontSize:13, color:'#E8EFF6', margin:'0 0 8px', fontWeight:600 }}>
+                {deleteOrg.name}
+              </p>
+              <p style={{ fontSize:12, color:'#8FA3B8', margin:0, lineHeight:1.7 }}>
+                L'organisation et tous ses projets, pipelines et audits GHG seront définitivement supprimés.
+                Les utilisateurs membres seront conservés mais dissociés de cette organisation.
+              </p>
+            </div>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setDeleteOrg(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:'12px', cursor:'pointer', fontSize:13, fontFamily:'Inter, sans-serif' }}>Annuler</button>
+              <button onClick={deleteOrgFn} disabled={deleting}
+                style={{ flex:1, background:deleting?'#1E2D3D':'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:9, color:deleting?'#4A6278':'#F87171', padding:'12px', fontWeight:800, cursor:deleting?'wait':'pointer', fontSize:13, fontFamily:'Syne, sans-serif', transition:'all .15s' }}>
+                {deleting ? '⟳ Suppression...' : '🗑 Supprimer définitivement'}
               </button>
             </div>
           </div>
+          <style>{'.pgDlg{animation:pgDlg .2s ease}@keyframes pgDlg{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}'}</style>
         </div>
       )}
       {editOrg && (
         <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div style={{ background: '#0D1117', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 16, padding: 28, maxWidth: 520, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, color: '#E8EFF6', margin: 0 }}>Edit l organisation</h2>
-              <button onClick={() => setEditOrg(null)} style={{ background: 'none', border: 'none', color: '#4A6278', cursor: 'pointer', fontSize: 18 }}>x</button>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
+              <div style={{ display:'flex', gap:14, alignItems:'center' }}>
+                <div style={{ width:44, height:44, borderRadius:12, background:'rgba(0,255,148,0.1)', border:'1px solid rgba(0,255,148,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>🏛️</div>
+                <div>
+                  <div style={{ fontSize:9, color:'#00FF94', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.12em', marginBottom:4 }}>ADMIN · ÉDITION ORGANISATION</div>
+                  <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#E8EFF6', margin:0 }}>{editOrg.name}</h2>
+                </div>
+              </div>
+              <button onClick={() => setEditOrg(null)} style={{ background:'transparent', border:'1px solid #1E2D3D', borderRadius:8, color:'#4A6278', cursor:'pointer', width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>✕</button>
             </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(0,255,148,0.2) 0%,transparent 100%)', marginBottom:20 }}/>
             {[{ label: 'Nom', key: 'name' }, { label: 'Domaine', key: 'domain' }].map(f => (
               <div key={f.key} style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', display: 'block', marginBottom: 4 }}>{f.label.toUpperCase()}</label>
@@ -226,8 +261,8 @@ export default function AdminOrgsPage() {
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setEditOrg(null)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 8, color: '#4A6278', padding: 10, cursor: 'pointer' }}>L('Cancel', 'Annuler')</button>
-              <button onClick={saveOrg} disabled={saving} style={{ flex: 1, background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 8, padding: 10, fontWeight: 700, cursor: 'pointer' }}>
-                {saving ? '...' : 'Sauvegarder'}
+              <button onClick={saveOrg} disabled={saving} style={{ flex:1, background:saving?'#1E2D3D':'rgba(0,255,148,0.12)', border:'1px solid rgba(0,255,148,0.35)', borderRadius:9, color:saving?'#4A6278':'#00FF94', padding:'12px', fontWeight:800, cursor:saving?'wait':'pointer', fontSize:13, fontFamily:'Syne, sans-serif', transition:'all .15s' }}>
+                {saving ? '⟳ Sauvegarde...' : '💾 Sauvegarder'}
               </button>
             </div>
           </div>

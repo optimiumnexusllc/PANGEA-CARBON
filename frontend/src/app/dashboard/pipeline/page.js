@@ -20,6 +20,18 @@ const VVB_OPTIONS=[
   {name:'AENOR',contact:'internacionalizacion@aenor.com',regions:'MA/SN/CI'},
   {name:'RINA Services',contact:'sustainability@rina.org',regions:'ZA/NG/ET'},
 ];
+
+const DOC_TYPE_LABELS = {
+  PDD:'📄 Project Design Document',
+  MONITORING_REPORT:'📋 Rapport de Monitoring',
+  VVB_VALIDATION_STATEMENT:'🏛️ Statement de Validation VVB',
+  VVB_VERIFICATION_STATEMENT:'✅ Statement de Vérification VVB',
+  REGISTRY_SUBMISSION_PACKAGE:'📤 Package Soumission Registre',
+  BASELINE_STUDY:'📊 Étude Baseline',
+  STAKEHOLDER_CONSULTATION:'🤝 Consultation Parties Prenantes',
+  OTHER:'📁 Autre Document',
+};
+
 const DOC_TYPES=['PDD','MONITORING_REPORT','VVB_VALIDATION_STATEMENT','VVB_VERIFICATION_STATEMENT','REGISTRY_SUBMISSION_PACKAGE','BASELINE_STUDY','STAKEHOLDER_CONSULTATION','OTHER'];
 const STDS=['VERRA_VCS','GOLD_STANDARD','ARTICLE6','CORSIA'];
 const STEP_DESC={
@@ -190,8 +202,14 @@ export default function PipelinePage() {
     finally { setUploading(false); }
   };
 
+  const [confirmDocDelete, setConfirmDocDelete] = React.useState(null);
+
   const deleteDoc = async (docId) => {
-    if (!confirm('Delete this document?')) return;
+    setConfirmDocDelete(docId);
+  };
+
+  const executeDeleteDoc = async (docId) => {
+    setConfirmDocDelete(null);
     try {
       await fetchAuthJson('/pipeline/' + current.pipeline.id + '/documents/' + docId, { method:'DELETE' });
       await loadDetail(current.pipeline.id);
@@ -199,8 +217,11 @@ export default function PipelinePage() {
     } catch(e) { toast$(e.message,'error'); }
   };
 
+  const [confirmCancel, setConfirmCancel] = React.useState(false);
+
   const cancelPipeline = async () => {
-    if (!current || !confirm('Cancel this pipeline?')) return;
+    setConfirmCancel(false);
+    if (!current) return;
     try {
       await fetchAuthJson('/pipeline/' + current.pipeline.id, { method:'DELETE' });
       toast$('Pipeline cancelled');
@@ -667,14 +688,19 @@ export default function PipelinePage() {
               {(p.documents||[]).length === 0 ? (
                 <div style={{ textAlign:'center', padding:'12px 0', color:'#2A3F55', fontSize:12 }}>{L('No documents yet','Aucun document')}</div>
               ) : (p.documents||[]).map(doc => (
-                <div key={doc.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 11px', background:'#121920', borderRadius:7, marginBottom:5 }}>
-                  <div>
-                    <div style={{ fontSize:11, color:'#E8EFF6' }}>{doc.name}</div>
-                    <div style={{ fontSize:9, color:'#4A6278', fontFamily:'monospace' }}>{doc.type} · SHA-{doc.hash} · {new Date(doc.uploadedAt).toLocaleDateString()}</div>
+                <div key={doc.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', background:'rgba(0,255,148,0.03)', border:'1px solid rgba(0,255,148,0.08)', borderRadius:9, marginBottom:6 }}>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3 }}>
+                      <span style={{ fontSize:11, color:'#00FF94', fontFamily:'JetBrains Mono, monospace', background:'rgba(0,255,148,0.1)', border:'1px solid rgba(0,255,148,0.2)', borderRadius:4, padding:'1px 7px', whiteSpace:'nowrap', flexShrink:0 }}>
+                        {DOC_TYPE_LABELS[doc.type] || doc.type}
+                      </span>
+                    </div>
+                    <div style={{ fontSize:12, color:'#E8EFF6', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{doc.name}</div>
+                    <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginTop:2 }}>SHA-{doc.hash?.slice(0,8)} · {new Date(doc.uploadedAt||Date.now()).toLocaleDateString()}</div>
                   </div>
                   <div style={{ display:'flex', gap:5 }}>
                     {doc.fileUrl && <a href={doc.fileUrl} target="_blank" rel="noreferrer" style={{ fontSize:11, color:'#00FF94', textDecoration:'none', padding:'3px 9px', border:'1px solid rgba(0,255,148,0.2)', borderRadius:5 }}>Open →</a>}
-                    <button onClick={() => deleteDoc(doc.id)} style={{ background:'transparent', border:'1px solid rgba(248,113,113,0.2)', borderRadius:5, color:'#F87171', padding:'3px 8px', cursor:'pointer', fontSize:11 }}>×</button>
+                    <button onClick={() => setConfirmDocDelete(doc.id)} style={{ background:'transparent', border:'1px solid rgba(248,113,113,0.2)', borderRadius:5, color:'#F87171', padding:'3px 8px', cursor:'pointer', fontSize:11 }}>×</button>
                   </div>
                 </div>
               ))}
@@ -685,3 +711,63 @@ export default function PipelinePage() {
     </div>
   );
 }
+      {/* Modale suppression document */}
+      {confirmDocDelete && (
+        <div onClick={e => { if(e.target===e.currentTarget) setConfirmDocDelete(null); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10001, backdropFilter:'blur(10px)' }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.3)', borderRadius:16, padding:28, maxWidth:420, width:'90%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🗑</div>
+              <div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:3 }}>PIPELINE · DOCUMENT</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:16, fontWeight:800, color:'#F87171', margin:0 }}>{L('Delete this document?','Supprimer ce document ?')}</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(248,113,113,0.2) 0%,transparent 100%)', marginBottom:16 }}/>
+            <p style={{ fontSize:13, color:'#8FA3B8', marginBottom:20, lineHeight:1.6 }}>
+              {L('This document will be permanently deleted from the pipeline. This action cannot be undone.',
+                 'Ce document sera définitivement supprimé du pipeline. Cette action est irréversible.')}
+            </p>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setConfirmDocDelete(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:11, cursor:'pointer', fontSize:13 }}>
+                {L('Cancel','Annuler')}
+              </button>
+              <button onClick={() => executeDeleteDoc(confirmDocDelete)}
+                style={{ flex:1, background:'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:9, color:'#F87171', padding:11, fontWeight:700, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+                🗑 {L('Delete','Supprimer')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale annulation pipeline */}
+      {confirmCancel && (
+        <div onClick={e => { if(e.target===e.currentTarget) setConfirmCancel(false); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10001, backdropFilter:'blur(10px)' }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.3)', borderRadius:16, padding:28, maxWidth:440, width:'90%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>⚠</div>
+              <div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:3 }}>PIPELINE · ANNULATION</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:16, fontWeight:800, color:'#F87171', margin:0 }}>{L('Cancel this pipeline?','Annuler ce pipeline ?')}</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(248,113,113,0.2) 0%,transparent 100%)', marginBottom:16 }}/>
+            <p style={{ fontSize:13, color:'#8FA3B8', marginBottom:20, lineHeight:1.6 }}>
+              {L('The pipeline will be cancelled and all progress will be archived. Credits cannot be issued from a cancelled pipeline.',
+                 'Le pipeline sera annulé et toute la progression sera archivée. Aucun crédit ne pourra être émis depuis un pipeline annulé.')}
+            </p>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setConfirmCancel(false)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:11, cursor:'pointer', fontSize:13 }}>
+                {L('Keep pipeline','Garder le pipeline')}
+              </button>
+              <button onClick={cancelPipeline}
+                style={{ flex:1, background:'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:9, color:'#F87171', padding:11, fontWeight:700, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+                ⚠ {L('Cancel pipeline','Annuler le pipeline')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+

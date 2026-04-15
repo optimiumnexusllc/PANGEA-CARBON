@@ -9,7 +9,8 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 export default function ApiKeysPage() {
   const { t, lang } = useLang();
   const L = (en, fr) => lang === 'fr' ? fr : en;
-  const [keys, setKeys] = useState([]);
+  const [confirmRevoke, setConfirmRevoke] = useState(null);
+    const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
@@ -39,8 +40,14 @@ export default function ApiKeysPage() {
   };
 
   const revoke = async (id) => {
-    if (!confirm('Révoquer cette clé ? Les intégrations utilisant cette clé cesseront de fonctionner.')) return;
-    await fetchAuth(`/admin/apikeys/${id}`, { method: 'DELETE' });
+    setConfirmRevoke(id);
+  };
+
+  const executeRevoke = async () => {
+    if (!confirmRevoke) return;
+    const id = confirmRevoke;
+    setConfirmRevoke(null);
+    await fetchAuth('/admin/apikeys/'+id, { method: 'DELETE' });
     load();
   };
 
@@ -172,5 +179,34 @@ export default function ApiKeysPage() {
         </div>
       )}
     </div>
+
+      {/* Modale PANGEA — Révocation clé API */}
+      {confirmRevoke && (
+        <div onClick={e => { if (e.target === e.currentTarget) setConfirmRevoke(null); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10001, padding:16 }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(252,211,77,0.35)', borderRadius:16, padding:28, maxWidth:440, width:'100%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:48, height:48, borderRadius:12, background:'rgba(252,211,77,0.1)', border:'1px solid rgba(252,211,77,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>🔑</div>
+              <div>
+                <div style={{ fontSize:9, color:'#FCD34D', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.12em', marginBottom:4 }}>API KEYS · RÉVOCATION</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#FCD34D', margin:0 }}>Révoquer cette clé ?</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(252,211,77,0.25) 0%,transparent 100%)', marginBottom:18 }}/>
+            <div style={{ background:'rgba(252,211,77,0.05)', border:'1px solid rgba(252,211,77,0.15)', borderRadius:10, padding:'14px 16px', marginBottom:20 }}>
+              <p style={{ fontSize:13, color:'#8FA3B8', margin:0, lineHeight:1.7 }}>
+                Cette clé sera <strong style={{ color:'#FCD34D' }}>immédiatement révoquée</strong>. Toutes les intégrations utilisant cette clé cesseront de fonctionner et ne pourront pas être restaurées.
+              </p>
+            </div>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setConfirmRevoke(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:12, cursor:'pointer', fontSize:13 }}>Annuler</button>
+              <button onClick={executeRevoke}
+                style={{ flex:1, background:'rgba(252,211,77,0.1)', border:'1px solid rgba(252,211,77,0.35)', borderRadius:9, color:'#FCD34D', padding:12, fontWeight:800, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+                🔑 Révoquer la clé
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }

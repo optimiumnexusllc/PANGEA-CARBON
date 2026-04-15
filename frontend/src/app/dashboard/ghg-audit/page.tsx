@@ -27,7 +27,8 @@ export default function GHGAuditPage() {
 
   const [view, setView]         = useState('dashboard'); // dashboard | list | audit | new
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [audits, setAudits]     = useState([]);
+  const [confirmDeleteEntry, setConfirmDeleteEntry] = useState<string|null>(null);
+    const [audits, setAudits]     = useState([]);
   const [currentAudit, setCurrentAudit] = useState(null);
   const [factors, setFactors]   = useState([]);
   const [dashboard, setDashboard] = useState(null);
@@ -104,8 +105,14 @@ export default function GHGAuditPage() {
     finally { setAddingEntry(false); }
   };
 
-  const deleteEntry = async (eid) => {
-    if (!confirm('Remove this entry?')) return;
+  const deleteEntry = async (eid: string) => {
+    setConfirmDeleteEntry(eid);
+  };
+
+  const executeDeleteEntry = async () => {
+    if (!confirmDeleteEntry) return;
+    const eid = confirmDeleteEntry;
+    setConfirmDeleteEntry(null);
     await fetchAuthJson('/ghg/audits/' + currentAudit.id + '/entries/' + eid, { method: 'DELETE' });
     const updated = await fetchAuthJson('/ghg/audits/' + currentAudit.id);
     setCurrentAudit(updated);
@@ -624,5 +631,35 @@ export default function GHGAuditPage() {
 
     </div>
 
+
+      {/* Modale PANGEA — Suppression entrée GHG */}
+      {confirmDeleteEntry && (
+        <div onClick={e => { if (e.target === e.currentTarget) setConfirmDeleteEntry(null); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10001, padding:16 }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(167,139,250,0.35)', borderRadius:16, padding:28, maxWidth:440, width:'100%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:48, height:48, borderRadius:12, background:'rgba(167,139,250,0.1)', border:'1px solid rgba(167,139,250,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>📋</div>
+              <div>
+                <div style={{ fontSize:9, color:'#A78BFA', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.12em', marginBottom:4 }}>GHG AUDIT · SUPPRESSION ENTRÉE</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#A78BFA', margin:0 }}>{L('Delete this entry?','Supprimer cette entrée ?')}</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(167,139,250,0.25) 0%,transparent 100%)', marginBottom:18 }}/>
+            <p style={{ fontSize:13, color:'#8FA3B8', marginBottom:20, lineHeight:1.7 }}>
+              {L('This emission entry will be permanently removed from the GHG audit. The totals will be recalculated automatically.',
+                 'Cette entrée d'émission sera définitivement supprimée de l'audit GHG. Les totaux seront recalculés automatiquement.')}
+            </p>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setConfirmDeleteEntry(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:12, cursor:'pointer', fontSize:13 }}>
+                {L('Cancel','Annuler')}
+              </button>
+              <button onClick={executeDeleteEntry}
+                style={{ flex:1, background:'rgba(167,139,250,0.1)', border:'1px solid rgba(167,139,250,0.35)', borderRadius:9, color:'#A78BFA', padding:12, fontWeight:800, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+                🗑 {L('Delete entry','Supprimer l'entrée')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }

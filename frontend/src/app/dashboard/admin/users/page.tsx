@@ -35,6 +35,7 @@ export default function AdminUsersPage() {
   const [createModal, setCreateModal] = useState(false);
   const [newUser, setNewUser]   = useState({ name:'', email:'', password:'', role:'ANALYST' });
   const [creating, setCreating] = useState(false);
+  const [confirmHardDelete, setConfirmHardDelete] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -108,7 +109,12 @@ export default function AdminUsersPage() {
 
   const hardDelete = async () => {
     if (!deleteModal) return;
-    if (!confirm(`PERMANENTLY delete ${deleteModal.name}? This cannot be undone.`)) return;
+    setConfirmHardDelete(true);
+  };
+
+  const executeHardDelete = async () => {
+    if (!deleteModal) return;
+    setConfirmHardDelete(false);
     setDeleting(true);
     try {
       await fetchAuthJson(`/admin/users/${deleteModal.id}?hard=true`, { method:'DELETE' });
@@ -439,7 +445,7 @@ export default function AdminUsersPage() {
                 style={{ background:'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.3)', borderRadius:8, color:'#F87171', padding:'11px', fontWeight:700, cursor:'pointer', fontSize:13 }}>
                 {deleting ? '⟳' : '⊘ Disable account (reversible)'}
               </button>
-              <button onClick={hardDelete} disabled={deleting}
+              <button onClick={() => setConfirmHardDelete(true)} disabled={deleting}
                 style={{ background:'#F87171', border:'none', borderRadius:8, color:'#fff', padding:'11px', fontWeight:700, cursor:'pointer', fontSize:13 }}>
                 {deleting ? '⟳' : '🗑 Permanently delete (irreversible)'}
               </button>
@@ -452,5 +458,35 @@ export default function AdminUsersPage() {
         </div>
       )}
     </div>
+
+      {/* Modale PANGEA — Suppression définitive utilisateur */}
+      {confirmHardDelete && deleteModal && (
+        <div onClick={e => { if (e.target === e.currentTarget) setConfirmHardDelete(false); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10002, padding:16 }}>
+          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.35)', borderRadius:16, padding:28, maxWidth:460, width:'100%', boxShadow:'0 24px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
+              <div style={{ width:48, height:48, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>⚠</div>
+              <div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.12em', marginBottom:4 }}>ADMIN · SUPPRESSION DÉFINITIVE</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, fontWeight:800, color:'#F87171', margin:0 }}>Supprimer définitivement ?</h2>
+              </div>
+            </div>
+            <div style={{ height:1, background:'linear-gradient(90deg,rgba(248,113,113,0.25) 0%,transparent 100%)', marginBottom:18 }}/>
+            <div style={{ background:'rgba(248,113,113,0.05)', border:'1px solid rgba(248,113,113,0.15)', borderRadius:10, padding:'14px 16px', marginBottom:20 }}>
+              <p style={{ fontSize:13, color:'#E8EFF6', margin:'0 0 6px', fontWeight:700 }}>{deleteModal.name}</p>
+              <p style={{ fontSize:12, color:'#8FA3B8', margin:0, lineHeight:1.7 }}>
+                Cet utilisateur sera <strong style={{ color:'#F87171' }}>définitivement supprimé</strong> de la base de données. Aucune restauration possible.
+              </p>
+            </div>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => setConfirmHardDelete(false)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:12, cursor:'pointer', fontSize:13 }}>Annuler</button>
+              <button onClick={executeHardDelete} disabled={deleting}
+                style={{ flex:1, background:deleting?'#1E2D3D':'rgba(248,113,113,0.12)', border:'1px solid rgba(248,113,113,0.4)', borderRadius:9, color:deleting?'#4A6278':'#F87171', padding:12, fontWeight:800, cursor:deleting?'wait':'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+                {deleting ? '⟳ Suppression...' : '🗑 Supprimer définitivement'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }
