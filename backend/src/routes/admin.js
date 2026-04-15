@@ -625,7 +625,7 @@ router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
     // Envoyer l'email de test
     const now = new Date().toLocaleString('fr-FR');
     const info = await transporter.sendMail({
-      from: '"' + fromName + '" <' + fromEmail + '>',
+      from: '"' + fromName + '" <' + smtpUser + '>',
       to,
       subject: 'PANGEA CARBON — SMTP Test ' + now,
       html: '<div style="font-family:monospace;background:#080B0F;color:#E8EFF6;padding:32px;border-radius:12px;max-width:560px">' +

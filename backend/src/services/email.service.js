@@ -22,17 +22,27 @@ async function getTransporter() {
   const port = parseInt(await getSetting('smtp_port') || process.env.SMTP_PORT || '587');
   const user = await getSetting('smtp_user') || process.env.SMTP_USER;
   const pass = await getSetting('smtp_password') || process.env.SMTP_PASS;
+  // Hostinger: le From DOIT correspondre à l'utilisateur authentifié
+  const fromName  = await getSetting('smtp_from_name')  || process.env.SMTP_FROM_NAME  || 'PANGEA CARBON';
+  const fromEmail = await getSetting('smtp_from_email') || process.env.SMTP_FROM_EMAIL || user;
 
   if (!host || !user || !pass) {
     console.warn('[Email] SMTP non configuré — email non envoyé');
     return null;
   }
 
-  return nodemailer.createTransport({
+  const transport = nodemailer.createTransport({
     host, port, secure: port === 465,
-    auth: { user, pass },
+    auth: { type: 'login', user, pass },
     tls: { rejectUnauthorized: false },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
   });
+
+  // Attacher les infos d'expéditeur au transporteur
+  transport._pangea_from = '"' + fromName + '" <' + (fromEmail || user) + '>';
+  transport._pangea_user = user;
+  return transport;
 }
 
 const BRAND = {
@@ -115,7 +125,7 @@ async function sendVerificationEmail({ to, name, verifyUrl }) {
 
   const info = transporter
     ? await transporter.sendMail({
-        from: `"PANGEA CARBON" <${await getSetting('smtp_user') || process.env.SMTP_USER}>`,
+        from: transporter._pangea_from || transporter._pangea_user,
         to,
         subject: '✓ Activez votre compte PANGEA CARBON',
         html,
@@ -172,7 +182,7 @@ async function sendAdminNotification({ adminEmail, newUser, orgName, plan, verif
   if (!transporter) { console.log(`[Email] Admin notif non envoyée — SMTP non dispo`); return null; }
 
   return transporter.sendMail({
-    from: `"PANGEA CARBON System" <${supportEmail}>`,
+    from: transporter._pangea_from || transporter._pangea_user,
     to: adminEmail,
     subject: `🆕 Nouvel inscrit : ${newUser.name} (${orgName || 'sans org'})`,
     html,
@@ -223,7 +233,7 @@ async function sendWelcomeEmail({ to, name, dashboardUrl }) {
   `);
 
   return transporter.sendMail({
-    from: `"PANGEA CARBON" <${await getSetting('smtp_user') || process.env.SMTP_USER}>`,
+    from: transporter._pangea_from || transporter._pangea_user,
     to,
     subject: '🌍 Bienvenue sur PANGEA CARBON — Votre compte est activé',
     html,
@@ -235,7 +245,7 @@ async function sendEmail({ to, replyTo, subject, html, text }) {
   if (!transporter) throw new Error('SMTP non configure — verifiez Admin > Secrets');
   const user = await getSetting('smtp_user') || process.env.SMTP_USER;
   return transporter.sendMail({
-    from: `"PANGEA CARBON Africa" <${user}>`,
+    from: transporter._pangea_from || transporter._pangea_user,
     to,
     ...(replyTo && { replyTo }),
     subject,
@@ -284,8 +294,9 @@ async function sendEmailOTP({ to, name, code, expiresInMinutes, lang }) {
     ? ('PANGEA CARBON — Security code: ' + code)
     : ('PANGEA CARBON — Code de securite: ' + code);
   const html = baseTemplate(content);
+  const from = transporter ? (transporter._pangea_from || transporter._pangea_user) : null;
   const info = transporter
-    ? await transporter.sendMail({ from: '"PANGEA CARBON Security" <noreply@pangea-carbon.com>', to, subject, html })
+    ? await transporter.sendMail({ from, to, subject, html })
     : null;
   if (!transporter) console.log('[2FA Email OTP] SMTP non configure — code:', code);
   return { success: true, info };
