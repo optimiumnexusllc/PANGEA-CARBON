@@ -33,38 +33,71 @@ router.put('/profile', auth, async (req, res, next) => {
   try {
     if (!req.user.organizationId) return res.status(400).json({ error: 'Organization required to set up seller profile' });
     
-    const {
-      mtnMomoNumber, mtnMomoCountry,
-      orangeMoneyNumber, orangeMoneyCountry,
-      waveNumber, waveCountry,
-      cinetpayApiKey, flutterwaveAcct, paystackAcct,
-      bankName, bankIBAN, bankSwift, bankBeneficiary, bankCurrency,
-      preferredGateway
-    } = req.body;
+    const body = req.body;
+    const preferredGateway = body.preferredGateway || 'WIRE';
+
+    // Champs dynamiques — stocker tout dans metadata JSON + champs Prisma connus
+    const profileData = {
+      // MTN MoMo
+      mtnMomoNumber:        body.mtnMomoNumber        || null,
+      mtnMomoCountry:       body.mtnMomoCountry       || null,
+      // Orange Money  
+      orangeMoneyNumber:    body.orangeMoneyNumber     || null,
+      orangeMoneyCountry:   body.orangeMoneyCountry    || null,
+      // Wave
+      waveNumber:           body.waveNumber            || null,
+      waveCountry:          body.waveCountry           || null,
+      // Flutterwave
+      flutterwaveAcct:      body.flutterwaveSubaccountId || body.flutterwaveAcct || null,
+      // Paystack
+      paystackAcct:         body.paystackRecipientCode || body.paystackAcct || null,
+      // Wire/SWIFT
+      bankName:             body.bankName              || null,
+      bankIBAN:             body.bankIBAN || body.bankAccountNumber || null,
+      bankSwift:            body.bankSwift             || null,
+      bankBeneficiary:      body.bankBeneficiary       || null,
+      bankCurrency:         body.bankCurrency          || 'USD',
+      // Tous les champs étendus dans metadata
+      metadata: JSON.stringify({
+        // MTN
+        mtnMomoName:         body.mtnMomoName,
+        mtnMomoMerchantId:   body.mtnMomoMerchantId,
+        // Orange Money
+        orangeMoneyName:     body.orangeMoneyName,
+        orangeMoneyApiKey:   body.orangeMoneyApiKey,
+        orangeMoneyMerchantCode: body.orangeMoneyMerchantCode,
+        // Wave
+        waveName:            body.waveName,
+        waveBusinessId:      body.waveBusinessId,
+        // Flutterwave
+        flutterwaveSecretKey:   body.flutterwaveSecretKey,
+        flutterwavePublicKey:   body.flutterwavePublicKey,
+        flutterwaveBankAccount: body.flutterwaveBankAccount,
+        flutterwaveBankCode:    body.flutterwaveBankCode,
+        flutterwaveCurrency:    body.flutterwaveCurrency,
+        flutterwaveBusinessName: body.flutterwaveBusinessName,
+        // Paystack
+        paystackSecretKey:   body.paystackSecretKey,
+        paystackPublicKey:   body.paystackPublicKey,
+        paystackBankCode:    body.paystackBankCode,
+        paystackAccountNumber: body.paystackAccountNumber,
+        paystackCurrency:    body.paystackCurrency,
+        paystackBusinessName: body.paystackBusinessName,
+        // Wire extended
+        bankAccountNumber:   body.bankAccountNumber,
+        bankRoutingNumber:   body.bankRoutingNumber,
+        bankCountry:         body.bankCountry,
+        bankCity:            body.bankCity,
+        bankAddress:         body.bankAddress,
+        bankIntermediarySwift: body.bankIntermediarySwift,
+      }),
+      preferredGateway,
+    };
 
     const profile = await prisma.sellerProfile.upsert({
       where: { organizationId: req.user.organizationId },
-      update: {
-        mtnMomoNumber, mtnMomoCountry,
-        orangeMoneyNumber, orangeMoneyCountry,
-        waveNumber, waveCountry,
-        cinetpayApiKey, flutterwaveAcct, paystackAcct,
-        bankName, bankIBAN, bankSwift, bankBeneficiary,
-        bankCurrency: bankCurrency || 'USD',
-        preferredGateway: preferredGateway || 'WIRE',
-        updatedAt: new Date(),
-      },
-      create: {
-        organizationId: req.user.organizationId,
-        mtnMomoNumber, mtnMomoCountry,
-        orangeMoneyNumber, orangeMoneyCountry,
-        waveNumber, waveCountry,
-        cinetpayApiKey, flutterwaveAcct, paystackAcct,
-        bankName, bankIBAN, bankSwift, bankBeneficiary,
-        bankCurrency: bankCurrency || 'USD',
-        preferredGateway: preferredGateway || 'WIRE',
-        verificationStatus: 'PENDING',
-      }
+      update: { ...profileData, updatedAt: new Date() },
+      create: { organizationId: req.user.organizationId, ...profileData, verificationStatus: 'PENDING' }
     });
 
     await prisma.auditLog.create({ data: {

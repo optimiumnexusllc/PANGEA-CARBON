@@ -680,6 +680,7 @@ model SellerProfile {
   preferredGateway String?     @default("WIRE") // WIRE | MTN_MOMO | ORANGE_MONEY | WAVE | FLUTTERWAVE | PAYSTACK
   verificationStatus String?   @default("PENDING") // PENDING | VERIFIED | REJECTED
   verifiedAt      DateTime?
+  metadata        String?  // JSON étendu: clés API, champs supplémentaires par gateway
   
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
