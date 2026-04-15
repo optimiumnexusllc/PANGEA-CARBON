@@ -218,6 +218,24 @@ router.post('/login', [
       return res.status(403).json({ error: 'Compte désactivé. Contactez le support.' });
     }
 
+    // ── Vérifier si 2FA est activé ────────────────────────────────────────
+    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: user.id } });
+
+    if (twofa?.enabled) {
+      // Générer un token temporaire pré-auth (15 minutes, limité)
+      const preAuthToken = jwt.sign(
+        { userId: user.id, preAuth: true, requiresMFA: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+      return res.json({
+        requiresMFA: true,
+        preAuthToken,
+        userId: user.id,
+        user: { name: user.name, email: user.email.replace(/(.{2}).*(@.*)/, '$1***$2') },
+      });
+    }
+
     // Mettre à jour dernière connexion
     await prisma.user.update({
       where: { id: user.id },
@@ -228,6 +246,71 @@ router.post('/login', [
     const tokens = generateTokens(userSafe);
     res.json({ user: userSafe, ...tokens });
   } catch (e) { next(e); }
+});
+
+// POST /api/auth/mfa-verify — Étape 2FA après login
+router.post('/mfa-verify', async (req, res, next) => {
+  try {
+    const { preAuthToken, code, method } = req.body;
+    if (!preAuthToken || !code) return res.status(400).json({ error: 'preAuthToken and code required' });
+
+    // Valider le pre-auth token
+    let decoded;
+    try {
+      decoded = jwt.verify(preAuthToken, process.env.JWT_SECRET);
+    } catch(e) { return res.status(401).json({ error: 'Pre-auth token expired. Please login again.' }); }
+
+    if (!decoded.preAuth || !decoded.requiresMFA) return res.status(401).json({ error: 'Invalid pre-auth token' });
+
+    const userId = decoded.userId;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.isActive) return res.status(401).json({ error: 'Account not found or inactive' });
+
+    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId } });
+    if (!twofa?.enabled) return res.status(400).json({ error: '2FA not enabled for this account' });
+
+    const crypto = require('crypto');
+    const speakeasy = require('speakeasy');
+    const { decrypt } = require('../services/crypto.service');
+
+    // Method: totp (app) ou email (otp par email)
+    if (method === 'email') {
+      // Vérifier via Email OTP
+      const codeHash = crypto.createHash('sha256').update(String(code).trim()).digest('hex');
+      const otp = await prisma.emailOTP.findFirst({
+        where: { userId, code: codeHash, used: false, expiresAt: { gt: new Date() } },
+        orderBy: { createdAt: 'desc' }
+      });
+      if (!otp) return res.status(401).json({ error: 'Invalid or expired email code. Request a new one.' });
+      await prisma.emailOTP.update({ where: { id: otp.id }, data: { used: true } });
+    } else {
+      // Vérifier via TOTP app (défaut)
+      const secret = decrypt(twofa.secret);
+      const totpValid = speakeasy.totp.verify({ secret, encoding: 'base32', token: String(code).replace(/\s/g,''), window: 2 });
+
+      if (!totpValid) {
+        // Essayer les backup codes
+        const codeHash = crypto.createHash('sha256').update(String(code).toLowerCase().replace(/\s/g,'')).digest('hex');
+        const idx = (twofa.backupCodes||[]).indexOf(codeHash);
+        if (idx === -1) return res.status(401).json({ error: 'Invalid 2FA code. Try again or use a backup code.' });
+        const newBackups = [...twofa.backupCodes]; newBackups.splice(idx, 1);
+        await prisma.twoFactorAuth.update({ where: { userId }, data: { backupCodes: newBackups } });
+      }
+    }
+
+    // 2FA validé — finaliser la connexion
+    await prisma.user.update({
+      where: { id: userId },
+      data: { lastLoginAt: new Date(), loginCount: { increment: 1 } }
+    });
+    await prisma.auditLog.create({
+      data: { userId, action:'LOGIN_MFA_SUCCESS', entity:'User', entityId:userId, after:{ method:method||'totp' } }
+    }).catch(() => {});
+
+    const { password: _, ...userSafe } = user;
+    const tokens = generateTokens(userSafe);
+    res.json({ user: userSafe, ...tokens });
+  } catch(e) { next(e); }
 });
 
 // POST /api/auth/refresh
