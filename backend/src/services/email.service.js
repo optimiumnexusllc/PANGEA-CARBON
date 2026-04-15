@@ -248,32 +248,46 @@ async function sendEmail({ to, replyTo, subject, html, text }) {
 /**
  * Email OTP pour 2FA — PANGEA CARBON
  */
-async function sendEmailOTP({ to, name, code, expiresInMinutes = 5, lang = 'fr' }) {
+async function sendEmailOTP({ to, name, code, expiresInMinutes, lang }) {
   const transporter = await getTransporter();
+  const mins = expiresInMinutes || 5;
   const isEn = lang !== 'fr';
-  const content = `
-    <div style="text-align:center;margin-bottom:28px;">
-      <div style="display:inline-block;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:12px;padding:16px 24px;margin-bottom:16px;">
-        <div style="font-size:11px;color:#A78BFA;letter-spacing:0.15em;font-family:monospace;margin-bottom:8px;">${isEn?'SECURITY CODE · MFA':'CODE DE SÉCURITÉ · MFA'}</div>
-        <div style="font-size:48px;font-weight:800;color:#E8EFF6;letter-spacing:0.25em;font-family:monospace;">${code}</div>
-      </div>
-      <div style="font-size:12px;color:#4A6278;font-family:monospace;">${isEn?'Valid for':'Valide pendant'} ${expiresInMinutes} ${isEn?'minutes':'minutes'}</div>
-    </div>
-    <h2 style="font-size:18px;font-weight:700;color:#E8EFF6;margin:0 0 12px;">${isEn?'Your PANGEA CARBON security code':'Votre code de sécurité PANGEA CARBON'}</h2>
-    <p style="font-size:14px;color:#8FA3B8;line-height:1.7;margin:0 0 20px;">
-      ${isEn?`Hello ${name||''},<br><br>Use this code to complete your authentication on PANGEA CARBON. This code is valid for <strong style="color:#E8EFF6;">${expiresInMinutes} minutes</strong> and can only be used once.`:`Bonjour ${name||''},<br><br>Utilisez ce code pour compléter votre authentification sur PANGEA CARBON. Ce code est valide pendant <strong style="color:#E8EFF6;">${expiresInMinutes} minutes</strong> et ne peut être utilisé qu'une seule fois.`}
-    </p>
-    <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:12px 16px;font-size:12px;color:#F87171;margin-bottom:20px;">
-      ⚠ ${isEn?'If you did not request this code, your account may be at risk. Contact support immediately.':'Si vous n'avez pas demandé ce code, votre compte est peut-être en danger. Contactez le support immédiatement.'}
-    </div>
-    <div style="border-top:1px solid #1E2D3D;padding-top:16px;font-size:11px;color:#4A6278;text-align:center;font-family:monospace;">
-      PANGEA CARBON · MFA · ${new Date().toISOString().split('T')[0]} · IP: [protected]
-    </div>
-  `;
-  const subject = isEn ? 'PANGEA CARBON — Security code: '+code : 'PANGEA CARBON — Code de sécurité: '+code;
+  const userName = name || '';
+  const validFor = isEn ? ('Valid for ' + mins + ' minutes') : ('Valide pendant ' + mins + ' minutes');
+  const titleTxt = isEn ? 'Your PANGEA CARBON security code' : 'Votre code de securite PANGEA CARBON';
+  const bodyTxt = isEn
+    ? ('Hello ' + userName + ',<br><br>Use this code to complete your PANGEA CARBON authentication. Valid for <strong style="color:#E8EFF6;">' + mins + ' minutes</strong>. Single use only.')
+    : ('Bonjour ' + userName + ',<br><br>Utilisez ce code pour votre authentification PANGEA CARBON. Valide <strong style="color:#E8EFF6;">' + mins + ' minutes</strong>. Usage unique.');
+  const warnTxt = isEn
+    ? 'If you did not request this code, your account may be at risk. Contact support immediately.'
+    : 'Si vous navez pas demande ce code, votre compte est en danger. Contactez le support.';
+
+  const content = [
+    '<div style="text-align:center;margin-bottom:28px;">',
+    '<div style="display:inline-block;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:12px;padding:16px 24px;margin-bottom:16px;">',
+    '<div style="font-size:11px;color:#A78BFA;letter-spacing:0.15em;font-family:monospace;margin-bottom:8px;">' + (isEn ? 'SECURITY CODE' : 'CODE DE SECURITE') + '</div>',
+    '<div style="font-size:48px;font-weight:800;color:#E8EFF6;letter-spacing:0.25em;font-family:monospace;">' + code + '</div>',
+    '</div>',
+    '<div style="font-size:12px;color:#4A6278;font-family:monospace;">' + validFor + '</div>',
+    '</div>',
+    '<h2 style="font-size:18px;font-weight:700;color:#E8EFF6;margin:0 0 12px;">' + titleTxt + '</h2>',
+    '<p style="font-size:14px;color:#8FA3B8;line-height:1.7;margin:0 0 20px;">' + bodyTxt + '</p>',
+    '<div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:12px 16px;font-size:12px;color:#F87171;margin-bottom:20px;">',
+    'warning: ' + warnTxt,
+    '</div>',
+    '<div style="border-top:1px solid #1E2D3D;padding-top:16px;font-size:11px;color:#4A6278;text-align:center;font-family:monospace;">',
+    'PANGEA CARBON · MFA · ' + new Date().toISOString().split('T')[0],
+    '</div>',
+  ].join('\n');
+
+  const subject = isEn
+    ? ('PANGEA CARBON — Security code: ' + code)
+    : ('PANGEA CARBON — Code de securite: ' + code);
   const html = baseTemplate(content);
-  const info = transporter ? await transporter.sendMail({ from: '"PANGEA CARBON Security" <noreply@pangea-carbon.com>', to, subject, html }) : null;
-  if (!transporter) console.log('[2FA Email OTP] SMTP non configuré — code:', code);
+  const info = transporter
+    ? await transporter.sendMail({ from: '"PANGEA CARBON Security" <noreply@pangea-carbon.com>', to, subject, html })
+    : null;
+  if (!transporter) console.log('[2FA Email OTP] SMTP non configure — code:', code);
   return { success: true, info };
 }
 
