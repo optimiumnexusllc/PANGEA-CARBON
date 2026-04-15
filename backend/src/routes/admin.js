@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
+const { checkApiKeyLimit, checkUserLimit, getUserPlanContext } = require('../services/plan-limits.service');
 
 // Middleware: Admin only
 const adminOnly = (req, res, next) => {
@@ -518,15 +519,16 @@ router.post('/apikeys', auth, async (req, res, next) => {
   if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Only ADMIN and SUPER_ADMIN can create API keys' });
   }
-  // Vérifier le plan de l'org
-  if (req.user.organizationId) {
-    const org = await prisma.organization.findUnique({ where: { id: req.user.organizationId } });
-    if (org?.plan === 'TRIAL') {
-      const existing = await prisma.apiKey.count({ where: { organizationId: req.user.organizationId } });
-      if (existing >= 1) {
-        return res.status(403).json({ error: 'TRIAL plan limited to 1 API key. Upgrade to STARTER or higher.' });
-      }
-    }
+  // Vérifier limite plan API keys
+  const apiKeyCheck = await checkApiKeyLimit(req.user.userId);
+  if (!apiKeyCheck.allowed) {
+    return res.status(402).json({
+      error: 'API key limit reached (' + apiKeyCheck.current + '/' + apiKeyCheck.max + ') for plan ' + apiKeyCheck.plan,
+      code: 'PLAN_APIKEY_LIMIT',
+      currentPlan: apiKeyCheck.plan,
+      requiredPlan: apiKeyCheck.required,
+      upgradeUrl: '/dashboard/settings',
+    });
   }
   try {
     const { name, userId, expiresAt } = req.body;
