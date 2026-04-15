@@ -395,7 +395,7 @@ export function PlanLimitModal({ error, onClose }) {
     : isMW
     ? (lang==='fr' ? 'Limite de capacité MW atteinte' : 'MW capacity limit reached')
     : isUser
-    ? (lang==='fr' ? 'Limite d'utilisateurs atteinte' : 'User limit reached')
+    ? (lang==='fr' ? 'Limite utilisateurs atteinte' : 'User limit reached')
     : (lang==='fr' ? 'Limite atteinte' : 'Limit reached');
 
   const desc = isProject
