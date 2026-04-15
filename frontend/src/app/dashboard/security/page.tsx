@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLang } from '@/lib/lang-context';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 
@@ -28,6 +28,8 @@ export default function SecurityPage() {
   const [emailCountdown, setEmailCountdown] = useState(0);
   const [emailCode, setEmailCode] = useState('');
   const [emailSentTo, setEmailSentTo] = useState('');
+  const [smtpWarning, setSmtpWarning] = useState(false);
+  const countdownRef = useRef(null);
   const [activeTab, setActiveTab] = useState('totp');
 
   const showToast = useCallback((msg, type='success') => {

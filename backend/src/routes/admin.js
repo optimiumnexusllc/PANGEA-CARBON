@@ -214,6 +214,8 @@ const SETTING_DEFS = [
   { key: 'smtp_port',                category: 'smtp',         encrypted: false, description: 'Port SMTP (587)' },
   { key: 'smtp_user',                category: 'smtp',         encrypted: false, description: 'Email SMTP' },
   { key: 'smtp_password',            category: 'smtp',         encrypted: true,  description: 'Mot de passe SMTP' },
+  { key: 'smtp_from_name',           category: 'smtp',         encrypted: false, description: 'Nom expéditeur (ex: PANGEA CARBON)' },
+  { key: 'smtp_from_email',          category: 'smtp',         encrypted: false, description: 'Email expéditeur (ex: noreply@pangea-carbon.com)' },
   { key: 'carbon_market_api_key',    category: 'integrations', encrypted: true,  description: 'API prix carbone temps réel' },
   { key: 'anthropic_api_key',        category: 'integrations', encrypted: true,  description: 'Claude AI API key (Assistant IA)' },
   { key: 'sentry_dsn',               category: 'integrations', encrypted: false, description: 'Sentry DSN (monitoring erreurs)' },
@@ -227,6 +229,23 @@ const SETTING_DEFS = [
   { key: 'support_email',            category: 'general',      encrypted: false, description: 'Email de support' },
   { key: 'contact_email',            category: 'integrations', encrypted: false, description: 'Email destinataire des demandes Enterprise' },
   { key: 'carbon_price_usd',         category: 'general',      encrypted: false, description: 'Prix carbone par défaut ($/tCO₂e)' },
+
+
+  // ── EMAIL NOTIFICATIONS ───────────────────────────────────────────────────
+  { key: 'notif_email_signup',      category: 'notifications', encrypted: false, description: 'Notif: New user signup' },
+  { key: 'notif_email_verify',      category: 'notifications', encrypted: false, description: 'Notif: Email verification' },
+  { key: 'notif_email_2fa',         category: 'notifications', encrypted: false, description: 'Notif: 2FA OTP code' },
+  { key: 'notif_email_password',    category: 'notifications', encrypted: false, description: 'Notif: Password reset' },
+  { key: 'notif_email_project',     category: 'notifications', encrypted: false, description: 'Notif: New project created' },
+  { key: 'notif_email_mrv',         category: 'notifications', encrypted: false, description: 'Notif: MRV report generated' },
+  { key: 'notif_email_credit',      category: 'notifications', encrypted: false, description: 'Notif: Carbon credits issued' },
+  { key: 'notif_email_marketplace', category: 'notifications', encrypted: false, description: 'Notif: Marketplace order' },
+  { key: 'notif_email_pipeline',    category: 'notifications', encrypted: false, description: 'Notif: Pipeline stage change' },
+  { key: 'notif_email_esg',         category: 'notifications', encrypted: false, description: 'Notif: ESG assessment complete' },
+  { key: 'notif_email_invoice',     category: 'notifications', encrypted: false, description: 'Notif: Invoice generated' },
+  { key: 'notif_email_payment',     category: 'notifications', encrypted: false, description: 'Notif: Payment confirmed' },
+  { key: 'notif_email_alert',       category: 'notifications', encrypted: false, description: 'Notif: System alert' },
+  { key: 'notif_email_digest',      category: 'notifications', encrypted: false, description: 'Notif: Weekly digest' },
 
   // ── CARBON MARKETPLACE & SPLIT ENGINE ─────────────────────────────────────
   { key: 'pangea_fee_pct',            category: 'carbon_marketplace', encrypted: false, description: 'PANGEA Carbon Fee % (défaut: 3.5%)' },
@@ -302,6 +321,33 @@ router.get('/settings', auth, adminOnly, async (req, res, next) => {
 
     res.json({ settings, byCategory });
   } catch (e) { next(e); }
+});
+
+
+// POST /api/admin/settings/bulk — Sauvegarder plusieurs settings en une fois
+router.post('/settings/bulk', auth, adminOnly, async (req, res, next) => {
+  try {
+    const { settings: settingsToSave } = req.body;
+    if (!Array.isArray(settingsToSave)) return res.status(400).json({ error: 'settings must be an array' });
+
+    const results = [];
+    for (const { key, value } of settingsToSave) {
+      const def = SETTING_DEFS.find(d => d.key === key);
+      if (!def) { results.push({ key, success: false, error: 'Unknown key' }); continue; }
+      try {
+        const storedValue = def.encrypted ? encrypt(value||'') : (value||'');
+        await prisma.systemSetting.upsert({
+          where: { key },
+          update: { value: storedValue, encrypted: def.encrypted, updatedBy: req.user.userId },
+          create: { key, value: storedValue, encrypted: def.encrypted, category: def.category, description: def.description, updatedBy: req.user.userId },
+        });
+        if (value) process.env[key.toUpperCase()] = value;
+        results.push({ key, success: true });
+      } catch(err) { results.push({ key, success: false, error: err.message }); }
+    }
+    const saved = results.filter(r => r.success).length;
+    res.json({ success: true, saved, total: settingsToSave.length, results });
+  } catch(e) { next(e); }
 });
 
 router.put('/settings/:key', auth, adminOnly, async (req, res, next) => {

@@ -68,7 +68,7 @@ export default function EmailAdminPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchAuth('/admin/settings/all');
+      const res = await fetchAuth('/admin/settings');
       const data = await res.json();
       const s = {};
       (data.settings||[]).forEach(x => { s[x.key] = x.value||''; });
@@ -85,25 +85,28 @@ export default function EmailAdminPage() {
 
   const set = (key, val) => setSettings(s => ({...s, [key]:val}));
 
-  const saveSetting = async (key, value, encrypted) => {
-    await fetchAuth('/admin/settings/'+key, {
-      method:'PUT', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ value, encrypted:!!encrypted })
+  const bulkSave = async (items) => {
+    const res = await fetchAuth('/admin/settings/bulk', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ settings: items })
     });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error||'Save failed'); }
+    return res.json();
   };
 
   const saveSmtp = async () => {
     setSaving(true);
     try {
-      await Promise.all([
-        saveSetting('smtp_host', settings['smtp_host']||'', false),
-        saveSetting('smtp_port', settings['smtp_port']||'', false),
-        saveSetting('smtp_user', settings['smtp_user']||'', false),
-        saveSetting('smtp_from_name', settings['smtp_from_name']||'', false),
-        saveSetting('smtp_from_email', settings['smtp_from_email']||'', false),
-      ]);
-      if (settings['smtp_password']) await saveSetting('smtp_password', settings['smtp_password'], true);
-      showToast(lang==='fr'?'Configuration SMTP sauvegardée !':'SMTP configuration saved!');
+      const items = [
+        { key:'smtp_host',       value:settings['smtp_host']||'' },
+        { key:'smtp_port',       value:settings['smtp_port']||'' },
+        { key:'smtp_user',       value:settings['smtp_user']||'' },
+        { key:'smtp_from_name',  value:settings['smtp_from_name']||'' },
+        { key:'smtp_from_email', value:settings['smtp_from_email']||'' },
+      ];
+      if (settings['smtp_password']) items.push({ key:'smtp_password', value:settings['smtp_password'] });
+      const r = await bulkSave(items);
+      showToast((lang==='fr'?'SMTP sauvegardé — ':'SMTP saved — ')+r.saved+'/'+(r.total)+' OK');
     } catch(e) { showToast(e.message,'error'); }
     finally { setSaving(false); }
   };
@@ -111,8 +114,9 @@ export default function EmailAdminPage() {
   const saveNotifs = async () => {
     setSaving(true);
     try {
-      await Promise.all(Object.entries(notifs).map(([k,v]) => saveSetting(k, String(v), false)));
-      showToast(lang==='fr'?'Paramètres de notification sauvegardés !':'Notification settings saved!');
+      const items = Object.entries(notifs).map(([k,v])=>({ key:k, value:String(v) }));
+      const r = await bulkSave(items);
+      showToast((lang==='fr'?'Notifications sauvegardées — ':'Notifications saved — ')+r.saved+'/'+(r.total)+' OK');
     } catch(e) { showToast(e.message,'error'); }
     finally { setSaving(false); }
   };
