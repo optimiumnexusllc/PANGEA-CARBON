@@ -3,7 +3,7 @@
  * Chaque vendeur configure sa gateway de réception de fonds
  */
 const router = require('express').Router();
-const { auth } = require('../middleware/auth');
+const auth = require('../middleware/auth');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
