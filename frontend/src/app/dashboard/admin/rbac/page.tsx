@@ -612,7 +612,6 @@ export default function RBACPage() {
           )}
         </div>
       )}
-    </div>
 
       {/* Modale PANGEA — Suppression groupe RBAC */}
       {confirmDeleteGroup && (
@@ -640,5 +639,7 @@ export default function RBACPage() {
           </div>
         </div>
       )}
+
+    </div>
   );
 }

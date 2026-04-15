@@ -457,7 +457,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
-    </div>
 
       {/* Modale PANGEA — Suppression définitive utilisateur */}
       {confirmHardDelete && deleteModal && (
@@ -488,5 +487,7 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+
+    </div>
   );
 }

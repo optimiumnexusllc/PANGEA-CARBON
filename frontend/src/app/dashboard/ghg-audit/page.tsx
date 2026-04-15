@@ -629,8 +629,6 @@ export default function GHGAuditPage() {
         </div>
       )}
 
-    </div>
-
 
       {/* Modale PANGEA — Suppression entrée GHG */}
       {confirmDeleteEntry && (
@@ -661,5 +659,8 @@ export default function GHGAuditPage() {
           </div>
         </div>
       )}
+
+    </div>
+
   );
 }

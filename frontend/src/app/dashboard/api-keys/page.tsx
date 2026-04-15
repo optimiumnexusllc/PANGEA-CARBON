@@ -178,7 +178,6 @@ export default function ApiKeysPage() {
           </div>
         </div>
       )}
-    </div>
 
       {/* Modale PANGEA — Révocation clé API */}
       {confirmRevoke && (
@@ -208,5 +207,7 @@ export default function ApiKeysPage() {
           </div>
         </div>
       )}
+
+    </div>
   );
 }
