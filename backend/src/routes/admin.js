@@ -596,8 +596,6 @@ router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
         }
       });
     }
-    const fromName = await prisma.systemSetting.findUnique({ where:{ key:'smtp_from_name' } }).then(s=>s?.value||'PANGEA CARBON').catch(()=>'PANGEA CARBON');
-    const fromEmail = await prisma.systemSetting.findUnique({ where:{ key:'smtp_from_email' } }).then(s=>s?.value||admin.email).catch(()=>admin.email);
     // Envoyer l'email de test
     const now = new Date().toLocaleString('fr-FR');
     const info = await transporter.sendMail({
