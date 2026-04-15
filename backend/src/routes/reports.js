@@ -42,6 +42,10 @@ router.get('/:projectId/:year/pdf', auth, async (req, res, next) => {
   try {
     const { projectId, year } = req.params;
     const yr = parseInt(year);
+    const lang = req.query.lang === 'fr' ? 'fr' : 'en';
+    const standardId = req.query.standard || 'VERRA_VCS';
+    const VALID_STANDARDS = ['VERRA_VCS','GOLD_STANDARD','ARTICLE6','CDM','ACR','CAR','CORSIA','VCMI','PLAN_VIVO'];
+    const std = VALID_STANDARDS.includes(standardId) ? standardId : 'VERRA_VCS';
 
     // Charger projet
     const project = await prisma.project.findUnique({ where: { id: projectId } });
@@ -51,43 +55,44 @@ router.get('/:projectId/:year/pdf', auth, async (req, res, next) => {
     const readings = await prisma.energyReading.findMany({
       where: {
         projectId,
-        periodStart: { gte: new Date(`${yr}-01-01`) },
-        periodEnd: { lte: new Date(`${yr}-12-31`) },
+        periodStart: { gte: new Date(yr+'-01-01') },
+        periodEnd: { lte: new Date(yr+'-12-31') },
       },
       orderBy: { periodStart: 'asc' },
     });
 
     if (readings.length === 0) {
-      return res.status(404).json({ error: `Aucune donnée de production pour ${yr}` });
+      return res.status(404).json({ error: 'Aucune donnée de production pour '+yr });
     }
 
     // Calcul MRV
     const mrvData = MRVEngine.calculateAnnual(readings, project);
     mrvData.year = yr;
 
-    // Générer PDF
-    const pdfBuffer = await generateMRVReport(project, mrvData, readings);
+    // Générer PDF avec lang + standard
+    const pdfBuffer = await generateMRVReport(project, mrvData, readings, lang, std);
 
-    // Créer record rapport
+    // Créer record rapport (clé unique par projet+année+standard+lang)
+    const reportKey = projectId+'-'+yr+'-'+std+'-'+lang;
     await prisma.report.upsert({
-      where: { id: `${projectId}-${yr}` },
+      where: { id: reportKey },
       update: { status: 'READY', generatedAt: new Date(), fileSize: pdfBuffer.length },
       create: {
-        id: `${projectId}-${yr}`,
+        id: reportKey,
         projectId,
         userId: req.user.userId,
-        type: 'ANNUAL_MRV',
+        type: 'ANNUAL_MRV_'+std+'_'+lang.toUpperCase(),
         year: yr,
         status: 'READY',
         generatedAt: new Date(),
         fileSize: pdfBuffer.length,
       },
-    });
+    }).catch(()=>{});
 
     // Envoi PDF
-    const filename = `PANGEA-CARBON_MRV_${project.countryCode}_${yr}_${projectId.slice(-6).toUpperCase()}.pdf`;
+    const filename = 'PANGEA-CARBON_MRV_'+std+'_'+(project.countryCode||'AF')+'_'+yr+'_'+lang.toUpperCase()+'.pdf';
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Disposition', 'attachment; filename="'+filename+'"');
     res.setHeader('Content-Length', pdfBuffer.length);
     res.send(pdfBuffer);
 
