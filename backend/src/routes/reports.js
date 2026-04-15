@@ -111,4 +111,27 @@ router.get('/:projectId/:year/preview', auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+
+// DELETE /api/reports/:id — Supprimer un rapport généré
+router.delete('/:id', auth, async (req, res, next) => {
+  try {
+    const report = await prisma.report.findUnique({ where: { id: req.params.id } });
+    if (!report) return res.status(404).json({ error: 'Rapport introuvable' });
+
+    // Vérifier les droits
+    const canDelete = ['SUPER_ADMIN','ADMIN','ORG_OWNER'].includes(req.user.role) ||
+                      report.userId === req.user.userId;
+    if (!canDelete) return res.status(403).json({ error: 'Permission refusée' });
+
+    await prisma.report.delete({ where: { id: req.params.id } });
+
+    await prisma.auditLog.create({ data: {
+      userId: req.user.userId, action: 'REPORT_DELETED', entity: 'Report',
+      entityId: req.params.id, before: { type: report.type, year: report.year },
+    }}).catch(()=>{});
+
+    res.json({ success: true, deleted: req.params.id });
+  } catch (e) { next(e); }
+});
+
 module.exports = router;
