@@ -165,7 +165,7 @@ export default function AdminUsersPage() {
 
       {toast && (
         <div style={{ position:'fixed', top:20, right:20, zIndex:9999, background:toast.type==='error'?'#F87171':'#00FF94', color:'#080B0F', padding:'12px 20px', borderRadius:10, fontWeight:700, fontSize:13, boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
-          {toast.type==='error'?'❌ ':'✅ '}{toast.msg}
+          {toast.msg}
         </div>
       )}
 
@@ -588,7 +588,7 @@ export default function AdminUsersPage() {
                   </div>
                   <div style={{ padding:'10px 14px', background:'rgba(252,211,77,0.05)', border:'1px solid rgba(252,211,77,0.15)', borderRadius:10, fontSize:11, color:'#FCD34D', lineHeight:1.7 }}>
                     ⚠ {lang==='fr'
-                      ?'Recommandation: demandez à cet utilisateur d'activer le MFA pour sécuriser son compte.'
+                      ?'Recommandation: utilisateur sans MFA actif. Invitez-le à activer 2FA.'
                       :'Recommendation: ask this user to enable MFA to secure their account.'}
                   </div>
                 </div>
