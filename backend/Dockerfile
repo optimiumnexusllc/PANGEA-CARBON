@@ -21,9 +21,10 @@ COPY --from=builder /app/src ./src
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY package.json ./
+COPY --from=builder /app/start.sh ./start.sh
 
-RUN mkdir -p logs reports && chown -R nodejs:nodejs /app
+RUN mkdir -p logs reports && chown -R nodejs:nodejs /app && chmod +x /app/start.sh
 USER nodejs
 
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node src/index.js"]
+CMD ["/app/start.sh"]
