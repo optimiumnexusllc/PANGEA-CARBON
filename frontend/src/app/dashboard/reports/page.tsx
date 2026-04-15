@@ -52,14 +52,14 @@ const STANDARDS_DEF = (L) => [
   },
   {
     id:'ARTICLE6', name:'Article 6 Paris', method:'ITMO + A6.4ER',
-    color:C.blue, icon:'🌐', supported:false,
+    color:C.blue, icon:'🌐', supported:true,
     desc:L('Sovereign carbon markets — bilateral ITMO transfers','Marchés carbone souverains — transferts bilatéraux (ITMOs)'),
     features:[
       L('Corresponding adjustments','Corresponding adjustments'),
       L('National NDC registries','National registries NDC'),
       L('Bilateral agreements','Bilatéral agreements'),
       L('Sovereign guarantee','Sovereign guarantee'),
-      L('Coming Q4 2025','Coming Q4 2025'),
+      L('PANGEA CARBON certified','PANGEA CARBON certifié'),
     ],
     url:'https://unfccc.int/topics/carbon-markets',
     docLabel:L('UNFCCC Article 6 documentation →','Documentation officielle UNFCCC Article 6 →'),
@@ -67,7 +67,7 @@ const STANDARDS_DEF = (L) => [
   },
   {
     id:'CDM', name:'CDM Legacy', method:'UNFCCC CDM',
-    color:C.muted, icon:'📋', supported:false,
+    color:C.purple, icon:'📋', supported:true,
     desc:L('Clean Development Mechanism — legacy CER credits','Clean Development Mechanism — crédits legacy CERs'),
     features:[
       L('CER → VCMI conversion','CER conversion VCMI'),
@@ -463,7 +463,7 @@ export default function ReportsPage() {
                     [L('SDG requirements','Exigences SDG'),L('Optional','Optionnel'),L('Mandatory','Obligatoire'),L('Variable','Variable'),L('N/A','N/A')],
                     [L('Registry','Registre'),'Verra Registry','GS Registry','UNFCCC/National','UNFCCC CDM'],
                     [L('Africa adapted','Adapté Afrique'),'✓ '+L('Optimal','Optimal'),'✓ '+L('Premium','Premium'),'⏳ Q4 2025','⚠ '+L('Legacy','Legacy')],
-                    [L('PANGEA support','Support PANGEA'),'✅ '+L('Active','Actif'),'✅ '+L('Active','Actif'),'⏳ '+L('Coming','Bientôt'),'⏳ '+L('Coming','Bientôt')],
+                    [L('PANGEA support','Support PANGEA'),'✅ '+L('Active','Actif'),'✅ '+L('Active','Actif'),'✅ '+L('Active','Actif'),'✅ '+L('Active','Actif')],
                   ].map(row=>(
                     <tr key={row[0]} style={{ borderBottom:'1px solid '+C.border+'22' }}>
                       <td style={{ padding:'10px 16px',color:C.text2,fontWeight:600 }}>{row[0]}</td>
