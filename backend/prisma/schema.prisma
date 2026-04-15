@@ -81,10 +81,10 @@ model Organization {
   featureAccess    OrgFeature[]
   ghgAudits        GHGAudit[]
   sellerProfile    SellerProfile?
-  groupMemberships GroupMember[]
-  userPermissions  UserPermission[]
   buyerProfile     BuyerProfile?
   sellerPayouts    SellerPayout[]
+  groupMemberships GroupMember[]
+  userPermissions  UserPermission[]
   forwardContracts ForwardContract[] @relation("BuyerOrg")
   forwardSales     ForwardContract[] @relation("SellerOrg")
 }
