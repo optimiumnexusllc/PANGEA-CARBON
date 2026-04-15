@@ -113,6 +113,7 @@ model User {
   apiKeys        ApiKey[]
   groupMemberships GroupMember[]
   userPermissions  UserPermission[]
+  twoFactorAuth    TwoFactorAuth?
 }
 
 model ApiKey {
@@ -469,9 +470,11 @@ model TwoFactorAuth {
   userId      String   @unique
   secret      String   // Chiffré AES-256
   enabled     Boolean  @default(false)
+  emailOtpEnabled Boolean @default(false)
   backupCodes String[] // Codes de secours hashés
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ProjectCertification {

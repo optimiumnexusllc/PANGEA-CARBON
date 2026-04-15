@@ -194,48 +194,76 @@ function planAllows(orgPlan, permission) {
 }
 
 // ─── MIDDLEWARE requirePermission ─────────────────────────────────────────────
+// Shared Prisma instance for RBAC middleware (avoid connection pool exhaustion)
+let _rbacPrisma = null;
+function getRbacPrisma() {
+  if (!_rbacPrisma) {
+    const { PrismaClient } = require('@prisma/client');
+    _rbacPrisma = new PrismaClient();
+  }
+  return _rbacPrisma;
+}
+
 function requirePermission(...permissions) {
   return async (req, res, next) => {
     try {
-      const { PrismaClient } = require('@prisma/client');
-      const prisma = new PrismaClient();
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
+      const prisma = getRbacPrisma();
       const effectivePerms = await resolvePermissions(req.user, prisma);
       const hasAll = permissions.every(p => effectivePerms.has('*') || effectivePerms.has(p));
 
       if (!hasAll) {
         const missing = permissions.filter(p => !effectivePerms.has('*') && !effectivePerms.has(p));
         return res.status(403).json({
-          error: 'Permission denied',
+          error: lang403(req, permissions, missing),
           required: permissions,
           missing,
           role: req.user?.role,
-          message: 'Your role does not have permission for this action. Contact your admin.',
+          code: 'PERMISSION_DENIED',
         });
       }
 
       req.permissions = effectivePerms;
       next();
-    } catch(e) { next(e); }
+    } catch(e) {
+      console.error('[requirePermission] Error:', e.message);
+      next(e);
+    }
   };
+}
+
+function lang403(req, required, missing) {
+  const accept = req.headers['accept-language'] || '';
+  const isFr = accept.includes('fr');
+  return isFr
+    ? 'Permission refusée. Votre rôle (' + (req.user?.role||'?') + ') ne permet pas cette action.'
+    : 'Permission denied. Your role (' + (req.user?.role||'?') + ') does not allow this action.';
 }
 
 // ─── MIDDLEWARE requirePlan ───────────────────────────────────────────────────
 function requirePlan(minPlan) {
   return async (req, res, next) => {
     try {
-      // SUPER_ADMIN bypass plan restrictions
-      if (req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'ADMIN') return next();
+      // Admins bypass plan restrictions
+      if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+      if (['SUPER_ADMIN', 'ADMIN', 'ORG_OWNER'].includes(req.user?.role)) return next();
 
       const { PrismaClient } = require('@prisma/client');
       const prisma = new PrismaClient();
-      const user = await prisma.user.findUnique({
-        where: { id: req.user.userId },
-        include: { organization: { select: { plan: true, status: true, name: true } } }
-      });
-
-      const orgPlan = user?.organization?.plan || 'TRIAL';
-      const orgStatus = user?.organization?.status;
+      let orgPlan = 'TRIAL';
+      let orgStatus = 'ACTIVE';
+      try {
+        const user = await prisma.user.findUnique({
+          where: { id: req.user.userId },
+          include: { organization: { select: { plan: true, status: true } } }
+        });
+        orgPlan = user?.organization?.plan || 'TRIAL';
+        orgStatus = user?.organization?.status || 'ACTIVE';
+      } catch(dbErr) {
+        console.warn('[requirePlan] DB error, allowing through:', dbErr.message);
+        return next(); // Non-fatal: allow through if DB fails
+      }
 
       if (orgStatus === 'SUSPENDED') {
         return res.status(402).json({
