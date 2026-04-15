@@ -967,3 +967,13 @@ model ESGAssessment {
 
   @@map("esg_assessments")
 }
+
+model EmailOTP {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String   // 6-digit code
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@map("email_otps")
+}

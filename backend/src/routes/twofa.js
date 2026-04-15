@@ -1,7 +1,7 @@
 /**
- * PANGEA CARBON — 2FA TOTP
- * Sprint 4 — Sécurité crédits carbone
- * Compatible: Google Authenticator, Authy, 1Password
+ * PANGEA CARBON — 2FA / MFA Elite
+ * TOTP (Google Authenticator/Authy) + Email OTP
+ * RFC 6238 · AES-256 encrypted secrets
  */
 const router = require('express').Router();
 const speakeasy = require('speakeasy');
@@ -10,57 +10,66 @@ const { PrismaClient } = require('@prisma/client');
 const crypto = require('crypto');
 const auth = require('../middleware/auth');
 const { encrypt, decrypt } = require('../services/crypto.service');
+const { sendEmailOTP } = require('../services/email.service');
 const prisma = new PrismaClient();
 
-// POST /api/2fa/setup — Initier la configuration 2FA
+// ─── GET /api/2fa/status ──────────────────────────────────────────────────────
+router.get('/status', auth, async (req, res, next) => {
+  try {
+    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.user.userId } });
+    const user  = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { email: true, name: true } });
+    res.json({
+      enabled: twofa?.enabled || false,
+      emailOtpEnabled: twofa?.emailOtpEnabled || false,
+      backupCodesRemaining: twofa?.backupCodes?.length || 0,
+      email: user?.email,
+      name: user?.name,
+    });
+  } catch(e) { next(e); }
+});
+
+// ─── POST /api/2fa/setup — TOTP Setup ────────────────────────────────────────
 router.post('/setup', auth, async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { email: true, name: true } });
-
     const secret = speakeasy.generateSecret({
-      name: `PANGEA CARBON (${user.email})`,
+      name: 'PANGEA CARBON (' + (user?.email||'user') + ')',
       issuer: 'PANGEA CARBON Africa',
       length: 20,
     });
 
-    // Stocker le secret temporairement (non activé)
     await prisma.twoFactorAuth.upsert({
       where: { userId: req.user.userId },
       update: { secret: encrypt(secret.base32), enabled: false },
       create: { userId: req.user.userId, secret: encrypt(secret.base32), enabled: false },
     });
 
-    // Générer le QR code
-    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url, {
+      errorCorrectionLevel: 'M', width: 220,
+      color: { dark: '#000000', light: '#FFFFFF' },
+    });
 
     res.json({
-      secret: secret.base32, // Affiché une seule fois pour la saisie manuelle
-      qrCode: qrCodeUrl,     // Image base64 pour scanner
-      manualEntry: {
-        account: user.email,
-        key: secret.base32,
-        type: 'TOTP',
-        issuer: 'PANGEA CARBON',
-      },
+      secret: secret.base32,
+      qrCode: qrCodeUrl,
+      manualEntry: { account: user?.email, key: secret.base32, type: 'TOTP', issuer: 'PANGEA CARBON Africa' },
     });
-  } catch (e) { next(e); }
+  } catch(e) { next(e); }
 });
 
-// POST /api/2fa/verify — Vérifier le code et activer le 2FA
+// ─── POST /api/2fa/verify — Activate TOTP ────────────────────────────────────
 router.post('/verify', auth, async (req, res, next) => {
   try {
     const { code } = req.body;
-    if (!code) return res.status(400).json({ error: 'Code requis' });
+    if (!code) return res.status(400).json({ error: 'Code required' });
 
     const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.user.userId } });
-    if (!twofa) return res.status(404).json({ error: '2FA non configuré. Appelez /setup d\'abord.' });
+    if (!twofa) return res.status(404).json({ error: '2FA not set up. Call /setup first.' });
 
     const secret = decrypt(twofa.secret);
     const valid = speakeasy.totp.verify({ secret, encoding: 'base32', token: code, window: 2 });
+    if (!valid) return res.status(400).json({ error: 'Invalid code. Check your authenticator app and device time.' });
 
-    if (!valid) return res.status(400).json({ error: 'Code invalide. Vérifiez l\'heure de votre appareil.' });
-
-    // Générer les codes de secours (8 codes de 8 caractères)
     const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(4).toString('hex'));
     const hashedBackups = backupCodes.map(c => crypto.createHash('sha256').update(c).digest('hex'));
 
@@ -71,98 +80,117 @@ router.post('/verify', auth, async (req, res, next) => {
 
     await prisma.auditLog.create({
       data: { userId: req.user.userId, action: '2FA_ENABLED', entity: 'User', entityId: req.user.userId, ipAddress: req.ip }
-    });
+    }).catch(() => {});
 
-    res.json({
-      success: true,
-      message: '2FA activé avec succès',
-      backupCodes, // Affichés une seule fois — l'utilisateur doit les sauvegarder
-    });
-  } catch (e) { next(e); }
+    res.json({ success: true, backupCodes });
+  } catch(e) { next(e); }
 });
 
-// POST /api/2fa/validate — Valider lors du login (appelé après login classique)
+// ─── POST /api/2fa/validate — Login MFA check ────────────────────────────────
 router.post('/validate', async (req, res, next) => {
   try {
     const { userId, code } = req.body;
-    if (!userId || !code) return res.status(400).json({ error: 'userId et code requis' });
+    if (!userId || !code) return res.status(400).json({ error: 'userId and code required' });
 
     const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId } });
-    if (!twofa?.enabled) return res.json({ valid: true, required: false }); // 2FA non activé
+    if (!twofa?.enabled) return res.json({ valid: true, required: false });
 
+    // Check TOTP
     const secret = decrypt(twofa.secret);
-
-    // Vérifier le code TOTP
     const totpValid = speakeasy.totp.verify({ secret, encoding: 'base32', token: code, window: 2 });
-    if (totpValid) {
-      await prisma.auditLog.create({
-        data: { userId, action: '2FA_LOGIN_SUCCESS', entity: 'User', entityId: userId, ipAddress: req.ip }
-      });
-      return res.json({ valid: true, required: true });
-    }
+    if (totpValid) return res.json({ valid: true, required: true });
 
-    // Vérifier les codes de secours
-    const codeHash = crypto.createHash('sha256').update(code).digest('hex');
-    const backupIndex = twofa.backupCodes.indexOf(codeHash);
-    if (backupIndex !== -1) {
-      // Invalider le code de secours utilisé
+    // Check backup codes (hashed)
+    const codeHash = crypto.createHash('sha256').update(code.toLowerCase().replace(/\s/g,'')).digest('hex');
+    const idx = twofa.backupCodes.indexOf(codeHash);
+    if (idx !== -1) {
       const newBackups = [...twofa.backupCodes];
-      newBackups.splice(backupIndex, 1);
+      newBackups.splice(idx, 1);
       await prisma.twoFactorAuth.update({ where: { userId }, data: { backupCodes: newBackups } });
       return res.json({ valid: true, required: true, usedBackupCode: true, remaining: newBackups.length });
     }
 
-    await prisma.auditLog.create({
-      data: { userId, action: '2FA_LOGIN_FAILED', entity: 'User', entityId: userId, ipAddress: req.ip }
-    });
-    res.status(401).json({ valid: false, required: true, error: 'Code 2FA invalide' });
-  } catch (e) { next(e); }
+    res.status(401).json({ valid: false, required: true, error: 'Invalid 2FA code' });
+  } catch(e) { next(e); }
 });
 
-// DELETE /api/2fa/disable — Désactiver le 2FA
+// ─── DELETE /api/2fa/disable ──────────────────────────────────────────────────
 router.delete('/disable', auth, async (req, res, next) => {
   try {
     const { code } = req.body;
     const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.user.userId } });
-    if (!twofa?.enabled) return res.status(400).json({ error: '2FA non activé' });
+    if (!twofa?.enabled) return res.status(400).json({ error: '2FA not enabled' });
 
     const secret = decrypt(twofa.secret);
     const valid = speakeasy.totp.verify({ secret, encoding: 'base32', token: code, window: 2 });
-    if (!valid) return res.status(400).json({ error: 'Code invalide pour désactiver le 2FA' });
+    if (!valid) return res.status(400).json({ error: 'Invalid code. Cannot disable 2FA.' });
 
     await prisma.twoFactorAuth.update({ where: { userId: req.user.userId }, data: { enabled: false } });
     await prisma.auditLog.create({
       data: { userId: req.user.userId, action: '2FA_DISABLED', entity: 'User', entityId: req.user.userId, ipAddress: req.ip }
-    });
+    }).catch(() => {});
 
-    res.json({ success: true, message: '2FA désactivé' });
-  } catch (e) { next(e); }
+    res.json({ success: true });
+  } catch(e) { next(e); }
 });
 
-// GET /api/2fa/status — Statut 2FA de l'utilisateur
-router.get('/status', auth, async (req, res, next) => {
-  try {
-    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.user.userId } });
-    res.json({
-      enabled: twofa?.enabled || false,
-      backupCodesRemaining: twofa?.backupCodes?.length || 0,
-    });
-  } catch (e) { next(e); }
-});
-
-
-// POST /api/2fa/backup-codes/regenerate
+// ─── POST /api/2fa/backup-codes/regenerate ───────────────────────────────────
 router.post('/backup-codes/regenerate', auth, async (req, res, next) => {
   try {
     const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.user.userId } });
-    if (!twofa?.enabled) return res.status(400).json({ error: '2FA must be enabled to regenerate backup codes' });
+    if (!twofa?.enabled) return res.status(400).json({ error: '2FA must be enabled' });
 
     const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(4).toString('hex'));
     const hashedBackups = backupCodes.map(c => crypto.createHash('sha256').update(c).digest('hex'));
-
     await prisma.twoFactorAuth.update({ where: { userId: req.user.userId }, data: { backupCodes: hashedBackups } });
-    res.json({ backupCodes, message: 'Backup codes regenerated' });
-  } catch (e) { next(e); }
+    res.json({ backupCodes });
+  } catch(e) { next(e); }
+});
+
+// ─── POST /api/2fa/email/send — Envoyer OTP par email ────────────────────────
+router.post('/email/send', auth, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { email: true, name: true } });
+    if (!user?.email) return res.status(400).json({ error: 'No email address on file' });
+
+    // Invalider les anciens OTPs
+    await prisma.emailOTP.updateMany({
+      where: { userId: req.user.userId, used: false },
+      data: { used: true }
+    }).catch(() => {});
+
+    // Générer le code 6 chiffres
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    await prisma.emailOTP.create({
+      data: { userId: req.user.userId, code: crypto.createHash('sha256').update(code).digest('hex'), expiresAt }
+    });
+
+    const lang = req.query.lang || req.body.lang || 'en';
+    await sendEmailOTP({ to: user.email, name: user.name||'', code, expiresInMinutes: 5, lang });
+
+    res.json({ success: true, sentTo: user.email.replace(/(.{2}).*(@.*)/, '$1***$2') });
+  } catch(e) { next(e); }
+});
+
+// ─── POST /api/2fa/email/verify — Vérifier OTP email ────────────────────────
+router.post('/email/verify', auth, async (req, res, next) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Code required' });
+
+    const codeHash = crypto.createHash('sha256').update(String(code).trim()).digest('hex');
+    const otp = await prisma.emailOTP.findFirst({
+      where: { userId: req.user.userId, code: codeHash, used: false, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!otp) return res.status(400).json({ error: 'Invalid or expired code. Request a new one.' });
+
+    await prisma.emailOTP.update({ where: { id: otp.id }, data: { used: true } });
+    res.json({ valid: true });
+  } catch(e) { next(e); }
 });
 
 module.exports = router;
