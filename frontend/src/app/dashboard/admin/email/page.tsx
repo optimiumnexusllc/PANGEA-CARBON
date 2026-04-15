@@ -354,14 +354,14 @@ export default function EmailAdminPage() {
               </div>
 
               {/* Hostinger note */}
-            {settings['smtp_host']&&settings['smtp_host'].includes('hostinger')&&(
-              <div style={{ padding:'10px 14px',background:'rgba(124,58,237,0.06)',border:'1px solid rgba(124,58,237,0.2)',borderRadius:8,marginBottom:14,fontSize:11,color:'#A78BFA',lineHeight:1.7 }}>
-                🟣 {lang==='fr'
-                  ?'Regle Hostinger: Email Expediteur = Email de connexion (contact@pangea-carbon.com). Adresses differentes rejetees avec erreur 553.'
-                  :'Hostinger rule: Sender Email must equal Login Email (contact@pangea-carbon.com). Different addresses are rejected with error 553.'}
-              </div>
-            )}
-            {/* Config score bar */}
+              {settings['smtp_host']&&settings['smtp_host'].includes('hostinger')&&(
+                <div style={{ padding:'10px 14px',background:'rgba(124,58,237,0.06)',border:'1px solid rgba(124,58,237,0.2)',borderRadius:8,marginBottom:14,fontSize:11,color:'#A78BFA',lineHeight:1.7 }}>
+                  {lang==='fr'
+                    ?'Regle Hostinger: Email Expediteur = Email de connexion (contact@pangea-carbon.com). Erreur 553 si different.'
+                    :'Hostinger rule: Sender Email must match Login Email (contact@pangea-carbon.com). Error 553 if different.'}
+                </div>
+              )}
+              {/* Config score bar */}
               <div style={{ background:C.card2,borderRadius:8,padding:'10px 14px',marginBottom:20 }}>
                 <div style={{ display:'flex',justifyContent:'space-between',marginBottom:6 }}>
                   <span style={{ fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>
