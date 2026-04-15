@@ -7,8 +7,8 @@ const router = require('express').Router();
 
 // Middleware: ADMIN et SUPER_ADMIN uniquement
 const adminOrSuperAdmin = (req, res, next) => {
-  if (!req.user || !['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Email Composer reserved for ADMIN and SUPER_ADMIN' });
+  if (!req.user || req.user.role !== 'SUPER_ADMIN') {
+    return res.status(403).json({ error: 'Email Composer reserved for SUPER_ADMIN only' });
   }
   next();
 };
