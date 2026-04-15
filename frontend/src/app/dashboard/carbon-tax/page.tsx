@@ -152,7 +152,7 @@ export default function CarbonTaxPage() {
   };
 
   const TABS = [
-    { id:'overview',    label:L('Overview','Vue d\'ensemble'), icon:'📊' },
+    { id:'overview',    label:L('Overview','Vue ensemble'), icon:'📊' },
     { id:'tax',         label:L('Tax Simulator','Simulateur'), icon:'📈' },
     { id:'cbam',        label:'CBAM',                         icon:'🛂' },
     { id:'compliance',  label:'Compliance',                   icon:'⚖️' },

@@ -236,4 +236,49 @@ router.get('/dashboard', auth, async (req, res, next) => {
   } catch(e) { next(e); }
 });
 
+
+// ─── GET /api/esg/verify/:reportId — Verification publique ESG (no auth) ───
+router.get('/verify/:reportId', async (req, res, next) => {
+  try {
+    const { reportId } = req.params;
+    // reportId format: PGC-ESG-GRI-2024-XXXXXX
+    // On cherche par pattern dans les assessments
+    const assessment = await prisma.eSGAssessment.findFirst({
+      where: {
+        OR: [
+          { id: reportId },
+          // Chercher dans les assessments récents (fallback)
+        ],
+        totalScore: { gt: 0 },
+      },
+    });
+    if (!assessment) {
+      // Retourner un résultat de démo pour les previews
+      return res.json({
+        verified: false,
+        message: 'Certificate not found or not yet verified',
+        reportId,
+      });
+    }
+    res.json({
+      verified: true,
+      reportId,
+      companyName: assessment.companyName,
+      sector: assessment.sector,
+      country: assessment.country,
+      framework: assessment.framework,
+      reportingYear: assessment.reportingYear,
+      totalScore: assessment.totalScore,
+      eScore: assessment.eScore,
+      sScore: assessment.sScore,
+      gScore: assessment.gScore,
+      rating: assessment.rating,
+      level: assessment.level,
+      status: assessment.status,
+      completedAt: assessment.completedAt,
+      createdAt: assessment.createdAt,
+    });
+  } catch(e) { next(e); }
+});
+
 module.exports = router;
