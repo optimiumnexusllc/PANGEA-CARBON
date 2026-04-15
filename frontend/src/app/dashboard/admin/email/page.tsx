@@ -132,7 +132,8 @@ export default function EmailAdminPage() {
       setSmtpOk(true);
       showToast(lang==='fr'?'Email de test envoyé !':'Test email sent!');
     } catch(e) {
-      setTestResult({ ok:false, msg:e.message });
+      const apiErr = e.apiError||{};
+      setTestResult({ ok:false, msg:e.message, diagnostic:apiErr.diagnostic||null });
       setSmtpOk(false);
       showToast(e.message,'error');
     } finally { setTesting(false); }
@@ -510,15 +511,31 @@ export default function EmailAdminPage() {
             </div>
 
             {testResult && (
-              <div style={{ padding:'16px 18px',background:testResult.ok?'rgba(0,255,148,0.06)':'rgba(248,113,113,0.06)', border:'1px solid '+(testResult.ok?'rgba(0,255,148,0.3)':'rgba(248,113,113,0.3)'),borderRadius:10,display:'flex',alignItems:'center',gap:14 }}>
-                <div style={{ width:42,height:42,borderRadius:10,background:testResult.ok?'rgba(0,255,148,0.15)':'rgba(248,113,113,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0 }}>
-                  {testResult.ok?'✅':'❌'}
-                </div>
-                <div>
-                  <div style={{ fontSize:14,fontWeight:700,color:testResult.ok?C.green:C.red,marginBottom:4,fontFamily:'Syne, sans-serif' }}>
-                    {testResult.ok?L('Test successful — email delivered!','Test réussi — email livré !'):L('Test failed — check configuration','Test échoué — vérifiez la configuration')}
+              <div style={{ padding:'18px 20px',background:testResult.ok?'rgba(0,255,148,0.06)':'rgba(248,113,113,0.06)', border:'1px solid '+(testResult.ok?'rgba(0,255,148,0.3)':'rgba(248,113,113,0.3)'),borderRadius:12,position:'relative',overflow:'hidden' }}>
+                <div style={{ position:'absolute',left:0,top:0,bottom:0,width:4,borderRadius:'12px 0 0 12px',background:testResult.ok?C.green:C.red }}/>
+                <div style={{ display:'flex',alignItems:'flex-start',gap:14,paddingLeft:8 }}>
+                  <div style={{ width:42,height:42,borderRadius:10,background:testResult.ok?'rgba(0,255,148,0.15)':'rgba(248,113,113,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0 }}>
+                    {testResult.ok?'✅':'❌'}
                   </div>
-                  <div style={{ fontSize:11,color:C.text2,fontFamily:'JetBrains Mono, monospace' }}>{testResult.msg}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14,fontWeight:700,color:testResult.ok?C.green:C.red,marginBottom:6,fontFamily:'Syne, sans-serif' }}>
+                      {testResult.ok?L('✓ SMTP test successful — email delivered!','✓ Test SMTP réussi — email livré !'):L('✗ SMTP test failed','✗ Test SMTP échoué')}
+                    </div>
+                    <div style={{ fontSize:12,color:C.text2,fontFamily:'JetBrains Mono, monospace',marginBottom:testResult.diagnostic?10:0 }}>{testResult.msg}</div>
+                    {testResult.diagnostic&&(
+                      <div style={{ background:C.card2,borderRadius:8,padding:'10px 12px',fontSize:11,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.8 }}>
+                        <div style={{ color:C.muted,marginBottom:4 }}>DIAGNOSTIC:</div>
+                        {Object.entries(testResult.diagnostic).map(([k,v])=>(
+                          <div key={k}><span style={{ color:C.muted }}>{k}: </span><span style={{ color:C.text }}>{String(v)}</span></div>
+                        ))}
+                      </div>
+                    )}
+                    {!testResult.ok&&(
+                      <div style={{ marginTop:12,padding:'10px 12px',background:'rgba(252,211,77,0.06)',border:'1px solid rgba(252,211,77,0.2)',borderRadius:8,fontSize:11,color:C.yellow,lineHeight:1.7 }}>
+                        💡 {L('Hostinger tips: (1) Use email password (not hPanel password) (2) Try port 587 instead of 465 (3) Verify email account exists in Hostinger panel','Hostinger: (1) Utilisez le mot de passe email (pas le mot de passe hPanel) (2) Essayez le port 587 au lieu de 465 (3) Vérifiez que le compte email existe dans le panel Hostinger')}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

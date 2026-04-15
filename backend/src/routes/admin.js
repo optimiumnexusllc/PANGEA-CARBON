@@ -538,34 +538,86 @@ router.delete('/apikeys/:id', auth, adminOnly, async (req, res, next) => {
 // POST /api/admin/settings/test-smtp
 router.post('/settings/test-smtp', auth, adminOnly, async (req, res, next) => {
   try {
-    const { sendEmail } = require('../services/email.service');
+    const nodemailer = require('nodemailer');
+    const { decrypt } = require('../services/crypto.service');
     const admin = await prisma.user.findFirst({
       where: { id: req.user.userId },
       select: { email: true, name: true }
     });
     const to = req.body.to || admin.email;
+
+    // Lire les settings directement depuis la DB avec déchiffrement
+    const getSMTPSetting = async (key) => {
+      const s = await prisma.systemSetting.findUnique({ where: { key } });
+      if (!s) return process.env[key.toUpperCase()] || null;
+      try { return s.encrypted ? decrypt(s.value) : s.value; }
+      catch(e) { return process.env[key.toUpperCase()] || null; }
+    };
+
+    const smtpHost   = await getSMTPSetting('smtp_host');
+    const smtpPort   = parseInt(await getSMTPSetting('smtp_port') || '465');
+    const smtpUser   = await getSMTPSetting('smtp_user');
+    const smtpPass   = await getSMTPSetting('smtp_password');
+    const fromName   = await getSMTPSetting('smtp_from_name') || 'PANGEA CARBON';
+    const fromEmail  = await getSMTPSetting('smtp_from_email') || smtpUser;
+
+    if (!smtpHost || !smtpUser || !smtpPass) {
+      return res.status(400).json({
+        error: 'SMTP not fully configured. Missing: ' + [
+          !smtpHost && 'smtp_host',
+          !smtpUser && 'smtp_user',
+          !smtpPass && 'smtp_password',
+        ].filter(Boolean).join(', ')
+      });
+    }
+
+    // Créer le transporteur avec config optimale Hostinger
+    const secure = smtpPort === 465;
+    const transporter = nodemailer.createTransport({
+      host: smtpHost, port: smtpPort, secure,
+      auth: { user: smtpUser, pass: smtpPass },
+      tls: { rejectUnauthorized: false, ciphers: 'SSLv3' },
+      ...(smtpPort === 587 ? { requireTLS: true } : {}),
+      debug: false, logger: false,
+    });
+
+    // Vérifier la connexion SMTP
+    try { await transporter.verify(); }
+    catch(verifyErr) {
+      return res.status(400).json({
+        error: 'SMTP connection failed: ' + verifyErr.message,
+        diagnostic: {
+          host: smtpHost, port: smtpPort, secure,
+          user: smtpUser,
+          passLength: smtpPass ? smtpPass.length : 0,
+          hint: smtpPort === 465
+            ? 'Port 465 SSL: check host and credentials'
+            : 'Port 587 TLS: check host and credentials',
+        }
+      });
+    }
     const fromName = await prisma.systemSetting.findUnique({ where:{ key:'smtp_from_name' } }).then(s=>s?.value||'PANGEA CARBON').catch(()=>'PANGEA CARBON');
     const fromEmail = await prisma.systemSetting.findUnique({ where:{ key:'smtp_from_email' } }).then(s=>s?.value||admin.email).catch(()=>admin.email);
-    const smtpHost = await prisma.systemSetting.findUnique({ where:{ key:'smtp_host' } }).then(s=>s?.value||'').catch(()=>'');
-    if (!smtpHost) return res.status(400).json({ error: 'SMTP not configured. Add smtp_host first.' });
+    // Envoyer l'email de test
     const now = new Date().toLocaleString('fr-FR');
-    await sendEmail({
+    const info = await transporter.sendMail({
+      from: '"' + fromName + '" <' + fromEmail + '>',
       to,
       subject: 'PANGEA CARBON — SMTP Test ' + now,
       html: '<div style="font-family:monospace;background:#080B0F;color:#E8EFF6;padding:32px;border-radius:12px;max-width:560px">' +
         '<div style="color:#00FF94;font-size:20px;font-weight:800;margin-bottom:16px">⬡ PANGEA CARBON</div>' +
         '<div style="color:#4A6278;font-size:11px;margin-bottom:24px">SMTP TEST · ' + now + '</div>' +
         '<div style="background:#121920;border:1px solid #1E2D3D;border-radius:8px;padding:16px;margin-bottom:16px">' +
-        '<div style="color:#38BDF8;font-size:12px;font-weight:700;margin-bottom:8px">✓ SMTP Configuration Active</div>' +
-        '<div style="color:#8FA3B8;font-size:12px">Host: <span style="color:#E8EFF6">' + smtpHost + '</span></div>' +
+        '<div style="color:#38BDF8;font-size:12px;font-weight:700;margin-bottom:8px">✓ SMTP Authentication Successful</div>' +
+        '<div style="color:#8FA3B8;font-size:12px">Host: <span style="color:#E8EFF6">' + smtpHost + ':' + smtpPort + '</span></div>' +
         '<div style="color:#8FA3B8;font-size:12px">From: <span style="color:#E8EFF6">' + fromName + ' &lt;' + fromEmail + '&gt;</span></div>' +
         '<div style="color:#8FA3B8;font-size:12px">To: <span style="color:#E8EFF6">' + to + '</span></div>' +
         '</div>' +
-        '<div style="color:#4A6278;font-size:11px">PANGEA CARBON Africa · ESG & Carbon Intelligence Platform</div>' +
+        '<div style="color:#4A6278;font-size:11px">PANGEA CARBON Africa · Carbon Intelligence Platform · pangea-carbon.com</div>' +
         '</div>',
-      text: 'PANGEA CARBON SMTP Test — Configuration active. Host: ' + smtpHost,
+      text: 'PANGEA CARBON SMTP Test OK — Host: ' + smtpHost + ':' + smtpPort,
     });
-    res.json({ success: true, message: 'Test email sent to ' + to + ' via ' + smtpHost });
+    res.json({ success: true, message: 'Test email sent to ' + to + ' via ' + smtpHost + ':' + smtpPort, messageId: info.messageId });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
