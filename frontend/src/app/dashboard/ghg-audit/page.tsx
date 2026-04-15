@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useLang } from '@/lib/lang-context';
 import { fetchAuthJson } from '@/lib/fetch-auth';
 
-const fmtCO2  = (n) => n >= 1000 ? `${(n/1000).toFixed(2)}k` : (n || 0).toFixed(2);
+const fmtCO2  = (n) => n >= 1000 ? (n/1000).toFixed(2)+'k' : (n || 0).toFixed(2);
 const fmtUSD  = (n) => '$' + (n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 const pct     = (a, t) => t > 0 ? ((a/t)*100).toFixed(1) : '0';
 
