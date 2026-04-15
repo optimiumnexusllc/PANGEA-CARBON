@@ -3,6 +3,7 @@ const { validate, rules } = require('../middleware/validate');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // GET /api/projects/:id/readings
@@ -32,7 +33,7 @@ router.get('/:id/readings', auth, async (req, res, next) => {
 });
 
 // POST /api/projects/:id/readings - Ajouter une lecture manuelle
-router.post('/:id/readings', auth, [
+router.post('/:id/readings', auth, requirePermission('projects.update'), [
   body('periodStart').isISO8601(),
   body('periodEnd').isISO8601(),
   body('energyMWh').isFloat({ min: 0 }),
@@ -85,7 +86,7 @@ router.post('/:id/readings', auth, [
 });
 
 // POST /api/projects/:id/readings/bulk - Import CSV (array)
-router.post('/:id/readings/bulk', auth, async (req, res, next) => {
+router.post('/:id/readings/bulk', auth, requirePermission('projects.update'), async (req, res, next) => {
   try {
     const { readings } = req.body;
     if (!Array.isArray(readings) || readings.length === 0) {

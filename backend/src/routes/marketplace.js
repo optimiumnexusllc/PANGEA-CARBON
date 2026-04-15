@@ -19,6 +19,7 @@ const router = require('express').Router();
 const { calculateScore } = require('../services/carbon-score.service');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const crypto = require('crypto');
 const prisma = new PrismaClient();
 const { getLiveCarbonPrices, AFRICA_SPREAD, BASELINE_PRICES } = require('../services/carbonPrices.service');
@@ -429,7 +430,7 @@ function generateDemoListings() {
 }
 
 // ─── POST /bid — Ordre + Paiement + Split ────────────────────────────────────
-router.post('/bid', auth, async (req, res, next) => {
+router.post('/bid', auth, requirePermission('marketplace.buy'), requirePermission('marketplace.buy'), async (req, res, next) => {
   try {
     const PANGEA_FEE_PCT = await getPangeaFee();
     const { listingId, quantity, maxPrice, orderType, buyerNote, paymentGateway } = req.body;
@@ -829,7 +830,7 @@ router.post('/webhook/cinetpay', async (req, res) => {
 
 
 // ─── POST /orders/:id/settle — Confirmer paiement manuellement (admin) ────────
-router.post('/orders/:id/settle', auth, async (req, res, next) => {
+router.post('/orders/:id/settle', auth, requirePermission('marketplace.view_all_orders'), requirePermission('marketplace.view_all_orders'), async (req, res, next) => {
   try {
     const { id } = req.params;
     if (req.user.role !== 'SUPER_ADMIN' && req.user.role !== 'ADMIN')
@@ -849,7 +850,7 @@ router.post('/orders/:id/settle', auth, async (req, res, next) => {
 });
 
 // ─── DELETE /orders/:id — Supprimer un ordre ─────────────────────────────────
-router.delete('/orders/:id', auth, async (req, res, next) => {
+router.delete('/orders/:id', auth, requirePermission('marketplace.view_all_orders'), async (req, res, next) => {
   try {
     const { id } = req.params;
     let order;
@@ -917,7 +918,7 @@ router.get('/stats', auth, async (req, res, next) => {
 
 
 // POST /api/marketplace/score/:issuanceId — Calculer ou mettre à jour le score PANGEA
-router.post('/score/:issuanceId', auth, async (req, res, next) => {
+router.post('/score/:issuanceId', auth, requirePermission('marketplace.manage_listings'), async (req, res, next) => {
   try {
     const issuance = await prisma.creditIssuance.findUnique({
       where: { id: req.params.issuanceId },

@@ -149,7 +149,7 @@ router.get('/profile', auth, async (req, res, next) => {
 });
 
 // ─── POST /api/buyers/cbam-calculator ─────────────────────────────────────────
-router.post('/cbam-calculator', auth, async (req, res) => {
+router.post('/cbam-calculator', auth, requirePermission('buyer.create_profile'), async (req, res) => {
   const result = calculateCBAM(req.body);
   res.json(result);
 });
@@ -200,7 +200,7 @@ router.get('/:id', auth, async (req, res, next) => {
 });
 
 // ─── PATCH /api/buyers/:id/status ─────────────────────────────────────────────
-router.patch('/:id/status', auth, async (req, res, next) => {
+router.patch('/:id/status', auth, requirePermission('buyer.qualify_leads'), async (req, res, next) => {
   try {
     if (!['SUPER_ADMIN','ADMIN','ORG_OWNER'].includes(req.user.role))
       return res.status(403).json({ error: 'Admin required' });

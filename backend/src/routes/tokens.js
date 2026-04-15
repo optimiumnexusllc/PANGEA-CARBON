@@ -12,6 +12,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
 const prisma = new PrismaClient();
@@ -51,7 +52,7 @@ async function generateQR(text, opts = {}) {
 
 // ─── VVB Token ────────────────────────────────────────────────────────────
 // POST /api/tokens/vvb
-router.post('/vvb', auth, async (req, res, next) => {
+router.post('/vvb', auth, requirePermission('pipeline.issue_credits'), async (req, res, next) => {
   try {
     const { projectId, vvbName, vvbCountry, auditDate, auditType, auditReport } = req.body;
     if (!projectId || !vvbName) return res.status(400).json({ error: 'projectId and vvbName required' });
@@ -91,7 +92,7 @@ router.post('/vvb', auth, async (req, res, next) => {
 
 // ─── PDD Token ────────────────────────────────────────────────────────────
 // POST /api/tokens/pdd
-router.post('/pdd', auth, async (req, res, next) => {
+router.post('/pdd', auth, requirePermission('pipeline.advance'), async (req, res, next) => {
   try {
     const { projectId, methodology, baselineEF, creditingPeriod, additionality, leakage } = req.body;
     if (!projectId) return res.status(400).json({ error: 'projectId required' });
@@ -134,7 +135,7 @@ router.post('/pdd', auth, async (req, res, next) => {
 
 // ─── VCU Token ────────────────────────────────────────────────────────────
 // POST /api/tokens/vcu
-router.post('/vcu', auth, async (req, res, next) => {
+router.post('/vcu', auth, requirePermission('pipeline.issue_credits'), async (req, res, next) => {
   try {
     const { issuanceId } = req.body;
     if (!issuanceId) return res.status(400).json({ error: 'issuanceId required' });
@@ -180,7 +181,7 @@ router.post('/vcu', auth, async (req, res, next) => {
 
 // ─── Broker Sale Token ────────────────────────────────────────────────────
 // POST /api/tokens/broker-sale
-router.post('/broker-sale', auth, async (req, res, next) => {
+router.post('/broker-sale', auth, requirePermission('marketplace.sell'), async (req, res, next) => {
   try {
     const { issuanceId, brokerName, brokerEntity, pricePerTonne, totalVolume, commission } = req.body;
     if (!issuanceId || !brokerName) return res.status(400).json({ error: 'issuanceId and brokerName required' });
@@ -235,7 +236,7 @@ router.post('/broker-sale', auth, async (req, res, next) => {
 
 // ─── Direct Corporate Sale Token ─────────────────────────────────────────
 // POST /api/tokens/direct-sale
-router.post('/direct-sale', auth, async (req, res, next) => {
+router.post('/direct-sale', auth, requirePermission('marketplace.sell'), async (req, res, next) => {
   try {
     const { issuanceId, buyerEntity, buyerCountry, pricePerTonne, quantity, retirementReason } = req.body;
     if (!issuanceId || !buyerEntity) return res.status(400).json({ error: 'issuanceId and buyerEntity required' });
@@ -291,7 +292,7 @@ router.post('/direct-sale', auth, async (req, res, next) => {
 
 // ─── ITMO / Article 6 Token ───────────────────────────────────────────────
 // POST /api/tokens/itmo
-router.post('/itmo', auth, async (req, res, next) => {
+router.post('/itmo', auth, requirePermission('projects.create'), async (req, res, next) => {
   try {
     const { projectId, hostCountry, acquiringCountry, quantity, pricePerTonne, authorizationRef, correspondingAdjustment } = req.body;
     if (!projectId || !hostCountry || !acquiringCountry) {

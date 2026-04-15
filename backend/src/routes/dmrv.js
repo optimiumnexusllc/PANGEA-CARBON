@@ -7,6 +7,7 @@ const router = require('express').Router();
 const { searchSentinel2Images, fetchNASAPowerData, calculateSiteNDVI } = require('../services/satellite.service');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { MRVEngine } = require('../services/mrv.service');
 const crypto = require('crypto');
 const prisma = new PrismaClient();
@@ -44,7 +45,7 @@ function simulateSatelliteData(project, date) {
 }
 
 // POST /api/dmrv/satellite — Ajouter lecture satellite
-router.post('/satellite', auth, async (req, res, next) => {
+router.post('/satellite', auth, requirePermission('mrv.submit'), async (req, res, next) => {
   try {
     const { projectId, captureDate, actualMWh } = req.body;
     const project = await prisma.project.findUnique({ where: { id: projectId } });
@@ -72,7 +73,7 @@ router.post('/satellite', auth, async (req, res, next) => {
 });
 
 // POST /api/dmrv/iot — Ajouter lecture IoT sensor
-router.post('/iot', auth, async (req, res, next) => {
+router.post('/iot', auth, requirePermission('mrv.submit'), async (req, res, next) => {
   try {
     const { projectId, deviceId, deviceType, value, unit, timestamp } = req.body;
     const reading = await prisma.ioTReading.create({
@@ -133,7 +134,7 @@ router.get('/:projectId', auth, async (req, res, next) => {
 });
 
 // POST /api/dmrv/continuous-verify/:projectId — Lancer vérification continue
-router.post('/continuous-verify/:projectId', auth, async (req, res, next) => {
+router.post('/continuous-verify/:projectId', auth, requirePermission('mrv.calculate'), async (req, res, next) => {
   try {
     const project = await prisma.project.findUnique({ where: { id: req.params.projectId } });
     const dates = Array.from({ length: 6 }, (_, i) => {

@@ -6,6 +6,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // Prix ITMO par pays acheteur (estimations marché 2025-2026)
@@ -92,7 +93,7 @@ router.get('/projects', auth, async (req, res, next) => {
 });
 
 // POST /api/article6/itmo — Enregistrer une transaction ITMO
-router.post('/itmo', auth, async (req, res, next) => {
+router.post('/itmo', auth, requirePermission('projects.create'), async (req, res, next) => {
   try {
     const { projectId, year, hostCountry, buyingCountry, itmoQuantity, authorizationRef } = req.body;
     const buyer = ITMO_BUYER_COUNTRIES[buyingCountry];

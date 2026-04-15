@@ -4,6 +4,7 @@
  */
 const router = require('express').Router();
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -29,7 +30,7 @@ router.get('/profile', auth, async (req, res, next) => {
 });
 
 // PUT /api/seller/profile — Mettre à jour la gateway
-router.put('/profile', auth, async (req, res, next) => {
+router.put('/profile', auth, requirePermission('seller.configure_gateway'), async (req, res, next) => {
   try {
     if (!req.user.organizationId) return res.status(400).json({ error: 'Organization required to set up seller profile' });
     
@@ -180,7 +181,7 @@ router.get('/dashboard', auth, async (req, res, next) => {
 });
 
 // POST /api/seller/request-payout — Demander un virement
-router.post('/request-payout', auth, async (req, res, next) => {
+router.post('/request-payout', auth, requirePermission('seller.request_payout'), async (req, res, next) => {
   try {
     const { orderId, amount } = req.body;
     if (!orderId || !amount) return res.status(400).json({ error: 'orderId and amount required' });

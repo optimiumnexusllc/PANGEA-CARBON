@@ -5,6 +5,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { sendVerificationEmail } = require('../services/email.service');
 const prisma = new PrismaClient();
 
@@ -57,7 +58,7 @@ const ALERT_RULES = [
 ];
 
 // POST /api/notifications/check/:projectId — Vérifier les alertes d'un projet
-router.post('/check/:projectId', auth, async (req, res, next) => {
+router.post('/check/:projectId', auth, requirePermission('projects.read'), async (req, res, next) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.projectId },
@@ -129,7 +130,7 @@ router.get('/alerts', auth, async (req, res, next) => {
 });
 
 // POST /api/notifications/digest — Envoyer le digest hebdo
-router.post('/digest', auth, async (req, res, next) => {
+router.post('/digest', auth, requirePermission('projects.read'), async (req, res, next) => {
   try {
     const orgId = req.user.organizationId;
     const where = orgId ? { user: { organizationId: orgId } } : { userId: req.user.userId };
@@ -194,7 +195,7 @@ router.get('/preferences', auth, async (req, res, next) => {
 });
 
 // PUT /api/notifications/preferences — Mettre à jour les préférences
-router.put('/preferences', auth, async (req, res, next) => {
+router.put('/preferences', auth, requirePermission('projects.read'), async (req, res, next) => {
   try {
     const prefs = req.body;
     for (const [key, value] of Object.entries(prefs)) {

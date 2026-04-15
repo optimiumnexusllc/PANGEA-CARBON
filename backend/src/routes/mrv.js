@@ -59,7 +59,7 @@ router.get('/:id/mrv', auth, async (req, res, next) => {
 });
 
 // POST /api/projects/:id/mrv/simulate - Simulation rapide sans données
-router.post('/:id/mrv/simulate', auth, async (req, res, next) => {
+router.post('/:id/mrv/simulate', auth, requirePermission('mrv.calculate'), async (req, res, next) => {
   try {
     const { energyMWh, marketPriceUSD } = req.body;
     const project = await prisma.project.findUnique({ where: { id: req.params.id } });
@@ -98,7 +98,7 @@ router.get('/:id/mrv/projection', auth, async (req, res, next) => {
 });
 
 // POST /api/mrv/calculate - Calcul standalone (sans projet)
-router.post('/mrv/standalone', auth, async (req, res, next) => {
+router.post('/mrv/standalone', auth, requirePermission('mrv.calculate'), async (req, res, next) => {
   try {
     const { energyMWh, countryCode, marketPriceUSD, customEF } = req.body;
     const result = MRVEngine.calculate({ energyMWh, countryCode, marketPriceUSD, customEF });

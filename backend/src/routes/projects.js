@@ -260,7 +260,7 @@ router.delete('/:id', auth, requirePermission('projects.delete'), async (req, re
 });
 
 // DELETE /api/projects/:id/readings/:readingId — Supprimer une lecture
-router.delete('/:id/readings/:readingId', auth, async (req, res, next) => {
+router.delete('/:id/readings/:readingId', auth, requirePermission('projects.update'), async (req, res, next) => {
   try {
     const reading = await prisma.energyReading.findUnique({ where: { id: req.params.readingId } });
     if (!reading || reading.projectId !== req.params.id)

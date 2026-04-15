@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // Lire un setting depuis DB ou env
@@ -48,7 +49,7 @@ const PLANS = {
 router.get('/plans', (req, res) => res.json(PLANS));
 
 // POST /api/billing/checkout — Créer session Stripe Checkout
-router.post('/checkout', auth, async (req, res, next) => {
+router.post('/checkout', auth, requirePermission('billing.view'), async (req, res, next) => {
   try {
     const { plan } = req.body;
     if (!PLANS[plan] || !PLANS[plan].price) {
@@ -88,7 +89,7 @@ router.post('/checkout', auth, async (req, res, next) => {
 });
 
 // POST /api/billing/portal — Portail client Stripe
-router.post('/portal', auth, async (req, res, next) => {
+router.post('/portal', auth, requirePermission('billing.view'), async (req, res, next) => {
   try {
     const stripe = await getStripeAsync();
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });

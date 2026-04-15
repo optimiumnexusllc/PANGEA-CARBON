@@ -7,6 +7,7 @@ const router = require('express').Router();
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // Définition des tiers
@@ -148,7 +149,7 @@ router.get('/project/:id/score', auth, async (req, res, next) => {
 });
 
 // POST /api/certification/project/:id/issue — Émettre une certification
-router.post('/project/:id/issue', auth, async (req, res, next) => {
+router.post('/project/:id/issue', auth, requirePermission('pipeline.issue_credits'), async (req, res, next) => {
   try {
     const { standards = [], acmiCompliant = false, corsiaEligible = false, auditorName, auditorUrl, oddScore } = req.body;
 
@@ -196,7 +197,7 @@ router.get('/project/:id', auth, async (req, res, next) => {
 });
 
 // DELETE /api/certification/project/:id/revoke — Révoquer
-router.delete('/project/:id/revoke', auth, async (req, res, next) => {
+router.delete('/project/:id/revoke', auth, requirePermission('projects.delete'), async (req, res, next) => {
   try {
     const cert = await prisma.projectCertification.update({
       where: { projectId: req.params.id },

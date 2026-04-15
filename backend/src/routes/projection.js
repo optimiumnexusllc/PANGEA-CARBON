@@ -7,6 +7,7 @@ const router = require('express').Router();
 const { validate, rules } = require('../middleware/validate');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // Paramètres de simulation par scénario
@@ -70,7 +71,7 @@ function monteCarloSimulation(baseCredits, basePrice, years, scenario) {
 }
 
 // POST /api/projection/:projectId — Projection avec paramètres custom
-router.post('/:projectId', auth, rules.projection, validate, async (req, res, next) => {
+router.post('/:projectId', auth, requirePermission('reports.generate'), rules.projection, validate, async (req, res, next) => {
   try {
     const { years = 10, carbonPrice, additionalMW, scenarioFilter } = req.body;
     const project = await prisma.project.findUnique({
@@ -136,7 +137,7 @@ router.get('/:projectId', auth, async (req, res, next) => {
 });
 
 // POST /api/projection/portfolio/total — Projection portfolio complet
-router.post('/portfolio/total', auth, async (req, res, next) => {
+router.post('/portfolio/total', auth, requirePermission('reports.generate'), async (req, res, next) => {
   try {
     const { years = 10 } = req.body;
     const projects = await prisma.project.findMany({

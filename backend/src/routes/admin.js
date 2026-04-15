@@ -5,6 +5,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { encrypt, decrypt, maskSecret } = require('../services/crypto.service');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -514,7 +515,7 @@ router.get('/apikeys', auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.post('/apikeys', auth, async (req, res, next) => {
+router.post('/apikeys', auth, requirePermission('api_keys.create'), async (req, res, next) => {
   // Accessible aux ADMIN de leur org + SUPER_ADMIN
   if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Only ADMIN and SUPER_ADMIN can create API keys' });

@@ -16,7 +16,6 @@ const { ghgWhere } = require('../middleware/isolation');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const { requirePermission, requirePlan } = require('../services/rbac.service');
-const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // ─── Facteurs d'émission GHG Protocol (IPCC AR6 + IEA 2024) ─────────────────
@@ -226,7 +225,7 @@ router.get('/audits/:id', auth, async (req, res, next) => {
 });
 
 // ─── POST /ghg/audits/:id/entries — Ajouter une entrée ───────────────────────
-router.post('/audits/:id/entries', auth, async (req, res, next) => {
+router.post('/audits/:id/entries', auth, requirePermission('ghg_audit.update'), async (req, res, next) => {
   try {
     const { factorKey, quantity, description, country, notes, customFactor } = req.body;
 
@@ -262,7 +261,7 @@ router.post('/audits/:id/entries', auth, async (req, res, next) => {
 });
 
 // ─── DELETE /ghg/audits/:id/entries/:eid ─────────────────────────────────────
-router.delete('/audits/:id/entries/:eid', auth, async (req, res, next) => {
+router.delete('/audits/:id/entries/:eid', auth, requirePermission('ghg_audit.delete'), async (req, res, next) => {
   try {
     await prisma.gHGEntry.delete({ where: { id: req.params.eid } });
     await recalcAudit(req.params.id);
@@ -271,7 +270,7 @@ router.delete('/audits/:id/entries/:eid', auth, async (req, res, next) => {
 });
 
 // ─── POST /ghg/audits/:id/bulk — Import bulk d'entrées ───────────────────────
-router.post('/audits/:id/bulk', auth, async (req, res, next) => {
+router.post('/audits/:id/bulk', auth, requirePermission('ghg_audit.update'), async (req, res, next) => {
   try {
     const { entries } = req.body;
     if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries array required' });
@@ -306,7 +305,7 @@ router.post('/audits/:id/bulk', auth, async (req, res, next) => {
 });
 
 // ─── POST /ghg/audits/:id/ai-analysis — Analyse Claude ──────────────────────
-router.post('/audits/:id/ai-analysis', auth, async (req, res, next) => {
+router.post('/audits/:id/ai-analysis', auth, requirePermission('ghg_audit.ai_analysis'), async (req, res, next) => {
   try {
     const audit = await prisma.gHGAudit.findUnique({
       where: { id: req.params.id },
@@ -487,7 +486,7 @@ async function recalcAudit(auditId) {
 }
 
 // ─── DELETE /ghg/audits/:id — Supprimer un audit ─────────────────────────────
-router.delete('/audits/:id', auth, async (req, res, next) => {
+router.delete('/audits/:id', auth, requirePermission('ghg_audit.delete'), async (req, res, next) => {
   try {
     const audit = await prisma.gHGAudit.findUnique({ where: { id: req.params.id } });
     if (!audit) return res.status(404).json({ error: 'Audit not found' });

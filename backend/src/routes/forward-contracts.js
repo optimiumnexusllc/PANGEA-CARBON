@@ -57,7 +57,7 @@ router.post('/', auth, requirePermission('seller.configure_gateway'), async (req
 });
 
 // POST /api/forward/:id/commit — Acheteur s'engage sur un forward
-router.post('/:id/commit', auth, async (req, res, next) => {
+router.post('/:id/commit', auth, requirePermission('seller.request_payout'), async (req, res, next) => {
   try {
     const contract = await prisma.forwardContract.findUnique({ where: { id: req.params.id }});
     if (!contract || contract.status !== 'PENDING') return res.status(400).json({ error: 'Contract not available' });

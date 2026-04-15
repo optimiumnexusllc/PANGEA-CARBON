@@ -6,6 +6,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { MRVEngine } = require('../services/mrv.service');
 const prisma = new PrismaClient();
 
@@ -29,7 +30,7 @@ Tu réponds en français, avec précision et en citant des chiffres concrets. Tu
 Tu as accès aux données réelles du portfolio de l'utilisateur (fournies dans le contexte).
 Sois concis, actionnable et professionnel.`;
 
-router.post('/chat', auth, async (req, res, next) => {
+router.post('/chat', auth, requirePermission('mrv.calculate'), async (req, res, next) => {
   try {
     const { message, projectId, conversationHistory = [] } = req.body;
     if (!message) return res.status(400).json({ error: 'Message requis' });

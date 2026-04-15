@@ -119,7 +119,7 @@ router.get('/:projectId/:year/preview', auth, async (req, res, next) => {
 
 
 // DELETE /api/reports/:id — Supprimer un rapport généré
-router.delete('/:id', auth, async (req, res, next) => {
+router.delete('/:id', auth, requirePermission('reports.generate'), async (req, res, next) => {
   try {
     const report = await prisma.report.findUnique({ where: { id: req.params.id } });
     if (!report) return res.status(404).json({ error: 'Rapport introuvable' });

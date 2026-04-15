@@ -475,7 +475,7 @@ router.post('/:id/block', auth, requirePermission('pipeline.block'), async (req,
 });
 
 // POST /pipeline/:id/unblock — Débloquer
-router.post('/:id/unblock', auth, async (req, res, next) => {
+router.post('/:id/unblock', auth, requirePermission('pipeline.block'), async (req, res, next) => {
   try {
     const { stepKey } = req.body;
     await prisma.pipelineStep.update({
@@ -489,7 +489,7 @@ router.post('/:id/unblock', auth, async (req, res, next) => {
 });
 
 // POST /pipeline/:id/assign-vvb — Assigner un VVB
-router.post('/:id/assign-vvb', auth, async (req, res, next) => {
+router.post('/:id/assign-vvb', auth, requirePermission('pipeline.advance'), async (req, res, next) => {
   try {
     const { vvbName, vvbContact } = req.body;
     if (!vvbName) return res.status(400).json({ error:'vvbName required' });
@@ -510,7 +510,7 @@ router.post('/:id/assign-vvb', auth, async (req, res, next) => {
 });
 
 // POST /pipeline/:id/documents — Ajouter un document
-router.post('/:id/documents', auth, async (req, res, next) => {
+router.post('/:id/documents', auth, requirePermission('pipeline.advance'), async (req, res, next) => {
   try {
     const { type, name, fileUrl, notes } = req.body;
     if (!name) return res.status(400).json({ error:'name required' });
@@ -523,7 +523,7 @@ router.post('/:id/documents', auth, async (req, res, next) => {
 });
 
 // DELETE /pipeline/:id/documents/:docId
-router.delete('/:id/documents/:docId', auth, async (req, res, next) => {
+router.delete('/:id/documents/:docId', auth, requirePermission('pipeline.advance'), async (req, res, next) => {
   try {
     await prisma.pipelineDocument.delete({ where:{ id:req.params.docId } });
     res.json({ deleted:true });
@@ -532,7 +532,7 @@ router.delete('/:id/documents/:docId', auth, async (req, res, next) => {
 
 
 // POST /pipeline/:id/upload — Upload fichier via multipart/form-data (busboy natif)
-router.post('/:id/upload', auth, async (req, res, next) => {
+router.post('/:id/upload', auth, requirePermission('pipeline.advance'), async (req, res, next) => {
   try {
     // Parser multipart sans multer (busboy natif Node.js)
     const Busboy = (() => {
@@ -582,7 +582,7 @@ router.post('/:id/upload', auth, async (req, res, next) => {
 });
 
 // DELETE /pipeline/:id — Annuler un pipeline
-router.delete('/:id', auth, async (req, res, next) => {
+router.delete('/:id', auth, requirePermission('pipeline.cancel'), async (req, res, next) => {
   try {
     const p = await prisma.creditPipeline.findUnique({ where:{ id:req.params.id } });
     if (!p) return res.status(404).json({ error:'Not found' });

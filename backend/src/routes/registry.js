@@ -7,6 +7,7 @@ const router = require('express').Router();
 const { validate, rules } = require('../middleware/validate');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const crypto = require('crypto');
 const prisma = new PrismaClient();
 
@@ -28,7 +29,7 @@ function generateSerials(projectId, vintage, quantity, blockNumber) {
 }
 
 // POST /api/registry/issue — Émettre des crédits carbone
-router.post('/issue', auth, rules.creditIssuance, validate, async (req, res, next) => {
+router.post('/issue', auth, requirePermission('pipeline.issue_credits'), rules.creditIssuance, validate, async (req, res, next) => {
   try {
     const { projectId, vintage, quantity, standard, buyerEntity } = req.body;
 
@@ -67,7 +68,7 @@ router.post('/issue', auth, rules.creditIssuance, validate, async (req, res, nex
 });
 
 // POST /api/registry/retire/:id — Retirer des crédits (usage final)
-router.post('/retire/:id', auth, async (req, res, next) => {
+router.post('/retire/:id', auth, requirePermission('pipeline.issue_credits'), async (req, res, next) => {
   try {
     const { retiredFor, buyerEntity } = req.body;
     const issuance = await prisma.creditIssuance.findUnique({ where: { id: req.params.id } });
