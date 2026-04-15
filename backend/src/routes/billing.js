@@ -3,11 +3,25 @@ const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
 
-// Stripe lazy-loaded (optionnel si STRIPE_SECRET_KEY pas défini)
-const getStripe = () => {
-  if (!process.env.STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY non configuré');
-  return require('stripe')(process.env.STRIPE_SECRET_KEY);
-};
+// Lire un setting depuis DB ou env
+async function getSetting(key) {
+  try {
+    const s = await prisma.systemSetting.findUnique({ where: { key } });
+    if (!s) return process.env[key.toUpperCase().replace(/-/g,'_')] || null;
+    if (s.encrypted) {
+      const { decrypt } = require('../services/crypto.service');
+      return decrypt(s.value);
+    }
+    return s.value;
+  } catch(e) { return process.env[key.toUpperCase().replace(/-/g,'_')] || null; }
+}
+
+// Stripe async — lit depuis DB puis env
+async function getStripeAsync() {
+  const key = await getSetting('stripe_secret_key') || process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error('Stripe secret key not configured. Add it in Admin → Secrets & Config.');
+  return require('stripe')(key);
+}
 
 const PLANS = {
   starter: {
@@ -41,7 +55,7 @@ router.post('/checkout', auth, async (req, res, next) => {
       return res.status(400).json({ error: 'Plan invalide ou sur devis' });
     }
 
-    const stripe = getStripe();
+    const stripe = await getStripeAsync();
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
       select: { email: true, name: true }
@@ -64,8 +78,8 @@ router.post('/checkout', auth, async (req, res, next) => {
         },
         quantity: 1,
       }],
-      success_url: `${process.env.FRONTEND_URL}/dashboard/settings?success=true&plan=${plan}`,
-      cancel_url: `${process.env.FRONTEND_URL}/dashboard/settings?canceled=true`,
+      success_url: (process.env.FRONTEND_URL||'https://pangea-carbon.com') + '/dashboard/settings?success=true&plan=' + plan,
+      cancel_url: (process.env.FRONTEND_URL||'https://pangea-carbon.com') + '/dashboard/settings?canceled=true',
       metadata: { userId: req.user.userId, plan },
     });
 
@@ -76,7 +90,7 @@ router.post('/checkout', auth, async (req, res, next) => {
 // POST /api/billing/portal — Portail client Stripe
 router.post('/portal', auth, async (req, res, next) => {
   try {
-    const stripe = getStripe();
+    const stripe = await getStripeAsync();
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
 
     // Trouver le customerId Stripe depuis les metadata
@@ -87,7 +101,7 @@ router.post('/portal', auth, async (req, res, next) => {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customers.data[0].id,
-      return_url: `${process.env.FRONTEND_URL}/dashboard/settings`,
+      return_url: (process.env.FRONTEND_URL||'https://pangea-carbon.com') + '/dashboard/settings',
     });
 
     res.json({ url: session.url });
@@ -100,7 +114,7 @@ router.post('/webhook', require('express').raw({ type: 'application/json' }), as
   let event;
 
   try {
-    const stripe = getStripe();
+    const stripe = await getStripeAsync();
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (e) {
     console.error('Stripe webhook error:', e.message);
@@ -139,7 +153,7 @@ router.get('/status', auth, async (req, res) => {
     return res.json({ plan: 'trial', status: 'active', message: 'Mode démo — Stripe non configuré' });
   }
   try {
-    const stripe = getStripe();
+    const stripe = await getStripeAsync();
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (!customers.data.length) return res.json({ plan: 'free', status: 'none' });

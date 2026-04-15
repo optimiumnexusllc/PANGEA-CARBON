@@ -78,9 +78,18 @@ export default function SettingsPage() {
         body: JSON.stringify({ plan: plan.planKey.toLowerCase() }),
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else alert('Configure Stripe in Admin → Secrets');
-    } catch(_e) { alert('Payment error — contact contact@pangea-carbon.com'); }
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.error) {
+        alert('Stripe error: ' + data.error);
+      } else {
+        alert('No checkout URL returned. Check Stripe configuration in Admin → Secrets & Config.');
+      }
+    } catch(err) {
+      alert('Payment error: ' + (err.message || 'Unknown error') + '
+
+Contact: contact@pangea-carbon.com');
+    }
   }
 
   const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
