@@ -940,3 +940,27 @@ model RolePermissionOverride {
   @@unique([role, permission])
   @@index([role])
 }
+
+model ESGAssessment {
+  id             String   @id @default(cuid())
+  companyName    String
+  reportingYear  Int      @default(2024)
+  sector         String   @default("OTHER")
+  country        String   @default("CI")
+  framework      String   @default("GRI")
+  status         String   @default("IN_PROGRESS")
+  responses      Json     @default("{}")
+  eScore         Float    @default(0)
+  sScore         Float    @default(0)
+  gScore         Float    @default(0)
+  totalScore     Float    @default(0)
+  rating         String   @default("B")
+  level          String   @default("BASIC")
+  userId         String
+  organizationId String?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("esg_assessments")
+}

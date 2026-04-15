@@ -104,6 +104,7 @@ app.use('/api/2fa', require('./routes/twofa'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/email-composer', require('./routes/emailcomposer'));
+app.use('/api/esg', require('./routes/esg'));
 app.use('/api/certification', require('./routes/certification'));
 app.use('/api/marketplace', require('./routes/marketplace'));
 app.use('/api/rbac',        require('./routes/rbac'));
