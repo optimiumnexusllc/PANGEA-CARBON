@@ -88,7 +88,7 @@ export default function SignupPage() {
       const regRes = await fetch(`${API}/auth/register`, {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
-        body:JSON.stringify({ name:form.name, email:form.email, password:form.password, organization:form.orgName }),
+        body:JSON.stringify({ name:form.name, email:form.email, password:form.password, organization:form.orgName, orgType:form.orgType, orgCountry:form.orgCountry }),
       });
       if (!regRes.ok) { const e = await regRes.json(); throw new Error(e.error || 'Registration failed'); }
       const { accessToken, refreshToken, user } = await regRes.json();
@@ -196,15 +196,27 @@ export default function SignupPage() {
                 <TextInput placeholder="CFAO Aeolus / SolarAfrica Mali" value={form.orgName} onChange={e => set('orgName', e.target.value)} autoFocus={true}/>
               </div>
               <div>
-                <FieldLabel>Type</FieldLabel>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
-                  {['EPC','IPP','Developpeur'].map(t => (
-                    <button key={t} type="button" onClick={() => set('orgType', t)}
-                      style={{ padding:'10px', borderRadius:7, cursor:'pointer', fontSize:13,
-                        border:     form.orgType===t ? '1px solid rgba(0,255,148,0.4)' : '1px solid #1E2D3D',
-                        background: form.orgType===t ? 'rgba(0,255,148,0.08)' : '#0D1117',
-                        color:      form.orgType===t ? '#00FF94' : '#4A6278' }}>
-                      {t}
+                <FieldLabel>Type d'organisation</FieldLabel>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                  {[
+                    { id:'EPC',                   label:'EPC',                       icon:'🏗️', desc:'Engineering, Procurement & Construction' },
+                    { id:'IPP',                   label:'IPP',                       icon:'⚡', desc:'Independent Power Producer' },
+                    { id:'Developpeur',           label:'Développeur',               icon:'🌱', desc:'Développeur de projets carbone' },
+                    { id:'CORPORATE_VOLUNTARY',   label:'Corporate Buyer',           icon:'🏢', desc:'Offset volontaire — ESG / Net Zero' },
+                    { id:'COMPLIANCE_CBAM',       label:'CBAM Compliance',           icon:'🇪🇺', desc:'Exportateurs vers l'UE — CBAM' },
+                    { id:'STRATEGIC_NETZERO',     label:'Strategic Net Zero',        icon:'🎯', desc:'Engagement Net Zero signé (SBTi)' },
+                    { id:'FINANCIAL',             label:'Financial / ESG Fund',      icon:'💼', desc:'Banque, fonds ESG, assurance' },
+                    { id:'COMPLIANCE_CORSIA',     label:'CORSIA Aviation',           icon:'✈️', desc:'Compagnies aériennes — CORSIA' },
+                  ].map(t => (
+                    <button key={t.id} type="button" onClick={() => set('orgType', t.id)}
+                      style={{ padding:'12px 14px', borderRadius:9, cursor:'pointer', fontSize:12,
+                        border:     form.orgType===t.id ? '1px solid rgba(0,255,148,0.4)' : '1px solid #1E2D3D',
+                        background: form.orgType===t.id ? 'rgba(0,255,148,0.08)' : '#0D1117',
+                        color:      form.orgType===t.id ? '#00FF94' : '#4A6278',
+                        textAlign:'left', display:'flex', flexDirection:'column', gap:3 }}>
+                      <span style={{ fontSize:16 }}>{t.icon}</span>
+                      <span style={{ fontWeight:700, color: form.orgType===t.id ? '#00FF94' : '#E8EFF6', fontSize:12 }}>{t.label}</span>
+                      <span style={{ fontSize:10, color:'#4A6278', lineHeight:1.4 }}>{t.desc}</span>
                     </button>
                   ))}
                 </div>

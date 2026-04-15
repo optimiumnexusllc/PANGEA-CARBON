@@ -39,7 +39,7 @@ router.post('/register', [
     const orgSlug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'') + '-' + Date.now().toString(36);
     const org = await prisma.organization.create({
       data: {
-        name: name + "'s Organization",
+        name: organization || (name + "'s Organization"),
         slug: orgSlug,
         plan: 'TRIAL',
         status: 'TRIAL',
@@ -63,6 +63,20 @@ router.post('/register', [
       },
       select: { id: true, email: true, name: true, role: true }
     });
+
+    // Auto-créer BuyerProfile si corporate buyer
+    const corporateTypes = ['CORPORATE_VOLUNTARY','COMPLIANCE_CBAM','STRATEGIC_NETZERO','FINANCIAL','COMPLIANCE_CORSIA','COMPLIANCE_LOCAL'];
+    if (orgType && corporateTypes.includes(orgType)) {
+      await prisma.buyerProfile.create({
+        data: {
+          organizationId: org.id,
+          buyerType: orgType,
+          country: orgCountry || null,
+          status: 'PROSPECT',
+          lastActivityAt: new Date(),
+        }
+      }).catch(() => {}); // Non bloquant
+    }
 
     const frontendUrl = process.env.FRONTEND_URL || 'https://pangea-carbon.com';
     const verifyUrl = `${frontendUrl}/auth/verify?token=${verifyToken}`;
@@ -261,6 +275,20 @@ router.post('/forgot-password', [
       where: { id: user.id },
       data: { verifyToken: resetToken, verifyExpires: resetExpires }
     });
+
+    // Auto-créer BuyerProfile si corporate buyer
+    const corporateTypes = ['CORPORATE_VOLUNTARY','COMPLIANCE_CBAM','STRATEGIC_NETZERO','FINANCIAL','COMPLIANCE_CORSIA','COMPLIANCE_LOCAL'];
+    if (orgType && corporateTypes.includes(orgType)) {
+      await prisma.buyerProfile.create({
+        data: {
+          organizationId: org.id,
+          buyerType: orgType,
+          country: orgCountry || null,
+          status: 'PROSPECT',
+          lastActivityAt: new Date(),
+        }
+      }).catch(() => {}); // Non bloquant
+    }
 
     const frontendUrl = process.env.FRONTEND_URL || 'https://pangea-carbon.com';
     const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
