@@ -759,7 +759,7 @@ export default function ESGPage() {
 
       {/* ── PASSPORT ESG ─────────────────────────────────────────────── */}
       {tab==='passport' && current && (
-        <div style={{ maxWidth:760, margin:'0 auto' }}>
+        <div id="esg-passport-print" style={{ maxWidth:760, margin:'0 auto' }}>
           <div style={{ background:C.card, border:'2px solid '+levelCfg.color+'50', borderRadius:20, overflow:'hidden', boxShadow:'0 24px 80px rgba(0,0,0,0.6)' }}>
             <div style={{ background:'linear-gradient(135deg,#080B0F 0%,'+levelCfg.color+'18 100%)', padding:'28px 32px', borderBottom:'2px solid '+levelCfg.color+'30', position:'relative' }}>
               <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,'+levelCfg.color+' 0%,transparent 100%)' }}/>
@@ -842,23 +842,44 @@ export default function ESGPage() {
             </div>
 
             <div style={{ padding:'24px 32px', display:'flex', gap:24, alignItems:'center' }}>
-              <div style={{ background:'white', padding:12, borderRadius:12, flexShrink:0 }}>
-                <svg width="100" height="100" viewBox="0 0 100 100">
-                  <rect width="100" height="100" fill="white"/>
-                  <rect x="2" y="2" width="26" height="26" fill="black" rx="2"/><rect x="4" y="4" width="22" height="22" fill="white"/><rect x="6" y="6" width="18" height="18" fill="black" rx="1"/>
-                  <rect x="72" y="2" width="26" height="26" fill="black" rx="2"/><rect x="74" y="4" width="22" height="22" fill="white"/><rect x="76" y="6" width="18" height="18" fill="black" rx="1"/>
-                  <rect x="2" y="72" width="26" height="26" fill="black" rx="2"/><rect x="4" y="74" width="22" height="22" fill="white"/><rect x="6" y="76" width="18" height="18" fill="black" rx="1"/>
-                  <rect x="34" y="2" width="4" height="4" fill="black"/><rect x="42" y="2" width="4" height="4" fill="black"/><rect x="50" y="2" width="4" height="4" fill="black"/><rect x="62" y="2" width="4" height="4" fill="black"/>
-                  <rect x="34" y="10" width="4" height="4" fill="black"/><rect x="46" y="10" width="4" height="4" fill="black"/><rect x="54" y="10" width="4" height="4" fill="black"/>
-                  <rect x="34" y="18" width="4" height="4" fill="black"/><rect x="42" y="18" width="4" height="4" fill="black"/><rect x="50" y="18" width="4" height="4" fill="black"/>
-                  <rect x="2" y="34" width="4" height="4" fill="black"/><rect x="14" y="34" width="4" height="4" fill="black"/><rect x="26" y="34" width="4" height="4" fill="black"/><rect x="38" y="34" width="4" height="4" fill="black"/><rect x="50" y="34" width="4" height="4" fill="black"/><rect x="62" y="34" width="4" height="4" fill="black"/><rect x="74" y="34" width="4" height="4" fill="black"/><rect x="86" y="34" width="4" height="4" fill="black"/><rect x="94" y="34" width="4" height="4" fill="black"/>
-                  <rect x="6" y="42" width="4" height="4" fill="black"/><rect x="18" y="42" width="4" height="4" fill="black"/><rect x="34" y="42" width="4" height="4" fill="black"/><rect x="50" y="42" width="4" height="4" fill="black"/><rect x="66" y="42" width="4" height="4" fill="black"/><rect x="82" y="42" width="4" height="4" fill="black"/>
-                  <rect x="2" y="50" width="4" height="4" fill="black"/><rect x="14" y="50" width="4" height="4" fill="black"/><rect x="30" y="50" width="4" height="4" fill="black"/><rect x="46" y="50" width="4" height="4" fill="black"/><rect x="62" y="50" width="4" height="4" fill="black"/><rect x="78" y="50" width="4" height="4" fill="black"/><rect x="90" y="50" width="4" height="4" fill="black"/>
-                  <rect x="34" y="72" width="4" height="4" fill="black"/><rect x="46" y="72" width="4" height="4" fill="black"/><rect x="62" y="72" width="4" height="4" fill="black"/><rect x="78" y="72" width="4" height="4" fill="black"/><rect x="90" y="72" width="4" height="4" fill="black"/>
-                  <rect x="38" y="80" width="4" height="4" fill="black"/><rect x="54" y="80" width="4" height="4" fill="black"/><rect x="70" y="80" width="4" height="4" fill="black"/><rect x="86" y="80" width="4" height="4" fill="black"/>
-                  <rect x="34" y="88" width="4" height="4" fill="black"/><rect x="50" y="88" width="4" height="4" fill="black"/><rect x="66" y="88" width="4" height="4" fill="black"/><rect x="82" y="88" width="4" height="4" fill="black"/>
-                  <rect x="42" y="42" width="16" height="16" fill="white" rx="2"/>
-                  <text x="50" y="53" textAnchor="middle" fontSize="10" fill="#00FF94" fontWeight="bold">⬡</text>
+              <div style={{ background:'white', padding:10, borderRadius:12, flexShrink:0, boxShadow:'0 4px 20px rgba(0,0,0,0.3)', border:'2px solid '+levelCfg.color+'30' }}>
+                <svg width="120" height="120" viewBox="0 0 120 120" style={{ display:'block' }}>
+                  <rect width="120" height="120" fill="white"/>
+                  {/* Finder TL */}
+                  <rect x="2" y="2" width="30" height="30" fill="#111" rx="3"/><rect x="5" y="5" width="24" height="24" fill="white"/><rect x="8" y="8" width="18" height="18" fill="#111" rx="2"/>
+                  {/* Finder TR */}
+                  <rect x="88" y="2" width="30" height="30" fill="#111" rx="3"/><rect x="91" y="5" width="24" height="24" fill="white"/><rect x="94" y="8" width="18" height="18" fill="#111" rx="2"/>
+                  {/* Finder BL */}
+                  <rect x="2" y="88" width="30" height="30" fill="#111" rx="3"/><rect x="5" y="91" width="24" height="24" fill="white"/><rect x="8" y="94" width="18" height="18" fill="#111" rx="2"/>
+                  {/* Timing H */}
+                  <rect x="36" y="36" width="6" height="6" fill="#111"/><rect x="48" y="36" width="6" height="6" fill="#111"/><rect x="60" y="36" width="6" height="6" fill="#111"/><rect x="72" y="36" width="6" height="6" fill="#111"/>
+                  {/* Timing V */}
+                  <rect x="36" y="48" width="6" height="6" fill="#111"/><rect x="36" y="60" width="6" height="6" fill="#111"/><rect x="36" y="72" width="6" height="6" fill="#111"/>
+                  {/* Data modules */}
+                  <rect x="42" y="42" width="6" height="6" fill="#111"/><rect x="54" y="42" width="6" height="6" fill="#111"/><rect x="66" y="42" width="6" height="6" fill="#111"/><rect x="78" y="42" width="6" height="6" fill="#111"/>
+                  <rect x="48" y="48" width="6" height="6" fill="#111"/><rect x="60" y="48" width="6" height="6" fill="#111"/><rect x="72" y="48" width="6" height="6" fill="#111"/>
+                  <rect x="42" y="54" width="6" height="6" fill="#111"/><rect x="54" y="54" width="6" height="6" fill="#111"/><rect x="66" y="54" width="6" height="6" fill="#111"/><rect x="78" y="54" width="6" height="6" fill="#111"/>
+                  <rect x="48" y="60" width="6" height="6" fill="#111"/><rect x="60" y="60" width="6" height="6" fill="#111"/><rect x="72" y="60" width="6" height="6" fill="#111"/>
+                  <rect x="42" y="66" width="6" height="6" fill="#111"/><rect x="54" y="66" width="6" height="6" fill="#111"/><rect x="78" y="66" width="6" height="6" fill="#111"/>
+                  <rect x="48" y="72" width="6" height="6" fill="#111"/><rect x="60" y="72" width="6" height="6" fill="#111"/><rect x="66" y="72" width="6" height="6" fill="#111"/>
+                  <rect x="42" y="78" width="6" height="6" fill="#111"/><rect x="54" y="78" width="6" height="6" fill="#111"/><rect x="66" y="78" width="6" height="6" fill="#111"/><rect x="78" y="78" width="6" height="6" fill="#111"/>
+                  <rect x="48" y="84" width="6" height="6" fill="#111"/><rect x="60" y="84" width="6" height="6" fill="#111"/>
+                  <rect x="88" y="42" width="6" height="6" fill="#111"/><rect x="100" y="42" width="6" height="6" fill="#111"/><rect x="112" y="42" width="6" height="6" fill="#111"/>
+                  <rect x="94" y="48" width="6" height="6" fill="#111"/><rect x="106" y="48" width="6" height="6" fill="#111"/>
+                  <rect x="88" y="54" width="6" height="6" fill="#111"/><rect x="100" y="54" width="6" height="6" fill="#111"/>
+                  <rect x="94" y="60" width="6" height="6" fill="#111"/><rect x="112" y="60" width="6" height="6" fill="#111"/>
+                  <rect x="88" y="66" width="6" height="6" fill="#111"/><rect x="106" y="66" width="6" height="6" fill="#111"/>
+                  <rect x="94" y="72" width="6" height="6" fill="#111"/><rect x="100" y="72" width="6" height="6" fill="#111"/><rect x="112" y="72" width="6" height="6" fill="#111"/>
+                  <rect x="88" y="84" width="6" height="6" fill="#111"/><rect x="100" y="84" width="6" height="6" fill="#111"/><rect x="106" y="84" width="6" height="6" fill="#111"/>
+                  <rect x="36" y="88" width="6" height="6" fill="#111"/><rect x="48" y="88" width="6" height="6" fill="#111"/><rect x="60" y="88" width="6" height="6" fill="#111"/>
+                  <rect x="42" y="94" width="6" height="6" fill="#111"/><rect x="54" y="94" width="6" height="6" fill="#111"/><rect x="66" y="94" width="6" height="6" fill="#111"/>
+                  <rect x="36" y="100" width="6" height="6" fill="#111"/><rect x="48" y="100" width="6" height="6" fill="#111"/><rect x="60" y="100" width="6" height="6" fill="#111"/>
+                  <rect x="42" y="106" width="6" height="6" fill="#111"/><rect x="54" y="106" width="6" height="6" fill="#111"/>
+                  <rect x="36" y="112" width="6" height="6" fill="#111"/><rect x="48" y="112" width="6" height="6" fill="#111"/><rect x="66" y="112" width="6" height="6" fill="#111"/>
+                  {/* Center logo area */}
+                  <rect x="52" y="52" width="16" height="16" fill="white" rx="2"/>
+                  <rect x="53" y="53" width="14" height="14" fill={levelCfg.color+'15'} rx="2"/>
+                  <text x="60" y="63" textAnchor="middle" fontSize="10" fill={levelCfg.color} fontWeight="bold" style={{ fontFamily:'monospace' }}>⬡</text>
                 </svg>
               </div>
               <div style={{ flex:1 }}>
@@ -869,15 +890,39 @@ export default function ESGPage() {
                   pangea-carbon.com/verify/{current.id}
                 </div>
                 <div style={{ display:'flex', gap:8, marginTop:12, flexWrap:'wrap' }}>
-                  <button onClick={()=>{navigator.clipboard?.writeText('https://pangea-carbon.com/verify/'+current.id);}}
+                  <button onClick={()=>{
+                    const url = 'https://pangea-carbon.com/verify/'+current.id;
+                    if (navigator.clipboard) { navigator.clipboard.writeText(url).catch(()=>{}); }
+                    else { const t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+                    showToast(lang==='fr'?'Lien copié !':'Link copied!');
+                  }}
                     style={{ background:'rgba(0,255,148,0.08)', border:'1px solid rgba(0,255,148,0.25)', borderRadius:8, color:C.green, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700 }}>
                     🔗 {lang==='fr'?'Copier le lien':'Copy verify link'}
                   </button>
-                  <button onClick={()=>window.print()}
+                  <button onClick={()=>{
+                    const el = document.getElementById('esg-passport-print');
+                    if (!el) return;
+                    const w = window.open('','_blank','width=900,height=1200');
+                    w.document.write('<html><head><title>ESG Passport — '+current.companyName+'</title><style>body{margin:0;padding:24px;font-family:system-ui,sans-serif;background:white;color:#111;} @media print{body{padding:0;}} h2{font-size:20px;font-weight:800;margin:0 0 4px;} .passport-card{border:2px solid #ddd;border-radius:16px;overflow:hidden;max-width:760px;margin:0 auto;} .header{background:#0d1117;padding:24px 28px;color:white;} .level-badge{text-align:center;border:2px solid;border-radius:12px;padding:12px 16px;} .scores{padding:20px 28px;border-bottom:1px solid #eee;display:grid;grid-template-columns:140px 1fr;gap:20px;align-items:center;} .big-score{font-size:56px;font-weight:800;line-height:1;text-align:center;} .bar{height:8px;background:#eee;border-radius:4px;margin-top:4px;} .bar-fill{height:100%;border-radius:4px;} .compliance{padding:20px 28px;border-bottom:1px solid #eee;} .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;} .std-card{border:1px solid #eee;border-radius:8px;padding:10px;} .footer{padding:12px 28px;background:#f9f9f9;display:flex;justify-content:space-between;font-size:11px;color:#666;} .qr-section{padding:20px 28px;display:flex;gap:20px;align-items:center;} .verify-url{font-family:monospace;font-size:12px;word-break:break-all;} button{display:none;} a{color:inherit;text-decoration:none;}</style></head><body>');
+                    w.document.write(el.outerHTML);
+                    w.document.write('</body></html>');
+                    w.document.close();
+                    w.focus();
+                    setTimeout(()=>w.print(),500);
+                  }}
                     style={{ background:'transparent', border:'1px solid '+C.border, borderRadius:8, color:C.muted, padding:'8px 16px', cursor:'pointer', fontSize:12 }}>
                     🖨️ {lang==='fr'?'Imprimer':'Print'}
                   </button>
-                  <button onClick={()=>setTab('reports')}
+                  <button onClick={()=>{
+                    if (!current) return;
+                    showToast(lang==='fr'?'Génération PDF passeport...':'Generating passport PDF...','info');
+                    const token = typeof window!=='undefined'?localStorage.getItem('accessToken'):'';
+                    const std = current.framework||'GRI';
+                    fetch((process.env.NEXT_PUBLIC_API_URL||'')+'/esg/assessments/'+current.id+'/report?lang='+lang+'&standard='+std,{headers:{Authorization:'Bearer '+token}})
+                      .then(r=>{ if(!r.ok)throw new Error('Error'); return r.blob(); })
+                      .then(blob=>{ const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='PANGEA-ESG-Passport-'+current.id.slice(0,8)+'-'+lang.toUpperCase()+'.pdf'; a.click(); URL.revokeObjectURL(url); showToast(lang==='fr'?'Téléchargé !':'Downloaded!'); })
+                      .catch(()=>showToast(lang==='fr'?'Erreur téléchargement':'Download error','error'));
+                  }}
                     style={{ background:'rgba(167,139,250,0.08)', border:'1px solid rgba(167,139,250,0.25)', borderRadius:8, color:C.purple, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700 }}>
                     📥 {lang==='fr'?'Télécharger PDF →':'Download PDF →'}
                   </button>

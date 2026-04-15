@@ -172,14 +172,31 @@ async function generateESGReport(assessment, scores, lang, standard) {
     const PILLAR_LABELS = { E:L.environmental, S:L.social, G:L.governance };
     const PILLAR_COLS = { E:C.s1, S:C.s2, G:C.s3 };
 
-    Object.entries({ E:{ CLIMATE:'Climate & Energy', ENVIRONMENT:'Environment', SUPPLY_CHAIN:'Supply Chain' }, S:{ LABOR:'Labor & Human Capital', COMMUNITY:'Community Impact', HUMAN_RIGHTS:'Human Rights' }, G:{ BOARD:'Board & Leadership', ETHICS:'Ethics & Anti-Corruption', TRANSPARENCY:'Transparency & Disclosure' } }).forEach(([pillar, catLabels])=>{
-      if (qY > 740) { doc.addPage(); qY = 50; }
+    const PILLAR_Q = {
+      E: [{id:'E1',q:'GHG Emissions (Scope 1/2/3)'},{id:'E2',q:'Net-Zero SBTi Target'},{id:'E3',q:'Renewable Energy %'},{id:'E4',q:'Climate Transition Plan'},{id:'E5',q:'Carbon Credits (VCMI)'},{id:'E6',q:'Water Consumption Report'},{id:'E7',q:'Zero-Waste Target'},{id:'E8',q:'Biodiversity Assessment'},{id:'E9',q:'ISO 14001 EMS'},{id:'E10',q:'Supply Chain Environmental Risks'},{id:'E11',q:'Supplier Environmental Standards'}],
+      S: [{id:'S1',q:'Employee Safety Report (LTIR)'},{id:'S2',q:'Gender Diversity (% women mgmt)'},{id:'S3',q:'Living Wages > Min Wage'},{id:'S4',q:'Training Hours/Employee'},{id:'S5',q:'Freedom of Association ILO'},{id:'S6',q:'Modern Slavery Policy'},{id:'S7',q:'Community Investment %'},{id:'S8',q:'Community Impact Assessment'},{id:'S9',q:'Grievance Mechanism'},{id:'S10',q:'Indigenous Peoples Policy'},{id:'S11',q:'Supply Chain Social Audit'},{id:'S12',q:'Diversity & Inclusion Policy'}],
+      G: [{id:'G1',q:'ESG Board Committee'},{id:'G2',q:'Board Independence (>50%)'},{id:'G3',q:'ESG-Linked Executive Pay'},{id:'G4',q:'Climate Competency (TCFD)'},{id:'G5',q:'Anti-Corruption Policy'},{id:'G6',q:'Whistleblower Protection'},{id:'G7',q:'UN Global Compact Signatory'},{id:'G8',q:'Tax Transparency Report'},{id:'G9',q:'Annual ESG/Sustainability Report'},{id:'G10',q:'External ESG Assurance'},{id:'G11',q:'TCFD/Climate Risk Disclosure'},{id:'G12',q:'Executive Diversity Policy'}],
+    };
+    ['E','S','G'].forEach(pillar=>{
+      if (qY > 700) { doc.addPage(); qY = 50; }
       const pCol = PILLAR_COLS[pillar];
       doc.rect(50,qY,495,20).fill(pCol);
-      doc.font('Helvetica-Bold').fontSize(10).fillColor(C.white).text('PILIER '+pillar+' — '+PILLAR_LABELS[pillar].toUpperCase(), 58, qY+5);
-      qY += 20;
-
-      const ESG_Q = require('./ghg').ESG_QUESTIONS; // fallback
+      doc.font('Helvetica-Bold').fontSize(10).fillColor(C.white).text(pillar+' — '+PILLAR_LABELS[pillar].toUpperCase(), 58, qY+5);
+      qY += 26;
+      PILLAR_Q[pillar].forEach(q=>{
+        if (qY > 760) { doc.addPage(); qY = 50; }
+        const val = responses[q.id];
+        const answered = val !== undefined && val !== null && val !== '';
+        const isYes = val === true || (typeof val === 'number' && val > 0);
+        const statCol = !answered ? C.gray : isYes ? C.green : '#DC2626';
+        const statLabel = !answered ? '—' : isYes ? '✓' : '✗';
+        doc.rect(50,qY,8,14).fill(statCol);
+        doc.font('Helvetica-Bold').fontSize(8).fillColor(statCol).text(statLabel,52,qY+3,{width:6,align:'center'});
+        doc.font('Helvetica').fontSize(8).fillColor(C.dark).text(q.id+' — '+q.q,64,qY+3,{width:380});
+        if (typeof val === 'number') doc.font('Helvetica-Bold').fontSize(8).fillColor(pCol).text(val+'%',450,qY+3,{width:90});
+        qY += 16;
+      });
+      qY += 6;
     });
 
     // SDG Alignment
