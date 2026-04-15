@@ -709,9 +709,7 @@ export default function PipelinePage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
+
       {/* Modale suppression document */}
       {confirmDocDelete && (
         <div onClick={e => { if(e.target===e.currentTarget) setConfirmDocDelete(null); }}
@@ -772,3 +770,8 @@ export default function PipelinePage() {
         </div>
       )}
 
+
+    </div>
+
+  );
+}
