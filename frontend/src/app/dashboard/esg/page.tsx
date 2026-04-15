@@ -147,7 +147,7 @@ export default function ESGPage() {
     setCreating(true);
     try {
       const a = await fetchAuthJson('/esg/assessments',{method:'POST',body:JSON.stringify(newForm)});
-      showToast(L('Assessment created!','Évaluation créée !'));
+      showToast(lang==='fr'?'Évaluation créée !':'Assessment created!');
       await load(); setCurrent(a); setResponses({}); setTab('assess');
     } catch(e) { showToast(e.message,'error'); }
     finally { setCreating(false); }
@@ -174,7 +174,7 @@ export default function ESGPage() {
   const downloadReport = async(stdId, pdfLang) => {
     const key = current.id+'-'+stdId+'-'+pdfLang;
     setGeneratingKey(key);
-    showToast(L('Generating','Génération')+' '+stdId+' ('+pdfLang.toUpperCase()+')...','info');
+    showToast((lang==='fr'?'Génération':'Generating')+' '+stdId+' ('+pdfLang.toUpperCase()+')...','info');
     try {
       const token = typeof window!=='undefined'?localStorage.getItem('accessToken'):'';
       const url = (process.env.NEXT_PUBLIC_API_URL||'')+'/esg/assessments/'+current.id+'/report?lang='+pdfLang+'&standard='+stdId;
@@ -186,7 +186,7 @@ export default function ESGPage() {
       a.href=objUrl;
       a.download='PANGEA-ESG-'+stdId+'-'+(current.companyName||'Company').replace(/[^a-zA-Z0-9]/g,'-').slice(0,15)+'-'+(current.reportingYear||2024)+'-'+pdfLang.toUpperCase()+'.pdf';
       a.click(); URL.revokeObjectURL(objUrl);
-      showToast(L('Downloaded!','Téléchargé !')+' '+stdId+' ('+pdfLang.toUpperCase()+')');
+      showToast((lang==='fr'?'Téléchargé !':'Downloaded!')+' '+stdId+' ('+pdfLang.toUpperCase()+')');
     } catch(e) { showToast(e.message||'Error','error'); }
     finally { setGeneratingKey(null); }
   };
@@ -195,7 +195,7 @@ export default function ESGPage() {
     if(!deleteConfirm) return;
     try {
       await fetchAuthJson('/esg/assessments/'+deleteConfirm.id,{method:'DELETE'});
-      showToast(L('Deleted','Supprimé'));
+      showToast(lang==='fr'?'Supprimé':'Deleted');
       setDeleteConfirm(null); setCurrent(null); setTab('dashboard'); await load();
     } catch(e) { showToast(e.message,'error'); }
   };
