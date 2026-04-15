@@ -13,10 +13,10 @@ const PLAN_FEATURES = {
     africa_map: true,
     ai_assistant: false,
     // Marketplace & Finance
-    carbon_marketplace: false,
-    carbon_tax_engine: false,
-    credit_pipeline: false,
-    ghg_audit: false,
+    carbon_marketplace: true,
+    carbon_tax_engine: true,
+    credit_pipeline: true,
+    ghg_audit: true,
     // Intégrations
     api_access: true,    // 1 clé max
     equipment_api: false,
@@ -24,7 +24,7 @@ const PLAN_FEATURES = {
     multi_standard: false,
     white_label: false,
     sso_saml: false,
-    email_composer: false,
+    email_composer: true,
     // Limites
     maxProjects: 3,
     maxUsers: 2,
@@ -46,7 +46,7 @@ const PLAN_FEATURES = {
     multi_standard: false,
     white_label: false,
     sso_saml: false,
-    email_composer: false,
+    email_composer: true,
     maxProjects: 10,
     maxUsers: 5,
     maxMW: 500,
@@ -67,7 +67,7 @@ const PLAN_FEATURES = {
     multi_standard: true,
     white_label: false,
     sso_saml: false,
-    email_composer: false,
+    email_composer: true,
     maxProjects: 50,
     maxUsers: 20,
     maxMW: 5000,
@@ -88,7 +88,7 @@ const PLAN_FEATURES = {
     multi_standard: true,
     white_label: true,
     sso_saml: true,
-    email_composer: false, // Toujours admin-only côté rôle
+    email_composer: true, // Contrôlé par adminOnly dans le nav
     maxProjects: 999,
     maxUsers: 999,
     maxMW: 999999,
@@ -127,11 +127,13 @@ export function FeatureFlagsProvider({ children }) {
         const role = me.role || 'ANALYST';
         const planFlags = PLAN_FEATURES[plan] || PLAN_FEATURES.TRIAL;
 
-        // SUPER_ADMIN et ADMIN voient tout
+        // Flags effectifs selon le rôle et le plan
         const isAdmin = ['SUPER_ADMIN','ADMIN'].includes(role);
+        // ADMIN et SUPER_ADMIN: accès complet à tous les modules
+        // Les autres utilisateurs: accès selon leur plan
         const effectiveFlags = isAdmin
-          ? { ...PLAN_FEATURES.ENTERPRISE, email_composer: isAdmin }
-          : { ...planFlags, email_composer: false };
+          ? { ...PLAN_FEATURES.ENTERPRISE, email_composer: true }
+          : { ...planFlags };
 
         setFlags(effectiveFlags);
         setUserCtx({ role, plan, organizationId: me.organizationId });
