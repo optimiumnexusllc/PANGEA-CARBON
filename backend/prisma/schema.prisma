@@ -81,6 +81,8 @@ model Organization {
   featureAccess    OrgFeature[]
   ghgAudits        GHGAudit[]
   sellerProfile    SellerProfile?
+  groupMemberships GroupMember[]
+  userPermissions  UserPermission[]
   buyerProfile     BuyerProfile?
   sellerPayouts    SellerPayout[]
   forwardContracts ForwardContract[] @relation("BuyerOrg")
@@ -867,4 +869,74 @@ model ForwardContract {
   @@index([sellerOrgId])
   @@index([projectId])
   @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RBAC — Role Based Access Control — PANGEA CARBON
+// ═══════════════════════════════════════════════════════════════════
+
+// Groupes d'utilisateurs avec permissions spécifiques
+model Group {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  description  String?
+  color        String?       @default("#00FF94")
+  icon         String?       @default("👥")
+  orgId        String?       // null = groupe global plateforme
+  permissions  String        @default("[]") // JSON array: ["projects.create","pipeline.advance"...]
+  isSystem     Boolean       @default(false)  // Groupes système non-supprimables
+  priority     Int           @default(0)      // Priorité de résolution des permissions
+  members      GroupMember[]
+  createdBy    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([orgId])
+}
+
+// Association user ↔ groupe
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addedAt   DateTime @default(now())
+  addedBy   String?
+  expiresAt DateTime? // Permission temporaire
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([groupId])
+}
+
+// Override de permissions par user (en plus des groupes)
+model UserPermission {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission String   // ex: "pipeline.issue_credits"
+  granted    Boolean  @default(true)   // true=accordé, false=refusé explicitement
+  grantedBy  String?
+  grantedAt  DateTime @default(now())
+  expiresAt  DateTime?
+  reason     String?
+
+  @@unique([userId, permission])
+  @@index([userId])
+}
+
+// Matrice des permissions par rôle (override des défauts codés)
+model RolePermissionOverride {
+  id         String   @id @default(cuid())
+  role       Role
+  permission String
+  granted    Boolean  @default(true)
+  setBy      String?
+  setAt      DateTime @default(now())
+  reason     String?
+
+  @@unique([role, permission])
+  @@index([role])
 }

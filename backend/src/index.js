@@ -106,6 +106,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/email-composer', require('./routes/emailcomposer'));
 app.use('/api/certification', require('./routes/certification'));
 app.use('/api/marketplace', require('./routes/marketplace'));
+app.use('/api/rbac',        require('./routes/rbac'));
 app.use('/api/buyers',      require('./routes/buyers'));
 app.use('/api/seller',      require('./routes/seller-profile'));
 app.use('/api/forward',     require('./routes/forward-contracts'));
