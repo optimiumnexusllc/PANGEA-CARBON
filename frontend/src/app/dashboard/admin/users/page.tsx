@@ -545,7 +545,7 @@ export default function AdminUsersPage() {
                 <div>
                   <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>{lang==='fr'?'STATUT MFA':'MFA STATUS'}</div>
                   <div style={{ fontSize:14, fontWeight:700, color:mfaModal.twoFactorAuth?.enabled?'#00FF94':'#F87171' }}>
-                    {mfaModal.twoFactorAuth?.enabled?(lang==='fr'?'🔐 Activé':'🔐 Enabled'):(lang==='fr'?'🔓 Désactivé':'🔓 Disabled')}
+                    {mfaModal.twoFactorAuth?.enabled?'🔐 '+(lang==='fr'?'Activé':'Enabled'):'🔓 '+(lang==='fr'?'Désactivé':'Disabled')}
                   </div>
                 </div>
                 <div>
@@ -560,7 +560,7 @@ export default function AdminUsersPage() {
 
             <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:20 }}>
               {mfaModal.twoFactorAuth?.enabled&&(
-                <button onClick={()=>{ disableMFA(mfaModal); setMfaModal(null); }}
+                <button onClick={async ()=>{ await disableMFA(mfaModal); setMfaModal(s=>s&&{...s,twoFactorAuth:{...s.twoFactorAuth,enabled:false}}); setTimeout(()=>setMfaModal(null),1200); }}
                   style={{ width:'100%', background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.3)', borderRadius:10, color:'#F87171', padding:'12px 16px', cursor:'pointer', fontSize:13, fontWeight:700, textAlign:'left', display:'flex', alignItems:'center', gap:10 }}>
                   <span style={{ fontSize:20 }}>🔓</span>
                   <div>
@@ -580,10 +580,17 @@ export default function AdminUsersPage() {
                 </button>
               )}
               {!mfaModal.twoFactorAuth?.enabled&&(
-                <div style={{ padding:'12px 16px', background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.15)', borderRadius:10, fontSize:12, color:'#8FA3B8', lineHeight:1.7 }}>
-                  💡 {lang==='fr'
-                    ?'MFA non activé sur ce compte. Activation via Dashboard → Security & 2FA.'
-                    :'MFA not enabled. User can enable from Dashboard → Security.'}
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  <div style={{ padding:'12px 16px', background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.15)', borderRadius:10, fontSize:12, color:'#8FA3B8', lineHeight:1.7 }}>
+                    💡 {lang==='fr'
+                      ?'MFA non activé. Cet utilisateur peut activer le 2FA depuis son Dashboard → Security & 2FA.'
+                      :'MFA not enabled. This user can enable 2FA from their Dashboard → Security & 2FA.'}
+                  </div>
+                  <div style={{ padding:'10px 14px', background:'rgba(252,211,77,0.05)', border:'1px solid rgba(252,211,77,0.15)', borderRadius:10, fontSize:11, color:'#FCD34D', lineHeight:1.7 }}>
+                    ⚠ {lang==='fr'
+                      ?'Recommandation: demandez à cet utilisateur d'activer le MFA pour sécuriser son compte.'
+                      :'Recommendation: ask this user to enable MFA to secure their account.'}
+                  </div>
                 </div>
               )}
             </div>

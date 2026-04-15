@@ -77,6 +77,46 @@ router.post('/', auth, requirePermission('projects.create'), [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
+    // ── Vérification limite de plan ──────────────────────────────────────────
+    if (!['SUPER_ADMIN', 'ADMIN'].includes(req.user.role)) {
+      const PLAN_LIMITS = {
+        FREE:       { maxProjects:1 },
+        TRIAL:      { maxProjects:3 },
+        STARTER:    { maxProjects:5 },
+        PRO:        { maxProjects:999 },
+        GROWTH:     { maxProjects:50 },
+        ENTERPRISE: { maxProjects:999 },
+        CUSTOM:     { maxProjects:999 },
+      };
+      const userWithOrg = await prisma.user.findUnique({
+        where: { id: req.user.userId },
+        include: { organization: { select: { plan: true, maxProjects: true, name: true } } }
+      });
+      const orgPlan = userWithOrg?.organization?.plan || 'TRIAL';
+      const orgMaxProjects = userWithOrg?.organization?.maxProjects
+        || PLAN_LIMITS[orgPlan]?.maxProjects || 3;
+      const currentCount = await prisma.project.count({
+        where: { organizationId: userWithOrg?.organization ? undefined : undefined,
+                 userId: userWithOrg?.organization ? undefined : req.user.userId,
+                 OR: userWithOrg?.organizationId
+                   ? [{ organizationId: userWithOrg.organizationId }]
+                   : [{ userId: req.user.userId }]
+        }
+      });
+      if (currentCount >= orgMaxProjects) {
+        return res.status(402).json({
+          error: 'Project limit reached for your plan',
+          code: 'PLAN_LIMIT_REACHED',
+          currentPlan: orgPlan,
+          currentCount,
+          maxProjects: orgMaxProjects,
+          message: 'Upgrade your plan to create more projects.',
+          upgradeUrl: '/dashboard/settings',
+          requiredPlan: orgPlan === 'TRIAL' ? 'STARTER' : orgPlan === 'STARTER' ? 'PRO' : 'ENTERPRISE',
+        });
+      }
+    }
+
     const { name, description, type, country, countryCode, latitude, longitude,
             installedMW, startDate, endDate, standard } = req.body;
 

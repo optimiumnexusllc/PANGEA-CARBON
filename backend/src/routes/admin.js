@@ -108,9 +108,11 @@ router.patch('/users/:id', auth, adminOnly, async (req, res, next) => {
       if (maxMW) orgUpdate.maxMW = parseFloat(maxMW);
       // Set limits based on plan
       const planLimits = {
-        TRIAL:      { maxProjects:5,  maxUsers:3,  maxMW:100 },
-        STARTER:    { maxProjects:10, maxUsers:5,  maxMW:500 },
-        GROWTH:     { maxProjects:50, maxUsers:20, maxMW:5000 },
+        FREE:       { maxProjects:1,  maxUsers:1,  maxMW:10    },
+        TRIAL:      { maxProjects:3,  maxUsers:2,  maxMW:50    },
+        STARTER:    { maxProjects:5,  maxUsers:2,  maxMW:50    },
+        PRO:        { maxProjects:999,maxUsers:10, maxMW:99999 },
+        GROWTH:     { maxProjects:50, maxUsers:20, maxMW:5000  },
         ENTERPRISE: { maxProjects:999,maxUsers:999,maxMW:99999 },
       };
       const limits = planLimits[billingPlan] || planLimits.TRIAL;
@@ -190,7 +192,7 @@ router.post('/orgs', auth, adminOnly, async (req, res, next) => {
     const { name, plan, country, billingEmail, maxProjects, maxMW, maxUsers } = req.body;
     const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
     const org = await prisma.organization.create({
-      data: { name, slug: `${slug}-${Date.now().toString(36)}`, plan: plan || 'TRIAL', country, billingEmail, maxProjects: maxProjects || 5, maxMW: maxMW || 100, maxUsers: maxUsers || 3, trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) }
+      data: { name, slug: `${slug}-${Date.now().toString(36)}`, plan: plan || 'TRIAL', country, billingEmail, maxProjects: maxProjects || 3, maxMW: maxMW || 50, maxUsers: maxUsers || 2, trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) }
     });
     await prisma.auditLog.create({ data: { userId: req.user.userId, action: 'CREATE_ORG', entity: 'Organization', entityId: org.id, after: org, ipAddress: req.ip } });
     res.status(201).json(org);

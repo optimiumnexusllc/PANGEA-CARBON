@@ -1,6 +1,7 @@
 'use client';
+import { UpgradeModal } from '@/components/PlanGate';
 import { useLang } from '@/lib/lang-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 
 const C = {

@@ -39,6 +39,19 @@ async function request(path, options = {}) {
     throw new Error('Session expirée');
   }
 
+  if (res.status === 402) {
+    const err = await res.json().catch(() => ({ error: 'Plan upgrade required' }));
+    const error = new Error(err.error || 'Plan upgrade required') as any;
+    error.status = 402;
+    error.code = err.code || 'PLAN_REQUIRED';
+    error.currentPlan = err.currentPlan;
+    error.requiredPlan = err.requiredPlan;
+    error.maxProjects = err.maxProjects;
+    error.currentCount = err.currentCount;
+    error.apiError = err;
+    throw error;
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Erreur inconnue' }));
     throw new Error(err.error || 'Erreur serveur');

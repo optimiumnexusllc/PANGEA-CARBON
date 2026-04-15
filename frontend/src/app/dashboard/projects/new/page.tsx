@@ -1,4 +1,5 @@
 'use client';
+import { UpgradeModal } from '@/components/PlanGate';
 import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,6 +14,7 @@ export default function NewProjectPage() {
   const [step, setStep] = useState(0);
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [planLimitModal, setPlanLimitModal] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     name: '', description: '', type: 'SOLAR',
@@ -33,6 +35,7 @@ export default function NewProjectPage() {
   };
 
   const submit = async () => {
+    setPlanLimitModal(false);
     setLoading(true); setError('');
     try {
       const project = await api.createProject({
@@ -42,8 +45,14 @@ export default function NewProjectPage() {
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
       });
-      router.push(`/dashboard/projects/${project.id}`);
-    } catch(e) { setError(e.message); setLoading(false); }
+      router.push('/dashboard/projects/'+project.id);
+    } catch(e) {
+      if ((e as any).status === 402 || (e as any).code === 'PLAN_LIMIT_REACHED' || (e as any).code === 'PLAN_REQUIRED') {
+        setPlanLimitModal(true);
+      } else {
+        setError((e as any).message || 'Error creating project');
+      }
+    } finally { setLoading(false); }
   };
 
   const Label = ({ children }: any) => (
@@ -54,6 +63,7 @@ export default function NewProjectPage() {
 
   return (
     <div className="p-6" style={{ maxWidth: 720, margin: '0 auto' }}>
+      {planLimitModal && <UpgradeModal featureKey="pdf_reports" onClose={()=>setPlanLimitModal(false)}/>}
       {/* Header */}
       <div className="mb-8">
         <a href="/dashboard/projects" style={{ fontSize: 12, color: '#4A6278', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 16 }}>
