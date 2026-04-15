@@ -63,6 +63,8 @@ export default function PipelinePage() {
   const [creating, setCreating] = useState(false);
   const [advancing, setAdvancing] = useState('');
   const [confirmBlock, setConfirmBlock] = useState(null);
+  const [confirmDocDelete, setConfirmDocDelete] = useState(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [newForm, setNewForm] = useState({ projectId:'', vintage:new Date().getFullYear()-1, standard:'VERRA_VCS' });
   const [vvbForm, setVvbForm] = useState({ vvbName:'', vvbContact:'' });
   const [docForm, setDocForm] = useState({ type:'PDD', name:'', fileUrl:'' });
@@ -202,8 +204,6 @@ export default function PipelinePage() {
     finally { setUploading(false); }
   };
 
-  const [confirmDocDelete, setConfirmDocDelete] = React.useState(null);
-
   const deleteDoc = async (docId) => {
     setConfirmDocDelete(docId);
   };
@@ -216,8 +216,6 @@ export default function PipelinePage() {
       toast$('Deleted');
     } catch(e) { toast$(e.message,'error'); }
   };
-
-  const [confirmCancel, setConfirmCancel] = React.useState(false);
 
   const cancelPipeline = async () => {
     setConfirmCancel(false);
