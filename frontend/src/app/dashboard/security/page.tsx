@@ -105,13 +105,18 @@ export default function SecurityPage() {
       const r = await fetchAuthJson('/2fa/email/send?lang='+lang, { method:'POST' });
       setEmailSentTo(r.sentTo||'');
       setEmailCountdown(60);
-      if (r.devCode) {
+      if (r.smtpNotConfigured && r.devCode) {
+        setSmtpWarning(true);
         setEmailCode(r.devCode);
-        showToast((lang==='fr'?'SMTP non configuré — code de test: ':'SMTP not configured — test code: ')+r.devCode, 'info');
+        showToast((lang==='fr'
+          ?'SMTP non configuré — Code: '+r.devCode+' (configurez SMTP dans Admin → Email)'
+          :'SMTP not configured — Code: '+r.devCode+' (configure SMTP in Admin → Email)'), 'info');
+      } else if (r.smtpError) {
+        showToast((lang==='fr'?'Erreur SMTP: ':'SMTP error: ')+r.smtpError, 'error');
       } else if (r.sent) {
-        showToast(lang==='fr'?'Code envoyé par email !':'Code sent by email!');
+        showToast(lang==='fr'?'Code envoyé sur '+r.sentTo+'!':'Code sent to '+r.sentTo+'!');
       } else {
-        showToast(lang==='fr'?'Email non envoyé (SMTP non configuré) — réessayez':'Email not sent (SMTP not configured)', 'info');
+        showToast(lang==='fr'?'Email non reçu?':'Email not received?', 'info');
       }
     } catch(e) { showToast(e.message||'Error','error'); }
     finally { setEmailSending(false); }
@@ -447,6 +452,16 @@ export default function SecurityPage() {
                 <div style={{ fontSize:11,color:C.muted,marginTop:8,fontFamily:'JetBrains Mono, monospace' }}>
                   {lang==='fr'?'Le code expire dans 5 minutes. Vérifiez vos spams.':'Code expires in 5 minutes. Check your spam folder.'}
                 </div>
+                {smtpWarning && (
+                  <div style={{ marginTop:12,padding:'12px 14px',background:'rgba(252,211,77,0.08)',border:'1px solid rgba(252,211,77,0.3)',borderRadius:8,fontSize:12,color:C.yellow,lineHeight:1.7 }}>
+                    ⚠ {lang==='fr'
+                      ?'SMTP non configuré — le code a été pré-rempli. Configurez le serveur mail dans Admin → Email & Notifications pour recevoir les codes par email.'
+                      :'SMTP not configured — code has been pre-filled. Configure mail server in Admin → Email & Notifications to receive codes by email.'}
+                    <a href="/dashboard/admin/email" style={{ display:'block',marginTop:6,color:C.blue,fontFamily:'JetBrains Mono, monospace',textDecoration:'none',fontSize:11 }}>
+                      → {lang==='fr'?'Configurer SMTP Hostinger':'Configure Hostinger SMTP'}
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -178,13 +178,26 @@ router.post('/email/send', auth, async (req, res, next) => {
     // Envoyer le mail (non-fatal — on retourne quand même succès)
     const lang = req.query.lang || req.body.lang || 'en';
     let emailResult = { sent: false };
+    let smtpConfigured = false;
+    try {
+      // Vérifier si SMTP est configuré
+      const smtpHost = await prisma.systemSetting.findUnique({ where: { key: 'smtp_host' } }).catch(() => null);
+      smtpConfigured = !!(smtpHost?.value);
+    } catch(e) { smtpConfigured = !!(process.env.SMTP_HOST); }
+
     try {
       await sendEmailOTP({ to: user.email, name: user.name||'', code, expiresInMinutes: 5, lang });
       emailResult = { sent: true };
+      console.log('[2FA Email OTP] Sent to:', user.email);
     } catch(emailErr) {
-      console.warn('[2FA] Email send failed:', emailErr.message, '— code:', code);
-      // En dev, retourner le code si l'email échoue (à désactiver en prod)
-      emailResult = { sent: false, devCode: process.env.NODE_ENV !== 'production' ? code : undefined };
+      console.warn('[2FA Email OTP] Failed:', emailErr.message, '| Code:', code, '| SMTP configured:', smtpConfigured);
+      // Si SMTP non configuré: retourner le code pour permettre le test
+      // En prod avec SMTP configuré: erreur sans code
+      if (!smtpConfigured) {
+        emailResult = { sent: false, smtpNotConfigured: true, devCode: code };
+      } else {
+        emailResult = { sent: false, smtpError: emailErr.message };
+      }
     }
 
     const maskedEmail = user.email.replace(/(.{2}).*(@.*)/, '$1***$2');
