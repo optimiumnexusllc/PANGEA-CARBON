@@ -27,7 +27,7 @@ export default function GHGAuditPage() {
 
   const [view, setView]         = useState('dashboard'); // dashboard | list | audit | new
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [confirmDeleteEntry, setConfirmDeleteEntry] = useState<string|null>(null);
+  const [confirmDeleteEntry, setConfirmDeleteEntry] = useState(null);
     const [audits, setAudits]     = useState([]);
   const [currentAudit, setCurrentAudit] = useState(null);
   const [factors, setFactors]   = useState([]);
@@ -105,7 +105,7 @@ export default function GHGAuditPage() {
     finally { setAddingEntry(false); }
   };
 
-  const deleteEntry = async (eid: string) => {
+  const deleteEntry = async (eid) => {
     setConfirmDeleteEntry(eid);
   };
 
