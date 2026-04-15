@@ -153,24 +153,42 @@ router.post('/email/send', auth, async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { email: true, name: true } });
     if (!user?.email) return res.status(400).json({ error: 'No email address on file' });
 
-    // Invalider les anciens OTPs
-    await prisma.emailOTP.updateMany({
-      where: { userId: req.user.userId, used: false },
-      data: { used: true }
-    }).catch(() => {});
+    // Invalider les anciens OTPs (non-fatal)
+    try {
+      await prisma.emailOTP.updateMany({
+        where: { userId: req.user.userId, used: false },
+        data: { used: true }
+      });
+    } catch(dbErr) { console.warn('[2FA] emailOTP cleanup:', dbErr.message); }
 
-    // Générer le code 6 chiffres
+    // Générer et stocker le code 6 chiffres
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const codeHash = crypto.createHash('sha256').update(code).digest('hex');
 
-    await prisma.emailOTP.create({
-      data: { userId: req.user.userId, code: crypto.createHash('sha256').update(code).digest('hex'), expiresAt }
-    });
+    try {
+      await prisma.emailOTP.create({
+        data: { userId: req.user.userId, code: codeHash, expiresAt }
+      });
+    } catch(dbErr) {
+      console.error('[2FA] emailOTP create error:', dbErr.message);
+      return res.status(500).json({ error: 'Database error: ' + dbErr.message });
+    }
 
+    // Envoyer le mail (non-fatal — on retourne quand même succès)
     const lang = req.query.lang || req.body.lang || 'en';
-    await sendEmailOTP({ to: user.email, name: user.name||'', code, expiresInMinutes: 5, lang });
+    let emailResult = { sent: false };
+    try {
+      await sendEmailOTP({ to: user.email, name: user.name||'', code, expiresInMinutes: 5, lang });
+      emailResult = { sent: true };
+    } catch(emailErr) {
+      console.warn('[2FA] Email send failed:', emailErr.message, '— code:', code);
+      // En dev, retourner le code si l'email échoue (à désactiver en prod)
+      emailResult = { sent: false, devCode: process.env.NODE_ENV !== 'production' ? code : undefined };
+    }
 
-    res.json({ success: true, sentTo: user.email.replace(/(.{2}).*(@.*)/, '$1***$2') });
+    const maskedEmail = user.email.replace(/(.{2}).*(@.*)/, '$1***$2');
+    res.json({ success: true, sentTo: maskedEmail, ...emailResult });
   } catch(e) { next(e); }
 });
 

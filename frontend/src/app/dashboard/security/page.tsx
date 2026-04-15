@@ -105,8 +105,15 @@ export default function SecurityPage() {
       const r = await fetchAuthJson('/2fa/email/send?lang='+lang, { method:'POST' });
       setEmailSentTo(r.sentTo||'');
       setEmailCountdown(60);
-      showToast(lang==='fr'?'Code envoyé par email !':'Code sent by email!');
-    } catch(e) { showToast(e.message,'error'); }
+      if (r.devCode) {
+        setEmailCode(r.devCode);
+        showToast((lang==='fr'?'SMTP non configuré — code de test: ':'SMTP not configured — test code: ')+r.devCode, 'info');
+      } else if (r.sent) {
+        showToast(lang==='fr'?'Code envoyé par email !':'Code sent by email!');
+      } else {
+        showToast(lang==='fr'?'Email non envoyé (SMTP non configuré) — réessayez':'Email not sent (SMTP not configured)', 'info');
+      }
+    } catch(e) { showToast(e.message||'Error','error'); }
     finally { setEmailSending(false); }
   };
 
