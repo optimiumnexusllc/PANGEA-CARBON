@@ -133,7 +133,7 @@ router.get('/assessments', auth, async (req, res, next) => {
 });
 
 // POST /api/esg/assessments — Créer un audit ESG
-router.post('/assessments', auth, async (req, res, next) => {
+router.post('/assessments', auth, requirePermission('esg.create'), requirePlan('STARTER'), async (req, res, next) => {
   try {
     const { companyName, reportingYear, sector, country, framework } = req.body;
     if (!companyName) return res.status(400).json({ error: 'companyName required' });
@@ -161,7 +161,7 @@ router.get('/assessments/:id', auth, async (req, res, next) => {
 });
 
 // PUT /api/esg/assessments/:id/responses — Sauvegarder les réponses
-router.put('/assessments/:id/responses', auth, async (req, res, next) => {
+router.put('/assessments/:id/responses', auth, requirePermission('esg.update'), requirePlan('STARTER'), async (req, res, next) => {
   try {
     const { responses } = req.body;
     const scores = calculateESGScore(responses || {});
@@ -193,7 +193,7 @@ router.get('/assessments/:id/score', auth, async (req, res, next) => {
 });
 
 // DELETE /api/esg/assessments/:id
-router.delete('/assessments/:id', auth, async (req, res, next) => {
+router.delete('/assessments/:id', auth, requirePermission('esg.delete'), requirePlan('STARTER'), async (req, res, next) => {
   try {
     await prisma.eSGAssessment.delete({ where: { id: req.params.id } });
     res.json({ deleted: true });

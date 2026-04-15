@@ -16,6 +16,7 @@ const { ghgWhere } = require('../middleware/isolation');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const { requirePermission, requirePlan } = require('../services/rbac.service');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const prisma = new PrismaClient();
 
 // ─── Facteurs d'émission GHG Protocol (IPCC AR6 + IEA 2024) ─────────────────
@@ -148,7 +149,7 @@ router.get('/audits', auth, async (req, res, next) => {
 });
 
 // ─── POST /ghg/audits — Créer un audit ───────────────────────────────────────
-router.post('/audits', auth, async (req, res, next) => {
+router.post('/audits', auth, requirePermission('ghg_audit.create'), async (req, res, next) => {
   try {
     const { name, reportingYear, framework, netZeroTarget } = req.body;
     if (!name || !reportingYear) return res.status(400).json({ error: 'name and reportingYear required' });

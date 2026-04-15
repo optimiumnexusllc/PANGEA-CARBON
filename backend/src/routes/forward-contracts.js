@@ -4,6 +4,7 @@
  */
 const router = require('express').Router();
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -25,7 +26,7 @@ router.get('/', auth, async (req, res, next) => {
 });
 
 // POST /api/forward — Créer une offre de forward (vendeur)
-router.post('/', auth, async (req, res, next) => {
+router.post('/', auth, requirePermission('seller.configure_gateway'), async (req, res, next) => {
   try {
     if (!req.user.organizationId) return res.status(400).json({ error: 'Organization required' });
     const { projectId, vintage, quantity, pricePerTonne, standard, deliveryDeadline, depositPct, notes } = req.body;

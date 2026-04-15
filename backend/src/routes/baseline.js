@@ -6,6 +6,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { decrypt } = require('../services/crypto.service');
 const prisma = new PrismaClient();
 
@@ -50,7 +51,7 @@ const GRID_EF_DATABASE = {
 };
 
 // POST /api/baseline/assess/:projectId — Lancer l'évaluation AI
-router.post('/assess/:projectId', auth, async (req, res, next) => {
+router.post('/assess/:projectId', auth, requirePermission('baseline.assess'), async (req, res, next) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.projectId },

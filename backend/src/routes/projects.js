@@ -78,44 +78,64 @@ router.post('/', auth, requirePermission('projects.create'), [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    // ─── Vérification limite de plan ──────────────────────────────────────
+    // ─── Vérification limite de plan (FATALE — utilise prisma local) ────────
     if (!['SUPER_ADMIN', 'ADMIN'].includes(req.user.role)) {
-      try {
-        const { checkProjectLimit, checkMWLimit } = require('../services/plan-limits.service');
-        const uid = req.user.userId;
-        const newMW = parseFloat(req.body.installedMW) || 0;
+      const uid = req.user.userId;
+      const LIMITS = {
+        FREE:{ mp:1, mw:10 }, TRIAL:{ mp:3, mw:50 },
+        STARTER:{ mp:5, mw:50 }, PRO:{ mp:999, mw:99999 },
+        GROWTH:{ mp:50, mw:5000 }, ENTERPRISE:{ mp:999, mw:99999 }, CUSTOM:{ mp:999, mw:99999 },
+      };
+      const NEXT = { FREE:'TRIAL', TRIAL:'STARTER', STARTER:'PRO', PRO:'ENTERPRISE', GROWTH:'PRO', ENTERPRISE:'ENTERPRISE' };
 
-        const projCheck = await checkProjectLimit(uid);
-        if (!projCheck.allowed) {
+      // Récupérer le plan de l'utilisateur
+      const userWithOrg = await prisma.user.findUnique({
+        where: { id: uid },
+        select: { role:true, organizationId:true, organization: { select:{ plan:true, maxProjects:true, maxMW:true } } }
+      });
+      const orgPlan = userWithOrg?.organization?.plan
+        || (['ORG_OWNER','ANALYST','AUDITOR'].includes(userWithOrg?.role) ? 'TRIAL' : 'FREE');
+      const planLimits = LIMITS[orgPlan] || LIMITS.TRIAL;
+      const maxProjects = userWithOrg?.organization?.maxProjects || planLimits.mp;
+      const maxMW = userWithOrg?.organization?.maxMW || planLimits.mw;
+
+      // Compter les projets existants
+      const orgId = userWithOrg?.organizationId;
+      const countWhere = orgId ? { organizationId: orgId } : { userId: uid };
+      const projectCount = await prisma.project.count({ where: countWhere });
+
+      if (projectCount >= maxProjects) {
+        return res.status(402).json({
+          error: 'Limite atteinte: ' + projectCount + '/' + maxProjects + ' projets (plan ' + orgPlan + ')',
+          code: 'PLAN_PROJECT_LIMIT',
+          current: projectCount,
+          max: maxProjects,
+          currentPlan: orgPlan,
+          requiredPlan: NEXT[orgPlan] || 'ENTERPRISE',
+          upgradeUrl: '/dashboard/settings',
+        });
+      }
+
+      // Vérifier limite MW
+      const newMW = parseFloat(req.body.installedMW) || 0;
+      if (newMW > 0) {
+        const mwResult = await prisma.project.aggregate({
+          where: countWhere,
+          _sum: { installedMW: true }
+        });
+        const currentMW = mwResult._sum.installedMW || 0;
+        if (currentMW + newMW > maxMW) {
           return res.status(402).json({
-            error: 'Limite de projets atteinte (' + projCheck.current + '/' + projCheck.max + ') — Plan ' + projCheck.plan,
-            code: 'PLAN_PROJECT_LIMIT',
-            current: projCheck.current,
-            max: projCheck.max,
-            currentPlan: projCheck.plan,
-            requiredPlan: projCheck.required,
+            error: 'Limite MW: ' + Math.round(currentMW) + '+' + newMW + '/' + maxMW + ' MW (plan ' + orgPlan + ')',
+            code: 'PLAN_MW_LIMIT',
+            currentMW: Math.round(currentMW),
+            newMW,
+            max: maxMW,
+            currentPlan: orgPlan,
+            requiredPlan: NEXT[orgPlan] || 'ENTERPRISE',
             upgradeUrl: '/dashboard/settings',
           });
         }
-
-        if (newMW > 0) {
-          const mwCheck = await checkMWLimit(uid, newMW);
-          if (!mwCheck.allowed) {
-            return res.status(402).json({
-              error: 'Limite MW atteinte (' + mwCheck.currentMW + '+' + newMW + '/' + mwCheck.maxMW + ' MW) — Plan ' + mwCheck.plan,
-              code: 'PLAN_MW_LIMIT',
-              currentMW: mwCheck.currentMW,
-              newMW,
-              max: mwCheck.maxMW,
-              currentPlan: mwCheck.plan,
-              requiredPlan: mwCheck.required,
-              upgradeUrl: '/dashboard/settings',
-            });
-          }
-        }
-      } catch (limitErr) {
-        console.error('[PlanCheck] Error:', limitErr.message);
-        // Non-fatal: si le check échoue, on laisse passer (et on log)
       }
     }
 

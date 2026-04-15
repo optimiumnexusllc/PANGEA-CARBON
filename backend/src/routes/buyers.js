@@ -4,6 +4,7 @@
  */
 const router = require('express').Router();
 const auth = require('../middleware/auth');
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -95,7 +96,7 @@ router.get('/', auth, async (req, res, next) => {
 });
 
 // ─── POST /api/buyers — Créer un buyer profile ────────────────────────────────
-router.post('/', auth, async (req, res, next) => {
+router.post('/', auth, requirePermission('buyer.create_profile'), async (req, res, next) => {
   try {
     const orgId = req.user.organizationId;
     if (!orgId) return res.status(400).json({ error: 'Organization required' });
@@ -116,7 +117,7 @@ router.post('/', auth, async (req, res, next) => {
 });
 
 // ─── PUT /api/buyers/profile — Mettre à jour son profil buyer ─────────────────
-router.put('/profile', auth, async (req, res, next) => {
+router.put('/profile', auth, requirePermission('buyer.update_profile'), async (req, res, next) => {
   try {
     const orgId = req.user.organizationId;
     if (!orgId) return res.status(400).json({ error: 'Organization required' });
