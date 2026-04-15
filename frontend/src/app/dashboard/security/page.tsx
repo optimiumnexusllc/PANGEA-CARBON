@@ -35,7 +35,7 @@ export default function SecurityPage() {
     setLoading(true);
     try {
       const r = await fetchAuthJson('/2fa/setup', { method:'POST' });
-      setQrCode(r.qrCode); setSecret(r.manualEntry); setStep('scan');
+      setQrCode(r.qrCode); setSecret(r.manualEntry?.key||r.secret||''); setStep('scan');
     } catch(e) { showToast(e.message,'error'); }
     finally { setLoading(false); }
   };
@@ -44,7 +44,7 @@ export default function SecurityPage() {
     if (!token.trim()) return;
     setLoading(true);
     try {
-      const r = await fetchAuthJson('/2fa/verify', { method:'POST', body:JSON.stringify({ token:token.trim() }) });
+      const r = await fetchAuthJson('/2fa/verify', { method:'POST', body:JSON.stringify({ code:token.trim() }) });
       setBackupCodes(r.backupCodes||[]);
       setStatus2fa(s=>({...s, enabled:true}));
       setStep('backup'); setToken('');
@@ -57,7 +57,7 @@ export default function SecurityPage() {
     if (!disableToken.trim()) return;
     setLoading(true);
     try {
-      await fetchAuthJson('/2fa/disable', { method:'POST', body:JSON.stringify({ token:disableToken.trim() }) });
+      await fetchAuthJson('/2fa/disable', { method:'DELETE', body:JSON.stringify({ code:disableToken.trim() }) });
       setStatus2fa(s=>({...s, enabled:false}));
       setStep('idle'); setDisableToken('');
       showToast(lang==='fr'?'2FA désactivé.':'2FA disabled.');

@@ -150,4 +150,19 @@ router.get('/status', auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+
+// POST /api/2fa/backup-codes/regenerate
+router.post('/backup-codes/regenerate', auth, async (req, res, next) => {
+  try {
+    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: req.user.userId } });
+    if (!twofa?.enabled) return res.status(400).json({ error: '2FA must be enabled to regenerate backup codes' });
+
+    const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(4).toString('hex'));
+    const hashedBackups = backupCodes.map(c => crypto.createHash('sha256').update(c).digest('hex'));
+
+    await prisma.twoFactorAuth.update({ where: { userId: req.user.userId }, data: { backupCodes: hashedBackups } });
+    res.json({ backupCodes, message: 'Backup codes regenerated' });
+  } catch (e) { next(e); }
+});
+
 module.exports = router;
