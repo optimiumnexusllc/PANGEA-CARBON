@@ -741,25 +741,94 @@ model BuyerProfile {
   id              String   @id @default(cuid())
   organizationId  String   @unique
   organization    Organization @relation(fields: [organizationId], references: [id])
-  
-  buyerType       String   @default("VOLUNTARY") // VOLUNTARY | CBAM | CORSIA | COMPLIANCE | SPECULATIVE
+
+  // ── Profil entreprise ──────────────────────────────────────────────────────
+  companyName     String?
   companyRegNumber String?
   vatNumber       String?
+  sector          String?  // ENERGY | MANUFACTURING | TRANSPORT | FINANCE | TECH | AGRI | MINING | OTHER
   country         String?
-  
-  // Vérification KYC
-  kycStatus       String   @default("PENDING") // PENDING | VERIFIED | REJECTED
-  kycVerifiedAt   DateTime?
+  hqCity          String?
+  employeeCount   Int?
+  annualRevenueUSD Float?  // Chiffre d'affaires annuel USD
+  listedCompany   Boolean @default(false) // Coté en bourse ?
+  stockExchange   String?  // NSE, JSE, Casablanca, NYSE...
+
+  // ── Classification buyer ───────────────────────────────────────────────────
+  buyerType       String   @default("VOLUNTARY")
+  // CORPORATE_VOLUNTARY  — Offset volontaire (branding ESG, Net Zero)
+  // COMPLIANCE_CBAM      — Obligation CBAM (exports vers UE)
+  // COMPLIANCE_CORSIA    — Aviation CORSIA
+  // COMPLIANCE_EU_ETS    — EU ETS compliance
+  // COMPLIANCE_LOCAL     — Réglementation carbone locale
+  // STRATEGIC_NETZERO    — Engagement Net Zero signé (SBTi, UNFCCC)
+  // SPECULATIVE          — Trading/Investissement carbone
+  // FINANCIAL            — Banque/Fonds ESG
+  buyerSubType    String?  // Price-Driven | Quality | Strategic
+  motivations     String?  // JSON: ["ESG_REPORTING","NET_ZERO","CBAM","BRAND","INVESTOR_PRESSURE"]
+
+  // ── Profil carbone ────────────────────────────────────────────────────────
+  scope1Emissions Float?   // tCO2e/an Scope 1 (direct)
+  scope2Emissions Float?   // tCO2e/an Scope 2 (énergie)
+  scope3Emissions Float?   // tCO2e/an Scope 3 (chaîne valeur)
+  totalEmissions  Float?   // tCO2e/an total
+  netZeroTargetYear Int?   // Année objectif Net Zero
+  sbtValidated    Boolean @default(false) // Science Based Targets validé
+  sbtCommitmentDate DateTime?
+  ghgProtocolCertified Boolean @default(false)
+
+  // ── Budget & Volume ───────────────────────────────────────────────────────
   annualBudgetUSD Float?   // Budget annuel crédits carbone
   annualVolumeT   Float?   // Volume annuel estimé tCO2e
-  
-  // CBAM specifique
-  cbamOperatorId  String?  // Numéro opérateur CBAM
-  cbamSectors     String?  // Acier, Ciment, Aluminium... (JSON array)
+  priceRangeMin   Float?   // Prix min acceptable $/tCO2e
+  priceRangeMax   Float?   // Prix max acceptable $/tCO2e
+  preferredStandards String? // JSON: ["VERRA_VCS","GOLD_STANDARD","ARTICLE6"]
+  preferredProjects  String? // JSON: ["SOLAR","WIND","REDD","COOKSTOVES"]
+  preferredCountries String? // JSON: ["CI","KE","NG","MA","ZA"]
+  preferredVintage   String? // RECENT | ANY | SPECIFIC (2022-2024)
+
+  // ── CBAM Compliance ───────────────────────────────────────────────────────
+  cbamOperatorId  String?  // Numéro opérateur CBAM (EU)
+  cbamSectors     String?  // JSON: ["STEEL","CEMENT","ALUMINIUM","FERTILIZER","ELECTRICITY","HYDROGEN"]
   cbamExportsToEU Float?   // Valeur exports UE/an (USD)
-  
+  cbamCO2Embedded Float?   // tCO2e embarquées dans exports EU/an
+  cbamCertificatesNeeded Float? // Nombre certificats CBAM estimé/an
+  cbamDeadline    DateTime? // Prochaine échéance CBAM
+
+  // ── CORSIA Aviation ───────────────────────────────────────────────────────
+  corsiaAirlineCode String? // IATA code
+  corsiaFleetSize   Int?
+  corsiaRoutes      String? // JSON: routes internationales
+  corsiaEmissionsBaseline Float? // tCO2 baseline 2019
+
+  // ── KYC & Vérification ───────────────────────────────────────────────────
+  kycStatus       String   @default("PENDING") // PENDING | IN_REVIEW | VERIFIED | REJECTED
+  kycVerifiedAt   DateTime?
+  kycDocuments    String?  // JSON: liste documents soumis
+  esgRating       String?  // Notation ESG externe (MSCI, Sustainalytics...)
+  esgScore        Float?
+
+  // ── Intelligence commerciale ──────────────────────────────────────────────
+  contactName     String?  // Responsable ESG / Sustainability Officer
+  contactEmail    String?
+  contactTitle    String?  // "Chief Sustainability Officer", "Head of ESG"
+  linkedinUrl     String?
+  website         String?
+  carbonDeskNote  String?  // Notes internes équipe PANGEA (CRM)
+  leadScore       Int?     @default(0) // Score lead 0-100
+
+  // ── Statuts ──────────────────────────────────────────────────────────────
+  status          String   @default("PROSPECT") // PROSPECT | QUALIFIED | ACTIVE | PREMIUM | INACTIVE
+  onboardedAt     DateTime?
+  lastActivityAt  DateTime?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([buyerType])
+  @@index([status])
+  @@index([country])
+  @@index([sector])
 }
 
 // ─── FORWARD CONTRACT — Achats de crédits futurs ─────────────────────────────
