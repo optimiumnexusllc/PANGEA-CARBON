@@ -43,7 +43,7 @@ export default function LoginPage() {
   const [focusEmail, setFocusEmail] = useState(false);
   const [focusPass, setFocusPass]   = useState(false);
   const [mfaCode, setMfaCode]       = useState('');
-  const [mfaMethod, setMfaMethod]   = useState('totp');
+  const [mfaMethod, setMfaMethod]   = useState('email');
   const [preAuthToken, setPreAuthToken] = useState('');
   const [pendingUser, setPendingUser]   = useState(null);
   const [error, setError]           = useState('');
@@ -55,6 +55,9 @@ export default function LoginPage() {
   const [emailSending, setEmailSending] = useState(false);
   const [emailCountdown, setEmailCountdown] = useState(0);
   const [emailSent, setEmailSent]   = useState(false);
+  const [hasTOTP, setHasTOTP]       = useState(false);
+  const [emailAutoSent, setEmailAutoSent] = useState(false);
+  const [smtpWarning, setSmtpWarning]    = useState(false);
   const [shake, setShake]           = useState(false);
   const countdownRef = useRef(null);
 
@@ -89,6 +92,11 @@ export default function LoginPage() {
       if (data.requiresMFA) {
         setPreAuthToken(data.preAuthToken);
         setPendingUser(data.user);
+        setHasTOTP(data.hasTOTP||false);
+        setEmailAutoSent(data.emailOtpSent||false);
+        setSmtpWarning(!!(data.emailOtpError));
+        if (data.emailOtpSent) setEmailSent(true);
+        setMfaMethod('email');
         setStep('mfa');
         return;
       }
@@ -316,18 +324,20 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Method selector */}
-            <div style={{ display:'flex', gap:6, marginBottom:18, background:C.card2, borderRadius:10, padding:5 }}>
-              {[['totp','📱 '+(lang==='fr'?'App TOTP':'TOTP App'),'RFC 6238'],['email','📧 Email OTP',lang==='fr'?'5 minutes':'5 min']].map(([m,label,sub])=>(
-                <button key={m} onClick={()=>{ setMfaMethod(m); setMfaCode(''); setError(''); setEmailSent(false); }}
-                  style={{ flex:1, padding:'9px 0', border:'none', borderRadius:7, background:mfaMethod===m?'rgba(167,139,250,0.15)':'transparent',
-                    color:mfaMethod===m?C.purple:C.muted, cursor:'pointer', transition:'all .15s', display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
-                  <span style={{ fontSize:12, fontWeight:mfaMethod===m?700:400 }}>{label}</span>
-                  <span style={{ fontSize:9, color:mfaMethod===m?'rgba(167,139,250,0.7)':C.muted, fontFamily:'JetBrains Mono, monospace' }}>{sub}</span>
-                  {mfaMethod===m&&<div style={{ width:24, height:2, background:C.purple, borderRadius:2, marginTop:2 }}/>}
-                </button>
-              ))}
-            </div>
+            {/* Method selector — TOTP seulement si activé */}
+            {hasTOTP && (
+              <div style={{ display:'flex', gap:6, marginBottom:18, background:C.card2, borderRadius:10, padding:5 }}>
+                {[['email','📧 Email OTP',lang==='fr'?'5 minutes · Auto-envoyé':'5 min · Auto-sent'],['totp','📱 '+(lang==='fr'?'App TOTP':'TOTP App'),'RFC 6238']].map(([m,label,sub])=>(
+                  <button key={m} onClick={()=>{ setMfaMethod(m); setMfaCode(''); setError(''); }}
+                    style={{ flex:1, padding:'9px 0', border:'none', borderRadius:7, background:mfaMethod===m?'rgba(167,139,250,0.15)':'transparent',
+                      color:mfaMethod===m?C.purple:C.muted, cursor:'pointer', transition:'all .15s', display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+                    <span style={{ fontSize:12, fontWeight:mfaMethod===m?700:400 }}>{label}</span>
+                    <span style={{ fontSize:9, color:mfaMethod===m?'rgba(167,139,250,0.7)':C.muted, fontFamily:'JetBrains Mono, monospace' }}>{sub}</span>
+                    {mfaMethod===m&&<div style={{ width:24, height:2, background:C.purple, borderRadius:2, marginTop:2 }}/>}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {error && (
               <div style={{ background:'rgba(248,113,113,0.07)', border:'1px solid rgba(248,113,113,0.28)', borderRadius:9, padding:'10px 14px', marginBottom:14, fontSize:13, color:C.red, display:'flex', gap:8 }}>
@@ -347,25 +357,36 @@ export default function LoginPage() {
             {/* Email OTP */}
             {mfaMethod==='email' && (
               <div style={{ marginBottom:16 }}>
-                <div style={{ background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.15)', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:12, color:C.text2, lineHeight:1.7 }}>
-                  📧 {lang==='fr'
-                    ?'Recevez un code à 6 chiffres sur votre email enregistré. Valide 5 minutes, usage unique.'
-                    :'Receive a 6-digit code to your registered email. Valid for 5 minutes, single use.'}
-                </div>
+                {emailAutoSent && !smtpWarning && (
+                  <div style={{ background:'rgba(0,255,148,0.06)', border:'1px solid rgba(0,255,148,0.25)', borderRadius:8, padding:'10px 14px', marginBottom:12, display:'flex', alignItems:'center', gap:8 }}>
+                    <span style={{ fontSize:16 }}>✉️</span>
+                    <div style={{ fontSize:12, color:C.green, lineHeight:1.6 }}>
+                      <strong>{lang==='fr'?'Code envoyé automatiquement !':'Code sent automatically!'}</strong><br/>
+                      <span style={{ color:C.text2 }}>{lang==='fr'?'Vérifiez votre boîte mail et vos spams.':'Check your inbox and spam folder.'}</span>
+                    </div>
+                  </div>
+                )}
+                {smtpWarning && (
+                  <div style={{ background:'rgba(252,211,77,0.06)', border:'1px solid rgba(252,211,77,0.2)', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:12, color:C.yellow, lineHeight:1.6 }}>
+                    ⚠ {lang==='fr'?'Email non envoyé (SMTP non configuré). Cliquez pour renvoyer ou configurez SMTP dans Admin → Email.':'Email not sent (SMTP not configured). Click below to retry or configure SMTP in Admin → Email.'}
+                  </div>
+                )}
+                {(!emailAutoSent || smtpWarning) && (
+                  <div style={{ background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.15)', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:12, color:C.text2, lineHeight:1.7 }}>
+                    📧 {lang==='fr'?'Un code à 6 chiffres sera envoyé sur votre email. Valide 5 minutes.':'A 6-digit code will be sent to your email. Valid for 5 minutes.'}
+                  </div>
+                )}
                 <button onClick={sendEmailCode} disabled={emailSending||emailCountdown>0}
                   style={{ width:'100%', background:emailCountdown>0?C.card2:C.blue, color:emailCountdown>0?C.muted:C.bg, border:'none', borderRadius:9, padding:'11px 0', fontWeight:700, cursor:emailSending||emailCountdown>0?'not-allowed':'pointer', fontSize:13, transition:'all .15s', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
                   {emailSending
                     ? <><span style={{ width:14, height:14, border:'2px solid rgba(255,255,255,0.2)', borderTopColor:'white', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite' }}/>{lang==='fr'?'Envoi...':'Sending...'}</>
                     : emailCountdown>0
                       ? (lang==='fr'?'Renvoyer dans ':'Resend in ')+emailCountdown+'s'
-                      : '📧 '+(lang==='fr'?'Envoyer le code par email':'Send code by email')
+                      : emailAutoSent
+                        ? '↻ '+(lang==='fr'?'Renvoyer le code':'Resend code')
+                        : '📧 '+(lang==='fr'?'Envoyer le code par email':'Send code by email')
                   }
                 </button>
-                {emailSent && (
-                  <div style={{ marginTop:8, fontSize:11, color:C.green, textAlign:'center', fontFamily:'JetBrains Mono, monospace' }}>
-                    ✓ {lang==='fr'?'Code envoyé — vérifiez votre boîte mail et vos spams':'Code sent — check your inbox and spam folder'}
-                  </div>
-                )}
               </div>
             )}
 
