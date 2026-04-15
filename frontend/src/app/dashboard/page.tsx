@@ -7,7 +7,7 @@ import { fetchAuthJson } from '@/lib/fetch-auth';
 import { useLang } from '@/lib/lang-context';
 
 const fmt = (n, d = 0) => (n ?? 0).toLocaleString('en-US', { maximumFractionDigits: d });
-const fmtM = (n) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(0)}K` : `$${fmt(n)}`;
+const fmtM = (n) => n >= 1000000 ? '$'+((n)/1000000).toFixed(1)+'M' : n >= 1000 ? '$'+((n)/1000).toFixed(0)+'K' : '$'+fmt(n);
 
 const SEVERITY_STYLE = {
   critical: { bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.25)', color: '#F87171', icon: '🚨' },
@@ -62,7 +62,7 @@ export default function DashboardPage() {
   const timeData = stats?.monthly || [];
 
   // Locale for date based on language
-  const dateLocale = lang === 'fr' ? 'en-US' : 'en-US';
+  const dateLocale = lang === 'fr' ? 'fr-FR' : 'en-US';
   const dateOptions = { weekday: 'long' as const, year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const };
   const greeting = lang === 'fr' ? 'Bonjour' : 'Hello';
 
@@ -109,7 +109,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {kpis.map(k => (
           <div key={k.label} style={{ background: '#0D1117', border: `1px solid ${k.color}18`, borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 12, right: 14, fontSize: 22, opacity: 0.4 }}>{k.icon}</div>

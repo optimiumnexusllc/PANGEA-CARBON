@@ -282,16 +282,33 @@ export default function PipelinePage() {
       )}
 
       {confirmBlock && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1100, padding:16 }}>
-          <div style={{ background:'#0D1117', border:'1px solid rgba(248,113,113,0.4)', borderRadius:16, padding:28, maxWidth:420, width:'100%' }}>
-            <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', marginBottom:8 }}>BLOCK STEP</div>
-            <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:17, color:'#E8EFF6', marginBottom:16 }}>Block: {ICONS[confirmBlock.stepKey]} {confirmBlock.title}?</h2>
-            <textarea placeholder="Reason for blocking..." id="blockReason" style={{ ...inp, height:80, resize:'vertical', marginBottom:14 }}/>
-            <div style={{ display:'flex', gap:10 }}>
-              <button onClick={() => setConfirmBlock(null)} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:8, color:'#4A6278', padding:12, cursor:'pointer' }}>Cancel</button>
-              <button onClick={() => blockStep(confirmBlock.stepKey, (document.getElementById('blockReason') ? document.getElementById('blockReason').value : 'Blocked'))}
-                style={{ flex:1, background:'#F87171', color:'#fff', border:'none', borderRadius:8, padding:12, fontWeight:700, cursor:'pointer' }}>
-                🔒 Block step
+        <div onClick={e=>{if(e.target===e.currentTarget)setConfirmBlock(null);}}
+          style={{ position:'fixed',inset:0,background:'rgba(8,11,15,0.9)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:10001,padding:16 }}>
+          <div style={{ background:'#0D1117',border:'1px solid rgba(248,113,113,0.35)',borderRadius:18,padding:28,maxWidth:460,width:'100%',boxShadow:'0 32px 80px rgba(0,0,0,0.8)',position:'relative',overflow:'hidden' }}>
+            <div style={{ position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#F87171 0%,rgba(248,113,113,0.3) 70%,transparent 100%)' }}/>
+            <div style={{ display:'flex',gap:14,alignItems:'center',marginBottom:16 }}>
+              <div style={{ width:52,height:52,borderRadius:13,background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0 }}>🔒</div>
+              <div>
+                <div style={{ fontSize:9,color:'#F87171',fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.13em',marginBottom:4 }}>PIPELINE · {L('BLOCK STEP','BLOQUER ÉTAPE')}</div>
+                <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:17,fontWeight:800,color:'#F87171',margin:0 }}>
+                  {L('Block','Bloquer')}: {ICONS[confirmBlock.stepKey]} {confirmBlock.title}?
+                </h2>
+              </div>
+            </div>
+            <div style={{ height:1,background:'linear-gradient(90deg,rgba(248,113,113,0.3) 0%,transparent 100%)',marginBottom:18 }}/>
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:9,color:'#4A6278',fontFamily:'JetBrains Mono, monospace',marginBottom:6 }}>{L('REASON FOR BLOCKING','RAISON DU BLOCAGE')} *</div>
+              <textarea placeholder={L('Explain why this step is being blocked...','Expliquez pourquoi cette étape est bloquée...')}
+                id="blockReason"
+                style={{ width:'100%',background:'#121920',border:'1px solid #1E2D3D',borderRadius:9,color:'#E8EFF6',padding:'10px 13px',fontSize:13,outline:'none',height:80,resize:'vertical',boxSizing:'border-box',fontFamily:'system-ui,sans-serif' }}/>
+            </div>
+            <div style={{ display:'flex',gap:10 }}>
+              <button onClick={()=>setConfirmBlock(null)} style={{ flex:1,background:'transparent',border:'1px solid #1E2D3D',borderRadius:9,color:'#4A6278',padding:12,cursor:'pointer',fontSize:13 }}>
+                {L('Cancel','Annuler')}
+              </button>
+              <button onClick={()=>blockStep(confirmBlock.stepKey,(document.getElementById('blockReason')?document.getElementById('blockReason').value:L('Blocked','Bloqué')))}
+                style={{ flex:1,background:'rgba(248,113,113,0.12)',border:'1px solid rgba(248,113,113,0.4)',borderRadius:9,color:'#F87171',padding:12,fontWeight:800,cursor:'pointer',fontSize:13,fontFamily:'Syne, sans-serif' }}>
+                🔒 {L('Block step','Bloquer cette étape')}
               </button>
             </div>
           </div>
@@ -840,7 +857,7 @@ export default function PipelinePage() {
             <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
               <div style={{ width:44, height:44, borderRadius:12, background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>⚠</div>
               <div>
-                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:3 }}>PIPELINE · ANNULATION</div>
+                <div style={{ fontSize:9, color:'#F87171', fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:3 }}>PIPELINE · {L('CANCEL','ANNULATION')}</div>
                 <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:16, fontWeight:800, color:'#F87171', margin:0 }}>{L('Cancel this pipeline?','Annuler ce pipeline ?')}</h2>
               </div>
             </div>

@@ -43,7 +43,7 @@ const MODULE_META: Record<string,{label:string;icon:string;color:string}> = {
 
 const GROUP_COLORS = ['#00FF94','#38BDF8','#A78BFA','#FCD34D','#F97316','#F87171','#8FA3B8'];
 
-const inp = { background:C.card2, border:`1px solid ${C.border}`, borderRadius:8, color:C.text, padding:'10px 14px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
+const inp = { background:C.card2, border:'1px solid '+C.border, borderRadius:8, color:C.text, padding:'10px 14px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
 
 export default function RBACPage() {
   const { lang } = useLang();
@@ -100,7 +100,7 @@ export default function RBACPage() {
   };
 
   const togglePermission = async (role:string, mod:string, perm:string) => {
-    const full = `${mod}.${perm}`;
+    const full = mod+'.'+perm;
     const current = matrix[role] || [];
     const granted = !current.includes(full);
     try {
@@ -114,7 +114,7 @@ export default function RBACPage() {
         else { const i = perms.indexOf(full); if(i>=0) perms.splice(i,1); }
         return { ...prev, [role]: perms };
       });
-      showToast(`${granted?'✓ Accordé':'✗ Révoqué'}: ${role} → ${full}`);
+      showToast((granted?L('✓ Granted','✓ Accordé'):L('✗ Revoked','✗ Révoqué'))+': '+role+' → '+full);
     } catch(e:any) { showToast(e.message,'error'); }
   };
 
@@ -252,7 +252,7 @@ export default function RBACPage() {
                 {Object.entries(allPerms).map(([mod, perms]) => {
                   const mm = MODULE_META[mod];
                   return (perms as string[]).map((perm, pi) => {
-                    const full = `${mod}.${perm}`;
+                    const full = mod+'.'+perm;
                     return (
                       <tr key={full} style={{background: pi===0 ? `${mm?.color||C.muted}05` : 'transparent', borderBottom:`1px solid ${C.border}22`}}>
                         <td style={{padding:'8px 14px',position:'sticky',left:0,background: pi===0 ? `${mm?.color||C.muted}08` : C.card, zIndex:5, borderBottom:`1px solid ${C.border}30`}}>
@@ -306,7 +306,7 @@ export default function RBACPage() {
               <div style={{background:C.card,border:`1px solid rgba(0,255,148,0.25)`,borderRadius:16,padding:28,maxWidth:600,width:'90%',maxHeight:'90vh',overflowY:'auto'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
                   <h2 style={{fontFamily:'Syne, sans-serif',fontSize:18,fontWeight:800,color:C.green,margin:0}}>{editGroup ? L('Edit group','Modifier le groupe') : L('New group','Nouveau groupe')}</h2>
-                  <button onClick={()=>{setShowGroupForm(false);setEditGroup(null);}} style={{background:'transparent',border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,cursor:'pointer',width:30,height:30,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+                  <button onClick={()=>{setShowGroupForm(false);setEditGroup(null);}} style={{background:'transparent',border:'1px solid '+C.border,borderRadius:8,color:C.muted,cursor:'pointer',width:30,height:30,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
                 </div>
 
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
@@ -359,7 +359,7 @@ export default function RBACPage() {
                       {Object.entries(allPerms).map(([mod,perms])=>{
                         const mm=MODULE_META[mod];
                         return (
-                          <div key={mod} style={{background:C.card2,borderRadius:10,padding:12,border:`1px solid ${C.border}`}}>
+                          <div key={mod} style={{background:C.card2,borderRadius:10,padding:12,border:'1px solid '+C.border}}>
                             <div style={{fontSize:10,color:mm?.color||C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8,fontWeight:700}}>
                               {mm?.icon} {mm?.label||mod}
                             </div>
@@ -382,7 +382,7 @@ export default function RBACPage() {
                   </div>
 
                   <div style={{display:'flex',gap:10,marginTop:8}}>
-                    <button onClick={()=>{setShowGroupForm(false);setEditGroup(null);}} style={{flex:1,background:'transparent',border:`1px solid ${C.border}`,borderRadius:9,color:C.muted,padding:11,cursor:'pointer',fontSize:13}}>Annuler</button>
+                    <button onClick={()=>{setShowGroupForm(false);setEditGroup(null);}} style={{flex:1,background:'transparent',border:'1px solid '+C.border,borderRadius:9,color:C.muted,padding:11,cursor:'pointer',fontSize:13}}>Annuler</button>
                     <button onClick={saveGroup} style={{flex:2,background:'rgba(0,255,148,0.12)',border:'1px solid rgba(0,255,148,0.35)',borderRadius:9,color:C.green,padding:11,fontWeight:800,cursor:'pointer',fontSize:13,fontFamily:'Syne, sans-serif'}}>
                       💾 {editGroup?'Mettre à jour':'Créer le groupe'}
                     </button>
@@ -394,7 +394,7 @@ export default function RBACPage() {
 
           {/* Groups list */}
           {groups.length === 0 ? (
-            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:48,textAlign:'center'}}>
+            <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:48,textAlign:'center'}}>
               <div style={{fontSize:40,marginBottom:16}}>👥</div>
               <div style={{fontSize:15,color:C.text,fontWeight:700,marginBottom:8}}>Aucun groupe créé</div>
               <div style={{fontSize:13,color:C.muted}}>Créez des groupes pour organiser les permissions par équipe ou projet.</div>
@@ -402,7 +402,7 @@ export default function RBACPage() {
           ) : groups.map(group => {
             const perms = (() => { try { return JSON.parse(group.permissions||'[]'); } catch(e) { return []; } })();
             return (
-              <div key={group.id} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:20,marginBottom:12,borderLeft:`3px solid ${group.color||C.green}`}}>
+              <div key={group.id} style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:20,marginBottom:12,borderLeft:`3px solid ${group.color||C.green}`}}>
                 <div style={{display:'flex',alignItems:'flex-start',gap:16}}>
                   <div style={{width:44,height:44,borderRadius:12,background:`${group.color||C.green}15`,border:`1px solid ${group.color||C.green}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
                     {group.icon||'👥'}
@@ -431,7 +431,7 @@ export default function RBACPage() {
                     {/* Members */}
                     <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                       {(group.members||[]).slice(0,6).map((m:any)=>(
-                        <div key={m.id} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 10px',background:C.card2,borderRadius:20,border:`1px solid ${C.border}`}}>
+                        <div key={m.id} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 10px',background:C.card2,borderRadius:20,border:'1px solid '+C.border}}>
                           <div style={{width:18,height:18,borderRadius:'50%',background:'rgba(0,255,148,0.15)',color:C.green,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}}>{m.user?.name?.[0]?.toUpperCase()}</div>
                           <span style={{fontSize:10,color:C.text2}}>{m.user?.name}</span>
                           <button onClick={()=>removeMember(group.id, m.user?.id)} style={{background:'transparent',border:'none',color:C.muted,cursor:'pointer',fontSize:12,lineHeight:1,padding:0}}>✕</button>
@@ -454,7 +454,7 @@ export default function RBACPage() {
                           ))}
                         </select>
                         <button onClick={()=>addMember(group.id)} style={{background:'rgba(0,255,148,0.1)',border:'1px solid rgba(0,255,148,0.3)',borderRadius:8,color:C.green,padding:'10px 16px',cursor:'pointer',fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>Ajouter</button>
-                        <button onClick={()=>{setAddingMember(null);setMemberUserId('');}} style={{background:'transparent',border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:'10px',cursor:'pointer',fontSize:12}}>✕</button>
+                        <button onClick={()=>{setAddingMember(null);setMemberUserId('');}} style={{background:'transparent',border:'1px solid '+C.border,borderRadius:8,color:C.muted,padding:'10px',cursor:'pointer',fontSize:12}}>✕</button>
                       </div>
                     )}
                   </div>
@@ -462,7 +462,7 @@ export default function RBACPage() {
                   {/* Actions */}
                   <div style={{display:'flex',gap:6,flexShrink:0}}>
                     <button onClick={()=>{setEditGroup(group);setGroupForm({name:group.name,description:group.description||'',color:group.color||'#00FF94',icon:group.icon||'👥',permissions:perms,priority:group.priority||0});setShowGroupForm(true);}}
-                      style={{background:C.card2,border:`1px solid ${C.border}`,borderRadius:8,color:C.text2,cursor:'pointer',padding:'8px 14px',fontSize:12}}>✏ Modifier</button>
+                      style={{background:C.card2,border:'1px solid '+C.border,borderRadius:8,color:C.text2,cursor:'pointer',padding:'8px 14px',fontSize:12}}>✏ Modifier</button>
                     {!group.isSystem && (
                       <button onClick={()=>deleteGroup(group.id)} style={{background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.25)',borderRadius:8,color:C.red,cursor:'pointer',padding:'8px 14px',fontSize:12}}>🗑</button>
                     )}
@@ -478,7 +478,7 @@ export default function RBACPage() {
       {tab === 'users' && (
         <div style={{display:'grid',gridTemplateColumns:'300px 1fr',gap:20}}>
           {/* User list */}
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:16,height:'fit-content'}}>
+          <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:16,height:'fit-content'}}>
             <div style={{fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:12}}>UTILISATEURS</div>
             {users.map((u:any)=>{
               const m=ROLE_META[u.role];
@@ -500,13 +500,13 @@ export default function RBACPage() {
           {/* User permissions detail */}
           <div>
             {!selectedUser ? (
-              <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:48,textAlign:'center'}}>
+              <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:48,textAlign:'center'}}>
                 <div style={{fontSize:36,marginBottom:16}}>👤</div>
                 <div style={{fontSize:14,color:C.muted}}>Sélectionnez un utilisateur pour voir ses permissions effectives</div>
               </div>
             ) : (
               <div>
-                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:20,marginBottom:16}}>
+                <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:20,marginBottom:16}}>
                   <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16}}>
                     <div style={{width:44,height:44,borderRadius:12,background:`${ROLE_META[selectedUser.role]?.color||C.green}20`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
                       {ROLE_META[selectedUser.role]?.icon}
@@ -588,12 +588,12 @@ export default function RBACPage() {
         <div>
           <div style={{fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:16}}>RBAC AUDIT LOG — dernières 100 opérations</div>
           {auditLogs.length === 0 ? (
-            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:32,textAlign:'center',color:C.muted,fontSize:13}}>
+            <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:32,textAlign:'center',color:C.muted,fontSize:13}}>
               Aucune modification RBAC enregistrée
               <br/><button onClick={async()=>{const d=await fetchAuthJson('/rbac/audit');setAuditLogs(d.logs||[]);}} style={{marginTop:12,background:'rgba(0,255,148,0.1)',border:'1px solid rgba(0,255,148,0.3)',borderRadius:8,color:C.green,padding:'8px 16px',cursor:'pointer',fontSize:12}}>Charger les logs</button>
             </div>
           ) : (
-            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,overflow:'hidden'}}>
+            <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,overflow:'hidden'}}>
               <table style={{width:'100%',borderCollapse:'collapse'}}>
                 <thead>
                   <tr style={{background:'rgba(0,255,148,0.03)'}}>
