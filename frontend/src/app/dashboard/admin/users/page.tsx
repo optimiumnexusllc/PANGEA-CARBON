@@ -518,7 +518,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-    </div>
+
       {/* ── MFA MODAL ───────────────────────────────────────────────────── */}
       {mfaModal && (
         <div onClick={e=>{if(e.target===e.currentTarget)setMfaModal(null);}}
@@ -565,7 +565,7 @@ export default function AdminUsersPage() {
                   <span style={{ fontSize:20 }}>🔓</span>
                   <div>
                     <div>{lang==='fr'?'Désactiver le MFA pour cet utilisateur':'Disable MFA for this user'}</div>
-                    <div style={{ fontSize:10, color:'#8FA3B8', marginTop:2 }}>{lang==='fr'?'L'utilisateur pourra se connecter sans code 2FA':'User will be able to login without 2FA code'}</div>
+                    <div style={{ fontSize:10, color:'#8FA3B8', marginTop:2 }}>{lang==='fr'?'Connexion possible sans code 2FA':'User can login without 2FA code'}</div>
                   </div>
                 </button>
               )}
@@ -575,15 +575,15 @@ export default function AdminUsersPage() {
                   <span style={{ fontSize:20 }}>🗝</span>
                   <div>
                     <div>{lang==='fr'?'Régénérer les codes de secours':'Regenerate backup codes'}</div>
-                    <div style={{ fontSize:10, color:'#8FA3B8', marginTop:2 }}>{lang==='fr'?'8 nouveaux codes usage unique générés':'8 new single-use codes generated'}</div>
+                    <div style={{ fontSize:10, color:'#8FA3B8', marginTop:2 }}>{lang==='fr'?'8 nouveaux codes generés':'8 new codes generated'}</div>
                   </div>
                 </button>
               )}
               {!mfaModal.twoFactorAuth?.enabled&&(
                 <div style={{ padding:'12px 16px', background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.15)', borderRadius:10, fontSize:12, color:'#8FA3B8', lineHeight:1.7 }}>
                   💡 {lang==='fr'
-                    ?'Le MFA n'est pas activé sur ce compte. L'utilisateur peut l'activer depuis Dashboard → Security & 2FA.'
-                    :'MFA is not enabled on this account. The user can enable it from Dashboard → Security & 2FA.'}
+                    ?'MFA non activé sur ce compte. Activation via Dashboard → Security & 2FA.'
+                    :'MFA not enabled. User can enable from Dashboard → Security.'}
                 </div>
               )}
             </div>
@@ -598,6 +598,6 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-
+    </div>
   );
 }
