@@ -86,9 +86,7 @@ export default function SettingsPage() {
         alert('No checkout URL returned. Check Stripe configuration in Admin → Secrets & Config.');
       }
     } catch(err) {
-      alert('Payment error: ' + (err.message || 'Unknown error') + '
-
-Contact: contact@pangea-carbon.com');
+      alert('Payment error: ' + (err.message || 'Unknown error') + ' — Contact: contact@pangea-carbon.com');
     }
   }
 
