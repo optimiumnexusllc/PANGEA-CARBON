@@ -83,8 +83,6 @@ model Organization {
   sellerProfile    SellerProfile?
   buyerProfile     BuyerProfile?
   sellerPayouts    SellerPayout[]
-  groupMemberships GroupMember[]
-  userPermissions  UserPermission[]
   forwardContracts ForwardContract[] @relation("BuyerOrg")
   forwardSales     ForwardContract[] @relation("SellerOrg")
 }
@@ -110,6 +108,8 @@ model User {
   auditLogs      AuditLog[]
   marketplaceOrders MarketplaceOrder[]
   apiKeys        ApiKey[]
+  groupMemberships GroupMember[]
+  userPermissions  UserPermission[]
 }
 
 model ApiKey {
