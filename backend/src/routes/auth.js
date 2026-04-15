@@ -54,7 +54,7 @@ router.post('/register', [
     const user = await prisma.user.create({
       data: {
         email, password: hashedPassword, name,
-        role: 'ADMIN',           // Créateur = ADMIN de son organisation
+        role: 'ORG_OWNER',       // Propriétaire de son organisation — pas d'accès console admin plateforme
         organizationId: org.id,
         isActive: false,         // Inactif jusqu'à vérification email
         emailVerified: false,

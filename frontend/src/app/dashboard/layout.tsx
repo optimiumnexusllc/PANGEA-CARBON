@@ -50,9 +50,12 @@ function SidebarContent({ user, logout }) {
   const pathname = usePathname();
   const flags = useFeatureFlags();
   const userCtx = useUserContext();
-  const isAdmin = ['SUPER_ADMIN','ADMIN'].includes(userCtx.role);
+  const isPlatformAdmin = ['SUPER_ADMIN','ADMIN'].includes(userCtx.role);
+  const isOrgOwner = userCtx.role === 'ORG_OWNER';
+  const isAdmin = isPlatformAdmin; // Admin plateforme uniquement pour /admin/* routes
   const visibleNav = MAIN_NAV.filter(item => {
-    if ((item as any).adminOnly && !isAdmin) return false;
+    // adminOnly = réservé SUPER_ADMIN et ADMIN plateforme uniquement
+    if ((item as any).adminOnly && !isPlatformAdmin) return false;
     if (item.feature === null) return true;
     return flags[item.feature] === true;
   });
@@ -164,7 +167,9 @@ function SidebarContent({ user, logout }) {
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: '#E8EFF6', truncate: true, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
-              <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{user.role}</div>
+              <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
+                {user.role === 'ORG_OWNER' ? 'PROPRIÉTAIRE' : user.role === 'SUPER_ADMIN' ? '⚡ SUPER ADMIN' : user.role}
+              </div>
               <div style={{ fontSize: 8, color: userCtx.plan === 'TRIAL' ? '#FCD34D' : userCtx.plan === 'STARTER' ? '#38BDF8' : userCtx.plan === 'GROWTH' ? '#A78BFA' : '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginTop: 1 }}>
                 {userCtx.plan || 'TRIAL'}
               </div>

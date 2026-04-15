@@ -26,11 +26,7 @@ const { getAccreditedVVBs, searchVerraProjects, getVerraStats } = require('../se
 const { uploadFile } = require('../storage/s3');
 
 // Isolation des données par rôle
-function pipelineWhere(user) {
-  if (user.role === 'SUPER_ADMIN') return {};
-  if (user.role === 'ADMIN' && user.organizationId) return { organizationId: user.organizationId };
-  return { organizationId: user.organizationId || '__none__', project: { userId: user.userId } };
-}
+const { pipelineWhere } = require('../middleware/isolation');
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
 const STEPS = [

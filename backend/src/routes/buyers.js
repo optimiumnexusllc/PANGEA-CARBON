@@ -201,7 +201,7 @@ router.get('/:id', auth, async (req, res, next) => {
 // ─── PATCH /api/buyers/:id/status ─────────────────────────────────────────────
 router.patch('/:id/status', auth, async (req, res, next) => {
   try {
-    if (!['SUPER_ADMIN','ADMIN'].includes(req.user.role))
+    if (!['SUPER_ADMIN','ADMIN','ORG_OWNER'].includes(req.user.role))
       return res.status(403).json({ error: 'Admin required' });
     const { status, kycStatus, carbonDeskNote } = req.body;
     const updated = await prisma.buyerProfile.update({

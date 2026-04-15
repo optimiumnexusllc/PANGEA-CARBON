@@ -3,7 +3,7 @@ import { useLang } from '@/lib/lang-context';
 import { fetchAuthJson, fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState, useCallback } from 'react';
 
-const ROLES = ['SUPER_ADMIN','ADMIN','ANALYST','AUDITOR','CLIENT','VIEWER'];
+const ROLES = ['SUPER_ADMIN','ADMIN','ORG_OWNER','ANALYST','AUDITOR','CLIENT','VIEWER'];
 const PLANS = ['TRIAL','STARTER','GROWTH','ENTERPRISE'];
 const PLAN_COLOR = { TRIAL:'#4A6278', STARTER:'#38BDF8', GROWTH:'#A78BFA', ENTERPRISE:'#FCD34D' };
 const PLAN_LIMITS = {
@@ -12,7 +12,7 @@ const PLAN_LIMITS = {
   GROWTH:     { maxProjects:50, maxUsers:20, maxMW:5000,  price:'$799/mo' },
   ENTERPRISE: { maxProjects:999,maxUsers:999,maxMW:99999, price:'Custom' },
 };
-const ROLE_C = { SUPER_ADMIN:'#F87171',ADMIN:'#FCD34D',ANALYST:'#00FF94',AUDITOR:'#38BDF8',CLIENT:'#A78BFA',VIEWER:'#4A6278' };
+const ROLE_C: Record<string,string> = { SUPER_ADMIN:'#F87171',ADMIN:'#FCD34D',ORG_OWNER:'#00FF94',ANALYST:'#38BDF8',AUDITOR:'#A78BFA',CLIENT:'#8FA3B8',VIEWER:'#4A6278' };
 
 const inp = { width:'100%', background:'#0D1117', border:'1px solid #1E2D3D', borderRadius:7, color:'#E8EFF6', padding:'9px 12px', fontSize:13, boxSizing:'border-box', outline:'none' };
 

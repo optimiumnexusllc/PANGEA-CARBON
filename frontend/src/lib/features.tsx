@@ -128,12 +128,16 @@ export function FeatureFlagsProvider({ children }) {
         const planFlags = PLAN_FEATURES[plan] || PLAN_FEATURES.TRIAL;
 
         // Flags effectifs selon le rôle et le plan
-        const isAdmin = ['SUPER_ADMIN','ADMIN'].includes(role);
-        // ADMIN et SUPER_ADMIN: accès complet à tous les modules
-        // Les autres utilisateurs: accès selon leur plan
-        const effectiveFlags = isAdmin
+        const isPlatformAdmin = ['SUPER_ADMIN','ADMIN'].includes(role);
+        const isOrgOwner = role === 'ORG_OWNER';
+        // SUPER_ADMIN/ADMIN: accès complet plateforme
+        // ORG_OWNER: accès complet à son compte (ENTERPRISE) mais sans admin plateforme
+        // Autres: accès selon plan
+        const effectiveFlags = isPlatformAdmin
           ? { ...PLAN_FEATURES.ENTERPRISE, email_composer: true }
-          : { ...planFlags };
+          : isOrgOwner
+            ? { ...PLAN_FEATURES.ENTERPRISE, email_composer: false }
+            : { ...planFlags };
 
         setFlags(effectiveFlags);
         setUserCtx({ role, plan, organizationId: me.organizationId });

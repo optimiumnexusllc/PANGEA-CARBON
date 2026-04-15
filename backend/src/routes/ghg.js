@@ -12,11 +12,7 @@
 
 const router = require('express').Router();
 
-function ghgWhere(user) {
-  if (user.role === 'SUPER_ADMIN') return {};
-  if (user.role === 'ADMIN' && user.organizationId) return { organizationId: user.organizationId };
-  return { userId: user.userId };
-}
+const { ghgWhere } = require('../middleware/isolation');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
 const prisma = new PrismaClient();
@@ -494,7 +490,7 @@ router.delete('/audits/:id', auth, async (req, res, next) => {
     const audit = await prisma.gHGAudit.findUnique({ where: { id: req.params.id } });
     if (!audit) return res.status(404).json({ error: 'Audit not found' });
     // Vérifier appartenance (même org ou SUPER_ADMIN)
-    if (audit.organizationId !== req.user.organizationId && req.user.role !== 'SUPER_ADMIN') {
+    if (audit.organizationId !== req.user.organizationId && !['SUPER_ADMIN','ADMIN','ORG_OWNER'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     await prisma.gHGAudit.delete({ where: { id: req.params.id } });
