@@ -698,8 +698,47 @@ router.delete('/orgs/:id', auth, adminOnly, async (req, res, next) => {
       where: { organizationId: req.params.id },
       data: { organizationId: null }
     });
-    // Supprimer les projets et leurs données
-    const projects = await prisma.project.findMany({ where: { user: { organizationId: req.params.id } } });
+    // Supprimer tous les projets et leurs données en cascade
+    const projects = await prisma.project.findMany({
+      where: { organizationId: req.params.id },
+      select: { id: true }
+    });
+    for (const proj of projects) {
+      const pid = proj.id;
+      // Pipelines cascade
+      const pipelines = await prisma.creditPipeline.findMany({ where: { projectId: pid }, select: { id: true } }).catch(()=>[]);
+      for (const p of pipelines) {
+        await prisma.pipelineDocument.deleteMany({ where: { pipelineId: p.id } }).catch(()=>{});
+        await prisma.pipelineStep.deleteMany({ where: { pipelineId: p.id } }).catch(()=>{});
+      }
+      await prisma.creditPipeline.deleteMany({ where: { projectId: pid } }).catch(()=>{});
+      // GHG Audit cascade
+      const ghgAudits = await prisma.gHGAudit.findMany({ where: { projectId: pid }, select: { id: true } }).catch(()=>[]);
+      for (const a of ghgAudits) {
+        await prisma.gHGEntry.deleteMany({ where: { auditId: a.id } }).catch(()=>{});
+        await prisma.gHGReport.deleteMany({ where: { auditId: a.id } }).catch(()=>{});
+      }
+      await prisma.gHGAudit.deleteMany({ where: { projectId: pid } }).catch(()=>{});
+      // Autres données projet
+      await Promise.allSettled([
+        prisma.mRVRecord.deleteMany({ where: { projectId: pid } }),
+        prisma.energyReading.deleteMany({ where: { projectId: pid } }),
+        prisma.report.deleteMany({ where: { projectId: pid } }),
+        prisma.sDGScore.deleteMany({ where: { projectId: pid } }),
+        prisma.iTMORecord.deleteMany({ where: { projectId: pid } }),
+        prisma.satelliteReading.deleteMany({ where: { projectId: pid } }),
+        prisma.IoTReading.deleteMany({ where: { projectId: pid } }),
+        prisma.cORSIAEligibility.deleteMany({ where: { projectId: pid } }),
+        prisma.creditIssuance.deleteMany({ where: { projectId: pid } }),
+        prisma.baselineAssessment.deleteMany({ where: { projectId: pid } }),
+        prisma.projectCertification.deleteMany({ where: { projectId: pid } }).catch(()=>{}),
+        prisma.forwardContract.deleteMany({ where: { projectId: pid } }).catch(()=>{}),
+      ]);
+    }
+    await prisma.project.deleteMany({ where: { organizationId: req.params.id } }).catch(()=>{});
+    // Supprimer ESG, OrgFeature
+    await prisma.orgFeature.deleteMany({ where: { orgId: req.params.id } }).catch(()=>{});
+    await prisma.eSGAssessment.deleteMany({ where: { organizationId: req.params.id } }).catch(()=>{});
     // Supprimer l'org
     await prisma.organization.delete({ where: { id: req.params.id } });
 

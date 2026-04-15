@@ -149,17 +149,38 @@ router.delete('/:id', auth, requirePermission('projects.delete'), async (req, re
       project.userId === req.user.userId;
     if (!canDelete) return res.status(403).json({ error: 'Permission refusée' });
 
-    // Cascade delete dans l'ordre (contraintes FK)
-    await prisma.mRVRecord.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.energyReading.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.report.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.sDGScore.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.iTMORecord.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.satelliteReading.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.IoTReading.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.cORSIAEligibility.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.creditIssuance.deleteMany({ where: { projectId: req.params.id } });
-    await prisma.baselineAssessment.deleteMany({ where: { projectId: req.params.id } });
+    const pid = req.params.id;
+    // Cascade delete complet — toutes les FK vers Project
+    const dels = [
+      prisma.mRVRecord.deleteMany({ where: { projectId: pid } }),
+      prisma.energyReading.deleteMany({ where: { projectId: pid } }),
+      prisma.report.deleteMany({ where: { projectId: pid } }),
+      prisma.sDGScore.deleteMany({ where: { projectId: pid } }),
+      prisma.iTMORecord.deleteMany({ where: { projectId: pid } }),
+      prisma.satelliteReading.deleteMany({ where: { projectId: pid } }),
+      prisma.IoTReading.deleteMany({ where: { projectId: pid } }),
+      prisma.cORSIAEligibility.deleteMany({ where: { projectId: pid } }),
+      prisma.creditIssuance.deleteMany({ where: { projectId: pid } }),
+      prisma.baselineAssessment.deleteMany({ where: { projectId: pid } }),
+      prisma.projectCertification.deleteMany({ where: { projectId: pid } }).catch(()=>{}),
+      prisma.forwardContract.deleteMany({ where: { projectId: pid } }).catch(()=>{}),
+    ];
+    // CreditPipeline a PipelineStep et PipelineDocument en cascade
+    const pipelines = await prisma.creditPipeline.findMany({ where: { projectId: pid }, select: { id: true } });
+    for (const p of pipelines) {
+      await prisma.pipelineDocument.deleteMany({ where: { pipelineId: p.id } }).catch(()=>{});
+      await prisma.pipelineStep.deleteMany({ where: { pipelineId: p.id } }).catch(()=>{});
+    }
+    await prisma.creditPipeline.deleteMany({ where: { projectId: pid } }).catch(()=>{});
+    // GHG Audit entries
+    const ghgAudits = await prisma.gHGAudit.findMany({ where: { projectId: pid }, select: { id: true } }).catch(()=>[]);
+    for (const a of ghgAudits) {
+      await prisma.gHGEntry.deleteMany({ where: { auditId: a.id } }).catch(()=>{});
+      await prisma.gHGReport.deleteMany({ where: { auditId: a.id } }).catch(()=>{});
+    }
+    await prisma.gHGAudit.deleteMany({ where: { projectId: pid } }).catch(()=>{});
+    // AuditLog (non-critique, peut être gardé)
+    await Promise.allSettled(dels);
     await prisma.project.delete({ where: { id: req.params.id } });
 
     await prisma.auditLog.create({
