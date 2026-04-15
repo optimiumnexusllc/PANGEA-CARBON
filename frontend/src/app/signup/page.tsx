@@ -85,7 +85,7 @@ export default function SignupPage() {
   const submit = async () => {
     setLoading(true); setError('');
     try {
-      const regRes = await fetch(`${API}/auth/register`, {
+      const regRes = await fetch(API+'/auth/register', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
         body:JSON.stringify({ name:form.name, email:form.email, password:form.password, organization:form.orgName, orgType:form.orgType, orgCountry:form.orgCountry }),
@@ -97,9 +97,9 @@ export default function SignupPage() {
       localStorage.setItem('user', JSON.stringify(user));
 
       if (form.projectName.trim() && form.projectMW) {
-        await fetch(`${API}/projects`, {
+        await fetch(API+'/projects', {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${accessToken}` },
+          headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+accessToken },
           body:JSON.stringify({
             name:form.projectName, type:form.projectType,
             country:form.orgCountry || "Cote d'Ivoire", countryCode:'CI',
@@ -110,9 +110,9 @@ export default function SignupPage() {
       }
 
       if (form.plan !== 'trial') {
-        const checkRes = await fetch(`${API}/billing/checkout`, {
+        const checkRes = await fetch(API+'/billing/checkout', {
           method:'POST',
-          headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${accessToken}` },
+          headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+accessToken },
           body:JSON.stringify({ plan:form.plan }),
         }).catch(() => null);
         if (checkRes && checkRes.ok) {
@@ -121,7 +121,7 @@ export default function SignupPage() {
         }
       }
 
-      router.push(`/auth/check-email?email=${encodeURIComponent(form.email)}`);
+      router.push('/auth/check-email?email='+encodeURIComponent(form.email));
     } catch(e) { setError(e.message || 'Erreur reseau'); }
     finally { setLoading(false); }
   };
@@ -203,7 +203,7 @@ export default function SignupPage() {
                     { id:'IPP',                   label:'IPP',                       icon:'⚡', desc:'Independent Power Producer' },
                     { id:'Developpeur',           label:'Développeur',               icon:'🌱', desc:'Développeur de projets carbone' },
                     { id:'CORPORATE_VOLUNTARY',   label:'Corporate Buyer',           icon:'🏢', desc:'Offset volontaire — ESG / Net Zero' },
-                    { id:'COMPLIANCE_CBAM',       label:'CBAM Compliance',           icon:'🇪🇺', desc:'Exportateurs vers l'UE — CBAM' },
+                    { id:'COMPLIANCE_CBAM',       label:'CBAM Compliance',           icon:'🇪🇺', desc:"Exportateurs vers l'UE — CBAM" },
                     { id:'STRATEGIC_NETZERO',     label:'Strategic Net Zero',        icon:'🎯', desc:'Engagement Net Zero signé (SBTi)' },
                     { id:'FINANCIAL',             label:'Financial / ESG Fund',      icon:'💼', desc:'Banque, fonds ESG, assurance' },
                     { id:'COMPLIANCE_CORSIA',     label:'CORSIA Aviation',           icon:'✈️', desc:'Compagnies aériennes — CORSIA' },
@@ -223,7 +223,7 @@ export default function SignupPage() {
               </div>
               <div>
                 <FieldLabel>Pays principal</FieldLabel>
-                <TextInput placeholder="Cote d'Ivoire, Kenya, Nigeria..." value={form.orgCountry} onChange={e => set('orgCountry', e.target.value)}/>
+                <TextInput placeholder="Côte d'Ivoire, Kenya, Nigeria..." value={form.orgCountry} onChange={e => set('orgCountry', e.target.value)}/>
               </div>
             </div>
           )}
