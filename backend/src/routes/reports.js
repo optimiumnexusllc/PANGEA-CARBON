@@ -18,6 +18,25 @@ router.get('/', auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// GET /api/reports/history — liste des PDFs générés
+router.get('/history', auth, async (req, res, next) => {
+  try {
+    const where = !['SUPER_ADMIN','ADMIN','ORG_OWNER'].includes(req.user.role)
+      ? { userId: req.user.userId }
+      : req.user.organizationId
+        ? { project: { organizationId: req.user.organizationId } }
+        : {};
+
+    const reports = await prisma.report.findMany({
+      where,
+      include: { project: { select: { name:true, countryCode:true, type:true } } },
+      orderBy: { generatedAt: 'desc' },
+      take: 50,
+    });
+    res.json(reports);
+  } catch (e) { next(e); }
+});
+
 // GET /api/reports/:projectId/:year/pdf — Génère et télécharge le PDF MRV
 router.get('/:projectId/:year/pdf', auth, async (req, res, next) => {
   try {
