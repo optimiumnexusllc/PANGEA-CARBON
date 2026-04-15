@@ -25,7 +25,7 @@ router.post('/register', [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const { email, password, name, organization } = req.body;
+    const { email, password, name, organization, orgType, orgCountry } = req.body;
     const exists = await prisma.user.findUnique({ where: { email } });
     if (exists) return res.status(409).json({ error: 'Email déjà utilisé' });
 
