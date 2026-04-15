@@ -601,6 +601,10 @@ export default function GHGAuditPage() {
               </div>
               <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:20,fontWeight:800,color:C.text,margin:0 }}>{currentAudit.name}</h2>
             </div>
+            <button onClick={()=>setShowReportPanel(!showReportPanel)}
+              style={{ background:showReportPanel?'rgba(0,255,148,0.12)':'rgba(56,189,248,0.08)',border:'1px solid '+(showReportPanel?'rgba(0,255,148,0.3)':'rgba(56,189,248,0.2)'),borderRadius:9,color:showReportPanel?C.green:C.blue,padding:'10px 18px',cursor:'pointer',fontSize:12,fontWeight:700,display:'flex',alignItems:'center',gap:8 }}>
+              📥 {showReportPanel?L('Hide','Masquer'):L('Reports × 9','Rapports × 9')}
+            </button>
             <button onClick={runAI} disabled={aiLoading||!(currentAudit.grandTotal>0)}
               style={{ background:aiLoading?C.card2:'rgba(167,139,250,0.12)',border:'1px solid rgba(167,139,250,0.3)',borderRadius:9,color:aiLoading?C.muted:C.purple,padding:'10px 18px',cursor:aiLoading||!currentAudit.grandTotal?'not-allowed':'pointer',fontSize:12,fontWeight:700,display:'flex',alignItems:'center',gap:8 }}>
               {aiLoading ? '⟳ '+L('Analyzing...','Analyse...') : '🤖 AI '+L('Analysis','Analyse')}
