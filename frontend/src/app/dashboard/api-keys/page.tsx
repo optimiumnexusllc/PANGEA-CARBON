@@ -10,16 +10,392 @@ const C = {
 };
 
 // ─── Intégrations supportées ──────────────────────────────────────────────────
+// ─── Catégories ──────────────────────────────────────────────────────────────
+const INTEG_CATEGORIES = [
+  { id:'all',        label:'Tous',             icon:'🌐' },
+  { id:'major',      label:'Afrique Top',      icon:'🌍' },
+  { id:'api',        label:'API directe',      icon:'⚡' },
+  { id:'aggregator', label:'Agrégateurs',      icon:'🧩' },
+  { id:'stable',     label:'Stable',           icon:'✓' },
+  { id:'beta',       label:'Beta',             icon:'🔬' },
+];
+
 const INTEGRATIONS = [
-  { name:'SMA Solar',           slug:'sma',         icon:'☀️',  color:'#FCD34D', desc:'Solar inverters — REST webhook', docs:'https://developer.sma.de', status:'STABLE' },
-  { name:'Huawei FusionSolar',  slug:'huawei',      icon:'🔶',  color:'#F97316', desc:'FusionSolar cloud push API',     docs:'https://solar.huawei.com', status:'STABLE' },
-  { name:'SolarEdge',           slug:'solaredge',   icon:'🔷',  color:'#38BDF8', desc:'Monitoring platform webhook',    docs:'https://developers.solaredge.com', status:'STABLE' },
-  { name:'Fronius',             slug:'fronius',     icon:'⚡',  color:'#A78BFA', desc:'Solar.web push notifications',   docs:'https://www.fronius.com', status:'STABLE' },
-  { name:'SMA Sunny Portal',    slug:'sunnyportal', icon:'🌤️', color:'#FCD34D', desc:'Legacy Sunny Portal webhook',    docs:'https://www.sunnyportal.com', status:'BETA' },
-  { name:'GoodWe SEMS',         slug:'goodwe',      icon:'🟢',  color:'#00FF94', desc:'SEMS portal data push',          docs:'https://www.goodwe.com', status:'BETA' },
-  { name:'Sungrow iSolarCloud', slug:'sungrow',     icon:'🌞',  color:'#F97316', desc:'iSolarCloud push gateway',       docs:'https://isolarcloud.com', status:'BETA' },
-  { name:'Tesla Powerwall',     slug:'tesla',       icon:'⚡',  color:'#F87171', desc:'Powerwall gateway REST',         docs:'https://tesla.com', status:'COMING_SOON' },
-  { name:'Generic REST',        slug:'generic',     icon:'🔌',  color:'#8FA3B8', desc:'Custom REST payload — any sensor',docs:'', status:'STABLE' },
+  // ═══ TIER 1 — API COMPLÈTES (très utilisés en Afrique) ═══════════════════
+  {
+    name:'Huawei FusionSolar', slug:'huawei', icon:'🔶', color:'#F97316',
+    category:'major', status:'STABLE', africa: true,
+    desc:'FusionSolar OpenAPI — cloud push temps réel',
+    docs:'https://solar.huawei.com/eu/developers',
+    apiType:'REST + Push', authMethod:'AppKey + AppSecret',
+    baseUrl:'https://eu5.fusionsolar.huawei.com/thirdData',
+    payload:{
+      stationCode:'NE=123456789',
+      dataValue:{ radiation_intensity:842.3, inverter_state:512, mppt_total_cap:125.5 },
+      collectTime:1736951400000,
+    },
+    authHeader:'Authorization: Basic base64(AppKey:AppSecret)',
+    steps:[
+      'Créer un compte développeur FusionSolar Developer Portal',
+      'Générer AppKey + AppSecret dans les paramètres API',
+      'Activer "Third-party data push" dans votre installation',
+      'Configurer le webhook URL vers PANGEA CARBON',
+      'Renseigner votre stationCode dans PANGEA CARBON',
+    ],
+    params:['stationCode','collectTime','dataValue.mppt_total_cap'],
+    rateLimit:'1 req/5min par station',
+  },
+  {
+    name:'Sungrow iSolarCloud', slug:'sungrow', icon:'🌞', color:'#38BDF8',
+    category:'major', status:'STABLE', africa: true,
+    desc:'iSolarCloud OpenAPI v2 — monitoring temps réel',
+    docs:'https://developer.isolarcloud.com',
+    apiType:'REST + Webhook', authMethod:'Token Bearer',
+    baseUrl:'https://gateway.isolarcloud.eu',
+    payload:{
+      ps_key:'1000000_7A_1_1',
+      data_point_detail:{ p1:125500, p83:'normal', p58:842 },
+      timestamp:'2025-01-15T14:30:00Z',
+    },
+    authHeader:'token: Bearer VOTRE_TOKEN',
+    steps:[
+      'S'enregistrer sur iSolarCloud Developer Portal',
+      'Créer une application API et obtenir App ID + Secret',
+      'Lier vos installations à l'application',
+      'Configurer le push de données vers PANGEA CARBON',
+      'Mapper ps_key → project_id dans PANGEA CARBON',
+    ],
+    params:['ps_key','timestamp','data_point_detail.p1 (power W)'],
+    rateLimit:'100 req/min',
+  },
+  {
+    name:'Growatt', slug:'growatt', icon:'🟢', color:'#00FF94',
+    category:'major', status:'STABLE', africa: true,
+    desc:'Growatt OpenAPI — ShineServer & ShinePhone cloud',
+    docs:'https://www.ginlong.com/openapi.html',
+    apiType:'REST', authMethod:'username + password + token',
+    baseUrl:'https://openapi.growatt.com',
+    payload:{
+      deviceSn:'BDK0000001',
+      eToday:125.5,
+      pac:48200,
+      datalogSn:'ABC123456789',
+      time:'2025-01-15 14:30:00',
+    },
+    authHeader:'token: VOTRE_TOKEN',
+    steps:[
+      'Créer un compte sur shineserver.growatt.com',
+      'Aller dans Compte → API Access → Générer token',
+      'Obtenir l'accès développeur (email: api@growatt.com)',
+      'Lister vos appareils via GET /device/list',
+      'Configurer le push vers PANGEA CARBON ou appel polling',
+    ],
+    params:['deviceSn','eToday (kWh)','pac (W)','time'],
+    rateLimit:'50 req/min',
+  },
+  {
+    name:'GoodWe SEMS', slug:'goodwe', icon:'🟡', color:'#FCD34D',
+    category:'major', status:'STABLE', africa: true,
+    desc:'SEMS Portal OpenAPI — données inverter cloud',
+    docs:'https://www.semsportal.com/developer',
+    apiType:'REST', authMethod:'Token SEMS (via login)',
+    baseUrl:'https://www.semsportal.com/api',
+    payload:{
+      inverterSn:'A2009260481',
+      power:48200,
+      pac:48.2,
+      eday:125.5,
+      etotal:45820.3,
+      temperature:42.1,
+    },
+    authHeader:'Token: VOTRE_TOKEN_SEMS
+User-Agent: SEMS Portal',
+    steps:[
+      'Créer un compte SEMS Portal (semsportal.com)',
+      'Aller dans Account → Developer Access → Request Token',
+      'POST /api/v2/Common/CrossLogin pour obtenir token',
+      'Appeler /api/v2/Monitoring/GetPowerStationDetail',
+      'Configurer polling vers PANGEA CARBON (toutes les 15min)',
+    ],
+    params:['inverterSn','pac (kW)','eday (kWh)','etotal (kWh)'],
+    rateLimit:'30 req/min',
+  },
+  {
+    name:'SMA Solar', slug:'sma', icon:'☀️', color:'#FCD34D',
+    category:'api', status:'STABLE', africa: false,
+    desc:'SMA Data Manager + Sunny Portal WebConnect API',
+    docs:'https://developer.sma.de',
+    apiType:'REST + WebSocket', authMethod:'API Key (dans header)',
+    baseUrl:'https://ennexos.sunnyportal.com/api',
+    payload:{
+      livedata:{ 'power.dc':{ val:48200, unit:'W' },'energy.total':{ val:45820.3, unit:'Wh' } },
+      timestamp:'2025-01-15T14:30:00Z',
+      deviceId:'SN:3012345678',
+    },
+    authHeader:'Authorization: Bearer VOTRE_TOKEN
+X-Application-Key: APP_KEY',
+    steps:[
+      'Accéder à ennexos.sunnyportal.com → API Documentation',
+      'Créer une application dans Developer Portal',
+      'Configurer OAuth2 client credentials flow',
+      'Récupérer les plant IDs via GET /plants',
+      'Souscrire aux webhooks live data ou configurer polling',
+    ],
+    params:['deviceId','livedata.power.dc (W)','livedata.energy.total (Wh)'],
+    rateLimit:'100 req/h (plan gratuit)',
+  },
+  {
+    name:'SolarEdge', slug:'solaredge', icon:'🔷', color:'#38BDF8',
+    category:'api', status:'STABLE', africa: false,
+    desc:'SolarEdge Monitoring API — API key par site',
+    docs:'https://developers.solaredge.com',
+    apiType:'REST', authMethod:'api_key query param',
+    baseUrl:'https://monitoringapi.solaredge.com',
+    payload:{
+      sitePower:{ timeUnit:'QUARTER_OF_AN_HOUR', unit:'W', values:[{ date:'2025-01-15 14:30:00', value:48200 }] },
+      siteEnergy:{ timeUnit:'DAY', unit:'Wh', values:[{ date:'2025-01-15', value:125500 }] },
+    },
+    authHeader:'?api_key=VOTRE_API_KEY (query string)',
+    steps:[
+      'Se connecter sur monitoring.solaredge.com',
+      'Admin → Site Access → API Access → Generate API Key',
+      'Obtenir Site ID depuis l'URL (ex: /site/1234567/)',
+      'GET /site/{siteId}/currentPowerFlow?api_key=...',
+      'Configurer polling toutes les 15 minutes vers PANGEA CARBON',
+    ],
+    params:['siteId','api_key','timeUnit','unit'],
+    rateLimit:'300 req/jour par api_key',
+  },
+  {
+    name:'Fronius', slug:'fronius', icon:'⚡', color:'#A78BFA',
+    category:'api', status:'STABLE', africa: false,
+    desc:'Fronius Solar API v1 — local + Solar.web cloud',
+    docs:'https://www.fronius.com/en/solar-energy/solar-api',
+    apiType:'REST local + Cloud push', authMethod:'Aucune (local) / Token (cloud)',
+    baseUrl:'http://FRONIUS_IP/solar_api/v1',
+    payload:{
+      Body:{ Data:{ DAY_ENERGY:{ Unit:'Wh', Value:125500 },PAC:{ Unit:'W', Value:48200 },YEAR_ENERGY:{ Unit:'Wh', Value:45820300 } } },
+      Head:{ Timestamp:'2025-01-15T14:30:00+00:00', Status:{ Code:0 } },
+    },
+    authHeader:'Aucun auth requis en local réseau',
+    steps:[
+      'Inverter Fronius doit être sur le même réseau local',
+      'Accéder à http://IP_INVERTER/solar_api/v1/GetInverterRealtimeData.cgi',
+      'Pour cloud: activer Solar.web → API → Webhook URL',
+      'Configurer push vers PANGEA CARBON depuis Solar.web',
+      'Alternative: PANGEA CARBON poll toutes les 5 min en local',
+    ],
+    params:['PAC (W)','DAY_ENERGY (Wh)','YEAR_ENERGY (Wh)'],
+    rateLimit:'Illimité en local',
+  },
+  {
+    name:'Enphase Enlighten', slug:'enphase', icon:'🔵', color:'#38BDF8',
+    category:'api', status:'BETA', africa: false,
+    desc:'Enphase API v4 — micro-onduleurs, Envoy gateway',
+    docs:'https://developer.enphase.com',
+    apiType:'REST OAuth2', authMethod:'OAuth2 Authorization Code',
+    baseUrl:'https://api.enphaseenergy.com/api/v4',
+    payload:{
+      system_id:12345,
+      production:{ watt_hours_today:125500, watt_hours_lifetime:45820300, watts_now:48200 },
+      consumption:{ watt_hours_today:98200 },
+      timestamp:'2025-01-15T14:30:00Z',
+    },
+    authHeader:'Authorization: Bearer ACCESS_TOKEN
+key: API_KEY (header)',
+    steps:[
+      'Créer un compte sur developer.enphase.com',
+      'Créer une application → obtenir API Key + Secret',
+      'Implémenter OAuth2 Authorization Code flow',
+      'GET /systems/{system_id}/summary pour overview',
+      'Webhook disponible: Events → Configure webhook URL',
+    ],
+    params:['system_id','production.watts_now','production.watt_hours_today'],
+    rateLimit:'10 req/min, 10K req/mois (plan gratuit)',
+  },
+  {
+    name:'Ginlong (Solis)', slug:'solis', icon:'🌅', color:'#F97316',
+    category:'api', status:'BETA', africa: false,
+    desc:'Solis Cloud API — monitoring data cloud',
+    docs:'https://www.ginlong.com/en/cloud-api/',
+    apiType:'REST HMAC', authMethod:'HMAC-MD5 Signature',
+    baseUrl:'https://www.soliscloud.com:13333',
+    payload:{
+      inverterSn:'1234567890',
+      pac:48200,
+      eday:125.5,
+      etotal:45820.3,
+      temperature:42.1,
+      dataTimestamp:'2025-01-15T14:30:00Z',
+    },
+    authHeader:'Authorization: API VOTRE_KEY:SIGNATURE_HMAC_MD5
+Content-MD5: BASE64_HASH
+Date: UTC_DATE',
+    steps:[
+      'Créer un compte sur solarmanpv.com (espace distributeur)',
+      'Aller dans Account → API Management → Create API',
+      'Obtenir KeyId + KeySecret pour signature HMAC',
+      'Calculer signature: HMAC-MD5(verb+MD5+Content-Type+Date+path)',
+      'Appeler POST /v1/api/inverterList puis /v1/api/inverterDetail',
+    ],
+    params:['inverterSn','pac (W)','eday (kWh)','etotal (kWh)'],
+    rateLimit:'1 req/30sec par inverter',
+  },
+  {
+    name:'Delta Electronics', slug:'delta', icon:'🔺', color:'#F87171',
+    category:'api', status:'BETA', africa: false,
+    desc:'Delta Solar API — M1000 / M3000 Monitoring',
+    docs:'https://www.deltaww.com/en-US/products/Solar-Monitoring',
+    apiType:'REST', authMethod:'Basic Auth + API Key',
+    baseUrl:'https://delta-cloud.com/api/v2',
+    payload:{
+      unit_id:'DELTA-001',
+      ac_power:48200,
+      daily_energy:125.5,
+      total_energy:45820.3,
+      temperature:38.5,
+      status:'Normal',
+    },
+    authHeader:'Authorization: Basic BASE64
+X-API-Key: VOTRE_KEY',
+    steps:[
+      'Contacter Delta Electronics pour accès API (support@deltaww.com)',
+      'Obtenir credentials API après vérification installation',
+      'Enregistrer votre unité Delta dans Delta Cloud Portal',
+      'Configurer data push interval (recommandé: 15 min)',
+      'Tester avec GET /api/v2/plants/{unit_id}/live',
+    ],
+    params:['unit_id','ac_power (W)','daily_energy (kWh)'],
+    rateLimit:'Sur demande (contrat OEM)',
+  },
+  {
+    name:'FIMER', slug:'fimer', icon:'🔵', color:'#38BDF8',
+    category:'api', status:'BETA', africa: false,
+    desc:'FIMER PVI-GESTORE + Aurora Vision Cloud API',
+    docs:'https://www.fimer.com/en/solutions/photovoltaic',
+    apiType:'REST + Local Modbus', authMethod:'API Key (Aurora Vision)',
+    baseUrl:'https://auroravision.net/api/rest/v1',
+    payload:{
+      entityId:123456,
+      timezone:'Africa/Abidjan',
+      fields:[{ key:'GenerationPower', value:48.2, unit:'kW' },{ key:'GenerationEnergy', value:125.5, unit:'kWh' }],
+      datetime:'2025-01-15T14:30:00+00:00',
+    },
+    authHeader:'X-AuroraVision-ApiKey: VOTRE_KEY
+X-AuroraVision-Token: SESSION_TOKEN',
+    steps:[
+      'Créer un compte Aurora Vision (auroravision.net)',
+      'Aller dans Settings → API → Generate API Key',
+      'POST /authenticate pour obtenir session token',
+      'GET /stats/power/{entityId} pour puissance temps réel',
+      'Configurer webhook ou polling 15 min vers PANGEA CARBON',
+    ],
+    params:['entityId','GenerationPower (kW)','GenerationEnergy (kWh)'],
+    rateLimit:'100 req/h',
+  },
+  // ═══ AGRÉGATEURS MULTI-MARQUES ══════════════════════════════════════════════
+  {
+    name:'Enode', slug:'enode', icon:'🧩', color:'#A78BFA',
+    category:'aggregator', status:'STABLE', africa: false,
+    desc:'API unifiée 250+ marques — connecteurs intelligents',
+    docs:'https://docs.enode.com',
+    apiType:'REST Unified', authMethod:'OAuth2 Client Credentials',
+    baseUrl:'https://enode-api.production.enode.io',
+    payload:{
+      vendor:'huawei',
+      systemId:'sys_abc123',
+      data:{ 'productionPower':48200,'productionEnergy':125500,'gridExportEnergy':0 },
+      lastUpdated:'2025-01-15T14:30:00Z',
+    },
+    authHeader:'Authorization: Bearer ENODE_ACCESS_TOKEN',
+    steps:[
+      'S'enregistrer sur docs.enode.com → Obtenir API credentials',
+      'POST /auth/token avec client_credentials grant',
+      'GET /chargers ou /batteries pour lister les équipements',
+      'Connecter marques via le link flow Enode (OAuth par marque)',
+      'Configurer webhook Enode → PANGEA CARBON pour données live',
+    ],
+    params:['systemId','productionPower (W)','productionEnergy (Wh)','vendor'],
+    rateLimit:'1000 req/min (plan business)',
+    note:'✦ Supporte 250+ intégrations onduleurs — recommandé pour flotte multi-marques',
+  },
+  {
+    name:'Meteocontrol VCOM', slug:'vcom', icon:'🌤️', color:'#38BDF8',
+    category:'aggregator', status:'STABLE', africa: false,
+    desc:'VCOM Cloud API — monitoring 50+ marques onduleurs',
+    docs:'https://www.meteocontrol.com/en/services/vcom-api/',
+    apiType:'REST JSON-RPC', authMethod:'API Key (header)',
+    baseUrl:'https://api.vcom.meteocontrol.de/systems',
+    payload:{
+      systemKey:'ABCDE',
+      timestamp:'2025-01-15T14:30:00Z',
+      measurements:[{ abbreviation:'E_Z_EVU', value:125500.5, unit:'Wh' },{ abbreviation:'P_AC', value:48200, unit:'W' }],
+    },
+    authHeader:'X-Api-Key: VOTRE_VCOM_KEY',
+    steps:[
+      'Créer un compte sur VCOM Cloud Portal (meteocontrol.com)',
+      'Aller dans API → Keys → Generate Key',
+      'Obtenir systemKey de vos installations',
+      'GET /systems/{systemKey}/readings/abbreviations pour les mesures dispo',
+      'GET /systems/{systemKey}/readings?from=...&to=... pour les données',
+    ],
+    params:['systemKey','E_Z_EVU (energy Wh)','P_AC (power W)'],
+    rateLimit:'150 req/min',
+  },
+  {
+    name:'Solar-Log', slug:'solarlog', icon:'📡', color:'#FCD34D',
+    category:'aggregator', status:'BETA', africa: false,
+    desc:'Solar-Log WEB Enerest API — 3000+ onduleurs supportés',
+    docs:'https://www.solar-log.com/en/products/enerest-platform',
+    apiType:'REST', authMethod:'JWT Token',
+    baseUrl:'https://api.solar-log.com/v1',
+    payload:{
+      solarlog_id:'SL12345',
+      pac_total:48200,
+      day_yield:125.5,
+      year_yield:22450.3,
+      co2_saving:14580.2,
+      timestamp:'2025-01-15T14:30:00Z',
+    },
+    authHeader:'Authorization: Bearer JWT_TOKEN',
+    steps:[
+      'Acquérir un Solar-Log WEB Enerest abonnement',
+      'Enregistrer votre Solar-Log datalogger sur la plateforme',
+      'API → Token → Générer JWT token d'accès',
+      'GET /plants/{solarlog_id}/current pour données temps réel',
+      'Configurer push vers PANGEA CARBON via Solar-Log webhook',
+    ],
+    params:['solarlog_id','pac_total (W)','day_yield (kWh)','co2_saving (kg)'],
+    rateLimit:'60 req/min',
+  },
+  // ═══ GENERIC ════════════════════════════════════════════════════════════════
+  {
+    name:'Generic REST', slug:'generic', icon:'🔌', color:'#8FA3B8',
+    category:'api', status:'STABLE', africa: true,
+    desc:'Payload REST personnalisé — tout capteur, tout appareil',
+    docs:'',
+    apiType:'REST flexible', authMethod:'X-API-Key PANGEA CARBON',
+    baseUrl:'https://pangea-carbon.com/api/equipment',
+    payload:{
+      project_id:'cma123abc...',
+      energy_mwh:125.5,
+      power_kw:48.2,
+      timestamp:'2025-01-15T14:30:00Z',
+      device_id:'mon_capteur_01',
+      metadata:{ temperature:42, irradiance:842 },
+    },
+    authHeader:'X-API-Key: pgc_votre_cle_pangea',
+    steps:[
+      'Générer une clé API PANGEA CARBON (onglet Mes Clés)',
+      'Configurer votre équipement pour POST sur /api/equipment/reading',
+      'Inclure X-API-Key dans le header',
+      'Mapper energy_mwh + project_id dans le payload',
+      'Optionnel: device_id, power_kw, temperature, irradiance',
+    ],
+    params:['project_id (requis)','energy_mwh (requis)','timestamp','device_id','power_kw'],
+    rateLimit:'Selon votre plan PANGEA CARBON',
+    note:'✦ Format le plus simple — compatible tout système embarqué ou IoT',
+  },
 ];
 
 const SCOPES = [
@@ -62,6 +438,7 @@ export default function ApiKeysPage() {
   const [confirmRevoke, setConfirmRevoke] = useState(null);
   const [selectedIntegration, setSelectedIntegration] = useState(null);
   const [toast, setToast] = useState(null);
+  const [integFilter, setIntegFilter] = useState('all');
 
   const showToast = (msg, type='success') => {
     setToast({msg,type}); setTimeout(()=>setToast(null),4000);
@@ -393,29 +770,69 @@ export default function ApiKeysPage() {
       {/* ── WEBHOOKS / INTÉGRATIONS ──────────────────────────────────────────── */}
       {tab === 'webhooks' && (
         <div>
-          <p style={{ fontSize:13,color:C.muted,marginBottom:24,lineHeight:1.7 }}>
-            Configurez votre onduleur pour envoyer ses données directement à PANGEA CARBON via webhook.
-            Chaque intégration dispose d'un endpoint dédié — aucun agent logiciel requis.
-          </p>
-          <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24 }}>
-            {INTEGRATIONS.map(integ => (
+          {/* Header stats */}
+          <div style={{ display:'flex',gap:12,marginBottom:20,flexWrap:'wrap' }}>
+            {[
+              { v:INTEGRATIONS.filter(i=>i.status==='STABLE').length, l:'Intégrations stables', c:C.green },
+              { v:INTEGRATIONS.filter(i=>i.status==='BETA').length,   l:'En bêta',             c:C.yellow },
+              { v:INTEGRATIONS.filter(i=>i.africa).length,            l:'Utilisés en Afrique', c:C.orange },
+              { v:INTEGRATIONS.filter(i=>i.category==='aggregator').length, l:'Agrégateurs multi-marques', c:C.purple },
+            ].map(s => (
+              <div key={s.l} style={{ background:C.card,border:`1px solid ${s.c}20`,borderRadius:10,padding:'12px 16px',flex:1,minWidth:120 }}>
+                <div style={{ fontSize:18,fontWeight:800,color:s.c,fontFamily:'JetBrains Mono, monospace' }}>{s.v}</div>
+                <div style={{ fontSize:10,color:C.muted,marginTop:3 }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Category filter */}
+          <div style={{ display:'flex',gap:6,marginBottom:20,flexWrap:'wrap' }}>
+            {INTEG_CATEGORIES.map(cat => (
+              <button key={cat.id} onClick={() => setIntegFilter(cat.id)}
+                style={{ padding:'6px 14px',borderRadius:20,border:`1px solid ${integFilter===cat.id?C.blue:C.border}`,background:integFilter===cat.id?'rgba(56,189,248,0.1)':C.card,color:integFilter===cat.id?C.blue:C.muted,cursor:'pointer',fontSize:11,fontFamily:'JetBrains Mono, monospace',transition:'all .15s' }}>
+                {cat.icon} {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Africa tip */}
+          <div style={{ padding:'12px 16px',background:'rgba(249,115,22,0.06)',border:'1px solid rgba(249,115,22,0.2)',borderRadius:10,marginBottom:20,fontSize:12,color:'#F97316',lineHeight:1.7 }}>
+            🌍 <strong>Top 4 onduleurs en Afrique :</strong> Huawei FusionSolar · Sungrow · Growatt · GoodWe — tous intégrés avec API complète.<br/>
+            🧩 <strong>Conseil :</strong> Utilisez Enode ou VCOM pour une flotte multi-marques — une seule API pour 250+ onduleurs.
+          </div>
+
+          {/* Integration grid */}
+          <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:24 }}>
+            {INTEGRATIONS.filter(integ => {
+              if(integFilter==='all') return true;
+              if(integFilter==='major') return integ.africa;
+              if(integFilter==='aggregator') return integ.category==='aggregator';
+              if(integFilter==='api') return integ.category==='api';
+              if(integFilter==='stable') return integ.status==='STABLE';
+              if(integFilter==='beta') return integ.status==='BETA';
+              return true;
+            }).map(integ => (
               <div key={integ.slug} onClick={() => setSelectedIntegration(selectedIntegration?.slug===integ.slug?null:integ)}
-                style={{ background:C.card,border:`1px solid ${selectedIntegration?.slug===integ.slug?integ.color:C.border}`,borderRadius:12,padding:18,cursor:'pointer',transition:'all .2s',position:'relative',overflow:'hidden' }}>
+                style={{ background:C.card,border:`1px solid ${selectedIntegration?.slug===integ.slug?integ.color:C.border}`,borderRadius:12,padding:16,cursor:'pointer',transition:'all .2s',position:'relative',overflow:'hidden' }}>
                 <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:selectedIntegration?.slug===integ.slug?integ.color:'transparent',transition:'background .2s' }}/>
-                <div style={{ display:'flex',alignItems:'flex-start',gap:12,marginBottom:10 }}>
-                  <span style={{ fontSize:24 }}>{integ.icon}</span>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13,fontWeight:700,color:selectedIntegration?.slug===integ.slug?integ.color:C.text,marginBottom:3 }}>{integ.name}</div>
-                    <div style={{ fontSize:10,color:C.muted,lineHeight:1.5 }}>{integ.desc}</div>
+                <div style={{ display:'flex',alignItems:'flex-start',gap:10,marginBottom:10 }}>
+                  <span style={{ fontSize:22,flexShrink:0 }}>{integ.icon}</span>
+                  <div style={{ flex:1,minWidth:0 }}>
+                    <div style={{ fontSize:12,fontWeight:700,color:selectedIntegration?.slug===integ.slug?integ.color:C.text,marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{integ.name}</div>
+                    <div style={{ fontSize:9,color:C.muted,lineHeight:1.5 }}>{integ.desc}</div>
                   </div>
                 </div>
-                <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center' }}>
-                  <code style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>/webhook/{integ.slug}</code>
-                  <span style={{ fontSize:8,padding:'2px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace',fontWeight:700,
-                    background:integ.status==='STABLE'?'rgba(0,255,148,0.1)':integ.status==='BETA'?'rgba(252,211,77,0.1)':'rgba(74,98,120,0.1)',
-                    color:integ.status==='STABLE'?C.green:integ.status==='BETA'?C.yellow:C.muted }}>
-                    {integ.status}
-                  </span>
+                <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',gap:4 }}>
+                  <div style={{ display:'flex',gap:4 }}>
+                    <span style={{ fontSize:8,padding:'2px 5px',borderRadius:4,fontFamily:'JetBrains Mono, monospace',fontWeight:700,
+                      background:integ.status==='STABLE'?'rgba(0,255,148,0.1)':integ.status==='BETA'?'rgba(252,211,77,0.1)':'rgba(74,98,120,0.1)',
+                      color:integ.status==='STABLE'?C.green:integ.status==='BETA'?C.yellow:C.muted }}>
+                      {integ.status}
+                    </span>
+                    {integ.africa && <span style={{ fontSize:8,padding:'2px 5px',borderRadius:4,background:'rgba(249,115,22,0.1)',color:'#F97316',fontFamily:'JetBrains Mono, monospace' }}>🌍 AFR</span>}
+                    {integ.category==='aggregator' && <span style={{ fontSize:8,padding:'2px 5px',borderRadius:4,background:'rgba(167,139,250,0.1)',color:C.purple,fontFamily:'JetBrains Mono, monospace' }}>AGG</span>}
+                  </div>
+                  <code style={{ fontSize:8,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>{integ.apiType?.split(' ')[0]}</code>
                 </div>
               </div>
             ))}
@@ -423,65 +840,93 @@ export default function ApiKeysPage() {
 
           {/* Détail intégration sélectionnée */}
           {selectedIntegration && (
-            <div style={{ background:C.card,border:`1px solid ${selectedIntegration.color}30`,borderRadius:14,padding:24 }}>
+            <div style={{ background:C.card,border:`1px solid ${selectedIntegration.color}30`,borderRadius:16,padding:28 }}>
+              {/* Header */}
               <div style={{ display:'flex',gap:14,alignItems:'center',marginBottom:20 }}>
-                <span style={{ fontSize:32 }}>{selectedIntegration.icon}</span>
-                <div>
-                  <div style={{ fontSize:9,color:selectedIntegration.color,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.12em',marginBottom:4 }}>CONFIGURATION WEBHOOK</div>
-                  <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:18,fontWeight:800,color:C.text,margin:0 }}>{selectedIntegration.name}</h2>
-                </div>
-              </div>
-              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:20 }}>
-                <div>
-                  <div style={{ fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>WEBHOOK URL</div>
-                  <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'12px 14px',display:'flex',gap:10,alignItems:'center' }}>
-                    <code style={{ flex:1,fontSize:12,color:C.blue,fontFamily:'JetBrains Mono, monospace',wordBreak:'break-all' }}>
-                      https://pangea-carbon.com/api/equipment/webhook/{selectedIntegration.slug}
-                    </code>
-                    <button onClick={() => copyKey('https://pangea-carbon.com/api/equipment/webhook/'+selectedIntegration.slug)}
-                      style={{ background:'transparent',border:`1px solid ${C.border}`,borderRadius:6,color:C.muted,cursor:'pointer',padding:'4px 8px',fontSize:10,flexShrink:0 }}>
-                      📋
-                    </button>
+                <div style={{ width:52,height:52,borderRadius:14,background:selectedIntegration.color+'15',border:`1px solid ${selectedIntegration.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,flexShrink:0 }}>{selectedIntegration.icon}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:9,color:selectedIntegration.color,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.12em',marginBottom:4 }}>
+                    {selectedIntegration.category==='aggregator'?'AGRÉGATEUR MULTI-MARQUES':'CONFIGURATION INTÉGRATION'} · {selectedIntegration.apiType}
                   </div>
+                  <h2 style={{ fontFamily:'Syne, sans-serif',fontSize:20,fontWeight:800,color:C.text,margin:0 }}>{selectedIntegration.name}</h2>
+                  <div style={{ fontSize:12,color:C.muted,marginTop:3 }}>{selectedIntegration.desc}</div>
                 </div>
-                <div>
-                  <div style={{ fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>AUTHENTICATION HEADER</div>
-                  <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'12px 14px' }}>
-                    <code style={{ fontSize:12,color:C.green,fontFamily:'JetBrains Mono, monospace' }}>X-API-Key: pgc_votre_cle</code>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginTop:16 }}>
-                <div style={{ fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>EXEMPLE DE PAYLOAD REÇU</div>
-                <pre style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'14px 16px',margin:0,fontSize:11,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.7 }}>{selectedIntegration.slug === 'sma' ? `{
-  "device": "SB50-1SP-US-41",
-  "serial": "3012345678",
-  "energy_today_kwh": 125.5,
-  "power_now_w": 48200,
-  "timestamp": "2025-01-15T14:30:00Z"
-}` : selectedIntegration.slug === 'huawei' ? `{
-  "stationCode": "NE=123456789",
-  "dataValue": {
-    "radiation_intensity": 842.3,
-    "inverter_state": 512,
-    "mppt_total_cap": 125.5
-  },
-  "collectTime": 1736951400000
-}` : `{
-  "project_id": "cma123...",
-  "energy_mwh": 125.5,
-  "power_kw": 48.2,
-  "timestamp": "2025-01-15T14:30:00Z",
-  "device_id": "inverter_01"
-}`}</pre>
-              </div>
-              {selectedIntegration.docs && (
-                <div style={{ marginTop:14 }}>
-                  <a href={selectedIntegration.docs} target="_blank" rel="noreferrer" style={{ fontSize:12,color:selectedIntegration.color,textDecoration:'none' }}>
-                    📖 Documentation officielle {selectedIntegration.name} →
+                {selectedIntegration.docs && (
+                  <a href={selectedIntegration.docs} target="_blank" rel="noreferrer"
+                    style={{ fontSize:11,color:selectedIntegration.color,textDecoration:'none',background:selectedIntegration.color+'10',border:`1px solid ${selectedIntegration.color}30`,borderRadius:8,padding:'8px 14px',flexShrink:0 }}>
+                    📖 Docs officielles →
                   </a>
+                )}
+              </div>
+              <div style={{ height:1,background:'linear-gradient(90deg,'+selectedIntegration.color+'30 0%,transparent 100%)',marginBottom:24 }}/>
+
+              {selectedIntegration.note && (
+                <div style={{ padding:'10px 14px',background:selectedIntegration.color+'08',border:`1px solid ${selectedIntegration.color}20`,borderRadius:9,marginBottom:20,fontSize:12,color:selectedIntegration.color }}>
+                  {selectedIntegration.note}
                 </div>
               )}
+
+              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:20 }}>
+                <div>
+                  <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>BASE URL</div>
+                  <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'10px 14px',display:'flex',gap:8,alignItems:'center' }}>
+                    <code style={{ flex:1,fontSize:11,color:C.blue,fontFamily:'JetBrains Mono, monospace',wordBreak:'break-all' }}>{selectedIntegration.baseUrl}</code>
+                    <button onClick={() => copyKey(selectedIntegration.baseUrl)} style={{ background:'transparent',border:`1px solid ${C.border}`,borderRadius:5,color:C.muted,cursor:'pointer',padding:'3px 7px',fontSize:9,flexShrink:0 }}>📋</button>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>AUTHENTIFICATION</div>
+                  <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'10px 14px' }}>
+                    <code style={{ fontSize:11,color:C.green,fontFamily:'JetBrains Mono, monospace',display:'block',whiteSpace:'pre-wrap',lineHeight:1.7 }}>{selectedIntegration.authHeader}</code>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:20 }}>
+                {/* Étapes d'intégration */}
+                <div>
+                  <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:10 }}>ÉTAPES D'INTÉGRATION</div>
+                  {selectedIntegration.steps?.map((step, i) => (
+                    <div key={i} style={{ display:'flex',gap:10,marginBottom:8,alignItems:'flex-start' }}>
+                      <div style={{ width:20,height:20,borderRadius:'50%',background:selectedIntegration.color+'20',border:`1px solid ${selectedIntegration.color}40`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:selectedIntegration.color,flexShrink:0 }}>{i+1}</div>
+                      <span style={{ fontSize:12,color:C.text2,lineHeight:1.5 }}>{step}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Payload + Params */}
+                <div>
+                  <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>PAYLOAD EXEMPLE</div>
+                  <pre style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'12px 14px',margin:'0 0 12px',fontSize:10,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.7,overflowX:'auto',maxHeight:200 }}>
+                    {JSON.stringify(selectedIntegration.payload||{}, null, 2)}
+                  </pre>
+                  <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:6 }}>CHAMPS CLÉS À MAPPER</div>
+                  <div style={{ display:'flex',flexWrap:'wrap',gap:6 }}>
+                    {selectedIntegration.params?.map(p => (
+                      <span key={p} style={{ fontSize:9,padding:'3px 8px',background:selectedIntegration.color+'10',border:`1px solid ${selectedIntegration.color}25`,borderRadius:5,color:selectedIntegration.color,fontFamily:'JetBrains Mono, monospace' }}>{p}</span>
+                    ))}
+                  </div>
+                  {selectedIntegration.rateLimit && (
+                    <div style={{ marginTop:10,fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace' }}>
+                      ⏱ Rate limit: {selectedIntegration.rateLimit}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Webhook URL PANGEA */}
+              <div style={{ padding:'14px 18px',background:'rgba(0,255,148,0.05)',border:'1px solid rgba(0,255,148,0.15)',borderRadius:10 }}>
+                <div style={{ fontSize:9,color:C.green,fontFamily:'JetBrains Mono, monospace',marginBottom:6 }}>WEBHOOK PANGEA CARBON À CONFIGURER DANS {selectedIntegration.name.toUpperCase()}</div>
+                <div style={{ display:'flex',gap:10,alignItems:'center' }}>
+                  <code style={{ flex:1,fontSize:12,color:C.green,fontFamily:'JetBrains Mono, monospace' }}>
+                    https://pangea-carbon.com/api/equipment/webhook/{selectedIntegration.slug}
+                  </code>
+                  <button onClick={() => copyKey('https://pangea-carbon.com/api/equipment/webhook/'+selectedIntegration.slug)}
+                    style={{ background:'rgba(0,255,148,0.1)',border:'1px solid rgba(0,255,148,0.25)',borderRadius:7,color:C.green,cursor:'pointer',padding:'6px 12px',fontSize:10 }}>
+                    📋 Copier
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
