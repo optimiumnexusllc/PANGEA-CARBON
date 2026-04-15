@@ -117,12 +117,6 @@ export default function LandingPage() {
   ];
 
 
-  if (!checked) return (
-    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-    </div>
-  );
-
   const doSend = async () => {
     if (!cName || !cEmail) { setCerr('Name and email required'); return; }
     setCsending(true); setCerr('');
@@ -137,6 +131,12 @@ export default function LandingPage() {
     } catch(_e) { setCerr('Erreur reseau'); }
     finally { setCsending(false); }
   };
+
+  if (!checked) return (
+    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
+    </div>
+  );
 
   return (
     <div className="pangea-landing">
@@ -246,7 +246,7 @@ export default function LandingPage() {
         <div className="pgc-container">
           <div className="pgc-section__header">
             <div className="pgc-eyebrow">FEATURES</div>
-            {[null,null].map((_,_i)=><span key={_i}/>)} <h2 className="pgc-section__title">{L('Everything an African EPC/IPP needs','Tout ce qu'une EPC/IPP africaine nécessite')}</h2><p className="pgc-section__sub">{L('One platform. Zero Excel. Zero external MRV consultant.','Une plateforme. Zéro Excel. Zéro consultant MRV externe.')}</p>
+            <h2 className="pgc-section__title">{L('Everything an African EPC/IPP needs',"Tout ce qu'une EPC/IPP africaine nécessite")}</h2><p className="pgc-section__sub">{L('One platform. Zero Excel. Zero external MRV consultant.','Une plateforme. Zéro Excel. Zéro consultant MRV externe.')}</p>
           </div>
           <div className="pgc-features-grid">
             {FEATURES.map(f => (
