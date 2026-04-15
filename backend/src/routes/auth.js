@@ -67,15 +67,16 @@ router.post('/register', [
     // Auto-créer BuyerProfile si corporate buyer
     const corporateTypes = ['CORPORATE_VOLUNTARY','COMPLIANCE_CBAM','STRATEGIC_NETZERO','FINANCIAL','COMPLIANCE_CORSIA','COMPLIANCE_LOCAL'];
     if (orgType && corporateTypes.includes(orgType)) {
-      await prisma.buyerProfile.create({
-        data: {
-          organizationId: org.id,
-          buyerType: orgType,
-          country: orgCountry || null,
-          status: 'PROSPECT',
-          lastActivityAt: new Date(),
-        }
-      }).catch(() => {}); // Non bloquant
+      try {
+        await prisma.buyerProfile.create({
+          data: {
+            organizationId: org.id,
+            buyerType: orgType,
+            country: orgCountry || null,
+            status: 'PROSPECT',
+          }
+        });
+      } catch(_e) { /* non bloquant */ }
     }
 
     const frontendUrl = process.env.FRONTEND_URL || 'https://pangea-carbon.com';
@@ -101,15 +102,21 @@ router.post('/register', [
       }).catch(e => console.error('[Email] Erreur notif admin:', e.message));
     }
 
-    // Log audit
+    // Log audit (non-bloquant)
     await prisma.auditLog.create({
       data: { action: 'REGISTER', entity: 'User', entityId: user.id, after: { email, name }, ipAddress: req.ip }
-    });
+    }).catch(() => {});
+
+    // Générer tokens pour que le frontend puisse créer le projet/profil
+    const tokens = generateTokens(user);
 
     res.status(201).json({
       message: 'Compte créé. Vérifiez votre email pour activer votre compte.',
       email,
       pendingVerification: true,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: { id: user.id, email, name, role: 'ADMIN' },
     });
   } catch (e) { next(e); }
 });
@@ -285,9 +292,8 @@ router.post('/forgot-password', [
           buyerType: orgType,
           country: orgCountry || null,
           status: 'PROSPECT',
-          lastActivityAt: new Date(),
         }
-      }).catch(() => {}); // Non bloquant
+      }).catch(() => {});
     }
 
     const frontendUrl = process.env.FRONTEND_URL || 'https://pangea-carbon.com';
