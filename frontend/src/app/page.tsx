@@ -91,12 +91,6 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  if (!checked) return (
-    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-    </div>
-  );
-
   const prices = { free: 0, starter: annual ? 249 : 299, pro: annual ? 649 : 799, esg: annual ? 149 : 199 };
 
   const STATS = [
@@ -121,6 +115,13 @@ export default function LandingPage() {
     { n:'03', title:L('Automatic MRV','MRV Automatique'), desc:L('Every reading triggers calculation. Credits, revenue, equivalents. All tracked and certifiable.','Chaque lecture déclenche le calcul. Crédits, revenus, équivalents. Tout tracé et certifiable.') },
     { n:'04', title:L('Download & sell','Télécharger & vendre'), desc:L('Certifiable PDF in 1 click. Submit to VVB. Sell on our marketplace. ESG certificate included.','PDF certifiable en 1 clic. Soumettez au VVB. Vendez sur notre marketplace. Certificat ESG inclus.') },
   ];
+
+
+  if (!checked) return (
+    <div style={{ background: '#060A0D', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
+    </div>
+  );
 
   const doSend = async () => {
     if (!cName || !cEmail) { setCerr('Name and email required'); return; }
