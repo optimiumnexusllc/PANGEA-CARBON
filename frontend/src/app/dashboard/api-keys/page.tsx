@@ -108,8 +108,7 @@ const INTEGRATIONS = [
       etotal:45820.3,
       temperature:42.1,
     },
-    authHeader:'Token: VOTRE_TOKEN_SEMS
-User-Agent: SEMS Portal',
+    authHeader:'Token: VOTRE_TOKEN_SEMS | User-Agent: SEMS Portal',
     steps:[
       'Créer un compte SEMS Portal (semsportal.com)',
       'Aller dans Account → Developer Access → Request Token',
@@ -132,8 +131,7 @@ User-Agent: SEMS Portal',
       timestamp:'2025-01-15T14:30:00Z',
       deviceId:'SN:3012345678',
     },
-    authHeader:'Authorization: Bearer VOTRE_TOKEN
-X-Application-Key: APP_KEY',
+    authHeader:'Authorization: Bearer VOTRE_TOKEN | X-Application-Key: APP_KEY',
     steps:[
       'Accéder à ennexos.sunnyportal.com → API Documentation',
       'Créer une application dans Developer Portal',
@@ -201,8 +199,7 @@ X-Application-Key: APP_KEY',
       consumption:{ watt_hours_today:98200 },
       timestamp:'2025-01-15T14:30:00Z',
     },
-    authHeader:'Authorization: Bearer ACCESS_TOKEN
-key: API_KEY (header)',
+    authHeader:'Authorization: Bearer ACCESS_TOKEN | key: API_KEY (header)',
     steps:[
       'Créer un compte sur developer.enphase.com',
       'Créer une application → obtenir API Key + Secret',
@@ -228,9 +225,7 @@ key: API_KEY (header)',
       temperature:42.1,
       dataTimestamp:'2025-01-15T14:30:00Z',
     },
-    authHeader:'Authorization: API VOTRE_KEY:SIGNATURE_HMAC_MD5
-Content-MD5: BASE64_HASH
-Date: UTC_DATE',
+    authHeader:'Authorization: API VOTRE_KEY:SIGNATURE_HMAC_MD5 | Content-MD5: BASE64_HASH | Date: UTC_DATE',
     steps:[
       'Créer un compte sur solarmanpv.com (espace distributeur)',
       'Aller dans Account → API Management → Create API',
@@ -256,8 +251,7 @@ Date: UTC_DATE',
       temperature:38.5,
       status:'Normal',
     },
-    authHeader:'Authorization: Basic BASE64
-X-API-Key: VOTRE_KEY',
+    authHeader:'Authorization: Basic BASE64 | X-API-Key: VOTRE_KEY',
     steps:[
       'Contacter Delta Electronics pour accès API (support@deltaww.com)',
       'Obtenir credentials API après vérification installation',
@@ -281,8 +275,7 @@ X-API-Key: VOTRE_KEY',
       fields:[{ key:'GenerationPower', value:48.2, unit:'kW' },{ key:'GenerationEnergy', value:125.5, unit:'kWh' }],
       datetime:'2025-01-15T14:30:00+00:00',
     },
-    authHeader:'X-AuroraVision-ApiKey: VOTRE_KEY
-X-AuroraVision-Token: SESSION_TOKEN',
+    authHeader:'X-AuroraVision-ApiKey: VOTRE_KEY | X-AuroraVision-Token: SESSION_TOKEN',
     steps:[
       'Créer un compte Aurora Vision (auroravision.net)',
       'Aller dans Settings → API → Generate API Key',
