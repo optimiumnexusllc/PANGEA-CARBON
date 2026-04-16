@@ -171,8 +171,10 @@ router.post('/', auth, requirePermission('projects.create'), [
       const orgPlan = userWithOrg?.organization?.plan
         || (['ORG_OWNER','ANALYST','AUDITOR'].includes(userWithOrg?.role) ? 'TRIAL' : 'FREE');
       const planLimits = LIMITS[orgPlan] || LIMITS.TRIAL;
-      const maxProjects = userWithOrg?.organization?.maxProjects || planLimits.mp;
-      const maxMW = userWithOrg?.organization?.maxMW || planLimits.mw;
+      const orgMaxProjects = userWithOrg?.organization?.maxProjects;
+      const maxProjects = (orgMaxProjects != null && orgMaxProjects > 0) ? orgMaxProjects : planLimits.mp;
+      const orgMaxMW = userWithOrg?.organization?.maxMW;
+      const maxMW = (orgMaxMW != null && orgMaxMW > 0) ? orgMaxMW : planLimits.mw;
 
       // Compter les projets existants
       const orgId = userWithOrg?.organizationId;
