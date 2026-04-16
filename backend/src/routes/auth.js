@@ -245,7 +245,15 @@ router.post('/login', [
       console.warn('[Login] Email OTP send failed:', otpErr.message);
     }
 
-    // Toujours retourner requiresMFA=true — même si email OTP a échoué
+    // Si SMTP non configuré et pas de TOTP app → bypass MFA (mode dev/config)
+    const smtpConfigured = !!(process.env.SMTP_HOST || process.env.SMTP_USER);
+    const hasTOTP = twofa?.enabled && !twofa?.emailOtpEnabled;
+    if (!smtpConfigured && !hasTOTP && emailOtpError) {
+      console.warn('[Login] SMTP not configured — bypassing MFA for', user.email);
+      const { accessToken, refreshToken } = generateTokens(user);
+      await prisma.user.update({ where: { id: user.id }, data: { lastLogin: new Date(), loginCount: { increment: 1 } } });
+      return res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, organizationId: user.organizationId }, accessToken, refreshToken, mfaBypassed: true });
+    }
     const preAuthToken = jwt.sign(
       { userId: user.id, preAuth: true, requiresMFA: true },
       process.env.JWT_SECRET,
