@@ -65,7 +65,7 @@ model Organization {
   plan             PlanTier     @default(TRIAL)
   status           OrgStatus    @default(TRIAL)
   maxProjects      Int          @default(5)
-  maxMW            Float        @default(100)
+  maxMW            Float        @default(500)
   maxUsers         Int          @default(3)
   stripeCustomerId String?
   stripeSubId      String?
