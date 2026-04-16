@@ -74,12 +74,14 @@ export default function DocsPage() {
     setTimeout(() => setCopied(''), 2000);
   };
 
-  const curlExample = (method, path: string, body: string | null, auth = 'Bearer') => {
-    const authHeader = auth === 'X-API-Key'
-      ? `-H "X-API-Key: pgc_YOUR_API_KEY"`
-      : `-H "Authorization: Bearer YOUR_ACCESS_TOKEN"`;
-    const bodyFlag = body ? "\\\n  -d '"+(body)+"'" : '';
-    return "curl -X "+(method)+" "+(BASE_URL)+""+(path)+" \\\n  -H "Content-Type: application/json" \\\n  "+(authHeader)+""+(bodyFlag ? ' \\' + '\n  ' + bodyFlag.slice(4) : '')+"";
+  const curlExample = (method: string, path: string, body: string | null, auth = 'Bearer') => {
+    const ak = auth === 'X-API-Key' ? 'X-API-Key: pgc_YOUR_API_KEY' : 'Authorization: Bearer YOUR_ACCESS_TOKEN';
+    const ct = 'Content-Type: application/json';
+    let cmd = 'curl -X ' + method + ' ' + BASE_URL + path;
+    cmd += ' \\' + '\n' + '  -H "' + ct + '"';
+    cmd += ' \\' + '\n' + '  -H "' + ak + '"';
+    if (body) { cmd += ' \\' + '\n' + "  -d '" + body + "'"; }
+    return cmd;
   };
 
   return (

@@ -62,7 +62,7 @@ export default function PipelinePage() {
         </div>
         <p style={{ fontSize:13, color:C.muted, marginTop:8 }}>
           {L('11-step certification workflow — 6 to 24 months to first carbon credits.',
-             'Processus de certification 11 etapes — 6 a 24 mois jusqu'aux premiers credits carbone.')}
+             'Processus de certification 11 etapes — 6 a 24 mois pour les premiers credits carbone.')}
         </p>
       </div>
 

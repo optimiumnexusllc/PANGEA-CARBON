@@ -222,7 +222,7 @@ export default function SellerPortal() {
         method: 'PUT',
         body: JSON.stringify({ ...gwData, preferredGateway: selectedGw }),
       });
-      showToast(lang==='fr'?'Gateway enregistre':'Payment gateway saved'ée'));
+      showToast(lang==='fr'?'Gateway enregistre':'Payment gateway saved');
       await load();
     } catch(e: any) { showToast(e.message, 'error'); }
     finally { setSaving(false); }
