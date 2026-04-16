@@ -222,7 +222,7 @@ export default function DashboardPage() {
               <tbody>
                 {leaderboard.slice(0, 5).map((p, i) => (
                   <tr key={p.projectId} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', cursor: 'pointer' }}
-                    onClick={() => window.location.href = `/dashboard/projects/${p.projectId)}
+                    onClick={() => window.location.href = /dashboard/projects/${p.projectId)}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,61,0.3)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <td style={{ padding: '10px 14px', width: 36 }}>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
               {quickActions.map(action => (
                 <a key={action.href} href={action.href}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', background: '#121920', borderRadius: 8, border: '1px solid #1E2D3D', textDecoration: 'none', transition: 'all 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = `${action.color) + '40')}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = ${action.color) + '40')}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = '#1E2D3D')}>
                   <span style={{ fontSize: 15 }}>{action.icon}</span>
                   <span style={{ fontSize: 11, color: '#8FA3B8', fontWeight: 500 }}>{action.label}</span>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4})}</style>
+      <style>{@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4})}</style>
     </div>
   );
 }

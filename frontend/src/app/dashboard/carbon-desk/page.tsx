@@ -142,7 +142,7 @@ export default function CarbonDesk() {
       {/* Toast */}
       {toast && (
         <div style={{ position:'fixed', top:20, right:20, zIndex:99999, maxWidth:420 }}>
-          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden' }}>
+          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:toast.type==='error'?RED:GREEN }}/>
             <div style={{ width:22, height:22, borderRadius:'50%', background:toast.type==='error'?'rgba(248,113,113,0.15)':'rgba(0,255,148,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:toast.type==='error'?RED:GREEN, fontWeight:800, marginLeft:8 }}>
               {toast.type==='error'?'✗':'✓'}
@@ -189,7 +189,7 @@ export default function CarbonDesk() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display:'flex', gap:2, marginBottom:24, borderBottom:`1px solid ${BORDER) }}>
+      <div style={{ display:'flex', gap:2, marginBottom:24, borderBottom:1px solid ${BORDER) }}>
         {([
           ['intelligence', L('Market Intelligence','Intelligence marché'), '📡'],
           ['buyers',       L('Buyer CRM','CRM Acheteurs'),                '🏢'],
@@ -197,7 +197,7 @@ export default function CarbonDesk() {
           ['cbam',         L('CBAM Calculator','Calculateur CBAM'),        '🇪🇺'],
         ] as [string,string,string][]).map(([id,label,icon]) => (
           <button key={id} onClick={() => setTab(id as any)}
-            style={{ padding:'11px 20px', border:'none', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'JetBrains Mono, monospace', borderBottom:`2px solid ${tab===id?ORANGE:'transparent'), background:'transparent', color:tab===id?ORANGE:MUTED, transition:'all .15s' }}>
+            style={{ padding:'11px 20px', border:'none', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'JetBrains Mono, monospace', borderBottom:2px solid ${tab===id?ORANGE:'transparent'), background:'transparent', color:tab===id?ORANGE:MUTED, transition:'all .15s' }}>
             {icon} {label}
           </button>
         ))}
@@ -208,7 +208,7 @@ export default function CarbonDesk() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
 
           {/* Market overview */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:22 }}>
+          <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:22 }}>
             <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:16 }}>MARKET OVERVIEW</div>
             {[
               { l:'Volume traded', v:fmtT(intel.totalVolumeTraded), c:GREEN },
@@ -229,7 +229,7 @@ export default function CarbonDesk() {
           </div>
 
           {/* Demand side breakdown */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:22 }}>
+          <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:22 }}>
             <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:16 }}>DEMAND SIDE BREAKDOWN</div>
             {BUYER_TYPES.slice(0,5).map(bt => {
               const count = buyers.filter(b => b.buyerType === bt.id).length;
@@ -257,7 +257,7 @@ export default function CarbonDesk() {
           </div>
 
           {/* Strategic insights */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:22, gridColumn:'1/-1' }}>
+          <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:22, gridColumn:'1/-1' }}>
             <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:16 }}>PANGEA CARBON MARKET POSITION</div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
               {[
@@ -300,7 +300,7 @@ export default function CarbonDesk() {
 
           {/* Buyer list */}
           {(!buyers.length) ? (
-            <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:48, textAlign:'center' }}>
+            <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:48, textAlign:'center' }}>
               <div style={{ fontSize:44, marginBottom:16 }}>🏢</div>
               <div style={{ fontSize:16, color:TEXT, fontWeight:700, marginBottom:8 }}>{L('No buyers registered yet','Aucun acheteur enregistré')}</div>
               <div style={{ fontSize:13, color:MUTED }}>{L('Buyers register via the marketplace or you can add them manually.','Les acheteurs s\'inscrivent via la marketplace ou vous pouvez les ajouter manuellement.')}</div>
@@ -315,7 +315,7 @@ export default function CarbonDesk() {
                     style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:12, padding:'16px 20px', cursor:'pointer', transition:'all .15s', borderLeft:`3px solid ${grade.color) }}>
                     <div style={{ display:'flex', alignItems:'center', gap:16 }}>
                       {/* Lead score */}
-                      <div style={{ width:50, height:50, borderRadius:12, background:grade.bg, border:`1px solid ${grade.color) + '30', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <div style={{ width:50, height:50, borderRadius:12, background:grade.bg, border:1px solid ${grade.color) + '30', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                         <div style={{ fontSize:16, fontWeight:800, color:grade.color, fontFamily:'JetBrains Mono, monospace' }}>{buyer.leadScore||0}</div>
                         <div style={{ fontSize:7, color:MUTED, textAlign:'center' }}>SCORE</div>
                       </div>
@@ -324,7 +324,7 @@ export default function CarbonDesk() {
                         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
                           <div style={{ fontSize:14, fontWeight:700, color:TEXT }}>{buyer.companyName || buyer.organization?.name || '—'}</div>
                           {bt && <span style={{ fontSize:9, padding:'2px 7px', background:`${bt.color) + '15', border:`1px solid ${bt.color) + '30', borderRadius:4, color:bt.color, fontFamily:'JetBrains Mono, monospace' }}>{bt.badge}</span>}
-                          <span style={{ fontSize:9, padding:'2px 7px', background:`${grade.color) + '15', borderRadius:4, color:grade.color, fontFamily:'JetBrains Mono, monospace' }}>{grade.label}</span>
+                          <span style={{ fontSize:9, padding:'2px 7px', background:${grade.color) + '15', borderRadius:4, color:grade.color, fontFamily:'JetBrains Mono, monospace' }}>{grade.label}</span>
                         </div>
                         <div style={{ fontSize:11, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>
                           {buyer.sector && <span>{buyer.sector} · </span>}
@@ -352,7 +352,7 @@ export default function CarbonDesk() {
 
                     {/* Expanded details */}
                     {selectedBuyer?.id === buyer.id && (
-                      <div style={{ marginTop:16, paddingTop:16, borderTop:`1px solid ${BORDER), display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:14 }}>
+                      <div style={{ marginTop:16, paddingTop:16, borderTop:1px solid ${BORDER), display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:14 }}>
                         <div>
                           <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>CONTACT</div>
                           <div style={{ fontSize:12, color:TEXT }}>{buyer.contactName || '—'}</div>
@@ -406,7 +406,7 @@ export default function CarbonDesk() {
           </div>
 
           {/* Company info */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:24, marginBottom:20 }}>
+          <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:24, marginBottom:20 }}>
             <div style={{ fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:16 }}>COMPANY INFORMATION</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
               {[
@@ -444,7 +444,7 @@ export default function CarbonDesk() {
           </div>
 
           {/* Emissions & Budget */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:24, marginBottom:20 }}>
+          <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:24, marginBottom:20 }}>
             <div style={{ fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:16 }}>CARBON PROFILE & PROCUREMENT NEEDS</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
               {[
@@ -490,7 +490,7 @@ export default function CarbonDesk() {
           </div>
 
           <button onClick={saveProfile} disabled={saving}
-            style={{ width:'100%', background:saving?CARD:'rgba(0,255,148,0.12)', border:`1px solid ${saving?BORDER:'rgba(0,255,148,0.35)'), borderRadius:10, color:saving?MUTED:GREEN, padding:14, cursor:saving?'wait':'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif' }}>
+            style={{ width:'100%', background:saving?CARD:'rgba(0,255,148,0.12)', border:1px solid ${saving?BORDER:'rgba(0,255,148,0.35)'), borderRadius:10, color:saving?MUTED:GREEN, padding:14, cursor:saving?'wait':'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif' }}>
             {saving ? '⟳ Saving...' : '💾 ' + L('Save Buyer Profile','Enregistrer le profil acheteur')}
           </button>
         </div>
@@ -555,7 +555,7 @@ export default function CarbonDesk() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ padding:'12px 16px', background:cbamResult.annualSavings>0?'rgba(0,255,148,0.08)':'rgba(252,211,77,0.08)', border:`1px solid ${cbamResult.annualSavings>0?'rgba(0,255,148,0.25)':'rgba(252,211,77,0.25)'), borderRadius:10 }}>
+                  <div style={{ padding:'12px 16px', background:cbamResult.annualSavings>0?'rgba(0,255,148,0.08)':'rgba(252,211,77,0.08)', border:1px solid ${cbamResult.annualSavings>0?'rgba(0,255,148,0.25)':'rgba(252,211,77,0.25)'), borderRadius:10 }}>
                     <div style={{ fontSize:12, color:cbamResult.annualSavings>0?GREEN:YELLOW, lineHeight:1.7 }}>
                       💡 {cbamResult.recommendation}
                     </div>
@@ -566,7 +566,7 @@ export default function CarbonDesk() {
           </div>
 
           {/* CBAM explainer */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:22 }}>
+          <div style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:22 }}>
             <div style={{ fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:14 }}>CBAM QUICK REFERENCE</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
               {CBAM_SECTORS.map(s => (

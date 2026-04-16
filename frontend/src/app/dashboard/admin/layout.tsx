@@ -65,7 +65,7 @@ export default function AdminLayout({ children }) {
             ← {lang==='fr'?'Dashboard':'Dashboard'}
           </a>
         </div>
-        <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4})}</style>
+        <style>{@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4})}</style>
       </div>
 
       <div style={{ display:'flex', flex:1 }}>

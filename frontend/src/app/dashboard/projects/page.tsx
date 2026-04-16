@@ -259,7 +259,7 @@ export default function ProjectsPage() {
       {loading ? (
         <div style={{ display:'flex',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:12 }}>
           <div style={{ width:28,height:28,border:'2px solid rgba(0,255,148,0.2)',borderTopColor:C.green,borderRadius:'50%',animation:'spin 0.8s linear infinite' }}/>
-          <style>{`@keyframes spin{to{transform:rotate(360deg);})}</style>
+          <style>{@keyframes spin{to{transform:rotate(360deg);})}</style>
           <span style={{ color:C.muted,fontSize:13,fontFamily:'JetBrains Mono, monospace' }}>
             {lang==='fr'?'Chargement...':'Loading...'}
           </span>

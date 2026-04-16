@@ -44,10 +44,10 @@ export default function CORSIAPage() {
       {s && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {[
-            { label: 'Projects éligibles', value: `${s.eligible}/${s.total), color: '#F87171' },
+            { label: 'Projects éligibles', value: ${s.eligible}/${s.total), color: '#F87171' },
             { label: 'Eligible credits', value: `${fmt(s.eligibleCredits) tCO₂e`, color: '#E8EFF6' },
-            { label: 'Premium/tonne', value: `+$${(s.avgPremiumUSD || 0).toFixed(0)), color: '#00FF94' },
-            { label: 'Premium revenue', value: `$${fmt(s.totalPremiumRevenue)), color: '#FCD34D' },
+            { label: 'Premium/tonne', value: +$${(s.avgPremiumUSD || 0).toFixed(0)), color: '#00FF94' },
+            { label: 'Premium revenue', value: $${fmt(s.totalPremiumRevenue)), color: '#FCD34D' },
           ].map(k => (
             <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
