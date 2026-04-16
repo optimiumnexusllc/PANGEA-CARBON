@@ -202,13 +202,15 @@ router.post('/login', [
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const { email, password } = req.body;
+    console.log('[Login] Attempt:', email);
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(401).json({ error: 'Identifiants invalides' });
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Identifiants invalides' });
 
-    // Vérifier si l'email est validé (bypass si emailVerified absent)
+    // Email vérification (strict false uniquement)
     if (user.emailVerified === false) {
       return res.status(403).json({
         error: 'Email non verifie. Verifiez votre boite email.',
@@ -218,70 +220,107 @@ router.post('/login', [
     }
 
     if (!user.isActive) {
-      return res.status(403).json({ error: 'Compte désactivé. Contactez le support.' });
+      return res.status(403).json({ error: 'Compte desactive. Contactez le support.' });
     }
 
-    // ── MFA obligatoire pour TOUS les utilisateurs ─────────────────────
-    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: user.id } });
-    const hasTOTPEnabled = !!(twofa?.enabled);
+    // ── TOTP OBLIGATOIRE POUR TOUS ──────────────────────────────────
+    let twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: user.id } });
 
-    // Générer et envoyer automatiquement un Email OTP pour tous les logins
-    let emailOtpSent = false;
-    let emailOtpError = null;
-    try {
-      const otp6 = String(Math.floor(100000 + Math.random() * 900000));
-      const codeHash = crypto.createHash('sha256').update(otp6).digest('hex');
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-      // Invalider les anciens OTPs
-      await prisma.emailOTP.updateMany({
-        where: { userId: user.id, used: false },
-        data: { used: true }
-      }).catch(() => {});
-      await prisma.emailOTP.create({ data: { userId: user.id, code: codeHash, expiresAt } }).catch(() => {});
-      const { sendEmailOTP } = require('../services/email.service');
-      await sendEmailOTP({ to: user.email, name: user.name||'', code: otp6, expiresInMinutes: 5, lang: req.body.lang||'en' });
-      emailOtpSent = true;
-      console.log('[Login] Email OTP sent to', user.email);
-    } catch(otpErr) {
-      emailOtpError = otpErr.message;
-      console.warn('[Login] Email OTP send failed:', otpErr.message);
+    // Si l'utilisateur n'a pas encore de TOTP configuré → auto-setup
+    if (!twofa || !twofa.secret) {
+      // Générer un secret TOTP
+      const secret = speakeasy.generateSecret({
+        name: 'PANGEA CARBON (' + user.email + ')',
+        issuer: 'PANGEA CARBON',
+        length: 20,
+      });
+
+      // Générer le QR code en base64
+      let qrDataUrl = '';
+      try {
+        qrDataUrl = await QRCode.toDataURL(secret.otpauth_url);
+      } catch(e) {
+        console.warn('[TOTP] QR generation failed:', e.message);
+      }
+
+      // Sauvegarder le secret (non encore activé)
+      if (twofa) {
+        await prisma.twoFactorAuth.update({
+          where: { userId: user.id },
+          data: { secret: secret.base32, enabled: false },
+        });
+      } else {
+        await prisma.twoFactorAuth.create({
+          data: { userId: user.id, secret: secret.base32, enabled: false },
+        });
+      }
+
+      // Pré-auth token pour valider le setup
+      const preAuthToken = jwt.sign(
+        { userId: user.id, preAuth: true, requiresMFA: true, setupMode: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+
+      console.log('[Login] TOTP setup required for', email);
+      return res.json({
+        requiresMFA: true,
+        setupRequired: true,
+        preAuthToken,
+        qrCode: qrDataUrl,
+        secret: secret.base32,
+        user: { name: user.name, email: user.email },
+      });
     }
 
-    // Si SMTP non configuré et pas de TOTP app → bypass MFA (mode dev/config)
-    const smtpConfigured = !!(process.env.SMTP_HOST || process.env.SMTP_USER);
-    const hasTOTPActive = twofa?.enabled && !twofa?.emailOtpEnabled;
-    if (!smtpConfigured && !hasTOTPActive) {
-      console.warn('[Login] SMTP not configured — bypassing MFA for', user.email);
-      const { accessToken, refreshToken } = generateTokens(user);
-      await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date(), loginCount: { increment: 1 } } }).catch(() => {});
-      return res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, organizationId: user.organizationId }, accessToken, refreshToken, mfaBypassed: true });
+    // TOTP configuré mais pas encore activé (setup en cours)
+    if (!twofa.enabled) {
+      let qrDataUrl = '';
+      try {
+        const otpauth = speakeasy.otpauthURL({
+          secret: twofa.secret,
+          label: user.email,
+          issuer: 'PANGEA CARBON',
+          encoding: 'base32',
+        });
+        qrDataUrl = await QRCode.toDataURL(otpauth);
+      } catch(e) {}
+
+      const preAuthToken = jwt.sign(
+        { userId: user.id, preAuth: true, requiresMFA: true, setupMode: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+
+      return res.json({
+        requiresMFA: true,
+        setupRequired: true,
+        preAuthToken,
+        qrCode: qrDataUrl,
+        secret: twofa.secret,
+        user: { name: user.name, email: user.email },
+      });
     }
+
+    // TOTP activé → demander le code
     const preAuthToken = jwt.sign(
       { userId: user.id, preAuth: true, requiresMFA: true },
       process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
+
+    console.log('[Login] TOTP required for', email);
     return res.json({
       requiresMFA: true,
+      setupRequired: false,
       preAuthToken,
-      userId: user.id,
-      hasTOTP: hasTOTPEnabled,
-      emailOtpSent,
-      emailOtpError: emailOtpError ? 'Email OTP failed (SMTP not configured?)' : null,
+      hasTOTP: true,
       user: { name: user.name, email: user.email.replace(/(.{2}).*(@.*)/, '$1***$2') },
     });
 
-    // Mettre à jour dernière connexion
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date(), loginCount: { increment: 1 } }
-    });
-
-    const { password: _, ...userSafe } = user;
-    const tokens = generateTokens(userSafe);
-    res.json({ user: userSafe, ...tokens });
   } catch (e) { next(e); }
 });
+
 
 // POST /api/auth/mfa-verify — Étape 2FA après login
 router.post('/mfa-verify', async (req, res, next) => {
@@ -319,9 +358,23 @@ router.post('/mfa-verify', async (req, res, next) => {
       if (!otp) return res.status(401).json({ error: 'Invalid or expired code. Request a new one.' });
       await prisma.emailOTP.update({ where: { id: otp.id }, data: { used: true } });
     } else if (method === 'totp') {
-      // Vérifier via TOTP app (seulement si 2FA configuré)
-      if (!twofa?.enabled) return res.status(400).json({ error: 'TOTP not enabled on this account. Use email code.' });
-      const secret = decrypt(twofa.secret);
+      // Setup mode: premier code TOTP pour activer le 2FA
+      if (decoded.setupMode && twofa && !twofa.enabled) {
+        const rawSecret = twofa.secret;
+        let secret;
+        try { secret = decrypt(rawSecret); } catch(e) { secret = rawSecret; }
+        const totpValid = speakeasy.totp.verify({ secret, encoding: 'base32', token: String(code).replace(/\s/g,''), window: 2 });
+        if (!totpValid) return res.status(401).json({ error: 'Code TOTP invalide. Verifiez votre application.' });
+        // Activer le 2FA
+        await prisma.twoFactorAuth.update({ where: { userId }, data: { enabled: true } });
+        // Continuer vers la finalisation
+      } else {
+      // Vérifier via TOTP app (2FA déjà configuré)
+      if (!twofa?.enabled) return res.status(400).json({ error: 'TOTP not configured. Contact admin.' });
+      // Secret stocke en base32 clair (speakeasy.generateSecret().base32)
+      const rawSecret = twofa.secret;
+      let secret;
+      try { secret = decrypt(rawSecret); } catch(e) { secret = rawSecret; }
       const totpValid = speakeasy.totp.verify({ secret, encoding: 'base32', token: String(code).replace(/\s/g,''), window: 2 });
 
       if (!totpValid) {
@@ -332,6 +385,7 @@ router.post('/mfa-verify', async (req, res, next) => {
         const newBackups = [...twofa.backupCodes]; newBackups.splice(idx, 1);
         await prisma.twoFactorAuth.update({ where: { userId }, data: { backupCodes: newBackups } });
       }
+      } // end else (already enabled)
     }
 
     // 2FA validé — finaliser la connexion
