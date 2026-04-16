@@ -163,7 +163,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: on-failure:3
+    restart: unless-stopped
     networks: [pangea_net]
     deploy:
       resources:
@@ -217,4 +217,3 @@ networks:
   pangea_net:
     name: pangea-carbon_net
     driver: bridge
-
