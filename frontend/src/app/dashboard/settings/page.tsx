@@ -61,13 +61,13 @@ export default function SettingsPage() {
         setMsgType('error');
       }
     } catch(e) {
-      setMsg(lang==='fr'?'Erreur de connexion.':'Connection error. Check your network.')
+      setMsg(lang==='fr'?'Erreur de connexion.':'Connection error. Check your network.');
       setMsgType('error');
     } finally { setLoading(false); }
   };
 
   const sendContact = async () => {
-    if (!cName || !cEmail) { setErr(lang==='fr'?'Nom et email requis.':'Name and email required.')
+    if (!cName || !cEmail) { setErr(lang==='fr'?'Nom et email requis.':'Name and email required.'); return; }
     setLoading(true);
     try {
       const base = process.env.NEXT_PUBLIC_API_URL || '';
@@ -79,7 +79,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (data.success || res.ok) {
         setShowContact(false);
-        setMsg(lang==='fr'?'Demande envoyee. Nous vous repondrons sous 24h.':'Inquiry sent. We will reply within 24h.')
+        setMsg(lang==='fr'?'Demande envoyee. Nous vous repondrons sous 24h.':'Inquiry sent. We will reply within 24h.');
         setMsgType('success');
       }
     } catch(e) { setErr(e.message); }
