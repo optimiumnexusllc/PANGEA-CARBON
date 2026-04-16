@@ -325,7 +325,7 @@ export default function AdminSettingsPage() {
         body: JSON.stringify({ value }),
       });
       const data = await res.json();
-      if (!res.ok) return { success: false, error: data.error || `Erreur ${res.status}` };
+      if (!res.ok) return { success: false, error: data.error || ('Erreur ' + res.status) };
       return { success: true, masked: data.masked };
     } catch(e) {
       return { success: false, error: e.message || 'Erreur réseau — vérifiez votre connexion' };
@@ -346,8 +346,8 @@ export default function AdminSettingsPage() {
     try {
       const res = await fetchAuth(`/admin/settings/test-smtp`, { method: 'POST',  });
       const data = await res.json();
-      if (res.ok) setTestResult({ msg: `✓ ${data.message || 'Email de test envoyé'}`, ok: true });
-      else setTestResult({ msg: `✗ ${data.error || 'Erreur SMTP'}`, ok: false });
+      if (res.ok) setTestResult({ msg: '✓ ' + (data.message || 'Email de test envoye'), ok: true });
+      else setTestResult({ msg: '✗ ' + (data.error || 'Erreur SMTP'), ok: false });
     } catch(_e) {
       setTestResult({ msg: '✗ Erreur réseau', ok: false });
     } finally { setTestLoading(false); }
