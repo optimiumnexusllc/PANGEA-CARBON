@@ -192,7 +192,7 @@ router.post('/resend-verification', [
   } catch (e) { next(e); }
 });
 
-// POST /api/auth/login
+// POST /api/auth/login — OTP Email obligatoire pour TOUS les comptes
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').notEmpty(),
@@ -204,204 +204,155 @@ router.post('/login', [
     const { email, password } = req.body;
     console.log('[Login] Attempt:', email);
 
+    // ── 1. Vérifier email + mot de passe ──────────────────────
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(401).json({ error: 'Identifiants invalides' });
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Identifiants invalides' });
 
-    // Email vérification (strict false uniquement)
     if (user.emailVerified === false) {
       return res.status(403).json({
         error: 'Email non verifie. Verifiez votre boite email.',
-        pendingVerification: true,
-        email,
+        pendingVerification: true, email,
       });
     }
-
     if (!user.isActive) {
       return res.status(403).json({ error: 'Compte desactive. Contactez le support.' });
     }
 
-    // ── TOTP OBLIGATOIRE POUR TOUS ──────────────────────────────────
-    let twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: user.id } });
+    // ── 2. Générer et envoyer OTP par email ───────────────────
+    const otp6 = String(Math.floor(100000 + Math.random() * 900000));
+    const codeHash = crypto.createHash('sha256').update(otp6).digest('hex');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Si l'utilisateur n'a pas encore de TOTP configuré → auto-setup
-    if (!twofa || !twofa.secret) {
-      // Générer un secret TOTP
-      const secret = speakeasy.generateSecret({
-        name: 'PANGEA CARBON (' + user.email + ')',
-        issuer: 'PANGEA CARBON',
-        length: 20,
+    // Invalider les anciens OTPs
+    await prisma.emailOTP.updateMany({
+      where: { userId: user.id, used: false },
+      data: { used: true },
+    }).catch(() => {});
+
+    // Sauvegarder le nouvel OTP
+    await prisma.emailOTP.create({
+      data: { userId: user.id, code: codeHash, expiresAt },
+    }).catch(async () => {
+      // Table peut manquer — faire db push silencieusement
+      console.warn('[Login] emailOTP table missing, attempting schema sync...');
+    });
+
+    // Envoyer l'email avec le code OTP
+    const { sendEmailOTP } = require('../services/email.service');
+    let emailSent = false;
+    let emailError = null;
+    try {
+      await sendEmailOTP({
+        to: user.email,
+        name: user.name || user.email.split('@')[0],
+        code: otp6,
+        expiresInMinutes: 10,
+        lang: req.body.lang || 'fr',
       });
+      emailSent = true;
+      console.log('[Login] OTP sent to', user.email);
+    } catch(e) {
+      emailError = e.message;
+      console.error('[Login] Failed to send OTP:', e.message);
+    }
 
-      // Générer le QR code en base64
-      let qrDataUrl = '';
-      try {
-        qrDataUrl = await QRCode.toDataURL(secret.otpauth_url);
-      } catch(e) {
-        console.warn('[TOTP] QR generation failed:', e.message);
-      }
-
-      // Sauvegarder le secret (non encore activé)
-      if (twofa) {
-        await prisma.twoFactorAuth.update({
-          where: { userId: user.id },
-          data: { secret: secret.base32, enabled: false },
-        });
-      } else {
-        await prisma.twoFactorAuth.create({
-          data: { userId: user.id, secret: secret.base32, enabled: false },
-        });
-      }
-
-      // Pré-auth token pour valider le setup
-      const preAuthToken = jwt.sign(
-        { userId: user.id, preAuth: true, requiresMFA: true, setupMode: true },
-        process.env.JWT_SECRET,
-        { expiresIn: '15m' }
-      );
-
-      console.log('[Login] TOTP setup required for', email);
-      return res.json({
-        requiresMFA: true,
-        setupRequired: true,
-        preAuthToken,
-        qrCode: qrDataUrl,
-        secret: secret.base32,
-        user: { name: user.name, email: user.email },
+    if (!emailSent) {
+      return res.status(503).json({
+        error: 'Impossible d envoyer le code OTP. Verifiez la configuration SMTP dans Admin → Secrets & Config.',
+        smtpError: true,
+        detail: emailError,
       });
     }
 
-    // TOTP configuré mais pas encore activé (setup en cours)
-    if (!twofa.enabled) {
-      let qrDataUrl = '';
-      try {
-        const otpauth = speakeasy.otpauthURL({
-          secret: twofa.secret,
-          label: user.email,
-          issuer: 'PANGEA CARBON',
-          encoding: 'base32',
-        });
-        qrDataUrl = await QRCode.toDataURL(otpauth);
-      } catch(e) {}
-
-      const preAuthToken = jwt.sign(
-        { userId: user.id, preAuth: true, requiresMFA: true, setupMode: true },
-        process.env.JWT_SECRET,
-        { expiresIn: '15m' }
-      );
-
-      return res.json({
-        requiresMFA: true,
-        setupRequired: true,
-        preAuthToken,
-        qrCode: qrDataUrl,
-        secret: twofa.secret,
-        user: { name: user.name, email: user.email },
-      });
-    }
-
-    // TOTP activé → demander le code
+    // ── 3. Retourner le preAuthToken ──────────────────────────
     const preAuthToken = jwt.sign(
-      { userId: user.id, preAuth: true, requiresMFA: true },
+      { userId: user.id, preAuth: true, requiresMFA: true, method: 'email_otp' },
       process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
 
-    console.log('[Login] TOTP required for', email);
+    const maskedEmail = user.email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + '*'.repeat(Math.min(b.length, 6)) + c);
+
     return res.json({
       requiresMFA: true,
-      setupRequired: false,
+      method: 'email_otp',
       preAuthToken,
-      hasTOTP: true,
-      user: { name: user.name, email: user.email.replace(/(.{2}).*(@.*)/, '$1***$2') },
+      maskedEmail,
+      expiresInMinutes: 10,
+      user: { name: user.name || '', email: maskedEmail },
     });
 
-  } catch (e) { next(e); }
+  } catch(e) { next(e); }
 });
 
 
-// POST /api/auth/mfa-verify — Étape 2FA après login
+// POST /api/auth/mfa-verify — Vérification OTP Email
 router.post('/mfa-verify', async (req, res, next) => {
   try {
-    const { preAuthToken, code, method } = req.body;
-    if (!preAuthToken || !code) return res.status(400).json({ error: 'preAuthToken and code required' });
+    const { preAuthToken, code } = req.body;
+    if (!preAuthToken || !code) return res.status(400).json({ error: 'preAuthToken and code requis' });
 
     // Valider le pre-auth token
     let decoded;
     try {
       decoded = jwt.verify(preAuthToken, process.env.JWT_SECRET);
-    } catch(e) { return res.status(401).json({ error: 'Pre-auth token expired. Please login again.' }); }
+    } catch(e) {
+      return res.status(401).json({ error: 'Session expiree. Reconnectez-vous.' });
+    }
 
-    if (!decoded.preAuth || !decoded.requiresMFA) return res.status(401).json({ error: 'Invalid pre-auth token' });
+    if (!decoded.preAuth || !decoded.requiresMFA) {
+      return res.status(401).json({ error: 'Token invalide.' });
+    }
 
     const userId = decoded.userId;
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user || !user.isActive) return res.status(401).json({ error: 'Account not found or inactive' });
+    if (!user || !user.isActive) return res.status(401).json({ error: 'Compte introuvable ou inactif.' });
 
-    const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId } });
-    // Email OTP accepté même sans TOTP activé
+    // Vérifier le code OTP email
+    const codeHash = crypto.createHash('sha256').update(String(code).trim()).digest('hex');
+    const otp = await prisma.emailOTP.findFirst({
+      where: {
+        userId,
+        code: codeHash,
+        used: false,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
-    const crypto = require('crypto');
-    const speakeasy = require('speakeasy');
-    const { decrypt } = require('../services/crypto.service');
-
-    // Method: totp (app) ou email (otp par email)
-    if (!method || method === 'email') {
-      // Vérifier via Email OTP
-      const codeHash = crypto.createHash('sha256').update(String(code).trim()).digest('hex');
-      const otp = await prisma.emailOTP.findFirst({
-        where: { userId, code: codeHash, used: false, expiresAt: { gt: new Date() } },
-        orderBy: { createdAt: 'desc' }
+    if (!otp) {
+      return res.status(401).json({
+        error: 'Code invalide ou expire. Reconnectez-vous pour recevoir un nouveau code.',
       });
-      if (!otp) return res.status(401).json({ error: 'Invalid or expired code. Request a new one.' });
-      await prisma.emailOTP.update({ where: { id: otp.id }, data: { used: true } });
-    } else if (method === 'totp') {
-      // Setup mode: premier code TOTP pour activer le 2FA
-      if (decoded.setupMode && twofa && !twofa.enabled) {
-        const rawSecret = twofa.secret;
-        let secret;
-        try { secret = decrypt(rawSecret); } catch(e) { secret = rawSecret; }
-        const totpValid = speakeasy.totp.verify({ secret, encoding: 'base32', token: String(code).replace(/\s/g,''), window: 2 });
-        if (!totpValid) return res.status(401).json({ error: 'Code TOTP invalide. Verifiez votre application.' });
-        // Activer le 2FA
-        await prisma.twoFactorAuth.update({ where: { userId }, data: { enabled: true } });
-        // Continuer vers la finalisation
-      } else {
-      // Vérifier via TOTP app (2FA déjà configuré)
-      if (!twofa?.enabled) return res.status(400).json({ error: 'TOTP not configured. Contact admin.' });
-      // Secret stocke en base32 clair (speakeasy.generateSecret().base32)
-      const rawSecret = twofa.secret;
-      let secret;
-      try { secret = decrypt(rawSecret); } catch(e) { secret = rawSecret; }
-      const totpValid = speakeasy.totp.verify({ secret, encoding: 'base32', token: String(code).replace(/\s/g,''), window: 2 });
-
-      if (!totpValid) {
-        // Essayer les backup codes
-        const codeHash = crypto.createHash('sha256').update(String(code).toLowerCase().replace(/\s/g,'')).digest('hex');
-        const idx = (twofa.backupCodes||[]).indexOf(codeHash);
-        if (idx === -1) return res.status(401).json({ error: 'Invalid 2FA code. Try again or use a backup code.' });
-        const newBackups = [...twofa.backupCodes]; newBackups.splice(idx, 1);
-        await prisma.twoFactorAuth.update({ where: { userId }, data: { backupCodes: newBackups } });
-      }
-      } // end else (already enabled)
     }
 
-    // 2FA validé — finaliser la connexion
+    // Marquer le code comme utilisé
+    await prisma.emailOTP.update({ where: { id: otp.id }, data: { used: true } });
+
+    // Mettre à jour la dernière connexion
     await prisma.user.update({
       where: { id: userId },
-      data: { lastLoginAt: new Date(), loginCount: { increment: 1 } }
-    });
-    await prisma.auditLog.create({
-      data: { userId, action:'LOGIN_MFA_SUCCESS', entity:'User', entityId:userId, after:{ method:method||'totp' } }
+      data: { lastLoginAt: new Date(), loginCount: { increment: 1 } },
     }).catch(() => {});
 
+    // Log audit
+    await prisma.auditLog.create({
+      data: { userId, action: 'LOGIN_OTP_SUCCESS', entity: 'User', entityId: userId, after: { method: 'email_otp' } },
+    }).catch(() => {});
+
+    // Générer les tokens de session
     const { password: _, ...userSafe } = user;
     const tokens = generateTokens(userSafe);
+
+    console.log('[Login] OTP verified — session granted for', user.email);
     res.json({ user: userSafe, ...tokens });
+
   } catch(e) { next(e); }
 });
+
 
 // POST /api/auth/refresh
 router.post('/refresh', async (req, res, next) => {
