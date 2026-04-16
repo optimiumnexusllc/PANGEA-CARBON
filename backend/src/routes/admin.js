@@ -515,10 +515,10 @@ router.get('/apikeys', auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.post('/apikeys', auth, requirePermission('api_keys.create'), async (req, res, next) => {
-  // Accessible aux ADMIN de leur org + SUPER_ADMIN
-  if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only ADMIN and SUPER_ADMIN can create API keys' });
+router.post('/apikeys', auth, async (req, res, next) => {
+  // ORG_OWNER, ADMIN et SUPER_ADMIN peuvent créer des clés API
+  if (!['ORG_OWNER','ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Seuls les proprietaires et administrateurs peuvent creer des cles API.' });
   }
   // Vérifier limite plan API keys
   const apiKeyCheck = await checkApiKeyLimit(req.user.userId);
