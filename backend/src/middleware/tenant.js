@@ -101,9 +101,9 @@ const checkFeature = (featureKey) => async (req, res, next) => {
 
     next();
   } catch (e) {
-    // En cas d'erreur DB (table manquante, etc.), laisser passer plutôt que crasher
     console.error('[checkFeature] Erreur:', e.message);
-    next();
+    // Sécurité: en cas d'erreur, refuser l'accès (fail-closed)
+    return res.status(503).json({ error: 'Feature check unavailable, retry later', code: 'FEATURE_CHECK_ERROR' });
   }
 };
 
@@ -115,8 +115,19 @@ const checkPlan = (allowedPlans) => async (req, res, next) => {
   try {
     if (['SUPER_ADMIN', 'ADMIN'].includes(req.user?.role)) return next();
 
+    // Sans org: plan TRIAL pour ORG_OWNER, FREE pour les autres
     if (!req.organizationId) {
-      return res.status(403).json({ error: 'Organisation requise pour cette fonctionnalité', upgradeRequired: true });
+      const noOrgPlan = ['ORG_OWNER','ANALYST','AUDITOR'].includes(req.user?.role) ? 'TRIAL' : 'FREE';
+      if (!allowedPlans.includes(noOrgPlan) && !allowedPlans.includes('FREE')) {
+        return res.status(402).json({
+          error: 'Plan insuffisant. Votre plan: ' + noOrgPlan + '. Requis: ' + allowedPlans.join(' ou '),
+          currentPlan: noOrgPlan,
+          upgradeRequired: true,
+          requiredPlans: allowedPlans,
+          code: 'PLAN_REQUIRED',
+        });
+      }
+      return next();
     }
 
     const org = await prisma.organization.findUnique({
@@ -129,7 +140,7 @@ const checkPlan = (allowedPlans) => async (req, res, next) => {
     }
 
     if (!allowedPlans.includes(org.plan)) {
-      return res.status(403).json({
+      return res.status(402).json({
         error: `Cette fonctionnalité requiert un plan ${allowedPlans.join(' ou ')}.`,
         currentPlan: org.plan,
         upgradeRequired: true,

@@ -4,10 +4,11 @@
  * Templates: MRV Report · Credit Issuance · Digest · Custom
  */
 const router = require('express').Router();
+const { requirePermission, requirePlan } = require('../services/rbac.service');
 
 // Middleware: ADMIN et SUPER_ADMIN uniquement
 const adminOrSuperAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== 'SUPER_ADMIN') {
+  if (!req.user || !['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Email Composer reserved for SUPER_ADMIN only' });
   }
   next();
@@ -70,7 +71,7 @@ router.post('/preview', auth, adminOrSuperAdmin, async (req, res, next) => {
 });
 
 // POST /api/email-composer/send — Envoyer l'email
-router.post('/send', auth, adminOrSuperAdmin, async (req, res, next) => {
+router.post('/send', auth, adminOrSuperAdmin, requirePermission('email_comp.send'), async (req, res, next) => {
   try {
     const { to, subject, body, variables = {}, templateId, cc, replyTo } = req.body;
     if (!to || !subject) return res.status(400).json({ error: 'Destinataire et sujet requis' });

@@ -282,7 +282,8 @@ function requirePlan(minPlan) {
     try {
       // Admins bypass plan restrictions
       if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
-      if (['SUPER_ADMIN', 'ADMIN', 'ORG_OWNER'].includes(req.user?.role)) return next();
+      // SUPER_ADMIN et ADMIN bypassent les restrictions de plan
+      if (['SUPER_ADMIN', 'ADMIN'].includes(req.user?.role)) return next();
 
       const { PrismaClient } = require('@prisma/client');
       const prisma = new PrismaClient();
@@ -296,8 +297,8 @@ function requirePlan(minPlan) {
         orgPlan = user?.organization?.plan || 'TRIAL';
         orgStatus = user?.organization?.status || 'ACTIVE';
       } catch(dbErr) {
-        console.warn('[requirePlan] DB error, allowing through:', dbErr.message);
-        return next(); // Non-fatal: allow through if DB fails
+        console.error('[requirePlan] DB error:', dbErr.message);
+        return res.status(503).json({ error: 'Plan check unavailable, retry later', code: 'PLAN_CHECK_ERROR' });
       }
 
       if (orgStatus === 'SUSPENDED') {
