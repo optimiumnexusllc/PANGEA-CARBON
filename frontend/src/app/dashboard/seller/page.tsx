@@ -434,7 +434,7 @@ export default function SellerPortal() {
           {/* Gateway form */}
           <div style={{ background:CARD, border:`1px solid ${currentGw.color}30`, borderRadius:16, overflow:'hidden' }}>
             {/* Header */}
-            <div style={{ padding:'20px 24px', background:`${currentGw.color) + '08', borderBottom:'1px solid '+(currentGw.color) + '20', display:'flex', alignItems:'center', gap:16 }}>
+            <div style={{ padding:'20px 24px', background:currentGw.color + '08', borderBottom:'1px solid '+(currentGw.color) + '20', display:'flex', alignItems:'center', gap:16 }}>
               <span style={{ fontSize:28 }}>{currentGw.icon}</span>
               <div>
                 <div style={{ fontSize:15, fontWeight:700, color:currentGw.color, fontFamily:'Syne, sans-serif' }}>{currentGw.label}</div>
