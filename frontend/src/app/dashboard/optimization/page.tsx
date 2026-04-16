@@ -95,7 +95,7 @@ export default function OptimizationPage() {
           return (
             <button key={f} onClick={() => setActiveFilter(f)}
               style={{ padding: '6px 14px', borderRadius: 16, border: activeFilter === f ? `1px solid ${style.color}` : '1px solid #1E2D3D', background: activeFilter === f ? style.bg : '#0D1117', color: activeFilter === f ? style.color : '#4A6278', cursor: 'pointer', fontSize: 12 }}>
-              {f === 'ALL' ? 'Toutes' : EFFORT_STYLE[f].label} {f !== 'ALL' && `(${recs.filter(r => r.effort === f).length})`}
+              {f === 'ALL' ? 'Toutes' : EFFORT_STYLE[f].label} {f !== 'ALL' && `(${recs.filter(r => r.effort === f).length})}
             </button>
           );
         })}

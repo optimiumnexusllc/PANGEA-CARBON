@@ -163,7 +163,7 @@ export default function CarbonDesk() {
         <p style={{ fontSize:13, color:MUTED, margin:0, maxWidth:600 }}>
           {L(
             'The bridge between carbon supply and corporate demand. Manage buyers, qualify leads, calculate CBAM exposure, and close deals.',
-            'Le pont entre l\'offre carbone et la demande corporate. Gérez les acheteurs, qualifiez les leads, calculez l\'exposition CBAM.'
+            'Le pont entre offre carbone et demande corporate. Gerez les acheteurs, qualifiez les leads, calculez l\'exposition CBAM.'
           )}
         </p>
       </div>
@@ -179,7 +179,7 @@ export default function CarbonDesk() {
           { v: stats?.cbamBuyers||0,         l:'CBAM Buyers',      c:ORANGE, icon:'🇪🇺', sub:'regulatory' },
         ].map(s => (
           <div key={s.l} style={{ background:CARD, border:'1px solid '+s.c+'20', borderRadius:14, padding:'16px 20px', flex:1, minWidth:140, position:'relative', overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,'+s.c} 0%,transparent 100%)` }}/>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,'+s.c} 0%,transparent 100%) }}/>
             <div style={{ fontSize:20, marginBottom:8 }}>{s.icon}</div>
             <div style={{ fontSize:20, fontWeight:800, color:s.c, fontFamily:'JetBrains Mono, monospace', lineHeight:1 }}>{s.v}</div>
             <div style={{ fontSize:11, color:TEXT, fontWeight:600, marginTop:6 }}>{s.l}</div>
@@ -534,7 +534,7 @@ export default function CarbonDesk() {
 
               <button onClick={runCBAM}
                 style={{ width:'100%', background:'rgba(249,115,22,0.12)', border:'1px solid rgba(249,115,22,0.35)', borderRadius:10, color:ORANGE, padding:14, cursor:'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif' }}>
-                🧮 {L('Calculate CBAM Exposure','Calculer l\'exposition CBAM')}
+                🧮 {L('Calculate CBAM Exposure','Calculer exposition CBAM')}
               </button>
 
               {cbamResult && (

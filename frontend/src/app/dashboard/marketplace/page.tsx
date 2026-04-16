@@ -192,7 +192,7 @@ export default function MarketplacePage() {
       {paymentBanner && (
         <div style={{ borderRadius:10, padding:'14px 18px', marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'center',
           background: paymentBanner.type === 'success' ? 'rgba(0,255,148,0.08)' : 'rgba(248,113,113,0.08)',
-          border: '1px solid ' + (paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
+          border: '1px solid ' + (paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)') }}>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <span style={{ fontSize:22 }}>{paymentBanner.type === 'success' ? '✅' : '❌'}</span>
             <div>
@@ -240,7 +240,7 @@ export default function MarketplacePage() {
           { label: L('Active Listings','Annonces actives'),      v: String((stats as any)?.activeListings||0),        c:'#FCD34D' },
           { label: L('Africa Market','Marché Afrique'),          v: '$400M+',                                         c:'#A78BFA' },
         ].map(s => (
-          <div key={s.label} style={{ background: '#0D1117', border: '1px solid ' + (s.c}20`, borderRadius: 9, padding: '11px 14px' }}>
+          <div key={s.label} style={{ background: '#0D1117', border: '1px solid ' + s.c + '20', borderRadius: 9, padding: '11px 14px' }}>
             <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{s.label.toUpperCase()}</div>
             <div style={{ fontSize: 17, fontWeight: 700, color: s.c, fontFamily: 'Syne, sans-serif' }}>{s.v}</div>
           </div>
@@ -251,7 +251,7 @@ export default function MarketplacePage() {
       <div style={{ display: 'flex', gap: 4, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 9, padding: 4, marginBottom: 14, width: 'fit-content' }}>
         {tabBtn('buy', L('Buy Credits','Acheter'))}
         {tabBtn('sell', L('Sell Credits','Vendre'))}
-        {tabBtn('portfolio', `${L('My Orders','Mes ordres')} (${orders.length})`)}
+        {tabBtn('portfolio', L('My Orders','Mes ordres') + ' (' + orders.length + ')')}
       </div>
 
       {/* BUY TAB */}
@@ -650,11 +650,11 @@ export default function MarketplacePage() {
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={() => setDeleteTarget(null)} disabled={deleting}
                 style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#8FA3B8', padding:13, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
-                {L('Keep order','Garder l\'ordre')}
+                {L('Keep order','Garder cet ordre')}
               </button>
               <button onClick={confirmDelete} disabled={deleting}
                 style={{ flex:1, background:deleting?'#1E2D3D':'#F87171', color:'#fff', border:'none', borderRadius:9, padding:13, fontWeight:800, fontSize:13, cursor:deleting?'wait':'pointer', fontFamily:'Syne, sans-serif', transition:'background 0.15s' }}>
-                {deleting ? '⟳ ...' : L('Delete order','Supprimer l\'ordre')}
+                {deleting ? '⟳ ...' : L('Delete order','Supprimer cet ordre')}
               </button>
             </div>
           </div>

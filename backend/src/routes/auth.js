@@ -221,7 +221,7 @@ router.post('/login', [
 
     // ── MFA obligatoire pour TOUS les utilisateurs ─────────────────────
     const twofa = await prisma.twoFactorAuth.findUnique({ where: { userId: user.id } });
-    const hasTOTP = !!(twofa?.enabled);
+    const hasTOTPEnabled = !!(twofa?.enabled);
 
     // Générer et envoyer automatiquement un Email OTP pour tous les logins
     let emailOtpSent = false;
@@ -247,8 +247,8 @@ router.post('/login', [
 
     // Si SMTP non configuré et pas de TOTP app → bypass MFA (mode dev/config)
     const smtpConfigured = !!(process.env.SMTP_HOST || process.env.SMTP_USER);
-    const hasTOTP = twofa?.enabled && !twofa?.emailOtpEnabled;
-    if (!smtpConfigured && !hasTOTP && emailOtpError) {
+    const hasTOTPActive = twofa?.enabled && !twofa?.emailOtpEnabled;
+    if (!smtpConfigured && !hasTOTPActive && emailOtpError) {
       console.warn('[Login] SMTP not configured — bypassing MFA for', user.email);
       const { accessToken, refreshToken } = generateTokens(user);
       await prisma.user.update({ where: { id: user.id }, data: { lastLogin: new Date(), loginCount: { increment: 1 } } });

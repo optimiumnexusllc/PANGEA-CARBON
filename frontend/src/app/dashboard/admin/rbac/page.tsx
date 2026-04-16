@@ -193,7 +193,7 @@ export default function RBACPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{display:'flex',gap:2,marginBottom:24,borderBottom:'1px solid ' + (C.border}`}}>
+      <div style={{display:'flex',gap:2,marginBottom:24,borderBottom:'1px solid ' + C.border}}>
         {([
           ['matrix',L('Permissions Matrix','Matrice Permissions'),'🗂'],
           ['groups',L('Groups','Groupes'),'👥'],
@@ -236,11 +236,11 @@ export default function RBACPage() {
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
               <thead>
                 <tr>
-                  <th style={{padding:'10px 14px',textAlign:'left',fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',borderBottom:'1px solid ' + (C.border}`,background:C.card,position:'sticky',left:0,zIndex:10,minWidth:180}}>MODULE · PERMISSION</th>
+                  <th style={{padding:'10px 14px',textAlign:'left',fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',borderBottom:'1px solid ' + C.border,background:C.card,position:'sticky',left:0,zIndex:10,minWidth:180}}>MODULE · PERMISSION</th>
                   {roles.map(role => {
                     const m = ROLE_META[role];
                     return (
-                      <th key={role} style={{padding:'10px 14px',textAlign:'center',fontSize:9,color:m?.color||C.muted,fontFamily:'JetBrains Mono, monospace',borderBottom:'1px solid ' + (C.border}`,background:C.card,minWidth:90,whiteSpace:'nowrap'}}>
+                      <th key={role} style={{padding:'10px 14px',textAlign:'center',fontSize:9,color:m?.color||C.muted,fontFamily:'JetBrains Mono, monospace',borderBottom:'1px solid ' + C.border,background:C.card,minWidth:90,whiteSpace:'nowrap'}}>
                         <div style={{fontSize:16,marginBottom:4}}>{m?.icon}</div>
                         {m?.label||role}
                       </th>
@@ -254,8 +254,8 @@ export default function RBACPage() {
                   return (perms as string[]).map((perm, pi) => {
                     const full = mod+'.'+perm;
                     return (
-                      <tr key={full} style={{background: pi===0 ? `${mm?.color||C.muted}05` : 'transparent', borderBottom:'1px solid ' + (C.border}22`}}>
-                        <td style={{padding:'8px 14px',position:'sticky',left:0,background: pi===0 ? `${mm?.color||C.muted}08` : C.card, zIndex:5, borderBottom:'1px solid ' + (C.border}30`}}>
+                      <tr key={full} style={{background: pi===0 ? `${mm?.color||C.muted}05` : 'transparent', borderBottom:'1px solid ' + C.border + '22'}}>
+                        <td style={{padding:'8px 14px',position:'sticky',left:0,background: pi===0 ? `${mm?.color||C.muted}08` : C.card, zIndex:5, borderBottom:'1px solid ' + C.border + '30'}}>
                           {pi===0 && <div style={{fontSize:10,fontWeight:700,color:mm?.color||C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:2}}>{mm?.icon} {mm?.label||mod}</div>}
                           <div style={{fontSize:11,color:C.text2,paddingLeft: pi>0?14:0,fontFamily:'JetBrains Mono, monospace'}}>{perm}</div>
                         </td>
@@ -415,7 +415,8 @@ export default function RBACPage() {
                       {group.priority > 0 && <span style={{fontSize:9,padding:'2px 7px',background:'rgba(56,189,248,0.1)',borderRadius:4,color:C.blue,fontFamily:'JetBrains Mono, monospace'}}>PRIORITÉ {group.priority}</span>}
                     </div>
                     {group.description && <div style={{fontSize:12,color:C.muted,marginBottom:8}}>{group.description}</div>}
-                    
+
+
                     {/* Permissions badges */}
                     {perms.length > 0 && (
                       <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:12}}>
@@ -598,13 +599,13 @@ export default function RBACPage() {
                 <thead>
                   <tr style={{background:'rgba(0,255,148,0.03)'}}>
                     {['DATE','ACTION','ENTITÉ','DÉTAILS','PAR'].map(h=>(
-                      <th key={h} style={{padding:'12px 16px',textAlign:'left',fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',borderBottom:'1px solid ' + (C.border}`}}>{h}</th>
+                      <th key={h} style={{padding:'12px 16px',textAlign:'left',fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',borderBottom:'1px solid ' + C.border}}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {auditLogs.map((log:any)=>(
-                    <tr key={log.id} style={{borderBottom:'1px solid ' + (C.card}`}}>
+                    <tr key={log.id} style={{borderBottom:'1px solid ' + C.card}}>
                       <td style={{padding:'10px 16px',fontSize:11,color:C.muted,fontFamily:'JetBrains Mono, monospace',whiteSpace:'nowrap'}}>{new Date(log.createdAt).toLocaleString()}</td>
                       <td style={{padding:'10px 16px'}}><span style={{fontSize:10,padding:'3px 8px',background:'rgba(248,113,113,0.1)',color:C.red,borderRadius:4,fontFamily:'JetBrains Mono, monospace'}}>{log.action}</span></td>
                       <td style={{padding:'10px 16px',fontSize:11,color:C.text}}>{log.entity}</td>

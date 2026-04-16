@@ -403,7 +403,7 @@ export default function MRVCalculatorPage() {
                   <YAxis tickFormatter={v => fmtM(v)} tick={{ fontSize:10, fill:'#4A6278' }} width={70}/>
                   <Tooltip content={<Tip />}/>
                   <Line dataKey="low5" name="$5/t" stroke="#F87171" dot={false} strokeDasharray="4 2"/>
-                  <Line dataKey="base" name={`$${std.price}/t (current)`} stroke={std.color} dot={false} strokeWidth={2}/>
+                  <Line dataKey="base" name={`$${std.price}/t (current)} stroke={std.color} dot={false} strokeWidth={2}/>
                   <Line dataKey="high50" name="$50/t" stroke="#A78BFA" dot={false} strokeDasharray="4 2"/>
                 </LineChart>
               </ResponsiveContainer>

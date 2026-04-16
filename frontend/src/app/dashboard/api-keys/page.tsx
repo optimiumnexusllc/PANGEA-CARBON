@@ -546,7 +546,7 @@ export default function ApiKeysPage() {
           { v:revokedKeys.length,   l:'Clés révoquées',   c:C.muted,  icon:'✗',  s:'archivées' },
         ].map(s => (
           <div key={s.l} style={{ background:C.card,border:'1px solid '+s.c+'20',borderRadius:14,padding:'16px 20px',flex:1,minWidth:140,position:'relative',overflow:'hidden' }}>
-            <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,'+s.c} 0%,transparent 100%)` }}/>
+            <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,'+s.c} 0%,transparent 100%) }}/>
             <div style={{ fontSize:9,color:s.c,fontFamily:'JetBrains Mono, monospace',marginBottom:2 }}>{s.icon}</div>
             <div style={{ fontSize:22,fontWeight:800,color:s.c,fontFamily:'JetBrains Mono, monospace',lineHeight:1 }}>{s.v}</div>
             <div style={{ fontSize:11,color:C.text,fontWeight:600,marginTop:6 }}>{s.l}</div>
@@ -587,7 +587,7 @@ export default function ApiKeysPage() {
           ['keys',     L('My Keys','Mes Clés'),            '🔑'],
           ['docs',     L('API Reference','Référence API'), '📄'],
           ['webhooks', L('Integrations','Intégrations'),   '🔌'],
-          ['logs',     L('Usage Logs','Logs d\'usage'),    '📊'],
+          ['logs',     L('Usage Logs','Logs usage'),    '📊'],
         ] as [string,string,string][]).map(([id,label,icon]) => (
           <button key={id} onClick={() => setTab(id as any)}
             style={{ padding:'11px 20px',border:'none',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'JetBrains Mono, monospace',borderBottom:`2px solid ${tab===id?C.blue:'transparent'}`,background:'transparent',color:tab===id?C.blue:C.muted,transition:'all .15s' }}>
