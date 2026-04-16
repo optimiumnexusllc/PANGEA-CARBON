@@ -86,6 +86,21 @@ async function main() {
 
   // 1. Admin user
   const hashedPw = await bcrypt.hash('PangeaCarb0n@2026!', 12);
+  // Créer l'organisation d'abord
+  const org = await prisma.organization.upsert({
+    where: { slug: 'pangea-carbon-africa' },
+    update: {},
+    create: {
+      name: 'PANGEA CARBON Africa',
+      slug: 'pangea-carbon-africa',
+      plan: 'ENTERPRISE',
+      status: 'ACTIVE',
+      country: 'CI',
+      billingEmail: 'contact@pangea-carbon.com',
+      maxProjects: 999, maxUsers: 999, maxMW: 99999,
+    }
+  });
+
   const admin = await prisma.user.upsert({
     where: { email: 'contact@pangea-carbon.com' },
     update: {},
@@ -93,8 +108,10 @@ async function main() {
       email: 'contact@pangea-carbon.com',
       password: hashedPw,
       name: 'Dayiri Esdras',
-      role: 'ADMIN',
-      organization: 'PANGEA CARBON Africa',
+      role: 'SUPER_ADMIN',
+      organizationId: org.id,
+      isActive: true,
+      emailVerified: true,
     },
   });
   console.log(`✓ Admin: ${admin.email}`);
@@ -108,7 +125,9 @@ async function main() {
       password: await bcrypt.hash('Demo@2026!', 12),
       name: 'Demo Analyst',
       role: 'ANALYST',
-      organization: 'PANGEA CARBON Africa',
+      organizationId: org.id,
+      isActive: true,
+      emailVerified: true,
     },
   });
   console.log(`✓ Demo: ${analyst.email}`);
@@ -123,6 +142,7 @@ async function main() {
         id: `demo-${p.countryCode}-${p.type}`.toLowerCase(),
         ...p,
         userId: admin.id,
+        organizationId: org.id,
         methodology: 'ACM0002',
       },
     });
