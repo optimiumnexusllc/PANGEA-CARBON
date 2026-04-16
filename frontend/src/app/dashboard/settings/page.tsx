@@ -97,7 +97,7 @@ export default function SettingsPage() {
         </h1>
         <p style={{ fontSize:13, color:C.muted, marginTop:6 }}>
           {L('Manage your subscription and access to premium features.',
-             'Gerez votre abonnement et l'acces aux fonctionnalites premium.')}
+             'Gerez votre abonnement et acces aux fonctionnalites premium.')}
         </p>
       </div>
 
