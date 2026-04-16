@@ -193,7 +193,7 @@ export default function MRVCalculatorPage() {
           { label:`${years}yr Revenue`,v: fmtM(calc.totalRevenue), c:'#A78BFA', u:'' },
           { label:'Lifetime VCUs',     v: fmtN(calc.totalCredits), c:'#38BDF8', u:'tCO₂e' },
         ].map(k => (
-          <div key={k.label} style={{ background:'#0D1117', border:'1px solid '+(k.c) + '25', borderRadius:10, padding:'12px 14px' }}>
+          <div key={k.label} style={{ background:'#0D1117', border:'1px solid '+(k.c}25`, borderRadius:10, padding:'12px 14px' }}>
             <div style={{ fontSize:9, color:'#4A6278', fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>{k.label.toUpperCase()}</div>
             <div style={{ fontSize:18, fontWeight:800, color:k.c, fontFamily:'Syne, sans-serif' }}>{k.v}</div>
             {k.u && <div style={{ fontSize:10, color:'#2A3F55', marginTop:2 }}>{k.u}</div>}
@@ -212,7 +212,7 @@ export default function MRVCalculatorPage() {
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:5 }}>
               {PROJECT_TYPES.map(pt => (
                 <button key={pt.id} onClick={() => { setProjectType(pt.id); setCf(Math.round((pt.cfMin+pt.cfMax)/2*100)); }}
-                  style={{ padding:'7px 5px', borderRadius:7, border:'1px solid '+(projectType===pt.id?'#00FF94':'#1E2D3D'), background:projectType===pt.id?'rgba(0,255,148,0.08)':'transparent', cursor:'pointer', fontSize:11, color:projectType===pt.id?'#00FF94':'#4A6278', textAlign:'center' }}>
+                  style={{ padding:'7px 5px', borderRadius:7, border:'1px solid '+(projectType===pt.id?'#00FF94':'#1E2D3D'}`, background:projectType===pt.id?'rgba(0,255,148,0.08)':'transparent', cursor:'pointer', fontSize:11, color:projectType===pt.id?'#00FF94':'#4A6278', textAlign:'center' }}>
                   {pt.icon} {pt.label}
                 </button>
               ))}
@@ -328,7 +328,7 @@ export default function MRVCalculatorPage() {
                 DETAILED ACM0002 CALCULATION · CONSOLIDATED METHODOLOGY v22.0
               </div>
               {[
-                { label:'Grid Emission Factor (EF_grid)', v:`${country.ef} tCO₂/MWh`, note:`IEA 2024 — ${country.name), color:'#4A6278' },
+                { label:'Grid Emission Factor (EF_grid)', v:`${country.ef} tCO₂/MWh`, note:`IEA 2024 — ${country.name}`, color:'#4A6278' },
                 { label:'Annual Energy Generation (EG_RE)', v:`${fmtN(calc.annualMWh)} MWh`, note:`${mw}MW × 8760h × ${cf}% CF`, color:'#38BDF8' },
                 { label:'Gross Emission Reductions', v:`${fmtN(calc.grossReductions)} tCO₂e`, note:'EG_RE × EF_grid (ACM0002 §3.1)', color:'#FCD34D' },
                 { label:'Leakage Deduction (3%)', v:`-${fmtN(calc.leakage)} tCO₂e`, note:'ACM0002 §4.2 — displacement effects', color:'#F87171' },
@@ -336,7 +336,7 @@ export default function MRVCalculatorPage() {
                 { label:'NET CARBON CREDITS (VCUs)', v:`${fmtN(calc.netCredits)} tCO₂e`, note:'Eligible for issuance', color:'#00FF94', bold:true },
                 { label:'Reference Price', v:`$${std.price}/t`, note:`${std.label} — CBL Q1 2026`, color:'#FCD34D' },
                 { label:'Gross Revenue', v:fmtM(calc.grossRev), note:'NetCredits × price', color:'#E8EFF6' },
-                { label:'VVB Verification Cost (8%)', v:`-${fmtM(calc.verificationCost)), note:'Bureau Veritas / SGS / DNV', color:'#F87171' },
+                { label:'VVB Verification Cost (8%)', v:`-${fmtM(calc.verificationCost)}`, note:'Bureau Veritas / SGS / DNV', color:'#F87171' },
                 { label:'NET ANNUAL REVENUE', v:fmtM(calc.netRev), note:'After verification fees', color:'#00FF94', bold:true },
                 { label:'Carbon Intensity Avoided', v:`${fmtN(calc.carbonIntensity)} gCO₂/kWh`, note:`vs ${country.name} grid`, color:'#A78BFA' },
               ].map((row, i) => (
@@ -372,7 +372,7 @@ export default function MRVCalculatorPage() {
                 {STANDARDS.map(s => {
                   const annualRev = calc.netCredits * s.price * 0.92;
                   return (
-                    <div key={s.id} style={{ background:'#121920', borderRadius:9, padding:'12px 14px', border:'1px solid '+(s.color) + '25' }}>
+                    <div key={s.id} style={{ background:'#121920', borderRadius:9, padding:'12px 14px', border:'1px solid '+(s.color}25` }}>
                       <div style={{ fontSize:11, color:s.color, marginBottom:4 }}>{s.label}</div>
                       <div style={{ fontSize:17, fontWeight:700, color:'#E8EFF6', fontFamily:'Syne, sans-serif' }}>{fmtM(annualRev)}</div>
                       <div style={{ fontSize:10, color:'#4A6278', marginTop:2 }}>/year · ${s.price}/t</div>
@@ -403,7 +403,7 @@ export default function MRVCalculatorPage() {
                   <YAxis tickFormatter={v => fmtM(v)} tick={{ fontSize:10, fill:'#4A6278' }} width={70}/>
                   <Tooltip content={<Tip />}/>
                   <Line dataKey="low5" name="$5/t" stroke="#F87171" dot={false} strokeDasharray="4 2"/>
-                  <Line dataKey="base" name={std.price + '/t (current)' stroke={std.color} dot={false} strokeWidth={2}/>
+                  <Line dataKey="base" name={`$${std.price}/t (current)`} stroke={std.color} dot={false} strokeWidth={2}/>
                   <Line dataKey="high50" name="$50/t" stroke="#A78BFA" dot={false} strokeDasharray="4 2"/>
                 </LineChart>
               </ResponsiveContainer>

@@ -259,7 +259,7 @@ export default function SellerPortal() {
       {/* Toast PANGEA */}
       {toast && (
         <div style={{ position:'fixed', top:20, right:20, zIndex:99999, maxWidth:420, animation:'pgIn .25s ease' }}>
-          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden' }}>
+          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'}`, borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:toast.type==='error'?RED:GREEN, borderRadius:'12px 0 0 12px' }}/>
             <div style={{ width:22, height:22, borderRadius:'50%', background:toast.type==='error'?'rgba(248,113,113,0.15)':'rgba(0,255,148,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:toast.type==='error'?RED:GREEN, fontWeight:800, marginLeft:8 }}>
               {toast.type==='error'?'✗':'✓'}
@@ -304,7 +304,7 @@ export default function SellerPortal() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display:'flex', gap:2, marginBottom:24, borderBottom:'1px solid '+(BORDER) }}>
+      <div style={{ display:'flex', gap:2, marginBottom:24, borderBottom:'1px solid '+(BORDER}` }}>
         {([
           ['overview',  L('Overview','Vue d\'ensemble'), '📊'],
           ['listings',  L('My Listings','Mes Listings'),  '🌿'],
@@ -312,7 +312,7 @@ export default function SellerPortal() {
           ['payouts',   L('Payouts','Paiements'),         '💸'],
         ] as [string,string,string][]).map(([id,label,icon]) => (
           <button key={id} onClick={() => setTab(id as any)}
-            style={{ padding:'11px 20px', border:'none', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'JetBrains Mono, monospace', borderBottom:`2px solid ${tab===id?GREEN:'transparent'), background:'transparent', color:tab===id?GREEN:MUTED, transition:'all .15s', letterSpacing:'0.03em' }}>
+            style={{ padding:'11px 20px', border:'none', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'JetBrains Mono, monospace', borderBottom:`2px solid ${tab===id?GREEN:'transparent'}`, background:'transparent', color:tab===id?GREEN:MUTED, transition:'all .15s', letterSpacing:'0.03em' }}>
             {icon} {label}
           </button>
         ))}
@@ -322,20 +322,20 @@ export default function SellerPortal() {
       {tab === 'overview' && (
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
           {/* Recent orders */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:22, gridColumn:'1' }}>
+          <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, padding:22, gridColumn:'1' }}>
             <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:16 }}>RECENT ORDERS</div>
             {(!dash?.recentOrders?.length) ? (
               <div style={{ textAlign:'center', padding:32, color:MUTED, fontSize:13 }}>
                 {L('No orders yet — list your credits on the marketplace.','Aucun ordre — listez vos crédits sur la marketplace.')}
               </div>
             ) : dash.recentOrders.map((o: any) => (
-              <div key={o.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid '+(BORDER) }}>
+              <div key={o.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid '+(BORDER}` }}>
                 <div>
                   <div style={{ fontSize:13, color:TEXT, fontWeight:600 }}>{o.quantity?.toFixed(1)} tCO₂e</div>
                   <div style={{ fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>{new Date(o.createdAt).toLocaleDateString()}</div>
                 </div>
                 <div style={{ textAlign:'right' }}>
-                  <div style={{ fontSize:13, color:GREEN, fontWeight:700, fontFamily:'JetBrains Mono, monospace' }}>{fmt(o.sellerAmount||0)</div>
+                  <div style={{ fontSize:13, color:GREEN, fontWeight:700, fontFamily:'JetBrains Mono, monospace' }}>{fmt(o.sellerAmount||0)}</div>
                   <span style={{ fontSize:9, padding:'2px 7px', borderRadius:4, background:(STATUS_COLOR[o.status]||MUTED)+'20', color:STATUS_COLOR[o.status]||MUTED, fontFamily:'JetBrains Mono, monospace' }}>{o.status}</span>
                 </div>
               </div>
@@ -343,13 +343,13 @@ export default function SellerPortal() {
           </div>
 
           {/* Gateway card */}
-          <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:22 }}>
+          <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, padding:22 }}>
             <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.1em', marginBottom:16 }}>CONFIGURED GATEWAY</div>
             {dash?.profile?.preferredGateway ? (() => {
               const gw = GATEWAYS.find(g => g.id === dash.profile.preferredGateway) || GATEWAYS[5];
               return (
                 <div>
-                  <div style={{ display:'flex', alignItems:'center', gap:16, padding:16, background:`${gw.color) + '08', border:`1px solid ${gw.color) + '20', borderRadius:12, marginBottom:16 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:16, padding:16, background:`${gw.color}08`, border:`1px solid ${gw.color}20`, borderRadius:12, marginBottom:16 }}>
                     <span style={{ fontSize:30 }}>{gw.icon}</span>
                     <div>
                       <div style={{ fontSize:15, fontWeight:700, color:TEXT }}>{gw.label}</div>
@@ -360,7 +360,7 @@ export default function SellerPortal() {
                     </div>
                   </div>
                   <button onClick={() => setTab('gateway')}
-                    style={{ width:'100%', background:'transparent', border:`1px solid ${BORDER), borderRadius:9, color:MUTED, padding:'10px', cursor:'pointer', fontSize:12 }}>
+                    style={{ width:'100%', background:'transparent', border:`1px solid ${BORDER}`, borderRadius:9, color:MUTED, padding:'10px', cursor:'pointer', fontSize:12 }}>
                     {L('Edit configuration →','Modifier la configuration →')}
                   </button>
                 </div>
@@ -381,7 +381,7 @@ export default function SellerPortal() {
       {tab === 'listings' && (
         <div>
           {(!dash?.listings?.length) ? (
-            <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:48, textAlign:'center' }}>
+            <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, padding:48, textAlign:'center' }}>
               <div style={{ fontSize:44, marginBottom:16 }}>🌿</div>
               <div style={{ fontSize:16, color:TEXT, fontWeight:700, marginBottom:8 }}>{L('No credits listed','Aucun crédit listé')}</div>
               <div style={{ fontSize:13, color:MUTED }}>{L('Complete the 11-step pipeline to issue and list your carbon credits.','Complétez le pipeline 11 étapes pour émettre et lister vos crédits carbone.')}</div>
@@ -389,8 +389,8 @@ export default function SellerPortal() {
           ) : dash.listings.map((l: any) => {
             const grade = l.carbonScore?.grade || 'UNRATED';
             return (
-              <div key={l.id) style={{ background:CARD, border:1px solid ${BORDER), borderRadius:14, padding:20, display:'flex', alignItems:'center', gap:20, marginBottom:12 }}>
-                <div style={{ width:54, height:54, borderRadius:12, background:`${GRADE_COLOR[grade]) + '15', border:`1px solid ${GRADE_COLOR[grade]) + '30', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <div key={l.id} style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, padding:20, display:'flex', alignItems:'center', gap:20, marginBottom:12 }}>
+                <div style={{ width:54, height:54, borderRadius:12, background:`${GRADE_COLOR[grade]}15`, border:`1px solid ${GRADE_COLOR[grade]}30`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                   <div style={{ fontSize:15, fontWeight:800, color:GRADE_COLOR[grade], fontFamily:'JetBrains Mono, monospace' }}>{grade}</div>
                   <div style={{ fontSize:8, color:MUTED }}>SCORE</div>
                 </div>
@@ -423,7 +423,7 @@ export default function SellerPortal() {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:28 }}>
             {GATEWAYS.map(g => (
               <button key={g.id} onClick={() => setSelectedGw(g.id)}
-                style={{ background:selectedGw===g.id?`${g.color) + '12':CARD, border:`1px solid ${selectedGw===g.id?g.color:BORDER), borderRadius:12, padding:'16px 14px', cursor:'pointer', textAlign:'left', transition:'all .2s' }}>
+                style={{ background:selectedGw===g.id?`${g.color}12`:CARD, border:`1px solid ${selectedGw===g.id?g.color:BORDER}`, borderRadius:12, padding:'16px 14px', cursor:'pointer', textAlign:'left', transition:'all .2s' }}>
                 <div style={{ fontSize:24, marginBottom:8 }}>{g.icon}</div>
                 <div style={{ fontSize:12, fontWeight:700, color:selectedGw===g.id?g.color:TEXT, marginBottom:4 }}>{g.label}</div>
                 <div style={{ fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>{g.regions}</div>
@@ -432,9 +432,9 @@ export default function SellerPortal() {
           </div>
 
           {/* Gateway form */}
-          <div style={{ background:CARD, border:`1px solid ${currentGw.color) + '30', borderRadius:16, overflow:'hidden' }}>
+          <div style={{ background:CARD, border:`1px solid ${currentGw.color}30`, borderRadius:16, overflow:'hidden' }}>
             {/* Header */}
-            <div style={{ padding:'20px 24px', background:currentGw.color + '08', borderBottom:'1px solid '+(currentGw.color) + '20', display:'flex', alignItems:'center', gap:16 }}>
+            <div style={{ padding:'20px 24px', background:`${currentGw.color}08`, borderBottom:'1px solid '+(currentGw.color}20`, display:'flex', alignItems:'center', gap:16 }}>
               <span style={{ fontSize:28 }}>{currentGw.icon}</span>
               <div>
                 <div style={{ fontSize:15, fontWeight:700, color:currentGw.color, fontFamily:'Syne, sans-serif' }}>{currentGw.label}</div>
@@ -506,7 +506,7 @@ export default function SellerPortal() {
               </div>
 
               <button onClick={saveGateway} disabled={saving}
-                style={{ background:saving?CARD:`${GREEN) + '15', border:`1px solid ${saving?BORDER:`${GREEN) + '40'), borderRadius:10, color:saving?MUTED:GREEN, padding:'14px', cursor:saving?'wait':'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif', transition:'all .2s', marginTop:4 }}>
+                style={{ background:saving?CARD:`${GREEN}15`, border:`1px solid ${saving?BORDER:`${GREEN}40`}`, borderRadius:10, color:saving?MUTED:GREEN, padding:'14px', cursor:saving?'wait':'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif', transition:'all .2s', marginTop:4 }}>
                 {saving ? '⟳ ' + L('Saving...','Enregistrement...') : '💾 ' + L('Save Gateway Configuration','Enregistrer la configuration')}
               </button>
             </div>
@@ -518,13 +518,13 @@ export default function SellerPortal() {
       {tab === 'payouts' && (
         <div>
           <div style={{ display:'flex', gap:14, marginBottom:20 }}>
-            <div style={{ background:CARD, border:`1px solid ${GREEN) + '25', borderRadius:12, padding:'16px 20px', flex:1 }}>
+            <div style={{ background:CARD, border:`1px solid ${GREEN}25`, borderRadius:12, padding:'16px 20px', flex:1 }}>
               <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>TOTAL PAID</div>
               <div style={{ fontSize:24, fontWeight:800, color:GREEN, fontFamily:'JetBrains Mono, monospace' }}>
                 {fmt(dash?.payouts?.filter((p:any) => p.status==='PAID').reduce((s:number,p:any) => s+p.amount, 0) || 0)}
               </div>
             </div>
-            <div style={{ background:CARD, border:`1px solid ${YELLOW) + '25', borderRadius:12, padding:'16px 20px', flex:1 }}>
+            <div style={{ background:CARD, border:`1px solid ${YELLOW}25`, borderRadius:12, padding:'16px 20px', flex:1 }}>
               <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:6 }}>PENDING</div>
               <div style={{ fontSize:24, fontWeight:800, color:YELLOW, fontFamily:'JetBrains Mono, monospace' }}>
                 {fmt(dash?.payouts?.filter((p:any) => p.status==='PENDING').reduce((s:number,p:any) => s+p.amount, 0) || 0)}
@@ -533,27 +533,27 @@ export default function SellerPortal() {
           </div>
 
           {(!dash?.payouts?.length) ? (
-            <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, padding:40, textAlign:'center', color:MUTED, fontSize:13 }}>
+            <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, padding:40, textAlign:'center', color:MUTED, fontSize:13 }}>
               {L('No payouts yet','Aucun versement')}
             </div>
           ) : (
-            <div style={{ background:CARD, border:`1px solid ${BORDER), borderRadius:14, overflow:'hidden' }}>
+            <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, overflow:'hidden' }}>
               <table style={{ width:'100%', borderCollapse:'collapse' }}>
                 <thead>
                   <tr style={{ background:'rgba(0,255,148,0.03)' }}>
                     {[L('DATE','DATE'),L('AMOUNT','MONTANT'),L('GATEWAY','GATEWAY'),L('STATUS','STATUT'),L('REF','REF')].map(h => (
-                      <th key={h} style={{ padding:'12px 16px', textAlign:'left', fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', borderBottom:'1px solid '+(BORDER) }}>{h}</th>
+                      <th key={h} style={{ padding:'12px 16px', textAlign:'left', fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', borderBottom:'1px solid '+(BORDER}` }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {dash.payouts.map((p: any) => (
-                    <tr key={p.id} style={{ borderBottom:'1px solid '+(CARD) }}>
+                    <tr key={p.id} style={{ borderBottom:'1px solid '+(CARD}` }}>
                       <td style={{ padding:'12px 16px', fontSize:12, color:TEXT2 }}>{new Date(p.createdAt).toLocaleDateString()}</td>
-                      <td style={{ padding:'12px 16px', fontSize:13, color:GREEN, fontWeight:700, fontFamily:'JetBrains Mono, monospace' }}>{fmt(p.amount)</td>
+                      <td style={{ padding:'12px 16px', fontSize:13, color:GREEN, fontWeight:700, fontFamily:'JetBrains Mono, monospace' }}>{fmt(p.amount)}</td>
                       <td style={{ padding:'12px 16px', fontSize:11, color:TEXT }}>{p.gateway}</td>
                       <td style={{ padding:'12px 16px' }}>
-                        <span style={{ fontSize:9, padding:'3px 8px', borderRadius:4, background:`${STATUS_COLOR[p.status]||MUTED) + '20', color:STATUS_COLOR[p.status]||MUTED, fontFamily:'JetBrains Mono, monospace' }}>{p.status}</span>
+                        <span style={{ fontSize:9, padding:'3px 8px', borderRadius:4, background:`${STATUS_COLOR[p.status]||MUTED}20`, color:STATUS_COLOR[p.status]||MUTED, fontFamily:'JetBrains Mono, monospace' }}>{p.status}</span>
                       </td>
                       <td style={{ padding:'12px 16px', fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>{p.gatewayRef || '—'}</td>
                     </tr>
@@ -565,7 +565,7 @@ export default function SellerPortal() {
         </div>
       )}
 
-      <style>{`@keyframes pgIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)})}</style>
+      <style>{`@keyframes pgIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}`}</style>
     </div>
   );
 }

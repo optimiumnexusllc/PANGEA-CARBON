@@ -47,7 +47,7 @@ export default function AdminFeaturesPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
         {loading ? <div style={{ color: '#4A6278', padding: 20 }}>L('Loading...', 'Chargement...')</div> :
           features.map((f) => (
-            <div key={f.key) style={{ background: '#0D1117', border: 1px solid ${f.enabled ? 'rgba(0,255,148,0.2)' : '#1E2D3D'), borderRadius: 10, padding: 16, transition: 'all 0.2s' }}>
+            <div key={f.key} style={{ background: '#0D1117', border: `1px solid ${f.enabled ? 'rgba(0,255,148,0.2)' : '#1E2D3D'}`, borderRadius: 10, padding: 16, transition: 'all 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ fontSize: 24 }}>{FEATURE_ICONS[f.key] || '⚡'}</div>

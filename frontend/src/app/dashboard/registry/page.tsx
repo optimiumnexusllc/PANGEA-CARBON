@@ -133,11 +133,11 @@ export default function RegistryPage() {
                     <td style={{ padding: '9px 12px', fontSize: 12, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>#{b.blockNumber}</td>
                     <td style={{ padding: '9px 12px', fontSize: 12, color: '#E8EFF6' }}>{b.project?.name || '—'}</td>
                     <td style={{ padding: '9px 12px', fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{b.standard}</td>
-                    <td style={{ padding: '9px 12px', fontSize: 13, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(b.quantity)</td>
+                    <td style={{ padding: '9px 12px', fontSize: 13, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(b.quantity)}</td>
                     <td style={{ padding: '9px 12px', fontSize: 9, color: '#2A3F55', fontFamily: 'JetBrains Mono, monospace' }}>{b.serialFrom?.slice(-8)}</td>
                     <td style={{ padding: '9px 12px', fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{b.blockHash?.slice(0, 12)}...</td>
                     <td style={{ padding: '9px 12px' }}>
-                      <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace', background: `${STATUS_COLOR[b.status]) + '15', color: STATUS_COLOR[b.status], border: `1px solid ${STATUS_COLOR[b.status]) + '25' }}>
+                      <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace', background: `${STATUS_COLOR[b.status]}15`, color: STATUS_COLOR[b.status], border: `1px solid ${STATUS_COLOR[b.status]}25` }}>
                         {b.status}
                       </span>
                     </td>

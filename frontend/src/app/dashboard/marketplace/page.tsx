@@ -192,7 +192,7 @@ export default function MarketplacePage() {
       {paymentBanner && (
         <div style={{ borderRadius:10, padding:'14px 18px', marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'center',
           background: paymentBanner.type === 'success' ? 'rgba(0,255,148,0.08)' : 'rgba(248,113,113,0.08)',
-          border: '1px solid ' + (paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)') }}>
+          border: '1px solid ' + (paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <span style={{ fontSize:22 }}>{paymentBanner.type === 'success' ? '✅' : '❌'}</span>
             <div>
@@ -240,7 +240,7 @@ export default function MarketplacePage() {
           { label: L('Active Listings','Annonces actives'),      v: String((stats as any)?.activeListings||0),        c:'#FCD34D' },
           { label: L('Africa Market','Marché Afrique'),          v: '$400M+',                                         c:'#A78BFA' },
         ].map(s => (
-          <div key={s.label} style={{ background: '#0D1117', border: '1px solid ' + s.c + '20', borderRadius: 9, padding: '11px 14px' }}>
+          <div key={s.label} style={{ background: '#0D1117', border: '1px solid ' + (s.c}20`, borderRadius: 9, padding: '11px 14px' }}>
             <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{s.label.toUpperCase()}</div>
             <div style={{ fontSize: 17, fontWeight: 700, color: s.c, fontFamily: 'Syne, sans-serif' }}>{s.v}</div>
           </div>
@@ -251,7 +251,7 @@ export default function MarketplacePage() {
       <div style={{ display: 'flex', gap: 4, background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 9, padding: 4, marginBottom: 14, width: 'fit-content' }}>
         {tabBtn('buy', L('Buy Credits','Acheter'))}
         {tabBtn('sell', L('Sell Credits','Vendre'))}
-        {tabBtn('portfolio', L('My Orders','Mes ordres') + ' (' + orders.length + ')')}
+        {tabBtn('portfolio', `${L('My Orders','Mes ordres')} (${orders.length})`)}
       </div>
 
       {/* BUY TAB */}
@@ -279,11 +279,11 @@ export default function MarketplacePage() {
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:12 }}>
             {filtered.map(listing => (
-              <div key={listing.id) style={{ background:'#0D1117', border:1px solid ${STD_COLOR[listing.standard]||'#1E2D3D') + '25', borderRadius:13, padding:18, transition:'border-color 0.15s' }}
+              <div key={listing.id} style={{ background:'#0D1117', border:`1px solid ${STD_COLOR[listing.standard]||'#1E2D3D'}25`, borderRadius:13, padding:18, transition:'border-color 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor=(STD_COLOR[listing.standard]||'#1E2D3D')+'60')}
                 onMouseLeave={e => (e.currentTarget.style.borderColor=(STD_COLOR[listing.standard]||'#1E2D3D')+'25')}>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
-                  <span style={{ fontSize:9, background:(STD_COLOR[listing.standard]||'#4A6278')+'20', color:STD_COLOR[listing.standard]||'#4A6278', border:`1px solid ${STD_COLOR[listing.standard]||'#4A6278') + '40', borderRadius:4, padding:'2px 8px', fontFamily:'JetBrains Mono, monospace' }}>
+                  <span style={{ fontSize:9, background:(STD_COLOR[listing.standard]||'#4A6278')+'20', color:STD_COLOR[listing.standard]||'#4A6278', border:`1px solid ${STD_COLOR[listing.standard]||'#4A6278'}40`, borderRadius:4, padding:'2px 8px', fontFamily:'JetBrains Mono, monospace' }}>
                     {STD_LABEL[listing.standard]}
                   </span>
                   <div style={{ display:'flex', gap:6, alignItems:'center' }}>
@@ -369,7 +369,7 @@ export default function MarketplacePage() {
               <div key={i} style={{ padding:'14px 18px', borderBottom:'1px solid rgba(30,45,61,0.4)', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
                 <div>
                   <div style={{ display:'flex', gap:6, marginBottom:4, alignItems:'center' }}>
-                    <span style={{ fontSize:9, color:sc[order.status]||'#8FA3B8', background:(sc[order.status]||'#8FA3B8')+'15', border:`1px solid ${sc[order.status]||'#8FA3B8') + '30', borderRadius:4, padding:'2px 7px', fontFamily:'JetBrains Mono, monospace' }}>
+                    <span style={{ fontSize:9, color:sc[order.status]||'#8FA3B8', background:(sc[order.status]||'#8FA3B8')+'15', border:`1px solid ${sc[order.status]||'#8FA3B8'}30`, borderRadius:4, padding:'2px 7px', fontFamily:'JetBrains Mono, monospace' }}>
                       {order.status}
                     </span>
                     <span style={{ fontSize:10, color:'#4A6278' }}>{gi[order.paymentMethod]||gi[order.paymentGateway]||'📋'} {order.paymentGateway||order.paymentMethod||'MARKET'}</span>
@@ -407,7 +407,7 @@ export default function MarketplacePage() {
       {selectedListing && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000, padding:16 }}
           onClick={e => { if (e.target === e.currentTarget) closeBuy(); }}>
-          <div style={{ background:'#0D1117', border:`1px solid ${STD_COLOR[selectedListing.standard]) + '40', borderRadius:18, padding:28, maxWidth:520, width:'100%', maxHeight:'90vh', overflowY:'auto' }}>
+          <div style={{ background:'#0D1117', border:`1px solid ${STD_COLOR[selectedListing.standard]}40`, borderRadius:18, padding:28, maxWidth:520, width:'100%', maxHeight:'90vh', overflowY:'auto' }}>
 
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
               <div>
@@ -443,7 +443,7 @@ export default function MarketplacePage() {
                 <div style={{ display:'flex', gap:6 }}>
                   {['MARKET','LIMIT'].map(t => (
                     <button key={t} onClick={() => setOrderForm(f => ({ ...f, orderType: t }))}
-                      style={{ flex:1, padding:'9px', borderRadius:7, border:`1px solid ${orderForm.orderType===t?'#00FF94':'#1E2D3D'), background:orderForm.orderType===t?'rgba(0,255,148,0.08)':'transparent', color:orderForm.orderType===t?'#00FF94':'#4A6278', cursor:'pointer', fontSize:12, fontFamily:'JetBrains Mono, monospace' }}>
+                      style={{ flex:1, padding:'9px', borderRadius:7, border:`1px solid ${orderForm.orderType===t?'#00FF94':'#1E2D3D'}`, background:orderForm.orderType===t?'rgba(0,255,148,0.08)':'transparent', color:orderForm.orderType===t?'#00FF94':'#4A6278', cursor:'pointer', fontSize:12, fontFamily:'JetBrains Mono, monospace' }}>
                       {t==='MARKET' ? L('Market','Marché') : L('Limit','Limite')}
                     </button>
                   ))}
@@ -471,7 +471,7 @@ export default function MarketplacePage() {
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
                   {GATEWAYS.map(gw => (
                     <button key={gw.id} onClick={() => setOrderForm(f => ({ ...f, gateway: gw.id }))}
-                      style={{ padding:'10px 12px', borderRadius:8, border:`1px solid ${orderForm.gateway===gw.id?'#00FF94':'#1E2D3D'), background:orderForm.gateway===gw.id?'rgba(0,255,148,0.08)':'transparent', cursor:'pointer', textAlign:'left', transition:'all 0.15s' }}>
+                      style={{ padding:'10px 12px', borderRadius:8, border:`1px solid ${orderForm.gateway===gw.id?'#00FF94':'#1E2D3D'}`, background:orderForm.gateway===gw.id?'rgba(0,255,148,0.08)':'transparent', cursor:'pointer', textAlign:'left', transition:'all 0.15s' }}>
                       <div style={{ fontSize:15, marginBottom:3 }}>{gw.icon}</div>
                       <div style={{ fontSize:11, fontWeight:600, color:orderForm.gateway===gw.id?'#00FF94':'#E8EFF6' }}>{gw.label}</div>
                       <div style={{ fontSize:10, color:'#4A6278' }}>{gw.desc}</div>
@@ -513,7 +513,7 @@ export default function MarketplacePage() {
                 </button>
                 <button onClick={placeOrder} disabled={placing||qtyVal<=0}
                   style={{ flex:2, background:placing||qtyVal<=0?'#1E2D3D':'#00FF94', color:'#080B0F', border:'none', borderRadius:9, padding:13, fontWeight:800, fontSize:14, cursor:placing||qtyVal<=0?'not-allowed':'pointer', fontFamily:'Syne, sans-serif', opacity:qtyVal<=0?0.5:1 }}>
-                  {placing ? `⟳ ${L('Processing...','Traitement...')) : qtyVal>0 ? `${L('Confirm Order','Confirmer')} · ${fmtUSD(grand)) : L('Enter quantity →','Entrez une quantité →')}
+                  {placing ? `⟳ ${L('Processing...','Traitement...')}` : qtyVal>0 ? `${L('Confirm Order','Confirmer')} · ${fmtUSD(grand)}` : L('Enter quantity →','Entrez une quantité →')}
                 </button>
               </div>
             </>) : orderResult.error ? (
@@ -650,18 +650,18 @@ export default function MarketplacePage() {
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={() => setDeleteTarget(null)} disabled={deleting}
                 style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#8FA3B8', padding:13, cursor:'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
-                {L('Keep order','Garder cet ordre')}
+                {L('Keep order','Garder l\'ordre')}
               </button>
               <button onClick={confirmDelete} disabled={deleting}
                 style={{ flex:1, background:deleting?'#1E2D3D':'#F87171', color:'#fff', border:'none', borderRadius:9, padding:13, fontWeight:800, fontSize:13, cursor:deleting?'wait':'pointer', fontFamily:'Syne, sans-serif', transition:'background 0.15s' }}>
-                {deleting ? '⟳ ...' : L('Delete order','Supprimer cet ordre')}
+                {deleting ? '⟳ ...' : L('Delete order','Supprimer l\'ordre')}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <style>{`@keyframes pgc-pulse{0%,100%{opacity:1}50%{opacity:0.25})}</style>
+      <style>{`@keyframes pgc-pulse{0%,100%{opacity:1}50%{opacity:0.25}}`}</style>
     </div>
   );
 }

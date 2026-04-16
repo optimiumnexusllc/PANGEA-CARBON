@@ -31,9 +31,9 @@ function PercentileBar({ value, label, unit, benchmark, rating }: any) {
         <div style={{ position: 'absolute', top: '50%', left: (pct) + '%', transform: 'translate(-50%, -50%)', width: 12, height: 12, borderRadius: '50%', background: rating?.color, border: '2px solid #0D1117' }}/>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: '#2A3F55' }}>
-        <span>P25: {fmt(benchmark?.p25)</span>
-        <span>Median: {fmt(benchmark?.median)</span>
-        <span>P75: {fmt(benchmark?.p75)</span>
+        <span>P25: {fmt(benchmark?.p25)}</span>
+        <span>Median: {fmt(benchmark?.median)}</span>
+        <span>P75: {fmt(benchmark?.p75)}</span>
       </div>
     </div>
   );
@@ -100,8 +100,8 @@ export default function BenchmarkPage() {
                   <td style={{ padding: '9px 14px', fontSize: 13, color: '#E8EFF6', fontWeight: 500 }}>{p.name}</td>
                   <td style={{ padding: '9px 14px', fontSize: 11, color: '#4A6278' }}>{p.type}</td>
                   <td style={{ padding: '9px 14px' }}><span style={{ fontSize: 10, padding: '2px 6px', background: 'rgba(74,98,120,0.3)', color: '#8FA3B8', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace' }}>{p.countryCode}</span></td>
-                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.specificYield) kWh/kWc</td>
-                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.creditsPerMW)</td>
+                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.specificYield)} kWh/kWc</td>
+                  <td style={{ padding: '9px 14px', fontSize: 12, color: '#38BDF8', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.creditsPerMW)}</td>
                   <td style={{ padding: '9px 14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 60, height: 6, borderRadius: 3, background: '#1E2D3D', overflow: 'hidden' }}>
@@ -111,7 +111,7 @@ export default function BenchmarkPage() {
                     </div>
                   </td>
                   <td style={{ padding: '9px 14px' }}>
-                    <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, background: `${p.rating?.color) + '15', color: p.rating?.color, border: `1px solid ${p.rating?.color) + '25', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 4, background: `${p.rating?.color}15`, color: p.rating?.color, border: `1px solid ${p.rating?.color}25`, fontFamily: 'JetBrains Mono, monospace' }}>
                       {'★'.repeat(p.rating?.stars || 0)}
                     </span>
                   </td>
@@ -154,7 +154,7 @@ export default function BenchmarkPage() {
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="#1E2D3D"/>
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#4A6278', fontSize: 11 }}/>
-                    <Tooltip formatter={(v) => `P${Math.round(v))}/>
+                    <Tooltip formatter={(v) => `P${Math.round(v)}`}/>
                     <Radar name="Votre projet" dataKey="value" stroke="#FCD34D" fill="rgba(252,211,77,0.15)" strokeWidth={2}/>
                   </RadarChart>
                 </ResponsiveContainer>
@@ -165,7 +165,7 @@ export default function BenchmarkPage() {
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>COUNTRY CONTEXT — {data.project?.countryCode}</div>
               {[
                 ['Grid EF', `${data.countryContext?.avgEF} tCO₂/MWh`],
-                ['Avg. revenue/MW', `$${fmt(data.countryContext?.avgRevenuePerMW))],
+                ['Avg. revenue/MW', `$${fmt(data.countryContext?.avgRevenuePerMW)}`],
                 ['Market maturity', data.countryContext?.marketMaturity],
               ].map(([k, v]) => (
                 <div key={String(k)} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(30,45,61,0.4)', fontSize: 12 }}>

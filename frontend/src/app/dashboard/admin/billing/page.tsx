@@ -15,7 +15,7 @@ const TooltipC = ({ active, payload, label }: any) => {
       <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color, fontWeight: 600 }}>
-          {p.name === 'revenue' ? '$' : ''}{fmt(p.value) {p.name === 'credits' ? 'tCO₂e' : p.name === 'revenue' ? 'USD' : ''}
+          {p.name === 'revenue' ? '$' : ''}{fmt(p.value)} {p.name === 'credits' ? 'tCO₂e' : p.name === 'revenue' ? 'USD' : ''}
         </div>
       ))}
     </div>
@@ -37,7 +37,7 @@ export default function AdminBillingPage() {
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
       <div style={{ width: 28, height: 28, border: '2px solid rgba(248,113,113,0.2)', borderTopColor: '#F87171', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-      <style>{@keyframes spin{to{transform:rotate(360deg)})}</style>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
@@ -90,7 +90,7 @@ export default function AdminBillingPage() {
             <BarChart data={byYear}>
               <XAxis dataKey="year" tick={{ fill: '#4A6278', fontSize: 11 }}/>
               <YAxis tick={{ fill: '#4A6278', fontSize: 10 }}
-                tickFormatter={v => activeView === 'revenue' ? '$' + (v/1000).toFixed(0) + 'k' : fmt(v)/>
+                tickFormatter={v => activeView === 'revenue' ? '$' + (v/1000).toFixed(0) + 'k' : fmt(v)}/>
               <Tooltip content={<TooltipC />}/>
               <Bar dataKey={activeView} name={activeView} fill={activeView === 'revenue' ? '#FCD34D' : '#00FF94'} fillOpacity={0.75} radius={[4, 4, 0, 0]}/>
             </BarChart>
@@ -123,10 +123,10 @@ export default function AdminBillingPage() {
                 <td style={{ padding: '10px 14px', fontSize: 12, color: '#4A6278' }}>{p.project?.type}</td>
                 <td style={{ padding: '10px 14px', fontSize: 12, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{p.year}</td>
                 <td style={{ padding: '10px 14px', fontSize: 13, color: '#00FF94', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>
-                  {fmt(p.netCarbonCredits)
+                  {fmt(p.netCarbonCredits)}
                 </td>
                 <td style={{ padding: '10px 14px', fontSize: 13, color: '#FCD34D', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>
-                  ${fmt(p.revenueUSD)
+                  ${fmt(p.revenueUSD)}
                 </td>
                 <td style={{ padding: '10px 14px', fontSize: 12, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
                   {p.baselineEF} tCO₂/MWh
@@ -142,7 +142,7 @@ export default function AdminBillingPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
               { model: 'Pro subscription', calc: `${topProjects.length} projets × $799`, value: '$' + fmt(topProjects.length * 799) + '/mois', color: '#38BDF8' },
-              { model: 'Revenue Share 3%', calc: `$${fmt(data?.totalRevenue) × 3%`, value: '$' + fmt((data?.totalRevenue || 0) * 0.03), color: '#00FF94' },
+              { model: 'Revenue Share 3%', calc: `$${fmt(data?.totalRevenue)} × 3%`, value: '$' + fmt((data?.totalRevenue || 0) * 0.03), color: '#00FF94' },
               { model: 'PDF Reports', calc: `${topProjects.length} reports × $800`, value: '$' + fmt(topProjects.length * 800), color: '#FCD34D' },
               { model: 'ARR Projecté', calc: 'Subscription × 12 months', value: '$' + fmt(topProjects.length * 799 * 12), color: '#A78BFA' },
             ].map(item => (

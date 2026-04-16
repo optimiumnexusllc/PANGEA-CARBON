@@ -126,7 +126,7 @@ export default function BaselinePage() {
               </span>
             ) : '🤖 Start l\'évaluation IA baseline'}
           </button>
-          <style>{@keyframes spin{to{transform:rotate(360deg)})}</style>
+          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
 
         {/* Result */}

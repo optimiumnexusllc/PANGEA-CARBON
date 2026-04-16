@@ -14,7 +14,7 @@ const Tooltip_ = ({ active, payload, label }: any) => {
   return (
     <div className="card" style={{ padding: '8px 12px', border: '1px solid #2A3F55', fontSize: 12 }}>
       <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-      {payload.map((p, i) => <div key={i} style={{ color: p.color, fontWeight: 600 }}>{fmt(p.value, 1) {p.name}</div>)}
+      {payload.map((p, i) => <div key={i} style={{ color: p.color, fontWeight: 600 }}>{fmt(p.value, 1)} {p.name}</div>)}
     </div>
   );
 };
@@ -55,7 +55,7 @@ export default function ProjectDetailPage() {
     setSavingReading(false);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-screen"><div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/><style>{`@keyframes spin{to{transform:rotate(360deg)})}</style></div>;
+  if (loading) return <div className="flex items-center justify-center h-screen"><div style={{ width: 28, height: 28, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>;
   if (!project) return <div className="p-6 text-center" style={{ color: '#4A6278' }}>Project introuvable</div>;
 
   const readings = project.readings || [];
@@ -83,7 +83,7 @@ export default function ProjectDetailPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <h1 className="text-2xl font-semibold" style={{ fontFamily: 'Syne, sans-serif' }}>{project.name}</h1>
-              <span className={`badge ${STATUS_BADGE[project.status] || 'badge-ghost')}>{STATUS_FR[project.status]}</span>
+              <span className={`badge ${STATUS_BADGE[project.status] || 'badge-ghost'}`}>{STATUS_FR[project.status]}</span>
             </div>
             <div style={{ fontSize: 13, color: '#4A6278' }}>
               {project.type} · {project.country} · {project.installedMW} MW · {project.standard}
@@ -176,7 +176,7 @@ export default function ProjectDetailPage() {
                   <tr key={r.id}>
                     <td>{new Date(r.periodStart).toLocaleDateString('en-US')}</td>
                     <td>{new Date(r.periodEnd).toLocaleDateString('en-US')}</td>
-                    <td style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00FF94', fontWeight: 600 }}>{fmt(r.energyMWh, 1)</td>
+                    <td style={{ fontFamily: 'JetBrains Mono, monospace', color: '#00FF94', fontWeight: 600 }}>{fmt(r.energyMWh, 1)}</td>
                     <td style={{ fontFamily: 'JetBrains Mono, monospace' }}>{r.availabilityPct ? fmt(r.availabilityPct, 1) + '%' : '—'}</td>
                     <td><span className="badge badge-ghost">{r.source}</span></td>
                     <td style={{ fontSize: 11 }}>{r.notes || '—'}</td>

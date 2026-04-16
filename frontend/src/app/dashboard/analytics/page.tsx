@@ -12,7 +12,7 @@ const fmtUSD = (n) => '$' + fmt(n);
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
   <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
     <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-    {payload.map((p, i) => <div key={i} style={{ color: p.color || '#E8EFF6', fontWeight: 600 }}>{fmt(p.value, 1) {p.name === 'revenue' ? 'USD' : 'MWh'}</div>)}
+    {payload.map((p, i) => <div key={i} style={{ color: p.color || '#E8EFF6', fontWeight: 600 }}>{fmt(p.value, 1)} {p.name === 'revenue' ? 'USD' : 'MWh'}</div>)}
   </div>
 ) : null;
 
@@ -71,9 +71,9 @@ export default function AnalyticsPage() {
           {/* KPI row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
             {[
-              { label: 'Specific yield', value: `${fmt(kpi?.specificYield) kWh/kWc`, color: '#38BDF8', sub: 'African median: 1380' },
-              { label: 'Avg. availability', value: `${fmt(kpi?.avgAvailability, 1)%`, color: kpi?.avgAvailability >= 97 ? '#00FF94' : '#FCD34D', sub: 'target: ≥97%' },
-              { label: 'Production volatility', value: `${fmt(kpi?.volatility, 1)%`, color: kpi?.volatility < 20 ? '#00FF94' : '#F87171', sub: 'max/min deviation' },
+              { label: 'Specific yield', value: `${fmt(kpi?.specificYield)} kWh/kWc`, color: '#38BDF8', sub: 'African median: 1380' },
+              { label: 'Avg. availability', value: `${fmt(kpi?.avgAvailability, 1)}%`, color: kpi?.avgAvailability >= 97 ? '#00FF94' : '#FCD34D', sub: 'target: ≥97%' },
+              { label: 'Production volatility', value: `${fmt(kpi?.volatility, 1)}%`, color: kpi?.volatility < 20 ? '#00FF94' : '#F87171', sub: 'max/min deviation' },
               { label: 'YoY growth', value: data.yoyGrowth ? `${data.yoyGrowth > 0 ? '+' : ''}${data.yoyGrowth}%` : '—', color: (data.yoyGrowth || 0) >= 0 ? '#00FF94' : '#F87171', sub: 'vs previous year' },
             ].map(k => (
               <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: '14px 16px' }}>
@@ -135,10 +135,10 @@ export default function AnalyticsPage() {
               <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
                 <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>DÉCOMPOSITION CRÉDITS — VERRA ACM0002</div>
                 {[
-                  { label: 'Émissions brutes réduites', value: `${fmt(cd.grossEmissionsReduced) tCO₂e`, color: '#38BDF8', op: null },
-                  { label: '− Déduction leakage (3%)', value: `${fmt(cd.leakageDeduction) tCO₂e`, color: '#F87171', op: '−' },
-                  { label: '− Uncertainty deduction (5%)', value: `${fmt(cd.uncertaintyDeduction) tCO₂e`, color: '#F97316', op: '−' },
-                  { label: '= Crédits carbone nets', value: `${fmt(cd.netCarbonCredits) tCO₂e`, color: '#00FF94', op: '=' },
+                  { label: 'Émissions brutes réduites', value: `${fmt(cd.grossEmissionsReduced)} tCO₂e`, color: '#38BDF8', op: null },
+                  { label: '− Déduction leakage (3%)', value: `${fmt(cd.leakageDeduction)} tCO₂e`, color: '#F87171', op: '−' },
+                  { label: '− Uncertainty deduction (5%)', value: `${fmt(cd.uncertaintyDeduction)} tCO₂e`, color: '#F97316', op: '−' },
+                  { label: '= Crédits carbone nets', value: `${fmt(cd.netCarbonCredits)} tCO₂e`, color: '#00FF94', op: '=' },
                   { label: '× Prix $12/tCO₂e', value: fmtUSD(cd.revenueUSD), color: '#FCD34D', op: '$' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < 4 ? '1px solid rgba(30,45,61,0.4)' : 'none' }}>
@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>CAUSAL ANALYSIS · GAP FACTORS</div>
               {data.causalInsights?.length > 0 ? (
                 data.causalInsights.map((ins, i) => (
-                  <div key={i) style={{ padding: '12px', background: ins.type === 'warning' ? 'rgba(248,113,113,0.06)' : 'rgba(56,189,248,0.06)', border: 1px solid ${ins.type === 'warning' ? 'rgba(248,113,113,0.2)' : 'rgba(56,189,248,0.15)'), borderRadius: 8, marginBottom: 10 }}>
+                  <div key={i} style={{ padding: '12px', background: ins.type === 'warning' ? 'rgba(248,113,113,0.06)' : 'rgba(56,189,248,0.06)', border: `1px solid ${ins.type === 'warning' ? 'rgba(248,113,113,0.2)' : 'rgba(56,189,248,0.15)'}`, borderRadius: 8, marginBottom: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6', marginBottom: 4 }}>{ins.factor}</div>

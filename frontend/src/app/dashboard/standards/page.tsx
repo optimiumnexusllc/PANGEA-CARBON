@@ -40,7 +40,7 @@ export default function StandardsPage() {
           { label: 'CORSIA Aviation', value: '$22', sub: '+$10 premium', color: '#F87171', bg: 'rgba(248,113,113,0.05)' },
           { label: 'Article 6 ITMO', value: '$45', sub: '×3.75 multiplier', color: '#38BDF8', bg: 'rgba(56,189,248,0.05)' },
         ].map(item => (
-          <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.color) + '20', borderRadius: 10, padding: '16px 18px' }}>
+          <div key={item.label} style={{ background: item.bg, border: `1px solid ${item.color}20`, borderRadius: 10, padding: '16px 18px' }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{item.label}</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: item.color, fontFamily: 'Syne, sans-serif' }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400, color: '#4A6278' }}>/tCO₂e</span></div>
             <div style={{ fontSize: 11, color: item.color, marginTop: 2 }}>{item.sub}</div>
@@ -51,12 +51,12 @@ export default function StandardsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
         {MODULES.map(mod => (
           <a key={mod.id} href={mod.href} style={{ textDecoration: 'none' }}>
-            <div style={{ background: '#0D1117', border: `1px solid ${mod.color) + '20', borderRadius: 14, padding: 22, cursor: 'pointer', transition: 'all 0.2s', minHeight: 200 }}
-              onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = `${mod.color) + '50'; el.style.transform = 'translateY(-3px)'; }}
-              onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = `${mod.color) + '20'; el.style.transform = 'none'; }}>
+            <div style={{ background: '#0D1117', border: `1px solid ${mod.color}20`, borderRadius: 14, padding: 22, cursor: 'pointer', transition: 'all 0.2s', minHeight: 200 }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = `${mod.color}50`; el.style.transform = 'translateY(-3px)'; }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = `${mod.color}20`; el.style.transform = 'none'; }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
                 <div style={{ fontSize: 32 }}>{mod.icon}</div>
-                <span style={{ fontSize: 10, background: `${mod.color) + '15', color: mod.color, border: `1px solid ${mod.color) + '25', borderRadius: 5, padding: '3px 8px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
+                <span style={{ fontSize: 10, background: `${mod.color}15`, color: mod.color, border: `1px solid ${mod.color}25`, borderRadius: 5, padding: '3px 8px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
               </div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#E8EFF6', marginBottom: 3 }}>{mod.title}</div>
               <div style={{ fontSize: 11, color: mod.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 10 }}>{mod.subtitle}</div>
@@ -69,7 +69,7 @@ export default function StandardsPage() {
       {summary && (
         <div style={{ marginTop: 20, background: 'rgba(56,189,248,0.04)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: 10, padding: '14px 20px', display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>POTENTIEL ARTICLE 6 DE VOTRE PORTFOLIO</div>
-          {[['Projects éligibles', `${summary.eligibleProjects}/${summary.totalProjects)],['Valeur ITMO', `$${fmt(summary.totalItmoValueUSD))],['Potential premium', `+$${fmt(summary.totalPremiumUSD))],['Multiplier', `×${summary.premiumMultiplier)]].map(([k, v]) => (
+          {[['Projects éligibles', `${summary.eligibleProjects}/${summary.totalProjects}`],['Valeur ITMO', `$${fmt(summary.totalItmoValueUSD)}`],['Potential premium', `+$${fmt(summary.totalPremiumUSD)}`],['Multiplier', `×${summary.premiumMultiplier}`]].map(([k, v]) => (
             <div key={String(k)}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{k}</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#38BDF8', fontFamily: 'Syne, sans-serif' }}>{v}</div>

@@ -419,8 +419,8 @@ function ACMIStandardsPanel() {
         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 12, letterSpacing: '0.1em' }}>SYSTEME DE CERTIFICATION PANGEA CARBON</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
           {TIER_LABELS.map((t, i) => (
-            <div key={t.tier) style={{ background: linear-gradient(135deg, ${t.color)08 0%, rgba(13,17,23,0.9) 100%), border: 1px solid ${t.color) + '30', borderRadius: 12, padding: 20, position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, right: 0, width: 60, height: 60, background: `${t.color) + '08', borderRadius: '0 0 0 100%' }} />
+            <div key={t.tier} style={{ background: `linear-gradient(135deg, ${t.color}08 0%, rgba(13,17,23,0.9) 100%)`, border: `1px solid ${t.color}30`, borderRadius: 12, padding: 20, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, right: 0, width: 60, height: 60, background: `${t.color}08`, borderRadius: '0 0 0 100%' }} />
               <div style={{ fontSize: 9, color: t.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 6, letterSpacing: '0.12em' }}>TIER {i + 1}</div>
               <div style={{ fontSize: 15, fontWeight: 800, color: t.color, fontFamily: 'Syne, sans-serif', marginBottom: 6 }}>⬡ {t.tier}</div>
               <div style={{ fontSize: 12, color: '#8FA3B8', marginBottom: 12, lineHeight: 1.6 }}>{t.desc}</div>
@@ -443,14 +443,14 @@ function ACMIStandardsPanel() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {COUNTRIES_ACMI.map(c => (
             <div key={c.code} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 36, height: 36, background: `${c.color) + '15', border: `1px solid ${c.color) + '30', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: c.color, fontFamily: 'JetBrains Mono, monospace', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, background: `${c.color}15`, border: `1px solid ${c.color}30`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: c.color, fontFamily: 'JetBrains Mono, monospace', flexShrink: 0 }}>
                 {c.code}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#E8EFF6', marginBottom: 2 }}>{c.name}</div>
                 <div style={{ fontSize: 11, color: c.color, fontFamily: 'JetBrains Mono, monospace' }}>{c.potential}</div>
               </div>
-              <span style={{ fontSize: 9, background: c.status === 'Leader' ? 'rgba(0,255,148,0.1)' : 'rgba(30,45,61,0.8)', border: `1px solid ${c.status === 'Leader' ? 'rgba(0,255,148,0.3)' : '#1E2D3D'), borderRadius: 4, padding: '2px 7px', color: c.status === 'Leader' ? '#00FF94' : '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
+              <span style={{ fontSize: 9, background: c.status === 'Leader' ? 'rgba(0,255,148,0.1)' : 'rgba(30,45,61,0.8)', border: `1px solid ${c.status === 'Leader' ? 'rgba(0,255,148,0.3)' : '#1E2D3D'}`, borderRadius: 4, padding: '2px 7px', color: c.status === 'Leader' ? '#00FF94' : '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
                 {c.status}
               </span>
             </div>

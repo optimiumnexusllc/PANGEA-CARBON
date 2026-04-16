@@ -259,7 +259,7 @@ export default function ProjectsPage() {
       {loading ? (
         <div style={{ display:'flex',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:12 }}>
           <div style={{ width:28,height:28,border:'2px solid rgba(0,255,148,0.2)',borderTopColor:C.green,borderRadius:'50%',animation:'spin 0.8s linear infinite' }}/>
-          <style>{@keyframes spin{to{transform:rotate(360deg);})}</style>
+          <style>{`@keyframes spin{to{transform:rotate(360deg);}}`}</style>
           <span style={{ color:C.muted,fontSize:13,fontFamily:'JetBrains Mono, monospace' }}>
             {lang==='fr'?'Chargement...':'Loading...'}
           </span>
@@ -321,7 +321,7 @@ export default function ProjectsPage() {
                 {mrv && (
                   <div style={{ margin:'0 18px 14px',padding:'8px 12px',background:'rgba(56,189,248,0.05)',border:'1px solid rgba(56,189,248,0.12)',borderRadius:8,display:'flex',justifyContent:'space-between' }}>
                     <span style={{ fontSize:11,color:C.muted }}>{lang==='fr'?'Revenus estimés':'Estimated revenue'} {mrv.year}</span>
-                    <span style={{ fontSize:13,fontWeight:700,color:C.blue,fontFamily:'JetBrains Mono, monospace' }}>${fmt(mrv.revenueUSD)</span>
+                    <span style={{ fontSize:13,fontWeight:700,color:C.blue,fontFamily:'JetBrains Mono, monospace' }}>${fmt(mrv.revenueUSD)}</span>
                   </div>
                 )}
 

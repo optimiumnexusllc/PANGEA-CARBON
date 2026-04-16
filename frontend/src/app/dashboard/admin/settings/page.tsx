@@ -456,7 +456,7 @@ export default function AdminSettingsPage() {
 
       {/* Guide */}
       {activeCategory.guide && (
-        <div style={{ background: `${activeCategory.color) + '08', border: `1px solid ${activeCategory.color) + '20', borderRadius: 10, padding: 16 }}>
+        <div style={{ background: `${activeCategory.color}08`, border: `1px solid ${activeCategory.color}20`, borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 10, color: activeCategory.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 10, letterSpacing: '0.08em' }}>
             GUIDE · {activeCategory.label.toUpperCase()}
           </div>
@@ -489,7 +489,7 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      <style>{@keyframes spin { to { transform: rotate(360deg); } )}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

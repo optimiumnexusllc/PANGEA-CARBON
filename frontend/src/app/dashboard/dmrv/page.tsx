@@ -64,7 +64,7 @@ export default function DMRVPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
           {[
             { label: 'dMRV Score', value: `${a.dMRVScore}/100`, color: a.dMRVScore >= 85 ? '#00FF94' : '#FCD34D' },
-            { label: 'Avg. deviation', value: `${fmt(a.avgDeviation)%`, color: a.avgDeviation < 5 ? '#00FF94' : '#F87171' },
+            { label: 'Avg. deviation', value: `${fmt(a.avgDeviation)}%`, color: a.avgDeviation < 5 ? '#00FF94' : '#F87171' },
             { label: 'Satellite readings', value: a.totalSatelliteReadings, color: '#A78BFA' },
             { label: 'Certification ready', value: a.certificationReady ? 'OUI ✓' : 'NON ✗', color: a.certificationReady ? '#00FF94' : '#F87171' },
           ].map(k => (
@@ -93,7 +93,7 @@ export default function DMRVPage() {
               {dmrv.comparison.slice(0, 8).map((c, i) => (
                 <tr key={i} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                   <td style={{ padding: '9px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{new Date(c.date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</td>
-                  <td style={{ padding: '9px 14px', fontSize: 13, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(c.satellite)</td>
+                  <td style={{ padding: '9px 14px', fontSize: 13, color: '#A78BFA', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(c.satellite)}</td>
                   <td style={{ padding: '9px 14px', fontSize: 13, color: c.manual ? '#E8EFF6' : '#2A3F55', fontFamily: 'JetBrains Mono, monospace' }}>{c.manual ? fmt(c.manual) : '—'}</td>
                   <td style={{ padding: '9px 14px', fontSize: 12, color: c.deviation !== null ? (c.deviation < 5 ? '#00FF94' : c.deviation < 10 ? '#FCD34D' : '#F87171') : '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>
                     {c.deviation !== null ? `${c.deviation}%` : '—'}

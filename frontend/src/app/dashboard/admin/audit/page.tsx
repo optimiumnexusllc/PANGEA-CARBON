@@ -56,7 +56,7 @@ export default function AdminAuditPage() {
                 </td>
                 <td style={{ padding: '9px 14px' }}>
                   <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace',
-                    background: `${getColor(log.action)) + '15', color: getColor(log.action), border: `1px solid ${getColor(log.action)) + '30' }}>
+                    background: `${getColor(log.action)}15`, color: getColor(log.action), border: `1px solid ${getColor(log.action)}30` }}>
                     {log.action}
                   </span>
                 </td>

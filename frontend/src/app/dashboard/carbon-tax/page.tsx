@@ -484,7 +484,7 @@ export default function CarbonTaxPage() {
                     {taxData.map((d,i)=>(
                       <tr key={d.year} style={{ borderBottom:'1px solid '+C.border+'22', background:i%2===0?'transparent':'rgba(255,255,255,0.01)' }}>
                         <td style={{ padding:'9px 14px', color:C.blue, fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{d.year}</td>
-                        <td style={{ padding:'9px 14px', color:C.text2, fontFamily:'JetBrains Mono, monospace' }}>{fmt(d.emissions)</td>
+                        <td style={{ padding:'9px 14px', color:C.text2, fontFamily:'JetBrains Mono, monospace' }}>{fmt(d.emissions)}</td>
                         <td style={{ padding:'9px 14px', color:C.yellow, fontFamily:'JetBrains Mono, monospace' }}>${d.price}</td>
                         <td style={{ padding:'9px 14px', color:C.red, fontFamily:'JetBrains Mono, monospace', fontWeight:600 }}>{fmtM(d.taxExposure)}</td>
                         <td style={{ padding:'9px 14px', color:C.green, fontFamily:'JetBrains Mono, monospace' }}>{fmtM(d.taxWithCredits)}</td>

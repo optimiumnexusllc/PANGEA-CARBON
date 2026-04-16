@@ -164,13 +164,13 @@ function EmailComposerPage() {
                 const active = selectedTemplate?.id === tpl.id;
                 return (
                   <div key={tpl.id} onClick={() => selectTemplate(tpl)}
-                    style={{ background: active ? `${color}0D` : CARD, border: `1px solid ${active ? color + '40' : BORDER), borderRadius: 10, padding: '14px 16px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    style={{ background: active ? `${color}0D` : CARD, border: `1px solid ${active ? color + '40' : BORDER}`, borderRadius: 10, padding: '14px 16px', cursor: 'pointer', transition: 'all 0.15s' }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: active ? color : TEXT, marginBottom: 4 }}>{tpl.name}</div>
                     <div style={{ fontSize: 11, color: DIM, lineHeight: 1.5 }}>{tpl.description}</div>
                     {active && (
                       <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                         {(tpl.variables || []).map(v => (
-                          <span key={v} style={{ fontSize: 9, background: `${color) + '15', color, border: `1px solid ${color) + '25', borderRadius: 3, padding: '2px 5px', fontFamily: FONT_MONO, cursor: 'pointer' }}
+                          <span key={v} style={{ fontSize: 9, background: `${color}15`, color, border: `1px solid ${color}25`, borderRadius: 3, padding: '2px 5px', fontFamily: FONT_MONO, cursor: 'pointer' }}
                             onClick={e => { e.stopPropagation(); insertVar(v); }}>
                             {'{{'}{v}{'}}'}
                           </span>
@@ -191,7 +191,7 @@ function EmailComposerPage() {
                     <div key={v} style={{ marginBottom: 10 }}>
                       <label style={{ ...labelStyle, color: tplColor }}>{v}</label>
                       <input value={variables[v] || ''} onChange={e => updateVar(v, e.target.value)}
-                        placeholder={`{{${v}})}
+                        placeholder={`{{${v}}}`}
                         style={{ ...inputStyle, fontSize: 12, padding: '7px 10px' }} />
                     </div>
                   ))}
@@ -256,7 +256,7 @@ function EmailComposerPage() {
                       <span style={{ fontSize: 10, color: DIM, fontFamily: FONT_MONO }}>INSERER:</span>
                       {selectedTemplate.variables.map(v => (
                         <span key={v} onClick={() => insertVar(v)}
-                          style={{ fontSize: 10, background: `${tplColor) + '12', color: tplColor, border: `1px solid ${tplColor) + '25', borderRadius: 4, padding: '3px 8px', fontFamily: FONT_MONO, cursor: 'pointer' }}>
+                          style={{ fontSize: 10, background: `${tplColor}12`, color: tplColor, border: `1px solid ${tplColor}25`, borderRadius: 4, padding: '3px 8px', fontFamily: FONT_MONO, cursor: 'pointer' }}>
                           {'{{'}{v}{'}}'}
                         </span>
                       ))}

@@ -231,7 +231,7 @@ export default function AdminUsersPage() {
                 {/* User */}
                 <td style={{ padding:'10px 12px' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <div style={{ width:30, height:30, borderRadius:'50%', background:`${ROLE_C[u.role]) + '18', border:`1px solid ${ROLE_C[u.role]) + '30', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:ROLE_C[u.role], flexShrink:0 }}>
+                    <div style={{ width:30, height:30, borderRadius:'50%', background:`${ROLE_C[u.role]}18`, border:`1px solid ${ROLE_C[u.role]}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:ROLE_C[u.role], flexShrink:0 }}>
                       {u.name?.[0]?.toUpperCase()||'?'}
                     </div>
                     <div>
@@ -245,7 +245,7 @@ export default function AdminUsersPage() {
                 {/* Role */}
                 <td style={{ padding:'10px 12px' }}>
                   <select value={u.role} onChange={e => changeRole(u, e.target.value)}
-                    style={{ background:ROLE_C[u.role]+'10', border:1px solid ${ROLE_C[u.role]) + '30', borderRadius:5, color:ROLE_C[u.role], padding:'4px 7px', fontSize:11, cursor:'pointer', fontFamily:'JetBrains Mono, monospace', outline:'none' }}>
+                    style={{ background:ROLE_C[u.role]+'10', border:`1px solid ${ROLE_C[u.role]}30`, borderRadius:5, color:ROLE_C[u.role], padding:'4px 7px', fontSize:11, cursor:'pointer', fontFamily:'JetBrains Mono, monospace', outline:'none' }}>
                     {ROLES.map(r => <option key={r} value={r} style={{ background:'#121920', color:'#E8EFF6' }}>{r}</option>)}
                   </select>
                 </td>
@@ -258,7 +258,7 @@ export default function AdminUsersPage() {
                   <span style={{ fontSize:9, padding:'3px 8px', borderRadius:4, fontFamily:'JetBrains Mono, monospace',
                     background: (PLAN_COLOR[u.organization?.plan]||'#4A6278')+'15',
                     color: PLAN_COLOR[u.organization?.plan] || '#4A6278',
-                    border: 1px solid ${PLAN_COLOR[u.organization?.plan]||'#4A6278') + '30' }}>
+                    border: `1px solid ${PLAN_COLOR[u.organization?.plan]||'#4A6278'}30` }}>
                     {u.organization?.plan || 'NO ORG'}
                   </span>
                 </td>
@@ -283,7 +283,7 @@ export default function AdminUsersPage() {
                   <span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, fontFamily:'JetBrains Mono, monospace',
                     background: u.isActive ? 'rgba(0,255,148,0.08)' : 'rgba(248,113,113,0.08)',
                     color: u.isActive ? '#00FF94' : '#F87171',
-                    border: 1px solid ${u.isActive?'rgba(0,255,148,0.2)':'rgba(248,113,113,0.2)') }}>
+                    border: `1px solid ${u.isActive?'rgba(0,255,148,0.2)':'rgba(248,113,113,0.2)'}` }}>
                     {u.isActive ? 'ACTIVE' : 'INACTIVE'}
                   </span>
                 </td>
@@ -349,7 +349,7 @@ export default function AdminUsersPage() {
                 <div style={{ display:'flex', gap:8 }}>
                   {[true, false].map(val => (
                     <button key={String(val)} onClick={() => setEditForm(f => ({ ...f, isActive:val }))}
-                      style={{ flex:1, padding:'9px', borderRadius:7, border:1px solid ${editForm.isActive===val?(val?'#00FF94':'#F87171'):'#1E2D3D'), background:editForm.isActive===val?(val?'rgba(0,255,148,0.08)':'rgba(248,113,113,0.08)'):'transparent', cursor:'pointer', fontSize:12, color:editForm.isActive===val?(val?'#00FF94':'#F87171'):'#4A6278' }}>
+                      style={{ flex:1, padding:'9px', borderRadius:7, border:`1px solid ${editForm.isActive===val?(val?'#00FF94':'#F87171'):'#1E2D3D'}`, background:editForm.isActive===val?(val?'rgba(0,255,148,0.08)':'rgba(248,113,113,0.08)'):'transparent', cursor:'pointer', fontSize:12, color:editForm.isActive===val?(val?'#00FF94':'#F87171'):'#4A6278' }}>
                       {val ? '✓ Active' : '⊘ Disabled'}
                     </button>
                   ))}
@@ -370,7 +370,7 @@ export default function AdminUsersPage() {
                       const col = PLAN_COLOR[plan];
                       return (
                         <button key={plan} onClick={() => setEditForm(f => ({ ...f, billingPlan:plan }))}
-                          style={{ padding:'10px 12px', borderRadius:8, border:`1px solid ${isSelected?col:'#1E2D3D'), background:isSelected?`${col) + '10':'transparent', cursor:'pointer', textAlign:'left' }}>
+                          style={{ padding:'10px 12px', borderRadius:8, border:`1px solid ${isSelected?col:'#1E2D3D'}`, background:isSelected?`${col}10`:'transparent', cursor:'pointer', textAlign:'left' }}>
                           <div style={{ fontSize:12, fontWeight:700, color:isSelected?col:'#E8EFF6', marginBottom:3 }}>{plan}</div>
                           <div style={{ fontSize:10, color:'#4A6278' }}>{limits.price}</div>
                           <div style={{ fontSize:9, color:'#2A3F55', marginTop:3 }}>
@@ -400,7 +400,7 @@ export default function AdminUsersPage() {
               </button>
               <button onClick={saveEdit} disabled={saving}
                 style={{ flex:2, background:saving?'#1E2D3D':'#00FF94', color:saving?'#4A6278':'#080B0F', border:'none', borderRadius:8, padding:12, fontWeight:700, cursor:saving?'wait':'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
-                {saving ? '⟳ Saving...' : ✓ ${L('Save changes','Enregistrer'))}
+                {saving ? '⟳ Saving...' : `✓ ${L('Save changes','Enregistrer')}`}
               </button>
             </div>
           </div>

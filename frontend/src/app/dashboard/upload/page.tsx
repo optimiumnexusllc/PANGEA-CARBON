@@ -113,7 +113,7 @@ export default function UploadPage() {
         <div style={{ background: 'rgba(0,255,148,0.08)', border: '1px solid rgba(0,255,148,0.3)', borderRadius: 10, padding: 20, marginBottom: 20 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#00FF94', marginBottom: 8 }}>✓ Import réussi !</div>
           <div style={{ fontSize: 13, color: '#8FA3B8' }}>{result.created} lectures importées sur {result.total}</div>
-          <div style={{ fontSize: 12, color: '#4A6278', marginTop: 6 }}>Le calcul MRV a été mis à jour automatiquement → <a href={`/dashboard/projects/${selectedProject)} style={{ color: '#38BDF8' }}>Voir le projet →</a></div>
+          <div style={{ fontSize: 12, color: '#4A6278', marginTop: 6 }}>Le calcul MRV a été mis à jour automatiquement → <a href={`/dashboard/projects/${selectedProject}`} style={{ color: '#38BDF8' }}>Voir le projet →</a></div>
         </div>
       )}
 
@@ -137,7 +137,7 @@ export default function UploadPage() {
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         onClick={() => fileRef.current?.click()}
-        style={{ border: `2px dashed ${dragging ? 'rgba(0,255,148,0.5)' : parsed.length ? 'rgba(0,255,148,0.3)' : '#1E2D3D'),
+        style={{ border: `2px dashed ${dragging ? 'rgba(0,255,148,0.5)' : parsed.length ? 'rgba(0,255,148,0.3)' : '#1E2D3D'}`,
           borderRadius: 12, padding: '40px 20px', textAlign: 'center', cursor: 'pointer', marginBottom: 16,
           background: dragging ? 'rgba(0,255,148,0.04)' : '#0D1117', transition: 'all 0.2s' }}>
         <input ref={fileRef} type="file" accept=".csv,.txt" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])}/>
@@ -186,7 +186,7 @@ export default function UploadPage() {
                 <tr key={i} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                   <td style={{ padding: '8px 14px', fontSize: 12, color: '#8FA3B8' }}>{row.period_start || row.periodStart}</td>
                   <td style={{ padding: '8px 14px', fontSize: 12, color: '#8FA3B8' }}>{row.period_end || row.periodEnd}</td>
-                  <td style={{ padding: '8px 14px', fontSize: 13, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(row.energy_mwh || row.energyMWh)</td>
+                  <td style={{ padding: '8px 14px', fontSize: 13, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>{fmt(row.energy_mwh || row.energyMWh)}</td>
                   <td style={{ padding: '8px 14px', fontSize: 12, color: '#8FA3B8', fontFamily: 'JetBrains Mono, monospace' }}>{row.peak_power_mw ? fmt(row.peak_power_mw) : '—'}</td>
                   <td style={{ padding: '8px 14px', fontSize: 12, color: '#8FA3B8' }}>{row.availability_pct ? row.availability_pct + '%' : '—'}</td>
                   <td style={{ padding: '8px 14px', fontSize: 11, color: '#4A6278' }}>{row.notes || '—'}</td>
