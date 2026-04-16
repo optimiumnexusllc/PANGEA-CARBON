@@ -296,11 +296,12 @@ export default function AdminSettingsPage() {
     setLoadError('');
     try {
       const res = await fetchAuth('/admin/settings');
-      if (!res.ok) {
-        const e = await res.json().catch(() => ({}));
-        throw new Error(e.error || `Erreur ${res.status}`);
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch(_) {
+        throw new Error('Erreur ' + res.status + ' — Le backend redémarre, patientez 15s puis rechargez.');
       }
-      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur ' + res.status);
       const map = {};
       if (Array.isArray(data.settings)) {
         data.settings.forEach((s) => {
@@ -309,7 +310,7 @@ export default function AdminSettingsPage() {
       }
       setSettingsState(map);
     } catch(e) {
-      setLoadError(e.message || 'Impossible de charger les paramètres');
+      setLoadError((e.message || 'Impossible de charger les parametres') + ' — Si le problème persiste, vérifiez que le backend est démarré.');
     } finally {
       setLoading(false);
     }
