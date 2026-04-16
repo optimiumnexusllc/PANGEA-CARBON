@@ -203,11 +203,15 @@ export default function SellerPortal() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchAuthJson('/seller/dashboard');
-      setDash(data);
-      if (data.profile) {
-        setGwData(data.profile);
-        setSelectedGw(data.profile.preferredGateway || 'WIRE');
+      const [dashData, payoutsData] = await Promise.all([
+        fetchAuthJson('/seller/dashboard'),
+        fetchAuthJson('/marketplace/seller/payouts').catch(() => ({ payouts: [], stats: {} })),
+      ]);
+      // Fusionner les payouts depuis l'API dédiée
+      setDash({ ...dashData, payouts: payoutsData.payouts || dashData.payouts || [], payoutStats: payoutsData.stats });
+      if (dashData.profile) {
+        setGwData(dashData.profile);
+        setSelectedGw(dashData.profile.preferredGateway || 'WIRE');
       }
     } catch(e: any) { showToast(e.message, 'error'); }
     finally { setLoading(false); }
@@ -532,32 +536,79 @@ export default function SellerPortal() {
             </div>
           </div>
 
+          {/* Payouts stats */}
+          {dash?.payoutStats && (
+            <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
+              {[
+                { label: lang==='fr'?'TOTAL RECU':'TOTAL RECEIVED', val: dash.payoutStats.paid || 0, color: GREEN },
+                { label: lang==='fr'?'EN COURS':'PROCESSING', val: dash.payoutStats.pending || 0, color: YELLOW },
+                { label: lang==='fr'?'ECHOUE':'FAILED', val: dash.payoutStats.failed || 0, color: RED },
+                { label: lang==='fr'?'NB PAIEMENTS':'PAYMENTS COUNT', val: dash.payoutStats.paidCount || 0, color: MUTED, isCount: true },
+              ].map(s => (
+                <div key={s.label} style={{ background:CARD, border:`1px solid ${s.color}25`, borderRadius:10, padding:'14px 18px', flex:1, minWidth:140 }}>
+                  <div style={{ fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>{s.label}</div>
+                  <div style={{ fontSize:22, fontWeight:800, color:s.color, fontFamily:'JetBrains Mono, monospace' }}>
+                    {s.isCount ? s.val : '$'+fmt(s.val)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {(!dash?.payouts?.length) ? (
             <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, padding:40, textAlign:'center', color:MUTED, fontSize:13 }}>
-              {L('No payouts yet','Aucun versement')}
+              <div style={{ fontSize:32, marginBottom:12 }}>💸</div>
+              <div style={{ fontWeight:700, color:TEXT, marginBottom:6 }}>{L('No payouts yet','Aucun versement')}</div>
+              <div style={{ fontSize:12 }}>{L('Complete a sale to receive your first payout','Finalisez une vente pour recevoir votre premier versement')}</div>
             </div>
           ) : (
             <div style={{ background:CARD, border:`1px solid ${BORDER}`, borderRadius:14, overflow:'hidden' }}>
               <table style={{ width:'100%', borderCollapse:'collapse' }}>
                 <thead>
                   <tr style={{ background:'rgba(0,255,148,0.03)' }}>
-                    {[L('DATE','DATE'),L('AMOUNT','MONTANT'),L('GATEWAY','GATEWAY'),L('STATUS','STATUT'),L('REF','REF')].map(h => (
-                      <th key={h} style={{ padding:'12px 16px', textAlign:'left', fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', borderBottom:`1px solid ${BORDER}` }}>{h}</th>
+                    {[L('DATE','DATE'),L('ORDER','ORDRE'),L('AMOUNT','MONTANT USD'),L('LOCAL','MONTANT LOCAL'),L('GATEWAY','GATEWAY'),L('STATUS','STATUT'),L('REF','REFERENCE')].map(h => (
+                      <th key={h} style={{ padding:'10px 14px', textAlign:'left', fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', borderBottom:`1px solid ${BORDER}` }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {dash.payouts.map((p: any) => (
-                    <tr key={p.id} style={{ borderBottom:`1px solid ${CARD}` }}>
-                      <td style={{ padding:'12px 16px', fontSize:12, color:TEXT2 }}>{new Date(p.createdAt).toLocaleDateString()}</td>
-                      <td style={{ padding:'12px 16px', fontSize:13, color:GREEN, fontWeight:700, fontFamily:'JetBrains Mono, monospace' }}>{fmt(p.amount)}</td>
-                      <td style={{ padding:'12px 16px', fontSize:11, color:TEXT }}>{p.gateway}</td>
-                      <td style={{ padding:'12px 16px' }}>
-                        <span style={{ fontSize:9, padding:'3px 8px', borderRadius:4, background:`${STATUS_COLOR[p.status]||MUTED}20`, color:STATUS_COLOR[p.status]||MUTED, fontFamily:'JetBrains Mono, monospace' }}>{p.status}</span>
-                      </td>
-                      <td style={{ padding:'12px 16px', fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>{p.gatewayRef || '—'}</td>
-                    </tr>
-                  ))}
+                  {dash.payouts.map((p: any) => {
+                    const meta = (() => { try { return JSON.parse(p.notes||'{}'); } catch { return {}; } })();
+                    const GW_ICONS: Record<string,string> = { MTN_MOMO:'🟡', ORANGE_MONEY:'🟠', WAVE:'🔵', CINETPAY:'🌍', FLUTTERWAVE:'🦋', WIRE:'🏦', MANUAL:'📞' };
+                    const icon = GW_ICONS[p.gateway] || '💳';
+                    return (
+                      <tr key={p.id} style={{ borderBottom:`1px solid ${BORDER}20` }}>
+                        <td style={{ padding:'10px 14px', fontSize:11, color:TEXT2 }}>
+                          {new Date(p.createdAt).toLocaleDateString()}
+                          <div style={{ fontSize:9, color:MUTED }}>{new Date(p.createdAt).toLocaleTimeString()}</div>
+                        </td>
+                        <td style={{ padding:'10px 14px', fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>
+                          {p.orderId?.slice(0,10)}...
+                        </td>
+                        <td style={{ padding:'10px 14px', fontSize:13, color:GREEN, fontWeight:800, fontFamily:'JetBrains Mono, monospace' }}>
+                          ${fmt(p.amount)}
+                        </td>
+                        <td style={{ padding:'10px 14px', fontSize:11, color:TEXT, fontFamily:'JetBrains Mono, monospace' }}>
+                          {meta.localAmount ? `${Math.round(meta.localAmount).toLocaleString()} ${meta.localCurrency||''}` : '—'}
+                        </td>
+                        <td style={{ padding:'10px 14px', fontSize:12, color:TEXT }}>
+                          <span>{icon} {p.gateway?.replace('_',' ')}</span>
+                          {meta.recipient && <div style={{ fontSize:9, color:MUTED }}>{meta.recipient}</div>}
+                        </td>
+                        <td style={{ padding:'10px 14px' }}>
+                          <span style={{ fontSize:9, padding:'3px 8px', borderRadius:4,
+                            background:`${STATUS_COLOR[p.status]||MUTED}20`,
+                            color:STATUS_COLOR[p.status]||MUTED,
+                            fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td style={{ padding:'10px 14px', fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace', maxWidth:140 }}>
+                          <div style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.gatewayRef || '—'}</div>
+                          {meta.note && <div style={{ fontSize:9, color:MUTED, whiteSpace:'normal', marginTop:2 }}>{meta.note}</div>}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
