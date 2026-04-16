@@ -576,26 +576,43 @@ router.post('/apikeys', auth, async (req, res, next) => {
   } catch(e) { next(e); }
 });
 
-router.delete('/apikeys/:id', auth, adminOnly, async (req, res, next) => {
+router.delete('/apikeys/:id', auth, async (req, res, next) => {
   try {
+    if (!['ORG_OWNER','ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Non autorise.' });
+    }
+    const key = await prisma.apiKey.findUnique({ where: { id: req.params.id } });
+    if (!key) return res.status(404).json({ error: 'Cle introuvable.' });
+
+    // ORG_OWNER ne peut gérer que ses propres clés
+    if (req.user.role === 'ORG_OWNER' && key.userId !== req.user.userId) {
+      return res.status(403).json({ error: 'Vous ne pouvez gerer que vos propres cles.' });
+    }
+
     const hard = req.query.hard === 'true';
     if (hard) {
-      // Suppression définitive (uniquement si déjà révoquée)
-      const key = await prisma.apiKey.findUnique({ where: { id: req.params.id } });
-      if (!key) return res.status(404).json({ error: 'Clé introuvable' });
-      if (key.isActive) return res.status(400).json({ error: 'Révoquez la clé avant de la supprimer définitivement' });
+      // Suppression définitive — uniquement si déjà révoquée
+      if (key.isActive) {
+        return res.status(400).json({ error: 'Revoquez la cle avant de la supprimer definitivement.' });
+      }
       await prisma.apiKey.delete({ where: { id: req.params.id } });
       await prisma.auditLog.create({ data: {
         userId: req.user.userId, action: 'APIKEY_DELETED', entity: 'ApiKey', entityId: req.params.id,
         before: { name: key.name, keyPrefix: key.keyPrefix }, ipAddress: req.ip,
       }}).catch(() => {});
-      res.json({ success: true, deleted: true });
+      console.log('[ApiKey] Deleted:', key.keyPrefix, 'by', req.user.userId);
+      res.json({ success: true, deleted: true, message: 'Cle supprimee definitivement.' });
     } else {
       // Révocation (soft delete)
       await prisma.apiKey.update({ where: { id: req.params.id }, data: { isActive: false } });
-      res.json({ success: true, revoked: true });
+      await prisma.auditLog.create({ data: {
+        userId: req.user.userId, action: 'APIKEY_REVOKED', entity: 'ApiKey', entityId: req.params.id,
+        before: { name: key.name, keyPrefix: key.keyPrefix }, ipAddress: req.ip,
+      }}).catch(() => {});
+      console.log('[ApiKey] Revoked:', key.keyPrefix, 'by', req.user.userId);
+      res.json({ success: true, revoked: true, message: 'Cle revoquee.' });
     }
-  } catch (e) { next(e); }
+  } catch(e) { next(e); }
 });
 
 
