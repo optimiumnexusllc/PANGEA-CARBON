@@ -85,6 +85,7 @@ model Organization {
   sellerPayouts    SellerPayout[]
   forwardContracts ForwardContract[] @relation("BuyerOrg")
   forwardSales     ForwardContract[] @relation("SellerOrg")
+  webhookEndpoints WebhookEndpoint[]
 }
 
 model User {
