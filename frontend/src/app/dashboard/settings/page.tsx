@@ -54,11 +54,10 @@ export default function SettingsPage() {
       if (data.url) {
         window.location.href = data.url;
       } else if (data.code === 'STRIPE_NOT_CONFIGURED') {
-        setMsg(lang==='fr'?'Stripe non configure. Ajoutez la cle Stripe dans Admin Secrets.':'Stripe not configured. Add Stripe key in Admin Secrets.')
-                  'Stripe non configure. Demandez a votre admin d'ajouter la cle Stripe dans Admin → Secrets & Config.'));
+        setMsg(lang==='fr'?'Stripe non configure. Ajoutez la cle Stripe dans Admin Secrets.':'Stripe not configured. Add Stripe key in Admin Secrets.');
         setMsgType('warn');
       } else {
-        setMsg(data.error || (lang==='fr'?'Erreur paiement. Reessayez.':'Payment error. Please try again.'))
+        setMsg(data.error || (lang==='fr'?'Erreur paiement. Reessayez.':'Payment error. Please try again.'));
         setMsgType('error');
       }
     } catch(e) {
