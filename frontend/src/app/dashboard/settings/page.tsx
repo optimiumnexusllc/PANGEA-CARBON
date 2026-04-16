@@ -1,46 +1,33 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useLang } from '@/lib/lang-context';
 
-const PLANS = [
-  {
-    name: 'Free', price: '$0', period: '/month', color: '#4A6278',
-    subtitle: 'Explore the platform', badge: null, planKey: 'FREE', disabled: true,
-    features: ['1 MRV project', 'Up to 10 MW', 'Basic ACM0002 calculation', 'Read-only dashboard', '1 user', 'Community support'],
-    cta: 'Current plan',
-  },
-  {
-    name: 'Starter', price: '$299', period: '/month', color: '#38BDF8',
-    subtitle: 'For early-stage projects', badge: null, planKey: 'STARTER', disabled: false,
-    features: ['5 MRV projects', 'Up to 50 MW', 'Automatic ACM0002', 'Basic PDF reports', 'Real-time dashboard', '2 users', 'Email support 48h'],
-    cta: 'Get started',
-  },
-  {
-    name: 'Pro', price: '$799', period: '/month', color: '#00FF94',
-    subtitle: 'For active IPPs', badge: 'Recommended', highlight: true, planKey: 'PRO', disabled: false,
-    features: ['Unlimited projects', 'Unlimited MW', 'Certified PDF reports', '10-year Monte Carlo projection', 'Article 6 ITMO', 'Gold Standard SDG', 'AI Assistant + AI Baseline', 'IoT Equipment API', '10 users', 'Priority support 24h'],
-    cta: 'Get Pro',
-  },
-  {
-    name: 'Enterprise', price: 'Custom pricing', period: '', color: '#FCD34D',
-    subtitle: 'For portfolios & institutions', badge: 'Custom', planKey: 'ENTERPRISE', disabled: false, isEnterprise: true,
-    features: ['Everything in Pro', 'Full white-label', 'SSO SAML / LDAP', '99.9% SLA guaranteed', 'Dedicated Customer Success Manager', 'Custom integrations', 'Unlimited users', 'Multi-organizations', 'Advanced audit trail', 'Training & dedicated onboarding'],
-    cta: 'Contact us',
-  },
+const C = { bg:'#080B0F', card:'#0D1117', card2:'#121920', border:'#1E2D3D', green:'#00FF94', blue:'#38BDF8', purple:'#A78BFA', yellow:'#FCD34D', red:'#F87171', muted:'#4A6278', text:'#E8EFF6', text2:'#8FA3B8' };
+
+const PLANS_STATIC = [
+  { key:'free',       name:'Free',       priceDisplay:'$0',    period:'/mo', color:C.muted,   disabled:true,  badge:null,       isEnterprise:false,
+    features:['1 project','Up to 500 MW','ACM0002 calculator','Read-only'] },
+  { key:'starter',    name:'Starter',    priceDisplay:'$299',  period:'/mo', color:C.blue,    disabled:false, badge:null,       isEnterprise:false,
+    features:['5 projects','1000 MW max','Certified PDF','API access','2 users'] },
+  { key:'pro',        name:'Pro',        priceDisplay:'$799',  period:'/mo', color:C.green,   disabled:false, badge:'Best',     isEnterprise:false,
+    features:['Unlimited projects','Unlimited MW','AI features','10-year Monte Carlo','10 users'] },
+  { key:'enterprise', name:'Enterprise', priceDisplay:'Custom',period:'',    color:C.yellow,  disabled:false, badge:'Custom',   isEnterprise:true,
+    features:['All Pro','White-label','SSO','Dedicated support','SLA 99.9%'] },
 ];
 
-const STANDARDS = ['Verra VCS', 'Gold Standard', 'Article 6 ITMO', 'CORSIA Aviation', 'ACMI Africa', 'ACM0002 v22.0'];
-
 export default function SettingsPage() {
+  const { lang } = useLang();
+  const L = (en, fr) => lang === 'fr' ? fr : en;
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [msgType, setMsgType] = useState('');
   const [showContact, setShowContact] = useState(false);
   const [cName, setCName] = useState('');
   const [cEmail, setCEmail] = useState('');
-  const [cCompany, setCCompany] = useState('');
   const [cMsg, setCMsg] = useState('');
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
   const [err, setErr] = useState('');
-  const [annual, setAnnual] = useState(false);
+  const [tab, setTab] = useState('billing');
 
   useEffect(() => {
     try {
@@ -49,165 +36,216 @@ export default function SettingsPage() {
     } catch(_e) {}
   }, []);
 
-  async function sendContact() {
-    if (!cName || !cEmail) { setErr('Name and email are required.'); return; }
-    setSending(true); setErr('');
-    try {
-      const base = process.env.NEXT_PUBLIC_API_URL || '';
-      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
-      const res = await fetch(base + '/email-composer/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ name: cName, email: cEmail, company: cCompany, message: cMsg }),
-      });
-      if (res.ok) setSent(true);
-      else setErr('Send failed. Try contact@pangea-carbon.com directly.');
-    } catch(_e) { setErr('Connection error.'); }
-    finally { setSending(false); }
-  }
+  const currentPlan = (user?.plan || user?.organization?.plan || 'TRIAL').toLowerCase();
 
-  async function handlePlan(plan) {
+  const handleCheckout = async (plan) => {
     if (plan.isEnterprise) { setShowContact(true); return; }
     if (plan.disabled) return;
+    setLoading(true); setMsg('');
     try {
       const base = process.env.NEXT_PUBLIC_API_URL || '';
       const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
       const res = await fetch(base + '/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ plan: plan.planKey.toLowerCase() }),
+        body: JSON.stringify({ plan: plan.key }),
       });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
-      } else if (data.error) {
-        alert('Stripe error: ' + data.error);
+      } else if (data.code === 'STRIPE_NOT_CONFIGURED') {
+        setMsg(lang==='fr'?'Stripe non configure. Ajoutez la cle Stripe dans Admin Secrets.':'Stripe not configured. Add Stripe key in Admin Secrets.')
+                  'Stripe non configure. Demandez a votre admin d'ajouter la cle Stripe dans Admin → Secrets & Config.'));
+        setMsgType('warn');
       } else {
-        alert('No checkout URL returned. Check Stripe configuration in Admin → Secrets & Config.');
+        setMsg(data.error || (lang==='fr'?'Erreur paiement. Reessayez.':'Payment error. Please try again.'))
+        setMsgType('error');
       }
-    } catch(err) {
-      alert('Payment error: ' + (err.message || 'Unknown error') + ' — Contact: contact@pangea-carbon.com');
-    }
-  }
+    } catch(e) {
+      setMsg(lang==='fr'?'Erreur de connexion.':'Connection error. Check your network.')
+      setMsgType('error');
+    } finally { setLoading(false); }
+  };
 
-  const prices = { starter: annual ? 249 : 299, pro: annual ? 649 : 799 };
+  const sendContact = async () => {
+    if (!cName || !cEmail) { setErr(lang==='fr'?'Nom et email requis.':'Name and email required.')
+    setLoading(true);
+    try {
+      const base = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(base + '/email-composer/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: cName, email: cEmail, message: cMsg, subject: 'Enterprise Plan Inquiry' }),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        setShowContact(false);
+        setMsg(lang==='fr'?'Demande envoyee. Nous vous repondrons sous 24h.':'Inquiry sent. We will reply within 24h.')
+        setMsgType('success');
+      }
+    } catch(e) { setErr(e.message); }
+    finally { setLoading(false); }
+  };
 
   return (
-    <div style={{ padding: 24, maxWidth: 1300, margin: '0 auto' }}>
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>ACCOUNT & SUBSCRIPTION</div>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#E8EFF6', margin: 0 }}>Plans & Pricing</h1>
-        <p style={{ fontSize: 13, color: '#4A6278', marginTop: 6 }}>Enterprise-grade MRV platform for Africa · Verra ACM0002 · Gold Standard · ACMI</p>
+    <div style={{ padding:24, maxWidth:1100, margin:'0 auto' }}>
+      <div style={{ marginBottom:28 }}>
+        <div style={{ fontSize:9, color:C.green, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.14em', marginBottom:4 }}>
+          PANGEA CARBON · SUBSCRIPTION
+        </div>
+        <h1 style={{ fontFamily:'Syne, sans-serif', fontSize:24, fontWeight:800, color:C.text, margin:0 }}>
+          {L('Plans & Billing','Plans et Facturation')}
+        </h1>
+        <p style={{ fontSize:13, color:C.muted, marginTop:6 }}>
+          {L('Manage your subscription and access to premium features.',
+             'Gerez votre abonnement et l'acces aux fonctionnalites premium.')}
+        </p>
       </div>
 
-      {user && (
-        <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(0,255,148,0.12)', border: '1px solid rgba(0,255,148,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: '#00FF94' }}>
-            {(user as any).name?.charAt(0)?.toUpperCase() || 'U'}
+      <div style={{ display:'flex', gap:8, marginBottom:24 }}>
+        {['billing','account'].map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            style={{ padding:'8px 18px', borderRadius:8, border:'1px solid ' + (tab===t ? C.green : C.border),
+              background: tab===t ? 'rgba(0,255,148,0.08)' : 'transparent',
+              color: tab===t ? C.green : C.muted, cursor:'pointer', fontSize:13, fontWeight:600 }}>
+            {t === 'billing' ? L('Billing','Facturation') : L('Account','Compte')}
+          </button>
+        ))}
+      </div>
+
+      {msg && (
+        <div style={{ background: msgType==='error' ? 'rgba(248,113,113,0.08)' : msgType==='warn' ? 'rgba(252,211,77,0.08)' : 'rgba(0,255,148,0.08)',
+          border: '1px solid ' + (msgType==='error' ? C.red : msgType==='warn' ? C.yellow : C.green),
+          borderRadius:10, padding:'12px 16px', marginBottom:20, color: msgType==='error' ? C.red : msgType==='warn' ? C.yellow : C.green, fontSize:13 }}>
+          {msg}
+        </div>
+      )}
+
+      {tab === 'billing' && (
+        <div>
+          <div style={{ background:C.card, border:'1px solid '+C.border, borderRadius:12, padding:'12px 16px', marginBottom:24, display:'flex', alignItems:'center', gap:12 }}>
+            <div style={{ width:8, height:8, borderRadius:'50%', background:C.green }}/>
+            <div style={{ fontSize:13, color:C.text2 }}>
+              {L('Current plan','Plan actuel')}:
+              <strong style={{ color:C.text, marginLeft:6 }}>{currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}</strong>
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#E8EFF6' }}>{(user as any).name}</div>
-            <div style={{ fontSize: 12, color: '#4A6278' }}>{(user as any).email} · <span style={{ color: '#00FF94' }}>FREE plan</span></div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))', gap:16 }}>
+            {PLANS_STATIC.map(plan => {
+              const isCurrent = currentPlan === plan.key;
+              return (
+                <div key={plan.key} style={{ background:C.card, border:'2px solid ' + (isCurrent ? plan.color : C.border),
+                  borderRadius:14, padding:20, display:'flex', flexDirection:'column', gap:12,
+                  opacity: plan.disabled ? 0.6 : 1, position:'relative', overflow:'hidden' }}>
+                  {isCurrent && (
+                    <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:plan.color }}/>
+                  )}
+                  {plan.badge && (
+                    <div style={{ position:'absolute', top:12, right:12, background:plan.color, color:C.bg,
+                      fontSize:9, fontWeight:800, padding:'2px 8px', borderRadius:4 }}>
+                      {plan.badge}
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>
+                      {plan.key.toUpperCase()}
+                    </div>
+                    <div style={{ fontFamily:'Syne, sans-serif', fontSize:20, fontWeight:800, color:plan.color }}>
+                      {plan.priceDisplay}
+                    </div>
+                    {plan.period && <div style={{ fontSize:11, color:C.muted }}>{plan.period}</div>}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    {plan.features.map((f, i) => (
+                      <div key={i} style={{ fontSize:12, color:C.text2, padding:'3px 0', display:'flex', gap:6 }}>
+                        <span style={{ color:plan.color }}>✓</span> {f}
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={() => handleCheckout(plan)} disabled={loading || isCurrent || plan.disabled}
+                    style={{ background: isCurrent ? 'transparent' : plan.color, color: isCurrent ? C.muted : C.bg,
+                      border: '1px solid ' + (isCurrent ? C.border : plan.color), borderRadius:9,
+                      padding:'10px 0', fontWeight:700, fontSize:13, cursor: isCurrent || plan.disabled ? 'default' : 'pointer',
+                      width:'100%', fontFamily:'Syne, sans-serif',
+                      opacity: loading ? 0.7 : 1 }}>
+                    {isCurrent ? L('Current plan','Plan actuel') : plan.isEnterprise ? L('Contact us','Nous contacter') : L('Upgrade','Passer a ce plan')}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Annual toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
-        <span style={{ fontSize: 13, color: annual ? '#4A6278' : '#E8EFF6' }}>Monthly</span>
-        <div onClick={() => setAnnual(!annual)} style={{ width: 44, height: 24, borderRadius: 12, background: annual ? '#00FF94' : '#1E2D3D', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
-          <div style={{ position: 'absolute', top: 3, left: annual ? 23 : 3, width: 18, height: 18, borderRadius: '50%', background: annual ? '#080B0F' : '#4A6278', transition: 'left 0.2s' }}/>
-        </div>
-        <span style={{ fontSize: 13, color: annual ? '#E8EFF6' : '#4A6278' }}>Annual</span>
-        {annual && <span style={{ fontSize: 11, background: 'rgba(0,255,148,0.12)', color: '#00FF94', border: '1px solid rgba(0,255,148,0.25)', borderRadius: 4, padding: '2px 8px' }}>Save 17%</span>}
-      </div>
-
-      {/* Plans grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
-        {PLANS.map(plan => {
-          const displayPrice = plan.planKey === 'STARTER' ? '$' + prices.starter : plan.planKey === 'PRO' ? '$' + prices.pro : plan.price;
-          return (
-            <div key={plan.planKey} style={{ background: '#0D1117', border: plan.highlight ? '2px solid #00FF94' : '1px solid #1E2D3D', borderRadius: 14, padding: 22, position: 'relative', display: 'flex', flexDirection: 'column' }}>
-              {plan.badge && (
-                <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: plan.color, color: '#080B0F', fontSize: 10, fontWeight: 800, padding: '3px 14px', borderRadius: 20, whiteSpace: 'nowrap', fontFamily: 'JetBrains Mono, monospace' }}>
-                  {plan.badge}
+      {tab === 'account' && (
+        <div style={{ background:C.card, border:'1px solid '+C.border, borderRadius:14, padding:24, maxWidth:500 }}>
+          <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:16, fontWeight:800, color:C.text, margin:'0 0 16px' }}>
+            {L('Account Information','Informations du compte')}
+          </h2>
+          {user && (
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {[
+                [L('Name','Nom'), user.name],
+                [L('Email','Email'), user.email],
+                [L('Role','Role'), user.role],
+                [L('Plan','Plan'), currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)],
+              ].map(([label, value]) => (
+                <div key={label} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0',
+                  borderBottom:'1px solid '+C.border }}>
+                  <div style={{ fontSize:12, color:C.muted }}>{label}</div>
+                  <div style={{ fontSize:13, color:C.text, fontWeight:600 }}>{value || '—'}</div>
                 </div>
-              )}
-              <div style={{ marginBottom: 4 }}>
-                <div style={{ fontSize: 10, color: plan.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>{plan.name.toUpperCase()}</div>
-                <div style={{ fontSize: 12, color: '#4A6278' }}>{plan.subtitle}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {showContact && (
+        <div onClick={e => { if (e.target === e.currentTarget) setShowContact(false); }}
+          style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.85)', backdropFilter:'blur(12px)',
+            display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }}>
+          <div style={{ background:C.card, border:'1px solid '+C.border, borderRadius:16, padding:28, width:440, maxWidth:'90vw' }}>
+            <div style={{ height:3, background:'linear-gradient(90deg,'+C.yellow+',transparent)', borderRadius:3, marginBottom:20 }}/>
+            <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:18, fontWeight:800, color:C.text, margin:'0 0 6px' }}>
+              Enterprise
+            </h2>
+            <p style={{ fontSize:13, color:C.muted, marginBottom:20 }}>
+              {L('Tell us about your portfolio and we will get back to you within 24 hours.',
+                 'Dites-nous en plus sur votre portefeuille et nous vous repondrons sous 24h.')}
+            </p>
+            {err && <div style={{ color:C.red, fontSize:12, marginBottom:12 }}>{err}</div>}
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {[[L('Your name','Votre nom'), cName, setCName],[L('Your email','Votre email'), cEmail, setCEmail]].map(([label, val, setter]) => (
+                <div key={label}>
+                  <div style={{ fontSize:11, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>{label.toUpperCase()}</div>
+                  <input value={val} onChange={e => setter(e.target.value)}
+                    style={{ width:'100%', background:C.card2, border:'1px solid '+C.border, borderRadius:8,
+                      color:C.text, padding:'9px 12px', fontSize:13, boxSizing:'border-box' }}/>
+                </div>
+              ))}
+              <div>
+                <div style={{ fontSize:11, color:C.muted, fontFamily:'JetBrains Mono, monospace', marginBottom:4 }}>
+                  {L('MESSAGE (optional)','MESSAGE (optionnel)').toUpperCase()}
+                </div>
+                <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} rows={3}
+                  style={{ width:'100%', background:C.card2, border:'1px solid '+C.border, borderRadius:8,
+                    color:C.text, padding:'9px 12px', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, margin: '16px 0' }}>
-                <span style={{ fontSize: 30, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: plan.color }}>{displayPrice}</span>
-                {plan.period && <span style={{ fontSize: 12, color: '#4A6278' }}>{plan.period}</span>}
-              </div>
-              <div style={{ flex: 1, marginBottom: 18 }}>
-                {plan.features.map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 7, fontSize: 12, color: '#8FA3B8' }}>
-                    <span style={{ color: plan.color, flexShrink: 0, marginTop: 1 }}>✓</span>
-                    <span>{f}</span>
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => handlePlan(plan)} disabled={plan.disabled} style={{ width: '100%', background: plan.disabled ? '#1E2D3D' : plan.highlight ? '#00FF94' : 'transparent', color: plan.disabled ? '#4A6278' : plan.highlight ? '#080B0F' : plan.color, border: plan.highlight ? 'none' : '1px solid ' + plan.color + '40', borderRadius: 8, padding: '11px 0', fontWeight: 800, fontSize: 13, cursor: plan.disabled ? 'default' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
-                {plan.cta}
+            </div>
+            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+              <button onClick={sendContact} disabled={loading}
+                style={{ flex:1, background:C.yellow, color:C.bg, border:'none', borderRadius:9,
+                  padding:'11px 0', fontWeight:700, fontSize:13, cursor:'pointer', opacity:loading?0.7:1 }}>
+                {loading ? L('Sending...','Envoi...') : L('Send inquiry','Envoyer')}
+              </button>
+              <button onClick={() => setShowContact(false)}
+                style={{ flex:1, background:'transparent', border:'1px solid '+C.border, borderRadius:9,
+                  color:C.muted, padding:'11px 0', cursor:'pointer', fontSize:13 }}>
+                {L('Cancel','Annuler')}
               </button>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Standards included */}
-      <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>STANDARDS INCLUDED IN ALL PLANS</div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          {STANDARDS.map(s => (
-            <div key={s} style={{ background: 'rgba(0,255,148,0.06)', border: '1px solid rgba(0,255,148,0.15)', borderRadius: 7, padding: '6px 14px', fontSize: 12, color: '#00FF94' }}>{s}</div>
-          ))}
-        </div>
-      </div>
-
-      {/* Enterprise contact modal */}
-      {showContact && (
-        <div style={{ position: 'fixed', inset: 0, background:'rgba(8,11,15,0.88)', backdropFilter:'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-          onClick={e => { if (e.target === e.currentTarget) { setShowContact(false); setSent(false); } }}>
-          <div style={{ background: '#0D1117', border: '1px solid rgba(252,211,77,0.3)', borderRadius: 18, padding: 32, maxWidth: 500, width: '90%', position: 'relative' }}>
-            <button onClick={() => { setShowContact(false); setSent(false); }} style={{ position: 'absolute', top: 16, right: 20, background: 'none', border: 'none', color: '#4A6278', fontSize: 22, cursor: 'pointer' }}>×</button>
-            {!sent ? (
-              <>
-                <div style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>ENTERPRISE</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#E8EFF6', marginBottom: 6 }}>{"Let's build your custom plan"}</h2>
-                <p style={{ fontSize: 13, color: '#4A6278', marginBottom: 20, lineHeight: 1.7 }}>Our team will design a plan around your portfolio size, geography, and reporting requirements.</p>
-                {[
-                  { label: 'NAME *', val: cName, set: setCName, ph: 'Your full name' },
-                  { label: 'EMAIL *', val: cEmail, set: setCEmail, ph: 'Professional email' },
-                  { label: 'COMPANY', val: cCompany, set: setCCompany, ph: 'Company or project name' },
-                ].map(f => (
-                  <div key={f.label} style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>{f.label}</div>
-                    <input value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph} style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}/>
-                  </div>
-                ))}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 5 }}>YOUR NEEDS</div>
-                  <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} placeholder="Describe your portfolio (MW capacity, countries, number of projects...)" rows={3} style={{ width: '100%', background: '#121920', border: '1px solid #1E2D3D', borderRadius: 7, color: '#E8EFF6', padding: '10px 12px', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}/>
-                </div>
-                {err && <div style={{ fontSize: 12, color: '#F87171', marginBottom: 12 }}>{err}</div>}
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowContact(false)} style={{ flex: 1, background: 'transparent', border: '1px solid #1E2D3D', borderRadius: 9, color: '#4A6278', padding: 12, cursor: 'pointer' }}>Cancel</button>
-                  <button onClick={sendContact} disabled={sending} style={{ flex: 2, background: sending ? '#1E2D3D' : '#FCD34D', color: '#080B0F', border: 'none', borderRadius: 9, padding: 12, fontWeight: 800, fontSize: 14, cursor: sending ? 'wait' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
-                    {sending ? 'Sending...' : 'Send my request'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, color: '#00FF94', marginBottom: 8 }}>Request received!</h2>
-                <p style={{ fontSize: 13, color: '#8FA3B8', marginBottom: 20 }}>Our team will contact you within 24 hours.</p>
-                <button onClick={() => { setShowContact(false); setSent(false); }} style={{ background: '#00FF94', color: '#080B0F', border: 'none', borderRadius: 9, padding: '10px 28px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>Close</button>
-              </div>
-            )}
           </div>
         </div>
       )}

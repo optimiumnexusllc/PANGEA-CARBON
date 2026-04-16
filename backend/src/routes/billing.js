@@ -49,14 +49,38 @@ const PLANS = {
 router.get('/plans', (req, res) => res.json(PLANS));
 
 // POST /api/billing/checkout — Créer session Stripe Checkout
+
+// GET /api/billing/plans — Retourner la liste des plans disponibles
+router.get('/plans', auth, (req, res) => {
+  res.json({
+    plans: Object.entries(PLANS).map(([key, p]) => ({
+      key,
+      name: p.name,
+      price: p.price,
+      priceDisplay: p.price ? '$' + (p.price / 100).toFixed(0) : 'Custom',
+      interval: p.interval,
+      features: p.features,
+    })),
+  });
+});
+
 router.post('/checkout', auth, requirePermission('billing.view'), async (req, res, next) => {
   try {
     const { plan } = req.body;
     if (!PLANS[plan] || !PLANS[plan].price) {
-      return res.status(400).json({ error: 'Plan invalide ou sur devis' });
+      return res.status(400).json({ error: 'Plan invalide ou sur devis', code: 'INVALID_PLAN' });
     }
 
-    const stripe = await getStripeAsync();
+    let stripe;
+    try {
+      stripe = await getStripeAsync();
+    } catch(stripeErr) {
+      return res.status(503).json({
+        error: 'Stripe non configure. Ajoutez stripe_secret_key dans Admin → Secrets & Config.',
+        code: 'STRIPE_NOT_CONFIGURED',
+        setup_url: '/dashboard/admin/settings',
+      });
+    }
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
       select: { email: true, name: true }
