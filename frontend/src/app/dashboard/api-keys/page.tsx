@@ -442,9 +442,12 @@ export default function ApiKeysPage() {
     setLoading(true);
     try {
       const r = await fetchAuth('/admin/apikeys');
-      const d = await r.json();
-      setKeys(Array.isArray(d) ? d : []);
-    } catch(e) {} finally { setLoading(false); }
+      const text = await r.text();
+      try {
+        const d = JSON.parse(text);
+        setKeys(Array.isArray(d) ? d : []);
+      } catch { setKeys([]); }
+    } catch { setKeys([]); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -464,7 +467,10 @@ export default function ApiKeysPage() {
           expiresAt: newKeyExpiry || null,
         }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data: any = {};
+      try { data = JSON.parse(text); } catch { throw new Error(lang==='fr'?'Erreur serveur. Reessayez.':'Server error. Please try again.'); }
+      if (!res.ok) throw new Error(data.error || (lang==='fr'?'Erreur creation cle.':'Key creation failed.'));
       setNewKey(data.rawKey || data.key || data.apiKey);
       setCreating(false);
       setNewKeyName('');
