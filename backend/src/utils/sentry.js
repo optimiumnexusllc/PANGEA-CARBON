@@ -44,6 +44,29 @@ async function initSentry() {
   }
 }
 
+// Enrichir le contexte avec l'utilisateur JWT
+function setUserContext(req) {
+  if (!initialized || !req.user) return;
+  Sentry.setUser({
+    id: req.user.userId,
+    email: req.user.email,
+    role: req.user.role,
+    orgId: req.user.organizationId,
+  });
+}
+
+// Middleware: capture user context sur chaque requête
+function userContextMiddleware(req, res, next) {
+  if (req.user) setUserContext(req);
+  next();
+}
+
+// Alerter sur les erreurs critiques PANGEA
+function captureEvent(name, data = {}, level = 'info') {
+  if (!initialized) return;
+  Sentry.captureMessage(name, { level, extra: data, tags: { app: 'pangea-carbon' } });
+}
+
 // Middleware de capture des erreurs Express
 function sentryErrorHandler() {
   if (!initialized) return (err, req, res, next) => next(err);
@@ -65,4 +88,4 @@ function requestHandler() {
   return Sentry.expressIntegration();
 }
 
-module.exports = { initSentry, sentryErrorHandler, captureException, requestHandler };
+module.exports = { initSentry, sentryErrorHandler, captureException, requestHandler, setUserContext, userContextMiddleware, captureEvent };

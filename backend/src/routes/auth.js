@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { revokeToken } = require('../middleware/tokenBlacklist');
 const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
@@ -505,3 +506,21 @@ router.put('/me', require('../middleware/auth'), [
     res.json(updated);
   } catch (e) { next(e); }
 });
+
+// POST /api/auth/logout — Révoquer le refresh token
+router.post('/logout', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (refreshToken) {
+      // Décoder sans vérifier pour extraire le jti/userId
+      const decoded = jwt.decode(refreshToken);
+      if (decoded?.userId) {
+        await revokeToken(decoded.userId + ':refresh', 7 * 24 * 3600);
+      }
+    }
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch(e) {
+    res.json({ success: true }); // Always succeed on logout
+  }
+});
+

@@ -12,6 +12,8 @@ const reportRoutes = require('./routes/reports');
 const billingRoutes = require('./routes/billing');
 const dashboardRoutes = require('./routes/dashboard');
 const { errorHandler } = require('./middleware/errorHandler');
+const { authLimiter, mfaLimiter, apiLimiter, uploadLimiter, marketplaceLimiter } = require('./middleware/rateLimiter');
+const { checkBlacklist, userContextMiddleware } = require('./middleware/tokenBlacklist');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -70,7 +72,18 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// ─── Rate Limiting ───────────────────────────────────────────────────────────
+// Sentry user context sur toutes les routes authentifiées
+app.use(require('./middleware/auth').optionalAuth || ((req,res,next)=>next()));
+
 // Routes
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/mfa-verify', mfaLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/marketplace', marketplaceLimiter);
+app.use('/api/upload', uploadLimiter);
+// Rate limit global API: 200 req/min par IP
+app.use('/api', apiLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects', readingRoutes);

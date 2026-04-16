@@ -980,3 +980,36 @@ model EmailOTP {
   createdAt DateTime @default(now())
   @@map("email_otps")
 }
+
+// ─── WEBHOOKS OUTBOUND ────────────────────────────────────────────────────────
+model WebhookEndpoint {
+  id             String    @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  url            String
+  secret         String    // HMAC secret
+  events         String    @default("["*"]") // JSON array of event names
+  active         Boolean   @default(true)
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deliveries     WebhookDelivery[]
+  
+  @@index([organizationId])
+}
+
+model WebhookDelivery {
+  id           String   @id @default(cuid())
+  endpointId   String
+  endpoint     WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  event        String
+  payload      String   @db.Text
+  statusCode   Int
+  success      Boolean
+  attempt      Int      @default(1)
+  responseBody String?  @db.Text
+  createdAt    DateTime @default(now())
+  
+  @@index([endpointId])
+  @@index([event])
+}
