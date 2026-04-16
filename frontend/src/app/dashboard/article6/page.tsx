@@ -39,10 +39,10 @@ export default function Article6Page() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { label: 'Total ITMO value', value: `$${fmt(s.totalItmoValueUSD)}`, color: '#38BDF8' },
-          { label: 'vs current Verra', value: `$${fmt(s.totalVerraValueUSD)}`, color: '#4A6278' },
-          { label: 'Potential premium', value: `+$${fmt(s.totalPremiumUSD)}`, color: '#00FF94' },
-          { label: 'Multiplier', value: `×${s.premiumMultiplier}`, color: '#FCD34D' },
+          { label: 'Total ITMO value', value: `$${fmt(s.totalItmoValueUSD)), color: '#38BDF8' },
+          { label: 'vs current Verra', value: `$${fmt(s.totalVerraValueUSD)), color: '#4A6278' },
+          { label: 'Potential premium', value: `+$${fmt(s.totalPremiumUSD)), color: '#00FF94' },
+          { label: 'Multiplier', value: `×${s.premiumMultiplier), color: '#FCD34D' },
         ].map(k => (
           <div key={k.label} style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 10, padding: 16 }}>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label}</div>
@@ -113,14 +113,14 @@ export default function Article6Page() {
                     <span style={{ fontSize: 11, color: p.article6?.eligible ? '#00FF94' : '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>{p.article6?.readinessScore || 0}%</span>
                   </div>
                 </td>
-                <td style={{ padding: '10px 14px', fontSize: 13, color: '#38BDF8', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.article6?.itmoValueUSD)}</td>
-                <td style={{ padding: '10px 14px', fontSize: 13, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.article6?.verraValueUSD)}</td>
-                <td style={{ padding: '10px 14px', fontSize: 13, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>+${fmt(p.article6?.premiumUSD)}</td>
+                <td style={{ padding: '10px 14px', fontSize: 13, color: '#38BDF8', fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.article6?.itmoValueUSD)</td>
+                <td style={{ padding: '10px 14px', fontSize: 13, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.article6?.verraValueUSD)</td>
+                <td style={{ padding: '10px 14px', fontSize: 13, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>+${fmt(p.article6?.premiumUSD)</td>
                 <td style={{ padding: '10px 14px' }}>
                   <span style={{ fontSize: 10, padding: '3px 7px', borderRadius: 4, fontFamily: 'JetBrains Mono, monospace',
                     background: p.article6?.eligible ? 'rgba(0,255,148,0.1)' : 'rgba(252,211,77,0.1)',
                     color: p.article6?.eligible ? '#00FF94' : '#FCD34D',
-                    border: `1px solid ${p.article6?.eligible ? 'rgba(0,255,148,0.2)' : 'rgba(252,211,77,0.2)'}` }}>
+                    border: `1px solid ${p.article6?.eligible ? 'rgba(0,255,148,0.2)' : 'rgba(252,211,77,0.2)') }}>
                     {p.article6?.eligible ? 'ELIGIBLE' : 'IN PROGRESS'}
                   </span>
                 </td>

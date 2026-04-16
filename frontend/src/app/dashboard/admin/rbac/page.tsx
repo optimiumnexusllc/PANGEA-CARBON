@@ -177,7 +177,7 @@ export default function RBACPage() {
       {/* Toast */}
       {toast && (
         <div style={{position:'fixed',top:20,right:20,zIndex:99999,maxWidth:420}}>
-          <div style={{background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'}`, borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden'}}>
+          <div style={{background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden'}}>
             <div style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:toast.type==='error'?C.red:C.green}}/>
             <div style={{width:22,height:22,borderRadius:'50%',background:toast.type==='error'?'rgba(248,113,113,0.15)':'rgba(0,255,148,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:toast.type==='error'?C.red:C.green,fontWeight:800,marginLeft:8}}>{toast.type==='error'?'✗':'✓'}</div>
             <span style={{fontSize:13,color:C.text,flex:1}}>{toast.msg}</span>
@@ -201,7 +201,7 @@ export default function RBACPage() {
           ['audit','Audit Log','📋'],
         ] as [string,string,string][]).map(([id,label,icon])=>(
           <button key={id} onClick={()=>setTab(id as any)}
-            style={{padding:'11px 20px',border:'none',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'JetBrains Mono, monospace',borderBottom:`2px solid ${tab===id?C.red:'transparent'}`,background:'transparent',color:tab===id?C.red:C.muted,transition:'all .15s'}}>
+            style={{padding:'11px 20px',border:'none',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'JetBrains Mono, monospace',borderBottom:`2px solid ${tab===id?C.red:'transparent'),background:'transparent',color:tab===id?C.red:C.muted,transition:'all .15s'}}>
             {icon} {label}
           </button>
         ))}
@@ -220,7 +220,7 @@ export default function RBACPage() {
             {roles.map(role => {
               const m = ROLE_META[role];
               return (
-                <div key={role} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',background:`${m?.color||C.muted}10`,border:`1px solid ${m?.color||C.muted}30`,borderRadius:8}}>
+                <div key={role} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',background:`${m?.color||C.muted) + '10',border:`1px solid ${m?.color||C.muted) + '30',borderRadius:8}}>
                   <span style={{fontSize:14}}>{m?.icon}</span>
                   <div>
                     <div style={{fontSize:11,fontWeight:700,color:m?.color||C.muted,fontFamily:'JetBrains Mono, monospace'}}>{m?.label||role}</div>
@@ -254,8 +254,8 @@ export default function RBACPage() {
                   return (perms as string[]).map((perm, pi) => {
                     const full = mod+'.'+perm;
                     return (
-                      <tr key={full} style={{background: pi===0 ? `${mm?.color||C.muted}05` : 'transparent', borderBottom:'1px solid ' + C.border + '22'}}>
-                        <td style={{padding:'8px 14px',position:'sticky',left:0,background: pi===0 ? `${mm?.color||C.muted}08` : C.card, zIndex:5, borderBottom:'1px solid ' + C.border + '30'}}>
+                      <tr key={full} style={{background: pi===0 ? `${mm?.color||C.muted) + '05' : 'transparent', borderBottom:'1px solid ' + C.border + '22'}}>
+                        <td style={{padding:'8px 14px',position:'sticky',left:0,background: pi===0 ? `${mm?.color||C.muted) + '08' : C.card, zIndex:5, borderBottom:'1px solid ' + C.border + '30'}}>
                           {pi===0 && <div style={{fontSize:10,fontWeight:700,color:mm?.color||C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:2}}>{mm?.icon} {mm?.label||mod}</div>}
                           <div style={{fontSize:11,color:C.text2,paddingLeft: pi>0?14:0,fontFamily:'JetBrains Mono, monospace'}}>{perm}</div>
                         </td>
@@ -268,8 +268,8 @@ export default function RBACPage() {
                               <div style={{
                                 width:28, height:28, borderRadius:8, margin:'0 auto',
                                 display:'flex', alignItems:'center', justifyContent:'center',
-                                background: hasPerm ? `${ROLE_META[role]?.color||C.green}20` : `rgba(255,255,255,0.03)`,
-                                border: `1px solid ${hasPerm ? (ROLE_META[role]?.color||C.green)+'40' : C.border}`,
+                                background: hasPerm ? `${ROLE_META[role]?.color||C.green) + '20' : `rgba(255,255,255,0.03)`,
+                                border: `1px solid ${hasPerm ? (ROLE_META[role]?.color||C.green)+'40' : C.border),
                                 color: hasPerm ? (ROLE_META[role]?.color||C.green) : C.border,
                                 fontSize:14, fontWeight:800,
                                 transition:'all .15s',
@@ -320,7 +320,7 @@ export default function RBACPage() {
                       <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                         {['👥','⚡','🎯','🏢','📊','🔑','🛡','💰','📋','🔍','🌿','⚙️'].map(icon=>(
                           <button key={icon} onClick={()=>setGroupForm(f=>({...f,icon}))}
-                            style={{width:34,height:34,borderRadius:8,border:`1px solid ${groupForm.icon===icon?C.green:C.border}`,background:groupForm.icon===icon?'rgba(0,255,148,0.1)':C.card2,cursor:'pointer',fontSize:16}}>
+                            style={{width:34,height:34,borderRadius:8,border:`1px solid ${groupForm.icon===icon?C.green:C.border),background:groupForm.icon===icon?'rgba(0,255,148,0.1)':C.card2,cursor:'pointer',fontSize:16}}>
                             {icon}
                           </button>
                         ))}
@@ -339,7 +339,7 @@ export default function RBACPage() {
                       <div style={{display:'flex',gap:6}}>
                         {GROUP_COLORS.map(color=>(
                           <button key={color} onClick={()=>setGroupForm(f=>({...f,color}))}
-                            style={{width:28,height:28,borderRadius:'50%',background:color,border:`2px solid ${groupForm.color===color?'white':'transparent'}`,cursor:'pointer'}}/>
+                            style={{width:28,height:28,borderRadius:'50%',background:color,border:`2px solid ${groupForm.color===color?'white':'transparent'),cursor:'pointer'}}/>
                         ))}
                       </div>
                     </div>
@@ -369,7 +369,7 @@ export default function RBACPage() {
                                 const sel=groupForm.permissions.includes(full);
                                 return (
                                   <button key={perm} onClick={()=>toggleGroupPerm(full)}
-                                    style={{padding:'4px 10px',borderRadius:6,border:`1px solid ${sel?(mm?.color||C.green)+'50':C.border}`,background:sel?`${mm?.color||C.green}15`:C.card,color:sel?(mm?.color||C.green):C.muted,cursor:'pointer',fontSize:10,fontFamily:'JetBrains Mono, monospace',transition:'all .15s'}}>
+                                    style={{padding:'4px 10px',borderRadius:6,border:`1px solid ${sel?(mm?.color||C.green)+'50':C.border),background:sel?`${mm?.color||C.green) + '15':C.card,color:sel?(mm?.color||C.green):C.muted,cursor:'pointer',fontSize:10,fontFamily:'JetBrains Mono, monospace',transition:'all .15s'}}>
                                     {sel?'✓ ':''}{perm}
                                   </button>
                                 );
@@ -402,16 +402,16 @@ export default function RBACPage() {
           ) : groups.map(group => {
             const perms = (() => { try { return JSON.parse(group.permissions||'[]'); } catch(e) { return []; } })();
             return (
-              <div key={group.id} style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:20,marginBottom:12,borderLeft:`3px solid ${group.color||C.green}`}}>
+              <div key={group.id} style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:20,marginBottom:12,borderLeft:`3px solid ${group.color||C.green)}}>
                 <div style={{display:'flex',alignItems:'flex-start',gap:16}}>
-                  <div style={{width:44,height:44,borderRadius:12,background:`${group.color||C.green}15`,border:`1px solid ${group.color||C.green}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
+                  <div style={{width:44,height:44,borderRadius:12,background:`${group.color||C.green) + '15',border:`1px solid ${group.color||C.green) + '30',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
                     {group.icon||'👥'}
                   </div>
                   <div style={{flex:1}}>
                     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
                       <div style={{fontSize:15,fontWeight:700,color:C.text}}>{group.name}</div>
                       {group.isSystem && <span style={{fontSize:9,padding:'2px 7px',background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.3)',borderRadius:4,color:C.red,fontFamily:'JetBrains Mono, monospace'}}>SYSTÈME</span>}
-                      <span style={{fontSize:9,padding:'2px 7px',background:`${group.color||C.green}10`,border:`1px solid ${group.color||C.green}30`,borderRadius:4,color:group.color||C.green,fontFamily:'JetBrains Mono, monospace'}}>{group.members?.length||0} MEMBRES</span>
+                      <span style={{fontSize:9,padding:'2px 7px',background:`${group.color||C.green) + '10',border:`1px solid ${group.color||C.green) + '30',borderRadius:4,color:group.color||C.green,fontFamily:'JetBrains Mono, monospace'}}>{group.members?.length||0} MEMBRES</span>
                       {group.priority > 0 && <span style={{fontSize:9,padding:'2px 7px',background:'rgba(56,189,248,0.1)',borderRadius:4,color:C.blue,fontFamily:'JetBrains Mono, monospace'}}>PRIORITÉ {group.priority}</span>}
                     </div>
                     {group.description && <div style={{fontSize:12,color:C.muted,marginBottom:8}}>{group.description}</div>}
@@ -421,7 +421,7 @@ export default function RBACPage() {
                     {perms.length > 0 && (
                       <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:12}}>
                         {perms.slice(0,12).map((p:string)=>(
-                          <span key={p} style={{fontSize:9,padding:'2px 8px',background:`${group.color||C.green}10`,border:`1px solid ${group.color||C.green}20`,borderRadius:4,color:group.color||C.green,fontFamily:'JetBrains Mono, monospace'}}>
+                          <span key={p} style={{fontSize:9,padding:'2px 8px',background:`${group.color||C.green) + '10',border:`1px solid ${group.color||C.green) + '20',borderRadius:4,color:group.color||C.green,fontFamily:'JetBrains Mono, monospace'}}>
                             {p}
                           </span>
                         ))}
@@ -440,7 +440,7 @@ export default function RBACPage() {
                       ))}
                       {group.members?.length > 6 && <span style={{fontSize:10,color:C.muted}}>+{group.members.length-6}</span>}
                       <button onClick={()=>setAddingMember(addingMember===group.id?null:group.id)}
-                        style={{background:'transparent',border:`1px dashed ${C.border}`,borderRadius:20,color:C.muted,cursor:'pointer',fontSize:10,padding:'4px 10px'}}>
+                        style={{background:'transparent',border:`1px dashed ${C.border),borderRadius:20,color:C.muted,cursor:'pointer',fontSize:10,padding:'4px 10px'}}>
                         + Ajouter membre
                       </button>
                     </div>
@@ -485,8 +485,8 @@ export default function RBACPage() {
               const m=ROLE_META[u.role];
               return (
                 <div key={u.id} onClick={()=>{setSelectedUser(u);loadUserPerms(u.id);}}
-                  style={{display:'flex',alignItems:'center',gap:10,padding:'10px',borderRadius:10,cursor:'pointer',marginBottom:4,background:selectedUser?.id===u.id?`${m?.color||C.green}10`:C.card2,border:`1px solid ${selectedUser?.id===u.id?(m?.color||C.green)+'30':C.border}`,transition:'all .15s'}}>
-                  <div style={{width:28,height:28,borderRadius:'50%',background:`${m?.color||C.green}20`,border:`1px solid ${m?.color||C.green}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:m?.color||C.green,flexShrink:0}}>
+                  style={{display:'flex',alignItems:'center',gap:10,padding:'10px',borderRadius:10,cursor:'pointer',marginBottom:4,background:selectedUser?.id===u.id?`${m?.color||C.green) + '10':C.card2,border:`1px solid ${selectedUser?.id===u.id?(m?.color||C.green)+'30':C.border),transition:'all .15s'}}>
+                  <div style={{width:28,height:28,borderRadius:'50%',background:`${m?.color||C.green) + '20',border:`1px solid ${m?.color||C.green) + '30',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:m?.color||C.green,flexShrink:0}}>
                     {u.name?.[0]?.toUpperCase()}
                   </div>
                   <div style={{minWidth:0}}>
@@ -509,7 +509,7 @@ export default function RBACPage() {
               <div>
                 <div style={{background:C.card,border:'1px solid '+C.border,borderRadius:14,padding:20,marginBottom:16}}>
                   <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16}}>
-                    <div style={{width:44,height:44,borderRadius:12,background:`${ROLE_META[selectedUser.role]?.color||C.green}20`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
+                    <div style={{width:44,height:44,borderRadius:12,background:`${ROLE_META[selectedUser.role]?.color||C.green) + '20',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
                       {ROLE_META[selectedUser.role]?.icon}
                     </div>
                     <div>
@@ -527,7 +527,7 @@ export default function RBACPage() {
                           <div style={{fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8}}>GROUPES</div>
                           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                             {userPerms.groups.map((g:any)=>(
-                              <span key={g.id} style={{fontSize:11,padding:'4px 10px',background:`${g.color||C.green}15`,border:`1px solid ${g.color||C.green}30`,borderRadius:8,color:g.color||C.green}}>
+                              <span key={g.id} style={{fontSize:11,padding:'4px 10px',background:`${g.color||C.green) + '15',border:`1px solid ${g.color||C.green) + '30',borderRadius:8,color:g.color||C.green}}>
                                 {g.name} ({(g.permissions||[]).length} perms)
                               </span>
                             ))}
@@ -541,7 +541,7 @@ export default function RBACPage() {
                           <div style={{fontSize:10,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8}}>OVERRIDES PERSONNELS</div>
                           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                             {userPerms.userOverrides.map((o:any)=>(
-                              <span key={o.id} style={{fontSize:10,padding:'3px 8px',background:o.granted?'rgba(0,255,148,0.1)':'rgba(248,113,113,0.1)',border:`1px solid ${o.granted?'rgba(0,255,148,0.3)':'rgba(248,113,113,0.3)'}`,borderRadius:6,color:o.granted?C.green:C.red,fontFamily:'JetBrains Mono, monospace'}}>
+                              <span key={o.id} style={{fontSize:10,padding:'3px 8px',background:o.granted?'rgba(0,255,148,0.1)':'rgba(248,113,113,0.1)',border:`1px solid ${o.granted?'rgba(0,255,148,0.3)':'rgba(248,113,113,0.3)'),borderRadius:6,color:o.granted?C.green:C.red,fontFamily:'JetBrains Mono, monospace'}}>
                                 {o.granted?'✓':'-'} {o.permission}
                               </span>
                             ))}
@@ -557,7 +557,7 @@ export default function RBACPage() {
                         <div style={{maxHeight:300,overflowY:'auto',display:'flex',flexDirection:'column',gap:6}}>
                           {Object.entries(allPerms).map(([mod,perms])=>{
                             const mm=MODULE_META[mod];
-                            const modPerms=(perms as string[]).filter(p=>userPerms.effectivePermissions?.includes('*')||(userPerms.effectivePermissions||[]).includes(`${mod}.${p}`));
+                            const modPerms=(perms as string[]).filter(p=>userPerms.effectivePermissions?.includes('*')||(userPerms.effectivePermissions||[]).includes(`${mod}.${p)));
                             if(modPerms.length===0) return null;
                             return (
                               <div key={mod} style={{padding:'8px 12px',background:C.card2,borderRadius:8,display:'flex',gap:12,alignItems:'center'}}>
@@ -566,7 +566,7 @@ export default function RBACPage() {
                                   <div style={{fontSize:10,color:mm?.color||C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:4}}>{mm?.label||mod}</div>
                                   <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
                                     {modPerms.map(p=>(
-                                      <span key={p} style={{fontSize:9,padding:'2px 6px',background:`${mm?.color||C.green}10`,borderRadius:4,color:mm?.color||C.green,fontFamily:'JetBrains Mono, monospace'}}>{p}</span>
+                                      <span key={p} style={{fontSize:9,padding:'2px 6px',background:`${mm?.color||C.green) + '10',borderRadius:4,color:mm?.color||C.green,fontFamily:'JetBrains Mono, monospace'}}>{p}</span>
                                     ))}
                                   </div>
                                 </div>

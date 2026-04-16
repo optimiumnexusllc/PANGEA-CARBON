@@ -103,7 +103,7 @@ export default function MapPage() {
         className: 'pangea-popup',
         maxWidth: 260,
         closeButton: true,
-      }).setContent(`
+      )).setContent(
         <div style="background:#121920;border:1px solid #1E2D3D;border-radius:10px;padding:16px;font-family:Inter,sans-serif;color:#E8EFF6;min-width:220px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
             <span style="font-size:20px">${TYPE_ICONS[p.type]}</span>
@@ -116,11 +116,11 @@ export default function MapPage() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
               <div style="background:#0D1117;border-radius:6px;padding:8px;">
                 <div style="font-size:9px;color:#4A6278;margin-bottom:3px">CRÉDITS tCO₂e</div>
-                <div style="font-size:15px;font-weight:700;color:#00FF94">${fmt(mrv.netCarbonCredits)}</div>
+                <div style="font-size:15px;font-weight:700;color:#00FF94">${fmt(mrv.netCarbonCredits)</div>
               </div>
               <div style="background:#0D1117;border-radius:6px;padding:8px;">
                 <div style="font-size:9px;color:#4A6278;margin-bottom:3px">REVENUS USD</div>
-                <div style="font-size:15px;font-weight:700;color:#38BDF8">$${fmt(mrv.revenueUSD)}</div>
+                <div style="font-size:15px;font-weight:700;color:#38BDF8">$${fmt(mrv.revenueUSD)</div>
               </div>
             </div>
           ` : `<div style="font-size:11px;color:#4A6278;margin-top:8px">No data MRV — ajoutez des lectures</div>`}
@@ -180,7 +180,7 @@ export default function MapPage() {
           <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>LÉGENDE</div>
           {Object.entries(TYPE_ICONS).map(([type, icon]) => (
             <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: `${TYPE_COLORS[type]}20`, border: `1.5px solid ${TYPE_COLORS[type]}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>{icon}</div>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: `${TYPE_COLORS[type]) + '20', border: `1.5px solid ${TYPE_COLORS[type]), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>{icon}</div>
               <span style={{ fontSize: 11, color: '#8FA3B8' }}>{type}</span>
             </div>
           ))}
@@ -203,7 +203,7 @@ export default function MapPage() {
         {loading && (
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 1000 }}>
             <div style={{ width: 32, height: 32, border: '2px solid rgba(0,255,148,0.2)', borderTopColor: '#00FF94', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            <style>{`@keyframes spin{to{transform:rotate(360deg)})}</style>
           </div>
         )}
       </div>

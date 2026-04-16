@@ -175,8 +175,8 @@ export default function NewProjectPage() {
                   {form.countryCode && (
                     <button type="button" onClick={async () => {
                       try {
-                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/meta/geocode/${form.countryCode}`, {
-                          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/meta/geocode/${form.countryCode), {
+                          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')) }
                         });
                         if (res.ok) { const d = await res.json(); set('latitude', d.lat); set('longitude', d.lng); }
                       } catch(_e) {}

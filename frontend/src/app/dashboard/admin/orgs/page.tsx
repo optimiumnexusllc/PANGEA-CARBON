@@ -93,14 +93,14 @@ export default function AdminOrgsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
         {loading ? <div style={{ color: '#4A6278' }}>L('Loading...', 'Chargement...')</div> :
           orgs.map((org) => (
-            <div key={org.id} style={{ background: '#0D1117', border: `1px solid ${PLAN_COLOR[org.plan] || '#1E2D3D'}20`, borderRadius: 10, padding: 18 }}>
+            <div key={org.id} style={{ background: '#0D1117', border: `1px solid ${PLAN_COLOR[org.plan] || '#1E2D3D') + '20', borderRadius: 10, padding: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: '#E8EFF6' }}>{org.name}</div>
                   <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginTop: 2 }}>{org.slug}</div>
                 </div>
                 <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 5, fontFamily: 'JetBrains Mono, monospace',
-                  background: `${STATUS_COLOR[org.status]}15`, color: STATUS_COLOR[org.status], border: `1px solid ${STATUS_COLOR[org.status]}30`, height: 'fit-content' }}>
+                  background: `${STATUS_COLOR[org.status]) + '15', color: STATUS_COLOR[org.status], border: `1px solid ${STATUS_COLOR[org.status]) + '30', height: 'fit-content' }}>
                   {org.status}
                 </span>
               </div>
@@ -109,14 +109,14 @@ export default function AdminOrgsPage() {
                 {[['Projects', org._count?.projects, org.maxProjects],['Users', org._count?.users, org.maxUsers],['MW max', org.maxMW, null]].map(([label, val, max]) => (
                   <div key={String(label)} style={{ background: '#121920', borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 11, color: '#4A6278', marginBottom: 2 }}>{label}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#E8EFF6' }}>{String(val)}{max ? `/${max}` : ''}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#E8EFF6' }}>{String(val)}{max ? `/${max) : ''}</div>
                   </div>
                 ))}
               </div>
 
               <div style={{ display: 'flex', gap: 8 }}>
                 <select value={org.plan} onChange={e => updatePlan(org.id, e.target.value)}
-                  style={{ flex: 1, background: `${PLAN_COLOR[org.plan]}15`, border: `1px solid ${PLAN_COLOR[org.plan]}30`, borderRadius: 5, color: PLAN_COLOR[org.plan], padding: '5px 8px', fontSize: 12, cursor: 'pointer' }}>
+                  style={{ flex: 1, background: `${PLAN_COLOR[org.plan]) + '15', border: `1px solid ${PLAN_COLOR[org.plan]) + '30', borderRadius: 5, color: PLAN_COLOR[org.plan], padding: '5px 8px', fontSize: 12, cursor: 'pointer' }}>
                   {['FREE','TRIAL','STARTER','PRO','ENTERPRISE','CUSTOM'].map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
                 <select value={org.status} onChange={e => updateStatus(org.id, e.target.value)}

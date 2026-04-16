@@ -134,10 +134,10 @@ export default function DocsPage() {
                 const id = `${cat.category}-${i}`;
                 const isOpen = active === id;
                 return (
-                  <div key={id} style={{ background: '#0D1117', border: `1px solid ${isOpen ? cat.color + '30' : '#1E2D3D'}`, borderRadius: 10, overflow: 'hidden', transition: 'border-color 0.2s' }}>
+                  <div key={id} style={{ background: '#0D1117', border: `1px solid ${isOpen ? cat.color + '30' : '#1E2D3D'), borderRadius: 10, overflow: 'hidden', transition: 'border-color 0.2s' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', flexWrap: 'wrap', gap: 8 }}
                       onClick={() => setActive(isOpen ? null : id)}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: METHOD_COLOR[route.method], fontFamily: 'JetBrains Mono, monospace', background: `${METHOD_COLOR[route.method]}12`, border: `1px solid ${METHOD_COLOR[route.method]}25`, borderRadius: 4, padding: '2px 8px', flexShrink: 0 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: METHOD_COLOR[route.method], fontFamily: 'JetBrains Mono, monospace', background: `${METHOD_COLOR[route.method]) + '12', border: `1px solid ${METHOD_COLOR[route.method]) + '25', borderRadius: 4, padding: '2px 8px', flexShrink: 0 }}>
                         {route.method}
                       </span>
                       <code style={{ fontSize: 13, color: '#E8EFF6', fontFamily: 'JetBrains Mono, monospace', flex: 1 }}>{route.path}</code>
@@ -167,7 +167,7 @@ export default function DocsPage() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>CURL EXAMPLE</div>
                             <button onClick={() => copy(curlExample(route.method, route.path, route.body, route.auth), id)}
-                              style={{ background: copied === id ? 'rgba(0,255,148,0.15)' : 'transparent', border: `1px solid ${copied === id ? '#00FF94' : '#1E2D3D'}`, borderRadius: 5, color: copied === id ? '#00FF94' : '#4A6278', padding: '3px 8px', cursor: 'pointer', fontSize: 11 }}>
+                              style={{ background: copied === id ? 'rgba(0,255,148,0.15)' : 'transparent', border: `1px solid ${copied === id ? '#00FF94' : '#1E2D3D'), borderRadius: 5, color: copied === id ? '#00FF94' : '#4A6278', padding: '3px 8px', cursor: 'pointer', fontSize: 11 }}>
                               {copied === id ? '✓ Copié' : '📋 Copier'}
                             </button>
                           </div>

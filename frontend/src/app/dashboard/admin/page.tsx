@@ -26,7 +26,7 @@ export default function AdminOverviewPage() {
 
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
     <div style={{ width: 28, height: 28, border: '2px solid rgba(248,113,113,0.2)', borderTopColor: '#F87171', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
-    <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <style>{`@keyframes spin{to{transform:rotate(360deg)})}</style>
   </div>;
 
   const s = data?.stats || {};
@@ -41,7 +41,7 @@ export default function AdminOverviewPage() {
       {/* KPI Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { label: 'Users actifs', value: `${s.activeUsers} / ${s.totalUsers}`, color: '#00FF94', icon: '👤' },
+          { label: 'Users actifs', value: `${s.activeUsers} / ${s.totalUsers), color: '#00FF94', icon: '👤' },
           { label: 'Organizations', value: s.totalOrgs, color: '#38BDF8', icon: '🏢' },
           { label: 'MRV Projects', value: s.totalProjects, color: '#A78BFA', icon: '⚡' },
           { label: 'Credits tCO₂e total', value: fmt(s.totalCarbonCredits), color: '#00FF94', icon: '🌍' },

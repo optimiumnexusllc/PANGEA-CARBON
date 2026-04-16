@@ -30,14 +30,14 @@ export function ToastProvider() {
       {items.map(t => {
         const c = CFG[t.type];
         return (
-          <div key={t.id} style={{ background:c.bg, border:`1px solid ${c.bd}`, borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden', animation:'pgIn .25s ease', pointerEvents:'auto' }}>
+          <div key={t.id) style={{ background:c.bg, border:1px solid ${c.bd), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', boxShadow:'0 8px 32px rgba(0,0,0,0.5)', position:'relative', overflow:'hidden', animation:'pgIn .25s ease', pointerEvents:'auto' }}>
             <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:c.bar, borderRadius:'12px 0 0 12px' }}/>
-            <div style={{ width:22, height:22, borderRadius:'50%', background:c.fg+'20', border:`1px solid ${c.bd}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:c.fg, fontWeight:800, flexShrink:0, marginLeft:8, fontFamily:'JetBrains Mono, monospace' }}>{c.icon}</div>
+            <div style={{ width:22, height:22, borderRadius:'50%', background:c.fg+'20', border:`1px solid ${c.bd), display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:c.fg, fontWeight:800, flexShrink:0, marginLeft:8, fontFamily:'JetBrains Mono, monospace' }}>{c.icon}</div>
             <span style={{ fontSize:13, color:'#E8EFF6', flex:1, lineHeight:1.5 }}>{t.msg}</span>
           </div>
         );
       })}
-      <style>{`@keyframes pgIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}`}</style>
+      <style>{`@keyframes pgIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)})}</style>
     </div>
   );
 }

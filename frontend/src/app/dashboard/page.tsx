@@ -21,7 +21,7 @@ function TT({ active, payload, label }) {
   return (
     <div style={{ background: '#121920', border: '1px solid #1E2D3D', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
       <div style={{ color: '#4A6278', marginBottom: 4 }}>{label}</div>
-      {payload.map((p, i) => <div key={i} style={{ color: p.color || '#E8EFF6' }}>{fmt(p.value)}</div>)}
+      {payload.map((p, i) => <div key={i} style={{ color: p.color || '#E8EFF6' }}>{fmt(p.value)</div>)}
     </div>
   );
 }
@@ -111,7 +111,7 @@ export default function DashboardPage() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {kpis.map(k => (
-          <div key={k.label} style={{ background: '#0D1117', border: '1px solid ' + (k.color}18`, borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
+          <div key={k.label} style={{ background: '#0D1117', border: '1px solid ' + (k.color) + '18', borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 12, right: 14, fontSize: 22, opacity: 0.4 }}>{k.icon}</div>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>{k.label.toUpperCase()}</div>
             <div style={{ fontSize: 'clamp(18px,2.5vw,26px)', fontWeight: 800, color: k.color, fontFamily: 'Syne, sans-serif', lineHeight: 1.1 }}>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
               {alerts.map((alert) => {
                 const sty = SEVERITY_STYLE[alert.severity] || SEVERITY_STYLE.info;
                 return (
-                  <div key={alert.id} style={{ padding: '10px 12px', background: sty.bg, border: '1px solid ' + (sty.border}`, borderRadius: 8, fontSize: 12, color: sty.color }}>
+                  <div key={alert.id} style={{ padding: '10px 12px', background: sty.bg, border: '1px solid ' + (sty.border), borderRadius: 8, fontSize: 12, color: sty.color }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ flexShrink: 0 }}>{sty.icon}</span>
                       <span style={{ color: '#8FA3B8', lineHeight: 1.5 }}>{alert.message}</span>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
               <tbody>
                 {leaderboard.slice(0, 5).map((p, i) => (
                   <tr key={p.projectId} style={{ borderBottom: '1px solid rgba(30,45,61,0.4)', cursor: 'pointer' }}
-                    onClick={() => window.location.href = `/dashboard/projects/${p.projectId}`}
+                    onClick={() => window.location.href = `/dashboard/projects/${p.projectId)}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(30,45,61,0.3)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <td style={{ padding: '10px 14px', width: 36 }}>
@@ -233,11 +233,11 @@ export default function DashboardPage() {
                       <div style={{ fontSize: 10, color: '#4A6278' }}>{p.countryCode} · {p.type}</div>
                     </td>
                     <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.netCarbonCredits)}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#00FF94', fontFamily: 'JetBrains Mono, monospace' }}>{fmt(p.netCarbonCredits)</div>
                       <div style={{ fontSize: 10, color: '#4A6278' }}>tCO₂e</div>
                     </td>
                     <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                      <div style={{ fontSize: 13, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.revenueUSD)}</div>
+                      <div style={{ fontSize: 13, color: '#FCD34D', fontFamily: 'JetBrains Mono, monospace' }}>${fmt(p.revenueUSD)</div>
                     </td>
                   </tr>
                 ))}
@@ -280,7 +280,7 @@ export default function DashboardPage() {
               {quickActions.map(action => (
                 <a key={action.href} href={action.href}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', background: '#121920', borderRadius: 8, border: '1px solid #1E2D3D', textDecoration: 'none', transition: 'all 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = `${action.color}40`)}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = `${action.color) + '40')}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = '#1E2D3D')}>
                   <span style={{ fontSize: 15 }}>{action.icon}</span>
                   <span style={{ fontSize: 11, color: '#8FA3B8', fontWeight: 500 }}>{action.label}</span>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4})}</style>
     </div>
   );
 }

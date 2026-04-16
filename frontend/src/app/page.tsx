@@ -141,7 +141,7 @@ export default function LandingPage() {
   return (
     <div className="pangea-landing">
       {/* ── NAVBAR ─────────────────────────────── */}
-      <nav className={`pgc-nav ${scrolled ? 'pgc-nav--scrolled' : ''}`}>
+      <nav className={`pgc-nav ${scrolled ? 'pgc-nav--scrolled' : '')}>
         <div className="pgc-nav__inner">
           <a href="/" className="pgc-logo">
             <div className="pgc-logo__hex">⬡</div>
@@ -164,14 +164,14 @@ export default function LandingPage() {
           </div>
 
           <button className="pgc-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
-            <span className={`pgc-hamburger__bar ${menuOpen ? 'open' : ''}`}/>
-            <span className={`pgc-hamburger__bar ${menuOpen ? 'open' : ''}`}/>
-            <span className={`pgc-hamburger__bar ${menuOpen ? 'open' : ''}`}/>
+            <span className={`pgc-hamburger__bar ${menuOpen ? 'open' : '')}/>
+            <span className={`pgc-hamburger__bar ${menuOpen ? 'open' : '')}/>
+            <span className={`pgc-hamburger__bar ${menuOpen ? 'open' : '')}/>
           </button>
         </div>
 
         {/* Mobile menu */}
-        <div className={`pgc-mobile-menu ${menuOpen ? 'pgc-mobile-menu--open' : ''}`}>
+        <div className={`pgc-mobile-menu ${menuOpen ? 'pgc-mobile-menu--open' : '')}>
           {['#features', '#how', '#pricing', '#contact'].map((href, i) => (
             <a key={href} href={href} className="pgc-mobile-menu__link" onClick={() => setMenuOpen(false)}>
               {[L('Features','Fonctionnalités'), L('How it works','Comment ça marche'), L('Pricing','Tarifs'), 'Contact'][i]}
@@ -273,7 +273,7 @@ export default function LandingPage() {
           <div className="pgc-flow-grid">
             {FLOW.map((step, i) => (
               <div key={step.n} className="pgc-flow-step">
-                <div className={`pgc-flow-step__num ${i === 0 ? 'pgc-flow-step__num--active' : ''}`}>
+                <div className={`pgc-flow-step__num ${i === 0 ? 'pgc-flow-step__num--active' : '')}>
                   {step.n}
                 </div>
                 {i < FLOW.length - 1 && <div className="pgc-flow-step__line"/>}
@@ -327,7 +327,7 @@ export default function LandingPage() {
     "energy_mwh": 1250.5,
     "peak_power_mw": 48.2,
     "availability_pct": 98.5
-  }'`}</pre>
+  )'}</pre>
               <div className="pgc-terminal__result">
                 <span style={{ color: '#00FF94' }}>✓ 201 Created</span>
                 <span style={{ color: '#4A6278' }}> · MRV recalculé · 14.3 tCO₂e · $171</span>
@@ -344,8 +344,8 @@ export default function LandingPage() {
             <div className="pgc-eyebrow">PRICING</div>
             <h2 className="pgc-section__title">{L('Start free, scale without limits','Commencez gratuitement, grandissez sans limites')}</h2>
             <div className="pgc-toggle">
-              <button onClick={() => setAnnual(false)} className={`pgc-toggle__btn ${!annual ? 'active' : ''}`}>{L('Monthly','Mensuel')}</button>
-              <button onClick={() => setAnnual(true)} className={`pgc-toggle__btn ${annual ? 'active' : ''}`}>
+              <button onClick={() => setAnnual(false)) className={pgc-toggle__btn ${!annual ? 'active' : '')}>{L('Monthly','Mensuel')}</button>
+              <button onClick={() => setAnnual(true)) className={pgc-toggle__btn ${annual ? 'active' : '')}>
                 {L('Annual','Annuel')} <span className="pgc-toggle__save">−17%</span>
               </button>
             </div>
@@ -369,9 +369,9 @@ export default function LandingPage() {
                 features:[L('Everything in Pro','Tout le Pro'),'White-label','SSO SAML','SLA 99.9%',L('Dedicated CSM','CSM dédié'),L('Custom integrations','Intégrations custom'),L('Unlimited users','Utilisateurs illimités'),L('ESG verification service','Service vérification ESG')],
                 cta:L('Contact us','Nous contacter'), href:null, ghost:true },
             ].map(plan=>(
-              <div key={plan.name} style={{ background:'#0D1117', border:`2px solid ${plan.badge?plan.color+'40':plan.color+'18'}`, borderRadius:16, padding:'22px 20px', position:'relative', overflow:'hidden', display:'flex', flexDirection:'column' }}>
+              <div key={plan.name) style={{ background:'#0D1117', border:2px solid ${plan.badge?plan.color+'40':plan.color+'18'), borderRadius:16, padding:'22px 20px', position:'relative', overflow:'hidden', display:'flex', flexDirection:'column' }}>
                 {plan.badge && <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:plan.color }}/>}
-                {plan.badge && <div style={{ position:'absolute', top:12, right:12, fontSize:8, color:plan.color, background:plan.color+'15', border:`1px solid ${plan.color}40`, borderRadius:20, padding:'2px 8px', fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{plan.badge}</div>}
+                {plan.badge && <div style={{ position:'absolute', top:12, right:12, fontSize:8, color:plan.color, background:plan.color+'15', border:`1px solid ${plan.color) + '40', borderRadius:20, padding:'2px 8px', fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{plan.badge}</div>}
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
                   <span style={{ fontSize:22 }}>{plan.icon}</span>
                   <span style={{ fontSize:14, fontWeight:800, color:plan.color, fontFamily:'Syne, sans-serif' }}>{plan.name.toUpperCase()}</span>
@@ -391,7 +391,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 {plan.href?(
-                  <a href={plan.href} className={`pgc-btn pgc-btn--full ${plan.badge?'pgc-btn--primary':plan.ghost?'pgc-btn--outline':''}`} style={plan.badge?{}:{borderColor:plan.color+'50',color:plan.color}}>
+                  <a href={plan.href) className={pgc-btn pgc-btn--full ${plan.badge?'pgc-btn--primary':plan.ghost?'pgc-btn--outline':'')} style={plan.badge?{}:{borderColor:plan.color+'50',color:plan.color}}>
                     {plan.cta}
                   </a>
                 ):(

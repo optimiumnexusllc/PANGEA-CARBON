@@ -199,7 +199,7 @@ export default function TokensPage() {
         {/* Right: Result + token list */}
         <div>
           {result && (
-            <div style={{ background: '#0D1117', border: `2px solid ${typeInfo.color}40`, borderRadius: 14, padding: 24, marginBottom: 20 }}>
+            <div style={{ background: '#0D1117', border: `2px solid ${typeInfo.color) + '40', borderRadius: 14, padding: 24, marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -296,7 +296,7 @@ export default function TokensPage() {
         </div>
       </div>
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3})}</style>
     </div>
   );
 }

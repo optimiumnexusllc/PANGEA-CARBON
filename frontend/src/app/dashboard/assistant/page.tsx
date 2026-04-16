@@ -98,7 +98,7 @@ export default function AssistantPage() {
             Effacer
           </button>
         </div>
-        <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+        <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4})}</style>
       </div>
 
       {/* Messages */}
@@ -130,7 +130,7 @@ export default function AssistantPage() {
           </div>
         )}
         <div ref={bottomRef}/>
-        <style>{`@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}`}</style>
+        <style>{`@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)})}</style>
       </div>
 
       {/* Suggestions */}

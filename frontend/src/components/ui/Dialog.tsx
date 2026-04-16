@@ -37,7 +37,7 @@ export function Dialog({ open, onClose, title, subtitle, icon, variant = 'defaul
         <div style={{ height:1, background:'linear-gradient(90deg,' + (v.bd) + ' 0%,transparent 100%)', marginBottom:20 }}/>
         {children}
       </div>
-      <style>{`@keyframes pgDlg{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+      <style>{`@keyframes pgDlg{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)})}</style>
     </div>
   );
 }
@@ -53,7 +53,7 @@ export function ConfirmDialog({ open, onClose, onConfirm, title, message, confir
       <div style={{ display:'flex', gap:10 }}>
         <button onClick={onClose} style={{ flex:1, background:'transparent', border:'1px solid #1E2D3D', borderRadius:9, color:'#4A6278', padding:11, cursor:'pointer', fontSize:13 }}>{cancelLabel}</button>
         <button onClick={onConfirm} disabled={loading}
-          style={{ flex:1, background:loading?'#1E2D3D':fg+'15', border:`1px solid ${fg}40`, borderRadius:9, color:loading?'#4A6278':fg, padding:11, fontWeight:700, cursor:loading?'wait':'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
+          style={{ flex:1, background:loading?'#1E2D3D':fg+'15', border:`1px solid ${fg) + '40', borderRadius:9, color:loading?'#4A6278':fg, padding:11, fontWeight:700, cursor:loading?'wait':'pointer', fontSize:13, fontFamily:'Syne, sans-serif' }}>
           {loading ? '⟳' : confirmLabel}
         </button>
       </div>

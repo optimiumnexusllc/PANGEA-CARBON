@@ -514,7 +514,7 @@ export default function ApiKeysPage() {
       {/* Toast */}
       {toast && (
         <div style={{ position:'fixed',top:20,right:20,zIndex:99999,maxWidth:420 }}>
-          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'}`, borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', position:'relative', overflow:'hidden' }}>
+          <div style={{ background:toast.type==='error'?'rgba(248,113,113,0.1)':'rgba(0,255,148,0.08)', border:`1px solid ${toast.type==='error'?'rgba(248,113,113,0.35)':'rgba(0,255,148,0.3)'), borderRadius:12, padding:'14px 18px', display:'flex', alignItems:'center', gap:12, backdropFilter:'blur(20px)', position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute',left:0,top:0,bottom:0,width:3,background:toast.type==='error'?C.red:C.green }}/>
             <div style={{ fontSize:12,color:toast.type==='error'?C.red:C.green,fontWeight:800,marginLeft:8 }}>{toast.type==='error'?'✗':'✓'}</div>
             <span style={{ fontSize:13,color:C.text }}>{toast.msg}</span>
@@ -546,7 +546,7 @@ export default function ApiKeysPage() {
           { v:revokedKeys.length,   l:'Clés révoquées',   c:C.muted,  icon:'✗',  s:'archivées' },
         ].map(s => (
           <div key={s.l} style={{ background:C.card,border:'1px solid '+s.c+'20',borderRadius:14,padding:'16px 20px',flex:1,minWidth:140,position:'relative',overflow:'hidden' }}>
-            <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,'+s.c} 0%,transparent 100%) }}/>
+            <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,' + s.c + ' 0%,transparent 100%)' }}/>
             <div style={{ fontSize:9,color:s.c,fontFamily:'JetBrains Mono, monospace',marginBottom:2 }}>{s.icon}</div>
             <div style={{ fontSize:22,fontWeight:800,color:s.c,fontFamily:'JetBrains Mono, monospace',lineHeight:1 }}>{s.v}</div>
             <div style={{ fontSize:11,color:C.text,fontWeight:600,marginTop:6 }}>{s.l}</div>
@@ -567,7 +567,7 @@ export default function ApiKeysPage() {
             </div>
           </div>
           <div style={{ display:'flex',gap:10,alignItems:'center' }}>
-            <code style={{ flex:1,fontFamily:'JetBrains Mono, monospace',fontSize:13,color:C.text,background:C.card,padding:'12px 16px',borderRadius:9,border:`1px solid ${C.border}`,wordBreak:'break-all',letterSpacing:'0.05em' }}>
+            <code style={{ flex:1,fontFamily:'JetBrains Mono, monospace',fontSize:13,color:C.text,background:C.card,padding:'12px 16px',borderRadius:9,border:`1px solid ${C.border),wordBreak:'break-all',letterSpacing:'0.05em' }}>
               {newKey}
             </code>
             <button onClick={() => copyKey(newKey)}
@@ -582,7 +582,7 @@ export default function ApiKeysPage() {
       )}
 
       {/* Tabs */}
-      <div style={{ display:'flex',gap:2,marginBottom:24,borderBottom:`1px solid ${C.border}` }}>
+      <div style={{ display:'flex',gap:2,marginBottom:24,borderBottom:`1px solid ${C.border) }}>
         {([
           ['keys',     L('My Keys','Mes Clés'),            '🔑'],
           ['docs',     L('API Reference','Référence API'), '📄'],
@@ -590,7 +590,7 @@ export default function ApiKeysPage() {
           ['logs',     L('Usage Logs','Logs usage'),    '📊'],
         ] as [string,string,string][]).map(([id,label,icon]) => (
           <button key={id} onClick={() => setTab(id as any)}
-            style={{ padding:'11px 20px',border:'none',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'JetBrains Mono, monospace',borderBottom:`2px solid ${tab===id?C.blue:'transparent'}`,background:'transparent',color:tab===id?C.blue:C.muted,transition:'all .15s' }}>
+            style={{ padding:'11px 20px',border:'none',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'JetBrains Mono, monospace',borderBottom:`2px solid ${tab===id?C.blue:'transparent'),background:'transparent',color:tab===id?C.blue:C.muted,transition:'all .15s' }}>
             {icon} {label}
           </button>
         ))}
@@ -602,7 +602,7 @@ export default function ApiKeysPage() {
           {loading ? (
             <div style={{ textAlign:'center',padding:48,color:C.muted,fontFamily:'JetBrains Mono, monospace',fontSize:11 }}>◌ Chargement des clés...</div>
           ) : keys.length === 0 ? (
-            <div style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:56,textAlign:'center' }}>
+            <div style={{ background:C.card,border:`1px solid ${C.border),borderRadius:14,padding:56,textAlign:'center' }}>
               <div style={{ fontSize:48,marginBottom:16 }}>🔑</div>
               <div style={{ fontSize:16,color:C.text,fontWeight:700,marginBottom:8 }}>Aucune clé API</div>
               <div style={{ fontSize:13,color:C.muted,marginBottom:20 }}>Créez votre première clé pour connecter vos équipements solaires et systèmes tiers</div>
@@ -618,12 +618,12 @@ export default function ApiKeysPage() {
                   <div style={{ fontSize:9,color:C.green,fontFamily:'JetBrains Mono, monospace',marginBottom:12,letterSpacing:'0.1em' }}>✓ CLÉS ACTIVES — {activeKeys.length}</div>
                   <div style={{ display:'flex',flexDirection:'column',gap:8 }}>
                     {activeKeys.map(key => (
-                      <div key={key.id} style={{ background:C.card,border:`1px solid rgba(0,255,148,0.12)`,borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',gap:16,borderLeft:`3px solid ${C.green}` }}>
+                      <div key={key.id) style={{ background:C.card,border:1px solid rgba(0,255,148,0.12),borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',gap:16,borderLeft:`3px solid ${C.green) }}>
                         <div style={{ width:10,height:10,borderRadius:'50%',background:C.green,boxShadow:'0 0 8px rgba(0,255,148,0.5)',flexShrink:0,animation:'pgPulse 2s infinite' }}/>
                         <div style={{ flex:1,minWidth:0 }}>
                           <div style={{ fontSize:14,fontWeight:700,color:C.text,marginBottom:4 }}>{key.name}</div>
                           <div style={{ display:'flex',alignItems:'center',gap:12,flexWrap:'wrap' }}>
-                            <code style={{ fontSize:11,color:C.muted,fontFamily:'JetBrains Mono, monospace',background:C.card2,padding:'2px 8px',borderRadius:4,border:`1px solid ${C.border}` }}>
+                            <code style={{ fontSize:11,color:C.muted,fontFamily:'JetBrains Mono, monospace',background:C.card2,padding:'2px 8px',borderRadius:4,border:`1px solid ${C.border) }}>
                               {key.keyPrefix || 'pgc_'}••••••••••••••••••••
                             </code>
                             {key.lastUsedAt && (
@@ -650,7 +650,7 @@ export default function ApiKeysPage() {
                   <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:12,letterSpacing:'0.1em' }}>✗ RÉVOQUÉES — {revokedKeys.length}</div>
                   <div style={{ display:'flex',flexDirection:'column',gap:6,opacity:0.5 }}>
                     {revokedKeys.map(key => (
-                      <div key={key.id} style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:'12px 16px',display:'flex',alignItems:'center',gap:14,borderLeft:`3px solid ${C.red}` }}>
+                      <div key={key.id} style={{ background:C.card,border:`1px solid ${C.border),borderRadius:10,padding:'12px 16px',display:'flex',alignItems:'center',gap:14,borderLeft:`3px solid ${C.red) }}>
                         <div style={{ width:8,height:8,borderRadius:'50%',background:C.red,flexShrink:0 }}/>
                         <div style={{ flex:1 }}>
                           <div style={{ fontSize:13,color:C.text2 }}>{key.name}</div>
@@ -683,20 +683,20 @@ export default function ApiKeysPage() {
             <p style={{ fontSize:13,color:C.text2,margin:'0 0 12px',lineHeight:1.7 }}>
               Toutes les requêtes API doivent inclure votre clé dans le header <code style={{ color:C.blue,background:C.card2,padding:'1px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace' }}>X-API-Key</code>.
             </p>
-            <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'14px 16px' }}>
-              <pre style={{ margin:0,fontSize:12,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.7 }}>{`curl -X GET https://pangea-carbon.com/api/projects \\
+            <div style={{ background:C.card2,border:`1px solid ${C.border),borderRadius:9,padding:'14px 16px' }}>
+              <pre style={{ margin:0,fontSize:12,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.7 )}>{curl -X GET https://pangea-carbon.com/api/projects \\
   -H "X-API-Key: pgc_votre_cle_ici" \\
   -H "Content-Type: application/json"`}</pre>
             </div>
           </div>
 
           {/* Scopes */}
-          <div style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:22,marginBottom:20 }}>
+          <div style={{ background:C.card,border:`1px solid ${C.border),borderRadius:14,padding:22,marginBottom:20 }}>
             <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:14,letterSpacing:'0.1em' }}>SCOPES DISPONIBLES</div>
             <div style={{ display:'flex',flexDirection:'column',gap:8 }}>
               {SCOPES.map(scope => (
-                <div key={scope.id} style={{ display:'flex',alignItems:'center',gap:14,padding:'10px 14px',background:C.card2,borderRadius:10,border:`1px solid ${scope.color}20` }}>
-                  <code style={{ fontSize:11,padding:'3px 10px',background:`${scope.color}15`,border:`1px solid ${scope.color}30`,borderRadius:6,color:scope.color,fontFamily:'JetBrains Mono, monospace',flexShrink:0 }}>{scope.id}</code>
+                <div key={scope.id) style={{ display:'flex',alignItems:'center',gap:14,padding:'10px 14px',background:C.card2,borderRadius:10,border:1px solid ${scope.color) + '20' }}>
+                  <code style={{ fontSize:11,padding:'3px 10px',background:`${scope.color) + '15',border:`1px solid ${scope.color) + '30',borderRadius:6,color:scope.color,fontFamily:'JetBrains Mono, monospace',flexShrink:0 }}>{scope.id}</code>
                   <span style={{ fontSize:12,color:C.text2,flex:1 }}>{scope.desc}</span>
                 </div>
               ))}
@@ -704,11 +704,11 @@ export default function ApiKeysPage() {
           </div>
 
           {/* Endpoints table */}
-          <div style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:14,overflow:'hidden',marginBottom:20 }}>
-            <div style={{ padding:'16px 20px',borderBottom:`1px solid ${C.border}`,fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.1em' }}>ENDPOINTS RÉFÉRENCE</div>
+          <div style={{ background:C.card,border:`1px solid ${C.border),borderRadius:14,overflow:'hidden',marginBottom:20 }}>
+            <div style={{ padding:'16px 20px',borderBottom:`1px solid ${C.border),fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.1em' }}>ENDPOINTS RÉFÉRENCE</div>
             {ENDPOINTS.map((ep, i) => (
-              <div key={ep.path} style={{ display:'flex',alignItems:'center',gap:14,padding:'12px 20px',borderBottom: i < ENDPOINTS.length-1 ? `1px solid ${C.border}22` : 'none',background: i%2===0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
-                <span style={{ fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:5,background:`${METHOD_C[ep.method]}15`,color:METHOD_C[ep.method],fontFamily:'JetBrains Mono, monospace',flexShrink:0,width:42,textAlign:'center' }}>{ep.method}</span>
+              <div key={ep.path) style={{ display:'flex',alignItems:'center',gap:14,padding:'12px 20px',borderBottom: i < ENDPOINTS.length-1 ? 1px solid ${C.border) + '22' : 'none',background: i%2===0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                <span style={{ fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:5,background:`${METHOD_C[ep.method]) + '15',color:METHOD_C[ep.method],fontFamily:'JetBrains Mono, monospace',flexShrink:0,width:42,textAlign:'center' }}>{ep.method}</span>
                 <code style={{ fontSize:12,color:C.blue,fontFamily:'JetBrains Mono, monospace',flex:1 }}>{ep.path}</code>
                 <span style={{ fontSize:11,color:C.text2,flex:2 }}>{ep.desc}</span>
                 <span style={{ fontSize:9,padding:'2px 7px',background:`rgba(56,189,248,0.1)`,borderRadius:4,color:C.blue,fontFamily:'JetBrains Mono, monospace',flexShrink:0 }}>{ep.scope}</span>
@@ -727,7 +727,7 @@ export default function ApiKeysPage() {
     "energy_mwh": 125.5,
     "timestamp": "2025-01-15T10:00:00Z",
     "source": "sma_inverter_01"
-  }'` },
+  )' },
               { title:'📦 Bulk import (CSV/JSON)', scope:'equipment', code:`curl -X POST https://pangea-carbon.com/api/equipment/readings/bulk \\
   -H "X-API-Key: pgc_votre_cle" \\
   -H "Content-Type: application/json" \\
@@ -737,7 +737,7 @@ export default function ApiKeysPage() {
       {"energy_mwh": 125.5, "timestamp": "2025-01-15T10:00:00Z"},
       {"energy_mwh": 130.2, "timestamp": "2025-01-15T11:00:00Z"}
     ]
-  }'` },
+  )' },
               { title:'📁 Lister vos projets',     scope:'read', code:`curl -X GET https://pangea-carbon.com/api/projects \\
   -H "X-API-Key: pgc_votre_cle"
 
@@ -752,7 +752,7 @@ export default function ApiKeysPage() {
       "countryCode": "CI"
     }
   ]
-}` },
+) },
               { title:'🌿 Calculer les crédits',   scope:'read', code:`curl -X GET https://pangea-carbon.com/api/mrv/cma123/calculate \\
   -H "X-API-Key: pgc_votre_cle"
 
@@ -763,10 +763,10 @@ export default function ApiKeysPage() {
   "netCredits": 17879.5,
   "gridEmissionFactor": 0.547,
   "methodology": "ACM0002"
-}` },
+) },
             ].map(ex => (
-              <div key={ex.title} style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden' }}>
-                <div style={{ padding:'12px 16px',borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center' }}>
+              <div key={ex.title) style={{ background:C.card,border:1px solid ${C.border),borderRadius:12,overflow:'hidden' }}>
+                <div style={{ padding:'12px 16px',borderBottom:`1px solid ${C.border),display:'flex',justifyContent:'space-between',alignItems:'center' }}>
                   <span style={{ fontSize:12,fontWeight:700,color:C.text }}>{ex.title}</span>
                   <span style={{ fontSize:9,padding:'2px 7px',background:'rgba(56,189,248,0.1)',borderRadius:4,color:C.blue,fontFamily:'JetBrains Mono, monospace' }}>{ex.scope}</span>
                 </div>
@@ -801,7 +801,7 @@ export default function ApiKeysPage() {
           <div style={{ display:'flex',gap:6,marginBottom:20,flexWrap:'wrap' }}>
             {INTEG_CATEGORIES.map(cat => (
               <button key={cat.id} onClick={() => setIntegFilter(cat.id)}
-                style={{ padding:'6px 14px',borderRadius:20,border:`1px solid ${integFilter===cat.id?C.blue:C.border}`,background:integFilter===cat.id?'rgba(56,189,248,0.1)':C.card,color:integFilter===cat.id?C.blue:C.muted,cursor:'pointer',fontSize:11,fontFamily:'JetBrains Mono, monospace',transition:'all .15s' }}>
+                style={{ padding:'6px 14px',borderRadius:20,border:`1px solid ${integFilter===cat.id?C.blue:C.border),background:integFilter===cat.id?'rgba(56,189,248,0.1)':C.card,color:integFilter===cat.id?C.blue:C.muted,cursor:'pointer',fontSize:11,fontFamily:'JetBrains Mono, monospace',transition:'all .15s' }}>
                 {cat.icon} {cat.label}
               </button>
             ))}
@@ -825,7 +825,7 @@ export default function ApiKeysPage() {
               return true;
             }).map(integ => (
               <div key={integ.slug} onClick={() => setSelectedIntegration(selectedIntegration?.slug===integ.slug?null:integ)}
-                style={{ background:C.card,border:`1px solid ${selectedIntegration?.slug===integ.slug?integ.color:C.border}`,borderRadius:12,padding:16,cursor:'pointer',transition:'all .2s',position:'relative',overflow:'hidden' }}>
+                style={{ background:C.card,border:`1px solid ${selectedIntegration?.slug===integ.slug?integ.color:C.border),borderRadius:12,padding:16,cursor:'pointer',transition:'all .2s',position:'relative',overflow:'hidden' }}>
                 <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:selectedIntegration?.slug===integ.slug?integ.color:'transparent',transition:'background .2s' }}/>
                 <div style={{ display:'flex',alignItems:'flex-start',gap:10,marginBottom:10 }}>
                   <span style={{ fontSize:22,flexShrink:0 }}>{integ.icon}</span>
@@ -852,10 +852,10 @@ export default function ApiKeysPage() {
 
           {/* Détail intégration sélectionnée */}
           {selectedIntegration && (
-            <div style={{ background:C.card,border:`1px solid ${selectedIntegration.color}30`,borderRadius:16,padding:28 }}>
+            <div style={{ background:C.card,border:`1px solid ${selectedIntegration.color) + '30',borderRadius:16,padding:28 }}>
               {/* Header */}
               <div style={{ display:'flex',gap:14,alignItems:'center',marginBottom:20 }}>
-                <div style={{ width:52,height:52,borderRadius:14,background:selectedIntegration.color+'15',border:`1px solid ${selectedIntegration.color}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,flexShrink:0 }}>{selectedIntegration.icon}</div>
+                <div style={{ width:52,height:52,borderRadius:14,background:selectedIntegration.color+'15',border:`1px solid ${selectedIntegration.color) + '30',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,flexShrink:0 }}>{selectedIntegration.icon}</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:9,color:selectedIntegration.color,fontFamily:'JetBrains Mono, monospace',letterSpacing:'0.12em',marginBottom:4 }}>
                     {selectedIntegration.category==='aggregator'?'AGRÉGATEUR MULTI-MARQUES':'CONFIGURATION INTÉGRATION'} · {selectedIntegration.apiType}
@@ -865,7 +865,7 @@ export default function ApiKeysPage() {
                 </div>
                 {selectedIntegration.docs && (
                   <a href={selectedIntegration.docs} target="_blank" rel="noreferrer"
-                    style={{ fontSize:11,color:selectedIntegration.color,textDecoration:'none',background:selectedIntegration.color+'10',border:`1px solid ${selectedIntegration.color}30`,borderRadius:8,padding:'8px 14px',flexShrink:0 }}>
+                    style={{ fontSize:11,color:selectedIntegration.color,textDecoration:'none',background:selectedIntegration.color+'10',border:`1px solid ${selectedIntegration.color) + '30',borderRadius:8,padding:'8px 14px',flexShrink:0 }}>
                     📖 Docs officielles →
                   </a>
                 )}
@@ -873,7 +873,7 @@ export default function ApiKeysPage() {
               <div style={{ height:1,background:'linear-gradient(90deg,'+selectedIntegration.color+'30 0%,transparent 100%)',marginBottom:24 }}/>
 
               {selectedIntegration.note && (
-                <div style={{ padding:'10px 14px',background:selectedIntegration.color+'08',border:`1px solid ${selectedIntegration.color}20`,borderRadius:9,marginBottom:20,fontSize:12,color:selectedIntegration.color }}>
+                <div style={{ padding:'10px 14px',background:selectedIntegration.color+'08',border:`1px solid ${selectedIntegration.color) + '20',borderRadius:9,marginBottom:20,fontSize:12,color:selectedIntegration.color }}>
                   {selectedIntegration.note}
                 </div>
               )}
@@ -881,14 +881,14 @@ export default function ApiKeysPage() {
               <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:20 }}>
                 <div>
                   <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>BASE URL</div>
-                  <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'10px 14px',display:'flex',gap:8,alignItems:'center' }}>
+                  <div style={{ background:C.card2,border:`1px solid ${C.border),borderRadius:9,padding:'10px 14px',display:'flex',gap:8,alignItems:'center' }}>
                     <code style={{ flex:1,fontSize:11,color:C.blue,fontFamily:'JetBrains Mono, monospace',wordBreak:'break-all' }}>{selectedIntegration.baseUrl}</code>
-                    <button onClick={() => copyKey(selectedIntegration.baseUrl)} style={{ background:'transparent',border:`1px solid ${C.border}`,borderRadius:5,color:C.muted,cursor:'pointer',padding:'3px 7px',fontSize:9,flexShrink:0 }}>📋</button>
+                    <button onClick={() => copyKey(selectedIntegration.baseUrl)) style={{ background:'transparent',border:1px solid ${C.border),borderRadius:5,color:C.muted,cursor:'pointer',padding:'3px 7px',fontSize:9,flexShrink:0 }}>📋</button>
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>AUTHENTIFICATION</div>
-                  <div style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'10px 14px' }}>
+                  <div style={{ background:C.card2,border:`1px solid ${C.border),borderRadius:9,padding:'10px 14px' }}>
                     <code style={{ fontSize:11,color:C.green,fontFamily:'JetBrains Mono, monospace',display:'block',whiteSpace:'pre-wrap',lineHeight:1.7 }}>{selectedIntegration.authHeader}</code>
                   </div>
                 </div>
@@ -900,7 +900,7 @@ export default function ApiKeysPage() {
                   <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:10 }}>ÉTAPES D'INTÉGRATION</div>
                   {selectedIntegration.steps?.map((step, i) => (
                     <div key={i} style={{ display:'flex',gap:10,marginBottom:8,alignItems:'flex-start' }}>
-                      <div style={{ width:20,height:20,borderRadius:'50%',background:selectedIntegration.color+'20',border:`1px solid ${selectedIntegration.color}40`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:selectedIntegration.color,flexShrink:0 }}>{i+1}</div>
+                      <div style={{ width:20,height:20,borderRadius:'50%',background:selectedIntegration.color+'20',border:`1px solid ${selectedIntegration.color) + '40',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:selectedIntegration.color,flexShrink:0 }}>{i+1}</div>
                       <span style={{ fontSize:12,color:C.text2,lineHeight:1.5 }}>{step}</span>
                     </div>
                   ))}
@@ -909,13 +909,13 @@ export default function ApiKeysPage() {
                 {/* Payload + Params */}
                 <div>
                   <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:8 }}>PAYLOAD EXEMPLE</div>
-                  <pre style={{ background:C.card2,border:`1px solid ${C.border}`,borderRadius:9,padding:'12px 14px',margin:'0 0 12px',fontSize:10,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.7,overflowX:'auto',maxHeight:200 }}>
+                  <pre style={{ background:C.card2,border:`1px solid ${C.border),borderRadius:9,padding:'12px 14px',margin:'0 0 12px',fontSize:10,color:C.text2,fontFamily:'JetBrains Mono, monospace',lineHeight:1.7,overflowX:'auto',maxHeight:200 }}>
                     {JSON.stringify(selectedIntegration.payload||{}, null, 2)}
                   </pre>
                   <div style={{ fontSize:9,color:C.muted,fontFamily:'JetBrains Mono, monospace',marginBottom:6 }}>CHAMPS CLÉS À MAPPER</div>
                   <div style={{ display:'flex',flexWrap:'wrap',gap:6 }}>
                     {selectedIntegration.params?.map(p => (
-                      <span key={p} style={{ fontSize:9,padding:'3px 8px',background:selectedIntegration.color+'10',border:`1px solid ${selectedIntegration.color}25`,borderRadius:5,color:selectedIntegration.color,fontFamily:'JetBrains Mono, monospace' }}>{p}</span>
+                      <span key={p) style={{ fontSize:9,padding:'3px 8px',background:selectedIntegration.color+'10',border:1px solid ${selectedIntegration.color) + '25',borderRadius:5,color:selectedIntegration.color,fontFamily:'JetBrains Mono, monospace' }}>{p}</span>
                     ))}
                   </div>
                   {selectedIntegration.rateLimit && (
@@ -946,7 +946,7 @@ export default function ApiKeysPage() {
 
       {/* ── LOGS TAB ─────────────────────────────────────────────────────────── */}
       {tab === 'logs' && (
-        <div style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:40,textAlign:'center' }}>
+        <div style={{ background:C.card,border:`1px solid ${C.border),borderRadius:14,padding:40,textAlign:'center' }}>
           <div style={{ fontSize:40,marginBottom:16 }}>📊</div>
           <div style={{ fontSize:16,color:C.text,fontWeight:700,marginBottom:8 }}>Usage Analytics</div>
           <div style={{ fontSize:13,color:C.muted,maxWidth:400,margin:'0 auto',lineHeight:1.7 }}>
@@ -988,7 +988,7 @@ export default function ApiKeysPage() {
                     <button key={scope.id} type="button" onClick={() => {
                       const next = sel ? newKeyScopes.filter(s=>s!==scope.id) : [...newKeyScopes, scope.id];
                       setNewKeyScopes(next);
-                    }} style={{ padding:'7px 12px',borderRadius:8,border:`1px solid ${sel?scope.color+'50':C.border}`,background:sel?`${scope.color}12`:C.card2,color:sel?scope.color:C.muted,cursor:'pointer',fontSize:11,fontFamily:'JetBrains Mono, monospace',transition:'all .15s' }}>
+                    }} style={{ padding:'7px 12px',borderRadius:8,border:`1px solid ${sel?scope.color+'50':C.border),background:sel?`${scope.color) + '12':C.card2,color:sel?scope.color:C.muted,cursor:'pointer',fontSize:11,fontFamily:'JetBrains Mono, monospace',transition:'all .15s' }}>
                       {sel ? '✓ ' : ''}{scope.id}
                     </button>
                   );
@@ -1008,9 +1008,9 @@ export default function ApiKeysPage() {
             </div>
 
             <div style={{ display:'flex',gap:10 }}>
-              <button onClick={() => setCreating(false)} style={{ flex:1,background:'transparent',border:`1px solid ${C.border}`,borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>Annuler</button>
+              <button onClick={() => setCreating(false)) style={{ flex:1,background:'transparent',border:1px solid ${C.border),borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>Annuler</button>
               <button onClick={create} disabled={saving||!newKeyName.trim()}
-                style={{ flex:2,background:saving||!newKeyName.trim()?C.card2:'rgba(0,255,148,0.12)',border:`1px solid ${saving||!newKeyName.trim()?C.border:'rgba(0,255,148,0.35)'}`,borderRadius:9,color:saving||!newKeyName.trim()?C.muted:C.green,padding:12,fontWeight:800,cursor:saving||!newKeyName.trim()?'not-allowed':'pointer',fontSize:13,fontFamily:'Syne, sans-serif',transition:'all .15s' }}>
+                style={{ flex:2,background:saving||!newKeyName.trim()?C.card2:'rgba(0,255,148,0.12)',border:`1px solid ${saving||!newKeyName.trim()?C.border:'rgba(0,255,148,0.35)'),borderRadius:9,color:saving||!newKeyName.trim()?C.muted:C.green,padding:12,fontWeight:800,cursor:saving||!newKeyName.trim()?'not-allowed':'pointer',fontSize:13,fontFamily:'Syne, sans-serif',transition:'all .15s' }}>
                 {saving ? '⟳ Création...' : '🔑 Créer la clé API'}
               </button>
             </div>
@@ -1037,7 +1037,7 @@ export default function ApiKeysPage() {
               </p>
             </div>
             <div style={{ display:'flex',gap:10 }}>
-              <button onClick={() => setConfirmRevoke(null)} style={{ flex:1,background:'transparent',border:`1px solid ${C.border}`,borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>Annuler</button>
+              <button onClick={() => setConfirmRevoke(null)) style={{ flex:1,background:'transparent',border:1px solid ${C.border),borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>Annuler</button>
               <button onClick={executeRevoke} style={{ flex:1,background:'rgba(252,211,77,0.1)',border:'1px solid rgba(252,211,77,0.35)',borderRadius:9,color:C.yellow,padding:12,fontWeight:800,cursor:'pointer',fontSize:13,fontFamily:'Syne, sans-serif' }}>
                 🔑 Révoquer la clé
               </button>
@@ -1074,7 +1074,7 @@ export default function ApiKeysPage() {
             {/* Actions */}
             <div style={{ display:'flex',gap:10 }}>
               <button onClick={() => setConfirmDelete(null)}
-                style={{ flex:1,background:'transparent',border:`1px solid ${C.border}`,borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>
+                style={{ flex:1,background:'transparent',border:`1px solid ${C.border),borderRadius:9,color:C.muted,padding:12,cursor:'pointer',fontSize:13 }}>
                 Annuler
               </button>
               <button onClick={executeDelete}

@@ -13,7 +13,7 @@ const TT = ({ active, payload, label }: any) => active && payload?.length ? (
     <div style={{ color: '#4A6278', marginBottom: 6, fontFamily: 'JetBrains Mono, monospace' }}>{label}</div>
     {payload.map((p, i) => (
       <div key={i} style={{ color: p.color, marginBottom: 3 }}>
-        {p.name}: <strong>${fmt(p.value)}</strong>
+        {p.name}: <strong>${fmt(p.value)</strong>
       </div>
     ))}
   </div>
@@ -126,11 +126,11 @@ export default function ProjectionPage() {
       {totals && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
           {[
-            { label: 'Scénario conservateur', value: `$${fmt(totals.conservative || totals.conservative)}`, color: '#F87171', sub: `sur ${params.years} ans` },
-            { label: 'Scénario base', value: `$${fmt(totals.base)}`, color: '#FCD34D', sub: `sur ${params.years} ans` },
-            { label: 'Scénario optimiste', value: `$${fmt(totals.optimistic)}`, color: '#00FF94', sub: `sur ${params.years} ans` },
+            { label: 'Scénario conservateur', value: `$${fmt(totals.conservative || totals.conservative)), color: '#F87171', sub: `sur ${params.years} ans` },
+            { label: 'Scénario base', value: `$${fmt(totals.base)), color: '#FCD34D', sub: `sur ${params.years} ans` },
+            { label: 'Scénario optimiste', value: `$${fmt(totals.optimistic)), color: '#00FF94', sub: `sur ${params.years} ans` },
           ].map(k => (
-            <div key={k.label} style={{ background: '#0D1117', border: `1px solid ${k.color}20`, borderRadius: 10, padding: '16px 18px' }}>
+            <div key={k.label} style={{ background: '#0D1117', border: `1px solid ${k.color) + '20', borderRadius: 10, padding: '16px 18px' }}>
               <div style={{ fontSize: 10, color: k.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{k.label.toUpperCase()}</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: k.color, fontFamily: 'Syne, sans-serif' }}>{k.value}</div>
               <div style={{ fontSize: 11, color: '#4A6278', marginTop: 2 }}>{k.sub}</div>
@@ -166,10 +166,10 @@ export default function ProjectionPage() {
             <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 20 }}>
               <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 14 }}>MONTE CARLO — 200 SIMULATIONS BASE SCENARIO</div>
               {[
-                { label: 'P10 (pessimiste)', value: `$${fmt(mc.p10)}`, color: '#F87171' },
-                { label: 'P50 (médiane)', value: `$${fmt(mc.p50)}`, color: '#FCD34D' },
-                { label: 'Moyenne', value: `$${fmt(mc.mean)}`, color: '#8FA3B8' },
-                { label: 'P90 (optimiste)', value: `$${fmt(mc.p90)}`, color: '#00FF94' },
+                { label: 'P10 (pessimiste)', value: `$${fmt(mc.p10)), color: '#F87171' },
+                { label: 'P50 (médiane)', value: `$${fmt(mc.p50)), color: '#FCD34D' },
+                { label: 'Moyenne', value: `$${fmt(mc.mean)), color: '#8FA3B8' },
+                { label: 'P90 (optimiste)', value: `$${fmt(mc.p90)), color: '#00FF94' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid rgba(30,45,61,0.4)' }}>
                   <span style={{ fontSize: 12, color: '#8FA3B8' }}>{item.label}</span>
@@ -177,7 +177,7 @@ export default function ProjectionPage() {
                 </div>
               ))}
               <div style={{ marginTop: 12, fontSize: 11, color: '#4A6278' }}>
-                Plage P10-P90: ${fmt(mc.p90 - mc.p10)} · Rapport signal/bruit: {((mc.p90 - mc.p10) / mc.mean * 100).toFixed(0)}%
+                Plage P10-P90: ${fmt(mc.p90 - mc.p10) · Rapport signal/bruit: {((mc.p90 - mc.p10) / mc.mean * 100).toFixed(0)}%
               </div>
             </div>
           )}
