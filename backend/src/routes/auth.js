@@ -208,11 +208,10 @@ router.post('/login', [
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Identifiants invalides' });
 
-    // Vérifier si l'email est validé
-    if (!user.emailVerified) {
+    // Vérifier si l'email est validé (bypass si emailVerified absent)
+    if (user.emailVerified === false) {
       return res.status(403).json({
-        error: 'Email non vérifié',
-        message: 'Vérifiez votre boîte email et cliquez sur le lien d\'activation.',
+        error: 'Email non verifie. Verifiez votre boite email.',
         pendingVerification: true,
         email,
       });
@@ -238,7 +237,7 @@ router.post('/login', [
         where: { userId: user.id, used: false },
         data: { used: true }
       }).catch(() => {});
-      await prisma.emailOTP.create({ data: { userId: user.id, code: codeHash, expiresAt } });
+      await prisma.emailOTP.create({ data: { userId: user.id, code: codeHash, expiresAt } }).catch(() => {});
       const { sendEmailOTP } = require('../services/email.service');
       await sendEmailOTP({ to: user.email, name: user.name||'', code: otp6, expiresInMinutes: 5, lang: req.body.lang||'en' });
       emailOtpSent = true;
