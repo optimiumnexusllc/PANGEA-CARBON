@@ -26,9 +26,9 @@ function PercentileBar({ value, label, unit, benchmark, rating }: any) {
         <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(74,98,120,0.6)' }}/>
         <div style={{ position: 'absolute', left: '75%', top: 0, bottom: 0, width: 1, background: 'rgba(74,98,120,0.4)' }}/>
         {/* Value bar */}
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: `linear-gradient(90deg, rgba(56,189,248,0.3), ${rating?.color})`, borderRadius: 5, transition: 'width 0.8s ease' }}/>
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: (pct) + '%', background: 'linear-gradient(90deg, rgba(56,189,248,0.3), ' + (rating?.color) + ')', borderRadius: 5, transition: 'width 0.8s ease' }}/>
         {/* Value dot */}
-        <div style={{ position: 'absolute', top: '50%', left: `${pct}%`, transform: 'translate(-50%, -50%)', width: 12, height: 12, borderRadius: '50%', background: rating?.color, border: '2px solid #0D1117' }}/>
+        <div style={{ position: 'absolute', top: '50%', left: (pct) + '%', transform: 'translate(-50%, -50%)', width: 12, height: 12, borderRadius: '50%', background: rating?.color, border: '2px solid #0D1117' }}/>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: '#2A3F55' }}>
         <span>P25: {fmt(benchmark?.p25)}</span>
@@ -50,13 +50,13 @@ export default function BenchmarkPage() {
 
   useEffect(() => {
     api.getProjects().then(d => { setProjects(d.projects || []); if (d.projects?.[0]) setSelected(d.projects[0].id); });
-    fetch(`${API}/benchmark/portfolio/ranking`, { headers: h() }).then(r => r.json()).then(setRanking).catch(() => {});
+    fetch((API) + '/benchmark/portfolio/ranking', { headers: h() }).then(r => r.json()).then(setRanking).catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    fetch(`${API}/benchmark/${selected}`, { headers: h() })
+    fetch((API) + '/benchmark/' + (selected), { headers: h() })
       .then(r => r.json()).then(setData).catch(console.error).finally(() => setLoading(false));
   }, [selected]);
 

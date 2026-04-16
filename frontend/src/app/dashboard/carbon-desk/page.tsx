@@ -178,8 +178,8 @@ export default function CarbonDesk() {
           { v: fmtT(stats?.totalVolumeT||0), l:'Demand Volume',    c:ORANGE, icon:'📊', sub:'tCO₂e/year' },
           { v: stats?.cbamBuyers||0,         l:'CBAM Buyers',      c:ORANGE, icon:'🇪🇺', sub:'regulatory' },
         ].map(s => (
-          <div key={s.l} style={{ background:CARD, border:`1px solid ${s.c}20`, borderRadius:14, padding:'16px 20px', flex:1, minWidth:140, position:'relative', overflow:'hidden' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:`linear-gradient(90deg,${s.c} 0%,transparent 100%)` }}/>
+          <div key={s.l} style={{ background:CARD, border:'1px solid '+s.c+'20', borderRadius:14, padding:'16px 20px', flex:1, minWidth:140, position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,'+s.c} 0%,transparent 100%)` }}/>
             <div style={{ fontSize:20, marginBottom:8 }}>{s.icon}</div>
             <div style={{ fontSize:20, fontWeight:800, color:s.c, fontFamily:'JetBrains Mono, monospace', lineHeight:1 }}>{s.v}</div>
             <div style={{ fontSize:11, color:TEXT, fontWeight:600, marginTop:6 }}>{s.l}</div>

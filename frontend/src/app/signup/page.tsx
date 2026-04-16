@@ -208,7 +208,7 @@ export default function SignupPage() {
                 <div style={{ width:26, height:26, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, fontFamily:'JetBrains Mono, monospace',
                   background: i < step ? GREEN : i === step ? 'rgba(0,255,148,0.15)' : CARD,
                   color:      i < step ? '#080B0F' : i === step ? GREEN : MUTED,
-                  border:`1px solid ${i < step ? GREEN : i === step ? 'rgba(0,255,148,0.4)' : BORDER}` }}>
+                  border:'1px solid '+(i < step ? GREEN : i === step ? 'rgba(0,255,148,0.4)' : BORDER}` }}>
                   {i < step ? '✓' : i+1}
                 </div>
                 <span style={{ fontSize:11, color: i === step ? TEXT : MUTED, whiteSpace:'nowrap' }}>{s.label}</span>
@@ -281,7 +281,7 @@ export default function SignupPage() {
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, marginBottom:12 }}>
                       {SUPPLY_TYPES.map(t => (
                         <button key={t.id} type="button" onClick={() => set('orgType', t.id)}
-                          style={{ padding:'14px 10px', borderRadius:10, cursor:'pointer', border:`1px solid ${form.orgType===t.id?t.color:BORDER}`, background:form.orgType===t.id?t.color+'15':CARD, textAlign:'left', transition:'all .2s' }}>
+                          style={{ padding:'14px 10px', borderRadius:10, cursor:'pointer', border:'1px solid '+(form.orgType===t.id?t.color:BORDER}`, background:form.orgType===t.id?t.color+'15':CARD, textAlign:'left', transition:'all .2s' }}>
                           <div style={{ fontSize:22, marginBottom:6 }}>{t.icon}</div>
                           <div style={{ fontSize:12, fontWeight:700, color:form.orgType===t.id?t.color:TEXT }}>{t.label}</div>
                           <div style={{ fontSize:10, color:MUTED, marginTop:3, lineHeight:1.4 }}>{t.desc}</div>
@@ -296,7 +296,7 @@ export default function SignupPage() {
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:8 }}>
                       {DEMAND_TYPES.map(t => (
                         <button key={t.id} type="button" onClick={() => set('orgType', t.id)}
-                          style={{ padding:'12px 14px', borderRadius:10, cursor:'pointer', border:`1px solid ${form.orgType===t.id?t.color:BORDER}`, background:form.orgType===t.id?t.color+'15':CARD, textAlign:'left', transition:'all .2s', display:'flex', gap:10, alignItems:'flex-start' }}>
+                          style={{ padding:'12px 14px', borderRadius:10, cursor:'pointer', border:'1px solid '+(form.orgType===t.id?t.color:BORDER}`, background:form.orgType===t.id?t.color+'15':CARD, textAlign:'left', transition:'all .2s', display:'flex', gap:10, alignItems:'flex-start' }}>
                           <span style={{ fontSize:20, flexShrink:0 }}>{t.icon}</span>
                           <div>
                             <div style={{ fontSize:12, fontWeight:700, color:form.orgType===t.id?t.color:TEXT }}>{t.label}</div>
@@ -409,7 +409,7 @@ export default function SignupPage() {
                             const sel = form.cbamSectors.includes(s);
                             return (
                               <button key={s} type="button" onClick={() => set('cbamSectors', sel ? form.cbamSectors.filter(x => x !== s) : [...form.cbamSectors, s])}
-                                style={{ padding:'8px', borderRadius:8, border:`1px solid ${sel?'rgba(249,115,22,0.5)':BORDER}`, background:sel?'rgba(249,115,22,0.1)':CARD, color:sel?'#F97316':MUTED, fontSize:11, cursor:'pointer' }}>
+                                style={{ padding:'8px', borderRadius:8, border:'1px solid '+(sel?'rgba(249,115,22,0.5)':BORDER}`, background:sel?'rgba(249,115,22,0.1)':CARD, color:sel?'#F97316':MUTED, fontSize:11, cursor:'pointer' }}>
                                 {s}
                               </button>
                             );
@@ -454,7 +454,7 @@ export default function SignupPage() {
                                 const prev = form.corsiaRoutes ? form.corsiaRoutes.split(',') : [];
                                 const next = sel ? prev.filter(x => x !== r) : [...prev, r];
                                 set('corsiaRoutes', next.join(','));
-                              }} style={{ padding:'6px 12px', borderRadius:8, border:`1px solid ${sel?'rgba(252,211,77,0.5)':BORDER}`, background:sel?'rgba(252,211,77,0.1)':CARD, color:sel?'#FCD34D':MUTED, fontSize:11, cursor:'pointer' }}>
+                              }} style={{ padding:'6px 12px', borderRadius:8, border:'1px solid '+(sel?'rgba(252,211,77,0.5)':BORDER}`, background:sel?'rgba(252,211,77,0.1)':CARD, color:sel?'#FCD34D':MUTED, fontSize:11, cursor:'pointer' }}>
                                 {r}
                               </button>
                             );
@@ -489,7 +489,7 @@ export default function SignupPage() {
                       features: ['Projets illimités','White Label','SSO / SAML','Support dédié','API illimitée'] },
                   ].map(plan => (
                     <div key={plan.id} onClick={() => set('plan', plan.id)}
-                      style={{ padding:'18px 20px', borderRadius:12, border:`1px solid ${form.plan===plan.id?plan.color:BORDER}`, background:form.plan===plan.id?plan.color+'10':CARD, cursor:'pointer', transition:'all .2s', position:'relative' }}>
+                      style={{ padding:'18px 20px', borderRadius:12, border:'1px solid '+(form.plan===plan.id?plan.color:BORDER}`, background:form.plan===plan.id?plan.color+'10':CARD, cursor:'pointer', transition:'all .2s', position:'relative' }}>
                       {plan.badge && (
                         <div style={{ position:'absolute', top:-10, right:16, fontSize:9, padding:'3px 10px', background:plan.color, color:'#080B0F', borderRadius:20, fontFamily:'JetBrains Mono, monospace', fontWeight:700 }}>{plan.badge}</div>
                       )}
@@ -529,7 +529,7 @@ export default function SignupPage() {
                   </button>
                 ) : (
                   <button type="button" onClick={submit} disabled={loading}
-                    style={{ flex:1, padding:'13px', borderRadius:9, border:`1px solid ${loading?BORDER:'rgba(0,255,148,0.35)'}`, background:loading?CARD:'rgba(0,255,148,0.12)', color:loading?MUTED:GREEN, cursor:loading?'wait':'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif' }}>
+                    style={{ flex:1, padding:'13px', borderRadius:9, border:'1px solid '+(loading?BORDER:'rgba(0,255,148,0.35)'}`, background:loading?CARD:'rgba(0,255,148,0.12)', color:loading?MUTED:GREEN, cursor:loading?'wait':'pointer', fontSize:14, fontWeight:800, fontFamily:'Syne, sans-serif' }}>
                     {loading ? '⟳ Création du compte...' : '🚀 Créer mon compte'}
                   </button>
                 )}

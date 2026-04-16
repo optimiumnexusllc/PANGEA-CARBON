@@ -119,7 +119,7 @@ export function FeatureFlagsProvider({ children }) {
     if (!token) return;
 
     // Lire l'utilisateur courant pour son rôle et plan
-    fetch(`${API}/auth/me`, { headers:{ Authorization:`Bearer ${token}` } })
+    fetch((API) + '/auth/me', { headers:{ Authorization:'Bearer ' + (token) } })
       .then(r => r.ok ? r.json() : null)
       .then(me => {
         if (!me) return;
@@ -145,7 +145,7 @@ export function FeatureFlagsProvider({ children }) {
       .catch(() => {});
 
     // Aussi charger les feature flags DB (override admin)
-    fetch(`${API}/admin/features`, { headers:{ Authorization:`Bearer ${token}` } })
+    fetch((API) + '/admin/features', { headers:{ Authorization:'Bearer ' + (token) } })
       .then(r => r.ok ? r.json() : null)
       .then(features => {
         if (!Array.isArray(features)) return;

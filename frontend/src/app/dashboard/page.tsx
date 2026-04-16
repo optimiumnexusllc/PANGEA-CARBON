@@ -111,7 +111,7 @@ export default function DashboardPage() {
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {kpis.map(k => (
-          <div key={k.label} style={{ background: '#0D1117', border: `1px solid ${k.color}18`, borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
+          <div key={k.label} style={{ background: '#0D1117', border: '1px solid ' + (k.color}18`, borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 12, right: 14, fontSize: 22, opacity: 0.4 }}>{k.icon}</div>
             <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>{k.label.toUpperCase()}</div>
             <div style={{ fontSize: 'clamp(18px,2.5vw,26px)', fontWeight: 800, color: k.color, fontFamily: 'Syne, sans-serif', lineHeight: 1.1 }}>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
               {alerts.map((alert) => {
                 const sty = SEVERITY_STYLE[alert.severity] || SEVERITY_STYLE.info;
                 return (
-                  <div key={alert.id} style={{ padding: '10px 12px', background: sty.bg, border: `1px solid ${sty.border}`, borderRadius: 8, fontSize: 12, color: sty.color }}>
+                  <div key={alert.id} style={{ padding: '10px 12px', background: sty.bg, border: '1px solid ' + (sty.border}`, borderRadius: 8, fontSize: 12, color: sty.color }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ flexShrink: 0 }}>{sty.icon}</span>
                       <span style={{ color: '#8FA3B8', lineHeight: 1.5 }}>{alert.message}</span>

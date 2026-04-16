@@ -192,7 +192,7 @@ export default function MarketplacePage() {
       {paymentBanner && (
         <div style={{ borderRadius:10, padding:'14px 18px', marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'center',
           background: paymentBanner.type === 'success' ? 'rgba(0,255,148,0.08)' : 'rgba(248,113,113,0.08)',
-          border: `1px solid ${paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
+          border: '1px solid ' + (paymentBanner.type === 'success' ? 'rgba(0,255,148,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <span style={{ fontSize:22 }}>{paymentBanner.type === 'success' ? '✅' : '❌'}</span>
             <div>
@@ -240,7 +240,7 @@ export default function MarketplacePage() {
           { label: L('Active Listings','Annonces actives'),      v: String((stats as any)?.activeListings||0),        c:'#FCD34D' },
           { label: L('Africa Market','Marché Afrique'),          v: '$400M+',                                         c:'#A78BFA' },
         ].map(s => (
-          <div key={s.label} style={{ background: '#0D1117', border: `1px solid ${s.c}20`, borderRadius: 9, padding: '11px 14px' }}>
+          <div key={s.label} style={{ background: '#0D1117', border: '1px solid ' + (s.c}20`, borderRadius: 9, padding: '11px 14px' }}>
             <div style={{ fontSize: 9, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>{s.label.toUpperCase()}</div>
             <div style={{ fontSize: 17, fontWeight: 700, color: s.c, fontFamily: 'Syne, sans-serif' }}>{s.v}</div>
           </div>
