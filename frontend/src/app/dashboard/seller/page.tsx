@@ -304,7 +304,7 @@ export default function SellerPortal() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display:'flex', gap:2, marginBottom:24, borderBottom:'1px solid '+(BORDER}` }}>
+      <div style={{ display:'flex', gap:2, marginBottom:24, borderBottom:`1px solid ${BORDER}` }}>
         {([
           ['overview',  L('Overview','Vue d\'ensemble'), '📊'],
           ['listings',  L('My Listings','Mes Listings'),  '🌿'],
@@ -329,7 +329,7 @@ export default function SellerPortal() {
                 {L('No orders yet — list your credits on the marketplace.','Aucun ordre — listez vos crédits sur la marketplace.')}
               </div>
             ) : dash.recentOrders.map((o: any) => (
-              <div key={o.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid '+(BORDER}` }}>
+              <div key={o.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:`1px solid ${BORDER}` }}>
                 <div>
                   <div style={{ fontSize:13, color:TEXT, fontWeight:600 }}>{o.quantity?.toFixed(1)} tCO₂e</div>
                   <div style={{ fontSize:10, color:MUTED, fontFamily:'JetBrains Mono, monospace' }}>{new Date(o.createdAt).toLocaleDateString()}</div>
@@ -434,7 +434,7 @@ export default function SellerPortal() {
           {/* Gateway form */}
           <div style={{ background:CARD, border:`1px solid ${currentGw.color}30`, borderRadius:16, overflow:'hidden' }}>
             {/* Header */}
-            <div style={{ padding:'20px 24px', background:`${currentGw.color}08`, borderBottom:'1px solid '+(currentGw.color}20`, display:'flex', alignItems:'center', gap:16 }}>
+            <div style={{ padding:'20px 24px', background:`${currentGw.color}08`, borderBottom:`1px solid ${currentGw.color}20`, display:'flex', alignItems:'center', gap:16 }}>
               <span style={{ fontSize:28 }}>{currentGw.icon}</span>
               <div>
                 <div style={{ fontSize:15, fontWeight:700, color:currentGw.color, fontFamily:'Syne, sans-serif' }}>{currentGw.label}</div>
@@ -542,13 +542,13 @@ export default function SellerPortal() {
                 <thead>
                   <tr style={{ background:'rgba(0,255,148,0.03)' }}>
                     {[L('DATE','DATE'),L('AMOUNT','MONTANT'),L('GATEWAY','GATEWAY'),L('STATUS','STATUT'),L('REF','REF')].map(h => (
-                      <th key={h} style={{ padding:'12px 16px', textAlign:'left', fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', borderBottom:'1px solid '+(BORDER}` }}>{h}</th>
+                      <th key={h} style={{ padding:'12px 16px', textAlign:'left', fontSize:9, color:MUTED, fontFamily:'JetBrains Mono, monospace', borderBottom:`1px solid ${BORDER}` }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {dash.payouts.map((p: any) => (
-                    <tr key={p.id} style={{ borderBottom:'1px solid '+(CARD}` }}>
+                    <tr key={p.id} style={{ borderBottom:`1px solid ${CARD}` }}>
                       <td style={{ padding:'12px 16px', fontSize:12, color:TEXT2 }}>{new Date(p.createdAt).toLocaleDateString()}</td>
                       <td style={{ padding:'12px 16px', fontSize:13, color:GREEN, fontWeight:700, fontFamily:'JetBrains Mono, monospace' }}>{fmt(p.amount)}</td>
                       <td style={{ padding:'12px 16px', fontSize:11, color:TEXT }}>{p.gateway}</td>

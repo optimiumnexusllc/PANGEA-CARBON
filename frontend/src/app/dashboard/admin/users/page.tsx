@@ -245,7 +245,7 @@ export default function AdminUsersPage() {
                 {/* Role */}
                 <td style={{ padding:'10px 12px' }}>
                   <select value={u.role} onChange={e => changeRole(u, e.target.value)}
-                    style={{ background:ROLE_C[u.role]+'10', border:`1px solid ${ROLE_C[u.role]}30`, borderRadius:5, color:ROLE_C[u.role], padding:'4px 7px', fontSize:11, cursor:'pointer', fontFamily:'JetBrains Mono, monospace', outline:'none' }}>
+                    style={{ background:`${ROLE_C[u.role]}10`, border:`1px solid ${ROLE_C[u.role]}30`, borderRadius:5, color:ROLE_C[u.role], padding:'4px 7px', fontSize:11, cursor:'pointer', fontFamily:'JetBrains Mono, monospace', outline:'none' }}>
                     {ROLES.map(r => <option key={r} value={r} style={{ background:'#121920', color:'#E8EFF6' }}>{r}</option>)}
                   </select>
                 </td>
@@ -256,7 +256,7 @@ export default function AdminUsersPage() {
                 {/* Plan */}
                 <td style={{ padding:'10px 12px' }}>
                   <span style={{ fontSize:9, padding:'3px 8px', borderRadius:4, fontFamily:'JetBrains Mono, monospace',
-                    background: (PLAN_COLOR[u.organization?.plan]||'#4A6278')+'15',
+                    background: `${PLAN_COLOR[u.organization?.plan]||'#4A6278'}15`,
                     color: PLAN_COLOR[u.organization?.plan] || '#4A6278',
                     border: `1px solid ${PLAN_COLOR[u.organization?.plan]||'#4A6278'}30` }}>
                     {u.organization?.plan || 'NO ORG'}

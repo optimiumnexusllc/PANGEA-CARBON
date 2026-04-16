@@ -69,7 +69,7 @@ export default function ProjectDetailPage() {
 
   const TABS = [
     { id: 'overview', label: 'Vue d\'ensemble' },
-    { id: 'readings', label: 'Données (' + (readings.length) + ')' },
+    { id: 'readings', label: `Données (${readings.length})` },
     { id: 'mrv', label: 'Résultats MRV' },
     { id: 'projection', label: '10-Year Forecast' },
   ];

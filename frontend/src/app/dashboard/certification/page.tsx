@@ -115,7 +115,7 @@ function CertificationPage() {
           {portfolio && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
               {Object.entries(TIER_CONFIG).map(([tier, cfg]) => (
-                <div key={tier} style={{ background: 'linear-gradient(135deg, ' + (cfg.glow) + ' 0%, rgba(13,17,23,0.8) 100%)', border: '1px solid ' + (cfg.color) + '30', borderRadius: 12, padding: 20 }}>
+                <div key={tier} style={{ background: `linear-gradient(135deg, ${cfg.glow} 0%, rgba(13,17,23,0.8) 100%)`, border: `1px solid ${cfg.color}30`, borderRadius: 12, padding: 20 }}>
                   <div style={{ fontSize: 11, color: cfg.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 8, letterSpacing: '0.1em' }}>{tier.replace('_', ' ')}</div>
                   <div style={{ fontSize: 36, fontWeight: 800, color: cfg.color, fontFamily: 'Syne, sans-serif' }}>
                     {portfolio.stats[tier] || 0}
@@ -142,13 +142,13 @@ function CertificationPage() {
               return (
                 <div key={c.id} style={{ padding: '16px 20px', borderBottom: '1px solid rgba(30,45,61,0.4)', display: 'flex', alignItems: 'center', gap: 16 }}>
                   {/* Badge mini */}
-                  <div style={{ width: 44, height: 44, background: (cfg.color) + '15', border: '2px solid ' + (cfg.color) + '40', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
+                  <div style={{ width: 44, height: 44, background: `${cfg.color}15`, border: `2px solid ${cfg.color}40`, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
                     &#x2B21;
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                       <span style={{ fontSize: 14, fontWeight: 600, color: '#E8EFF6' }}>{c.project?.name}</span>
-                      <span style={{ fontSize: 9, background: (cfg.color) + '20', color: cfg.color, border: '1px solid ' + (cfg.color) + '40', borderRadius: 4, padding: '2px 8px', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
+                      <span style={{ fontSize: 9, background: `${cfg.color}20`, color: cfg.color, border: `1px solid ${cfg.color}40`, borderRadius: 4, padding: '2px 8px', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.05em' }}>
                         {c.tier.replace('_', ' ')}
                       </span>
                       {!isValid && (
@@ -195,7 +195,7 @@ function CertificationPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 500, overflowY: 'auto' }}>
               {projects.map(p => (
                 <div key={p.id} onClick={() => selectProject(p)}
-                  style={{ background: selected?.id === p.id ? 'rgba(0,255,148,0.08)' : '#0D1117', border: '1px solid ' + (selected?.id === p.id ? 'rgba(0,255,148,0.3)' : '#1E2D3D'), borderRadius: 10, padding: 14, cursor: 'pointer' }}>
+                  style={{ background: selected?.id === p.id ? 'rgba(0,255,148,0.08)' : '#0D1117', border: `1px solid ${selected?.id === p.id ? 'rgba(0,255,148,0.3)' : '#1E2D3D'}`, borderRadius: 10, padding: 14, cursor: 'pointer' }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#E8EFF6', marginBottom: 3 }}>{p.name}</div>
                   <div style={{ fontSize: 11, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace' }}>{p.country} · {p.type} · {p.installedMW} MW</div>
                   {p.certification && (
@@ -216,7 +216,7 @@ function CertificationPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {/* Score card */}
                 {score && (
-                  <div style={{ background: 'linear-gradient(135deg, ' + (tierCfg?.glow || 'rgba(30,45,61,0.5)') + ' 0%, rgba(13,17,23,0.95) 100%)', border: '1px solid ' + (tierCfg?.color || '#1E2D3D') + '40', borderRadius: 12, padding: 24 }}>
+                  <div style={{ background: `linear-gradient(135deg, ${tierCfg?.glow || 'rgba(30,45,61,0.5)'} 0%, rgba(13,17,23,0.95) 100%)`, border: `1px solid ${tierCfg?.color || '#1E2D3D'}40`, borderRadius: 12, padding: 24 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <div style={{ fontSize: 10, color: '#4A6278', fontFamily: 'JetBrains Mono, monospace', marginBottom: 8 }}>SCORE DE CERTIFICATION</div>
@@ -234,7 +234,7 @@ function CertificationPage() {
                         <svg width="90" height="90" viewBox="0 0 90 90">
                           <circle cx="45" cy="45" r="38" fill="none" stroke="#1E2D3D" strokeWidth="8"/>
                           <circle cx="45" cy="45" r="38" fill="none" stroke={tierCfg?.color || '#00FF94'} strokeWidth="8"
-                            strokeDasharray={(score.score * 2.389) + ' 238.9'} strokeLinecap="round"
+                            strokeDasharray={`${score.score * 2.389} 238.9`} strokeLinecap="round"
                             transform="rotate(-90 45 45)" strokeDashoffset="0"/>
                           <text x="45" y="50" textAnchor="middle" fill={tierCfg?.color || '#E8EFF6'} fontSize="16" fontWeight="800">
                             {score.score}
@@ -295,7 +295,7 @@ function CertificationPage() {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {['VERRA_VCS', 'GOLD_STANDARD', 'ACM0002', 'ARTICLE_6', 'CORSIA', 'ACR', 'CAR', 'PLAN_VIVO', 'ICVCM_CCP'].map(s => (
                         <button key={s} onClick={() => toggleStandard(s)}
-                          style={{ fontSize: 11, background: form.standards.includes(s) ? 'rgba(0,255,148,0.12)' : 'transparent', border: '1px solid ' + (form.standards.includes(s) ? 'rgba(0,255,148,0.4)' : '#1E2D3D'), borderRadius: 6, color: form.standards.includes(s) ? '#00FF94' : '#4A6278', padding: '5px 10px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace' }}>
+                          style={{ fontSize: 11, background: form.standards.includes(s) ? 'rgba(0,255,148,0.12)' : 'transparent', border: `1px solid ${form.standards.includes(s) ? 'rgba(0,255,148,0.4)' : '#1E2D3D'}`, borderRadius: 6, color: form.standards.includes(s) ? '#00FF94' : '#4A6278', padding: '5px 10px', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace' }}>
                           {s.replace(/_/g, ' ')}
                         </button>
                       ))}
@@ -305,14 +305,14 @@ function CertificationPage() {
                   {/* Options */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                     <div onClick={() => setForm(prev => ({ ...prev, acmiCompliant: !prev.acmiCompliant }))}
-                      style={{ background: form.acmiCompliant ? 'rgba(0,255,148,0.06)' : '#121920', border: '1px solid ' + (form.acmiCompliant ? 'rgba(0,255,148,0.3)' : '#1E2D3D'), borderRadius: 8, padding: 14, cursor: 'pointer' }}>
+                      style={{ background: form.acmiCompliant ? 'rgba(0,255,148,0.06)' : '#121920', border: `1px solid ${form.acmiCompliant ? 'rgba(0,255,148,0.3)' : '#1E2D3D'}`, borderRadius: 8, padding: 14, cursor: 'pointer' }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: form.acmiCompliant ? '#00FF94' : '#E8EFF6', marginBottom: 3 }}>
                         {form.acmiCompliant ? '✓' : '○'} Conforme ACMI
                       </div>
                       <div style={{ fontSize: 10, color: '#4A6278' }}>African Carbon Markets Initiative</div>
                     </div>
                     <div onClick={() => setForm(prev => ({ ...prev, corsiaEligible: !prev.corsiaEligible }))}
-                      style={{ background: form.corsiaEligible ? 'rgba(252,211,77,0.06)' : '#121920', border: '1px solid ' + (form.corsiaEligible ? 'rgba(252,211,77,0.3)' : '#1E2D3D'), borderRadius: 8, padding: 14, cursor: 'pointer' }}>
+                      style={{ background: form.corsiaEligible ? 'rgba(252,211,77,0.06)' : '#121920', border: `1px solid ${form.corsiaEligible ? 'rgba(252,211,77,0.3)' : '#1E2D3D'}`, borderRadius: 8, padding: 14, cursor: 'pointer' }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: form.corsiaEligible ? '#FCD34D' : '#E8EFF6', marginBottom: 3 }}>
                         {form.corsiaEligible ? '✓' : '○'} Eligible CORSIA
                       </div>

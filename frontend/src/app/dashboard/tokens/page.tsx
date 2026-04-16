@@ -87,7 +87,7 @@ export default function TokensPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 8, marginBottom: 24 }}>
         {TOKEN_TYPES.map(type => (
           <div key={type.id} onClick={() => { setSelectedType(type.id); setResult(null); setForm({}); }}
-            style={{ padding: '12px', borderRadius: 10, border: '1px solid ' + (selectedType === type.id ? type.color + '60' : '#1E2D3D'}`, cursor: 'pointer', background: selectedType === type.id ? type.color + '08' : '#0D1117', transition: 'all 0.15s', textAlign: 'center' }}>
+            style={{ padding: '12px', borderRadius: 10, border: `1px solid ${selectedType === type.id ? type.color + '60' : '#1E2D3D'}`, cursor: 'pointer', background: selectedType === type.id ? type.color + '08' : '#0D1117', transition: 'all 0.15s', textAlign: 'center' }}>
             <div style={{ fontSize: 22, marginBottom: 6 }}>{type.icon}</div>
             <div style={{ fontSize: 11, fontWeight: 700, color: selectedType === type.id ? type.color : '#E8EFF6' }}>{type.label}</div>
             <div style={{ fontSize: 9, color: '#4A6278', marginTop: 2, lineHeight: 1.3 }}>{type.full}</div>
@@ -107,7 +107,7 @@ export default function TokensPage() {
             </select>
           </div>
 
-          <div style={{ background: '#0D1117', border: '1px solid ' + typeInfo.color}25`, borderRadius: 12, padding: 18 }}>
+          <div style={{ background: '#0D1117', border: `1px solid ${typeInfo.color}25`, borderRadius: 12, padding: 18 }}>
             <div style={{ fontSize: 10, color: typeInfo.color, fontFamily: 'JetBrains Mono, monospace', marginBottom: 4, letterSpacing: '0.08em' }}>{typeInfo.label.toUpperCase()} PARAMETERS</div>
             <div style={{ fontSize: 12, color: '#4A6278', marginBottom: 16, lineHeight: 1.6 }}>{typeInfo.desc}</div>
 

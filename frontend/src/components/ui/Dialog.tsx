@@ -23,10 +23,10 @@ export function Dialog({ open, onClose, title, subtitle, icon, variant = 'defaul
   return (
     <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position:'fixed', inset:0, background:'rgba(8,11,15,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000, padding:16, backdropFilter:'blur(10px)' }}>
-      <div style={{ background:'#0D1117', border:'1px solid ' + (v.bd), borderRadius:16, padding:28, width:'100%', maxWidth, boxShadow:'0 24px 80px rgba(0,0,0,0.7)', animation:'pgDlg .2s ease', maxHeight:'90vh', overflowY:'auto' }}>
+      <div style={{ background:'#0D1117', border:`1px solid ${v.bd}`, borderRadius:16, padding:28, width:'100%', maxWidth, boxShadow:'0 24px 80px rgba(0,0,0,0.7)', animation:'pgDlg .2s ease', maxHeight:'90vh', overflowY:'auto' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
           <div style={{ display:'flex', gap:14, alignItems:'center' }}>
-            {icon && <div style={{ width:44, height:44, borderRadius:12, background:v.icon_bg, border:'1px solid ' + (v.bd), display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>{icon}</div>}
+            {icon && <div style={{ width:44, height:44, borderRadius:12, background:v.icon_bg, border:`1px solid ${v.bd}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>{icon}</div>}
             <div>
               <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:18, fontWeight:800, color:v.title, margin:0 }}>{title}</h2>
               {subtitle && <p style={{ fontSize:11, color:'#4A6278', margin:'4px 0 0', fontFamily:'JetBrains Mono, monospace' }}>{subtitle}</p>}
@@ -34,7 +34,7 @@ export function Dialog({ open, onClose, title, subtitle, icon, variant = 'defaul
           </div>
           <button onClick={onClose} style={{ background:'transparent', border:'1px solid #1E2D3D', borderRadius:8, color:'#4A6278', cursor:'pointer', width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, flexShrink:0 }}>✕</button>
         </div>
-        <div style={{ height:1, background:'linear-gradient(90deg,' + (v.bd) + ' 0%,transparent 100%)', marginBottom:20 }}/>
+        <div style={{ height:1, background:`linear-gradient(90deg,${v.bd} 0%,transparent 100%)`, marginBottom:20 }}/>
         {children}
       </div>
       <style>{`@keyframes pgDlg{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>

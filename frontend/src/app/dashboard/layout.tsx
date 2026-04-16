@@ -88,7 +88,7 @@ function SidebarContent({ user, logout }) {
       <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
         {visibleNav.map(item => (
           <Link key={item.href} href={item.href}
-            className={'nav-item ' + (pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href) && !ELITE_MODULES.some(m => m.href === item.href)) ? 'active' : '')}>
+            className={`nav-item ${pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href) && !ELITE_MODULES.some(m => m.href === item.href)) ? 'active' : ''}`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d={item.icon}/>
             </svg>
@@ -112,15 +112,15 @@ function SidebarContent({ user, logout }) {
           {ELITE_MODULES.map(mod => (
             <Link key={mod.href} href={mod.href}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px 5px 16px', borderRadius: 6, textDecoration: 'none', marginBottom: 2, transition: 'all 0.15s',
-                background: pathname.startsWith(mod.href) ? (mod.color) + '10' : 'transparent',
-                borderLeft: pathname.startsWith(mod.href) ? '2px solid ' + (mod.color) : '2px solid transparent' }}>
+                background: pathname.startsWith(mod.href) ? `${mod.color}10` : 'transparent',
+                borderLeft: pathname.startsWith(mod.href) ? `2px solid ${mod.color}` : '2px solid transparent' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: 12 }}>{mod.icon}</span>
                 <span style={{ fontSize: 11, color: pathname.startsWith(mod.href) ? mod.color : '#4A6278', fontWeight: pathname.startsWith(mod.href) ? 600 : 400 }}>
                   {t(mod.labelKey) || mod.label}
                 </span>
               </div>
-              <span style={{ fontSize: 8, background: (mod.color) + '15', color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
+              <span style={{ fontSize: 8, background: `${mod.color}15`, color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
             </Link>
           ))}
         </div>
@@ -140,15 +140,15 @@ function SidebarContent({ user, logout }) {
           {INTELLIGENCE_MODULES.map(mod => (
             <Link key={mod.href} href={mod.href}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px 5px 16px', borderRadius: 6, textDecoration: 'none', marginBottom: 2, transition: 'all 0.15s',
-                background: pathname.startsWith(mod.href) ? (mod.color) + '10' : 'transparent',
-                borderLeft: pathname.startsWith(mod.href) ? '2px solid ' + (mod.color) : '2px solid transparent' }}>
+                background: pathname.startsWith(mod.href) ? `${mod.color}10` : 'transparent',
+                borderLeft: pathname.startsWith(mod.href) ? `2px solid ${mod.color}` : '2px solid transparent' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: 12 }}>{mod.icon}</span>
                 <span style={{ fontSize: 11, color: pathname.startsWith(mod.href) ? mod.color : '#4A6278', fontWeight: pathname.startsWith(mod.href) ? 600 : 400 }}>
                   {t(mod.labelKey) || mod.label}
                 </span>
               </div>
-              <span style={{ fontSize: 8, background: (mod.color) + '15', color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
+              <span style={{ fontSize: 8, background: `${mod.color}15`, color: mod.color, borderRadius: 3, padding: '1px 4px', fontFamily: 'JetBrains Mono, monospace' }}>{mod.badge}</span>
             </Link>
           ))}
         </div>
@@ -156,7 +156,7 @@ function SidebarContent({ user, logout }) {
         {/* Settings */}
         <div style={{ padding: '4px 0' }}>
           <Link href="/dashboard/settings"
-            className={'nav-item ' + (pathname === '/dashboard/settings' ? 'active' : '')}>
+            className={`nav-item ${pathname === '/dashboard/settings' ? 'active' : ''}`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>

@@ -102,7 +102,7 @@ function ResendForm() {
     if (!email) return;
     setLoading(true);
     try {
-      await fetch((API) + '/auth/resend-verification', {
+      await fetch(`${API}/auth/resend-verification`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
