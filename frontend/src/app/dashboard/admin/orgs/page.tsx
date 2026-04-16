@@ -4,7 +4,7 @@ import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const PLAN_COLOR = { FREE: '#4A6278', TRIAL: '#FCD34D', STARTER: '#38BDF8', PRO: '#00FF94', ENTERPRISE: '#A78BFA', CUSTOM: '#F87171' };
 const STATUS_COLOR = { ACTIVE: '#00FF94', TRIAL: '#FCD34D', SUSPENDED: '#F87171', CHURNED: '#4A6278' };
 
@@ -30,12 +30,12 @@ export default function AdminOrgsPage() {
   useEffect(() => { load(); }, []);
 
   const updatePlan = async (id, plan) => {
-    await fetchAuth(`/admin/orgs/${id}`, { method: 'PATCH', body: JSON.stringify({ plan  }) });
+    await fetchAuth("/admin/orgs/"+(id)+"", { method: 'PATCH', body: JSON.stringify({ plan  }) });
     load();
   };
 
   const updateStatus = async (id, status) => {
-    await fetchAuth(`/admin/orgs/${id}`, { method: 'PATCH', body: JSON.stringify({ status  }) });
+    await fetchAuth("/admin/orgs/"+(id)+"", { method: 'PATCH', body: JSON.stringify({ status  }) });
     load();
   };
 

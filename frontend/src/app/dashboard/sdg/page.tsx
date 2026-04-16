@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const SDG_LIST = [
@@ -35,12 +35,12 @@ export default function SDGPage() {
 
   useEffect(() => {
     api.getProjects().then(d => { setProjects(d.projects || []); if (d.projects?.[0]) setSelected(d.projects[0].id); });
-    fetch(`${API}/sdg/portfolio/summary`, { headers: h() }).then(r => r.json()).then(setSummary).catch(() => {});
+    fetch(""+(API)+"/sdg/portfolio/summary", { headers: h() }).then(r => r.json()).then(setSummary).catch(() => {});
   }, []);
 
   const submit = async () => {
     setSaving(true);
-    const res = await fetch(`${API}/sdg/score`, {
+    const res = await fetch(""+(API)+"/sdg/score", {
       method: 'POST', headers: h(),
       body: JSON.stringify({ projectId: selected, year, sdgInputs: scores, jobsCreated: parseInt(jobs || '0'), householdsElectrified: parseInt(households || '0') })
     });

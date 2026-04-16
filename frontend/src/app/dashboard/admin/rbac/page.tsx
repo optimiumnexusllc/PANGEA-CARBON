@@ -114,7 +114,7 @@ export default function RBACPage() {
         else { const i = perms.indexOf(full); if(i>=0) perms.splice(i,1); }
         return { ...prev, [role]: perms };
       });
-      showToast((granted?L('✓ Granted','✓ Accordé'):L('✗ Revoked','✗ Révoqué'))+': '+role+' → '+full);
+      showToast((granted ? (lang==='fr'?'✓ Accorde':'✓ Granted') : (lang==='fr'?'✗ Revoque':'✗ Revoked'))+': '+role+' → '+full);
     } catch(e:any) { showToast(e.message,'error'); }
   };
 

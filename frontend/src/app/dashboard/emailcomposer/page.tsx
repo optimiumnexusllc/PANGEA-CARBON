@@ -162,8 +162,8 @@ export default function EmailComposerPage() {
       ? recipients.map(r => r.email)
       : toField.split(',').map(e => e.trim()).filter(Boolean);
 
-    if (toList.length === 0) { showToast(L('Destinataire requis','Destinataire requis'), 'error'); return; }
-    if (!subject.trim()) { showToast(L('Subject required','Sujet requis'), 'error'); return; }
+    if (toList.length === 0) { showToast('Destinataire requis', 'error'); return; }
+    if (!subject.trim()) { showToast('Subject required', 'error'); return; }
 
     setSending(true); setSendResult(null);
     try {
@@ -172,7 +172,7 @@ export default function EmailComposerPage() {
         body: JSON.stringify({ to: toList, subject, body, variables, templateId: selectedTemplate.id, cc: ccField||undefined, replyTo: replyTo||undefined }),
       });
       setSendResult({ success:true, count:toList.length, messageId: result.messageId });
-      showToast(L('Email sent!','Email envoyé !') + ' → '+toList.join(', '));
+      showToast('Email sent!' + ' → '+toList.join(', '));
       setTab('history');
       loadHistory();
     } catch(e) {

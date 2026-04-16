@@ -78,8 +78,8 @@ export default function DocsPage() {
     const authHeader = auth === 'X-API-Key'
       ? `-H "X-API-Key: pgc_YOUR_API_KEY"`
       : `-H "Authorization: Bearer YOUR_ACCESS_TOKEN"`;
-    const bodyFlag = body ? `\\\n  -d '${body}'` : '';
-    return `curl -X ${method} ${BASE_URL}${path} \\\n  -H "Content-Type: application/json" \\\n  ${authHeader}${bodyFlag ? ' \\' + '\n  ' + bodyFlag.slice(4) : ''}`;
+    const bodyFlag = body ? "\\\n  -d '"+(body)+"'" : '';
+    return "curl -X "+(method)+" "+(BASE_URL)+""+(path)+" \\\n  -H "Content-Type: application/json" \\\n  "+(authHeader)+""+(bodyFlag ? ' \\' + '\n  ' + bodyFlag.slice(4) : '')+"";
   };
 
   return (

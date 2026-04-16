@@ -86,7 +86,7 @@ const PROJECT_TYPES = [
 
 const fmtN = (n, d=0) => (n||0).toLocaleString('en-US', { minimumFractionDigits:d, maximumFractionDigits:d });
 const fmtUSD = (n) => '$' + fmtN(n);
-const fmtM = (n) => n >= 1e6 ? `$${(n/1e6).toFixed(2)}M` : n >= 1e3 ? `$${(n/1e3).toFixed(1)}K` : fmtUSD(n);
+const fmtM = (n) => n >= 1e6 ? "$"+((n/1e6).toFixed(2))+"M" : n >= 1e3 ? "$"+((n/1e3).toFixed(1))+"K" : fmtUSD(n);
 
 export default function MRVCalculatorPage() {
   const { lang } = useLang();

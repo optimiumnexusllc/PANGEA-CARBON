@@ -119,7 +119,7 @@ export default function CarbonDesk() {
         method: 'PUT',
         body: JSON.stringify({ ...myProfile, motivations }),
       });
-      showToast(L('Buyer profile saved!', 'Profil acheteur enregistré !'));
+      showToast('Buyer profile saved!');
       await load();
     } catch(e: any) { showToast(e.message, 'error'); }
     finally { setSaving(false); }
@@ -134,7 +134,7 @@ export default function CarbonDesk() {
     } catch(e: any) { showToast(e.message, 'error'); }
   };
 
-  const inp = { background:'#0A1628', border:`1px solid ${BORDER}`, borderRadius:8, color:TEXT, padding:'10px 14px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
+  const inp = { background:'#0A1628', border:"1px solid "+(BORDER)+"", borderRadius:8, color:TEXT, padding:'10px 14px', fontSize:13, outline:'none', width:'100%', boxSizing:'border-box' as const };
 
   return (
     <div style={{ padding:24, maxWidth:1400, margin:'0 auto' }}>

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 
 type Message = { role: 'user' | 'assistant'; content: string; };
 
@@ -25,7 +25,7 @@ export default function AssistantPage() {
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API}/assistant/suggestions`, { headers: h() })
+    fetch(""+(API)+"/assistant/suggestions", { headers: h() })
       .then(r => r.json()).then(d => setSuggestions(d.suggestions || [])).catch(() => {});
     api.getProjects().then(d => setProjects(d.projects || [])).catch(() => {});
   }, []);
@@ -45,7 +45,7 @@ export default function AssistantPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API}/assistant/chat`, {
+      const res = await fetch(""+(API)+"/assistant/chat", {
         method: 'POST',
         headers: h(),
         body: JSON.stringify({

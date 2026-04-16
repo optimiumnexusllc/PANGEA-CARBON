@@ -5,7 +5,7 @@ import { fetchAuthJson } from '@/lib/fetch-auth';
 
 const fmt    = (n, d = 0) => (n ?? 0).toLocaleString('en-US', { maximumFractionDigits: d });
 const fmtUSD = (n, d = 2) => '$' + (n ?? 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-const fmtK   = (n) => n >= 1000000 ? `${(n/1000000).toFixed(1)}M` : n >= 1000 ? `${(n/1000).toFixed(0)}K` : String(Math.round(n ?? 0));
+const fmtK   = (n) => n >= 1000000 ? ""+((n/1000000).toFixed(1))+"M" : n >= 1000 ? ""+((n/1000).toFixed(0))+"K" : String(Math.round(n ?? 0));
 
 const STD_COLOR = {
   VERRA_VCS: '#00FF94', GOLD_STANDARD: '#FCD34D',

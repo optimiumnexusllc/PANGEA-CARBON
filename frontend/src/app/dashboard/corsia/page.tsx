@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function CORSIAPage() {
@@ -25,7 +25,7 @@ export default function CORSIAPage() {
   const check = async () => {
     if (!selected) return;
     setChecking(true);
-    const d = await fetchAuth(`/corsia/check/${selected}`).then(r => r.json());
+    const d = await fetchAuth("/corsia/check/"+(selected)+"").then(r => r.json());
     setResult(d);
     setChecking(false);
   };

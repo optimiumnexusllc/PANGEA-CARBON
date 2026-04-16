@@ -5,7 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } f
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 
 const TT = ({ active, payload, label }: any) => active && payload?.length ? (
@@ -36,7 +36,7 @@ export default function ProjectionPage() {
   }, []);
 
   const fetchPortfolio = async () => {
-    const res = await fetch(`${API}/projection/portfolio/total`, { method: 'POST', headers: h(), body: JSON.stringify({ years: 10 }) });
+    const res = await fetch(""+(API)+"/projection/portfolio/total", { method: 'POST', headers: h(), body: JSON.stringify({ years: 10 }) });
     if (res.ok) setPortfolioData(await res.json());
   };
 
@@ -44,7 +44,7 @@ export default function ProjectionPage() {
     if (!selected) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API}/projection/${selected}`, { method: 'POST', headers: h(), body: JSON.stringify(params) });
+      const res = await fetch(""+(API)+"/projection/"+(selected)+"", { method: 'POST', headers: h(), body: JSON.stringify(params) });
       if (res.ok) setProjectData(await res.json());
     } finally { setLoading(false); }
   }, [selected, params]);

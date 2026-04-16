@@ -5,7 +5,7 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContai
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n, d = 0) => n?.toLocaleString('en-US', { maximumFractionDigits: d }) ?? '0';
 const fmtUSD = (n) => '$' + fmt(n);
 
@@ -31,7 +31,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    fetch(`${API}/analytics/${selected}`, { headers: h() })
+    fetch(""+(API)+"/analytics/"+(selected)+"", { headers: h() })
       .then(r => r.json()).then(setData).catch(console.error).finally(() => setLoading(false));
   }, [selected]);
 

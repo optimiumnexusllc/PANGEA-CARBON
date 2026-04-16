@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const STATUS_COLOR = { ISSUED: '#00FF94', RETIRED: '#F87171', TRANSFERRED: '#38BDF8', CANCELLED: '#4A6278' };
@@ -38,7 +38,7 @@ export default function RegistryPage() {
   const retire = async (id) => {
     const reason = prompt('Raison de retraite (ex: Compensation bilan carbone 2026)');
     if (!reason) return;
-    await fetchAuth(`/registry/retire/${id}`, { method: 'POST', body: JSON.stringify({ retiredFor: reason  }) });
+    await fetchAuth("/registry/retire/"+(id)+"", { method: 'POST', body: JSON.stringify({ retiredFor: reason  }) });
     const c = await fetchAuth(`/registry/chain`).then(r => r.json());
     setChain(c);
   };

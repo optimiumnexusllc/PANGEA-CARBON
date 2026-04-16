@@ -31,15 +31,15 @@ const ALL_STANDARDS = [
 ];
 
 const STD_FEATURES = (L) => ({
-  VERRA_VCS:    [L('ACM0002 v19.0 renewable','ACM0002 v19.0 renewable'),L('Double counting check','Double counting check'),L('Additionality test','Additionality test'),L('SDG co-benefits','Co-benefits SDG'),L('Buffer pool 10–20%','Buffer pool 10–20%')],
-  GOLD_STANDARD:[L('Social+environmental safeguards','Safeguards social+environnemental'),L('Quantified SDG Impact','SDG Impact quantifié'),L('Stakeholder consultation','Stakeholder consultation'),L('VVB site visit','Site visit VVB'),L('Maximum transparency','Transparence maximale')],
-  ARTICLE6:     [L('Corresponding adjustments','Corresponding adjustments'),L('National NDC registries','National registries NDC'),L('Bilateral agreements','Bilatéral agreements'),L('Sovereign guarantee','Sovereign guarantee'),L('PANGEA CARBON certified','PANGEA CARBON certifié')],
-  CDM:          [L('CER→VCMI conversion','CER→VCMI conversion'),L('Legacy projects only','Legacy projects only'),L('UNFCCC registry','UNFCCC registry'),L('Historical baseline','Historical baseline'),L('Transition pathway','Transition pathway')],
-  ACR:          [L('Rigorous additionality','Additionality rigoureuse'),L('Permanence requirements','Exigences permanence'),L('ACR-approved methodologies','Méthodologies ACR'),L('US market compatible','Compatible marché US'),L('Winrock oversight','Supervisé par Winrock')],
-  CAR:          [L('Protocol-based approach','Approche basée protocole'),L('Conservative crediting','Crédits conservateurs'),L('US & international','US & international'),L('Third-party verification','Vérification tierce'),L('Transparent reporting','Reporting transparent')],
-  CORSIA:       [L('ICAO eligible units','Unités éligibles ICAO'),L('Aviation offset scheme','Compensation aviation'),L('2021 baseline','Baseline 2021'),L('CORSIA-eligible VCUs','VCUs éligibles CORSIA'),L('Airline compliance','Conformité compagnies aériennes')],
-  VCMI:         [L('Core Carbon Principles','Core Carbon Principles'),L('Integrity-aligned label','Label aligné intégrité'),L('High-quality screen','Écran haute qualité'),L('ICVCM approved','Approuvé ICVCM'),L('Integrity Council','Integrity Council oversight')],
-  PLAN_VIVO:    [L('Community-based projects','Projets communautaires'),L('Smallholder focus','Focus petits propriétaires'),L('SDG outcomes','Résultats SDG'),L('Long-term agreements','Accords long terme'),L('Livelihood benefits','Bénéfices moyens de subsistance')],
+  VERRA_VCS:    ['ACM0002 v19.0 renewable','Double counting check','Additionality test','SDG co-benefits','Buffer pool 10–20%'],
+  GOLD_STANDARD:['Social+environmental safeguards','Quantified SDG Impact','Stakeholder consultation','VVB site visit','Maximum transparency'],
+  ARTICLE6:     ['Corresponding adjustments','National NDC registries','Bilateral agreements','Sovereign guarantee','PANGEA CARBON certified'],
+  CDM:          ['CER→VCMI conversion','Legacy projects only','UNFCCC registry','Historical baseline','Transition pathway'],
+  ACR:          ['Rigorous additionality','Permanence requirements','ACR-approved methodologies','US market compatible','Winrock oversight'],
+  CAR:          ['Protocol-based approach','Conservative crediting','US & international','Third-party verification','Transparent reporting'],
+  CORSIA:       ['ICAO eligible units','Aviation offset scheme','2021 baseline','CORSIA-eligible VCUs','Airline compliance'],
+  VCMI:         ['Core Carbon Principles','Integrity-aligned label','High-quality screen','ICVCM approved','Integrity Council'],
+  PLAN_VIVO:    ['Community-based projects','Smallholder focus','SDG outcomes','Long-term agreements','Livelihood benefits'],
 });
 
 export default function ReportsPage() {
@@ -72,7 +72,7 @@ export default function ReportsPage() {
       ]);
       setRecords(Array.isArray(recs)?recs:[]);
       setReportHistory(Array.isArray(hist)?hist:[]);
-    } catch(e) { showToast(L('Error loading','Erreur de chargement'),'error'); }
+    } catch(e) { showToast('Error loading','error'); }
     finally { setLoading(false); }
   }, [lang]);
 
@@ -82,7 +82,7 @@ export default function ReportsPage() {
     const key = projectId+'-'+year+'-'+stdId+'-'+pdfLang;
     setGeneratingKey(key);
     const std = ALL_STANDARDS.find(s=>s.id===stdId);
-    showToast(L('Generating','Génération')+' '+std?.name+' ('+pdfLang.toUpperCase()+')...','info');
+    showToast('Generating'+' '+std?.name+' ('+pdfLang.toUpperCase()+')...','info');
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
       const url = (process.env.NEXT_PUBLIC_API_URL||'')+'/reports/'+projectId+'/'+year+'/pdf?lang='+pdfLang+'&standard='+stdId;
@@ -93,7 +93,7 @@ export default function ReportsPage() {
       const a = document.createElement('a');
       a.href=objUrl; a.download='PANGEA-'+stdId+'-MRV-'+(countryCode||'AF')+'-'+year+'-'+pdfLang.toUpperCase()+'.pdf'; a.click();
       URL.revokeObjectURL(objUrl);
-      showToast(L('Downloaded!','Téléchargé !')+' '+std?.name+' ('+pdfLang.toUpperCase()+')');
+      showToast('Downloaded!'+' '+std?.name+' ('+pdfLang.toUpperCase()+')');
       load();
     } catch(e) { showToast(e.message||'Error','error'); }
     finally { setGeneratingKey(null); }
@@ -109,7 +109,7 @@ export default function ReportsPage() {
     setDeleting(true);
     try {
       await fetchAuthJson('/reports/'+confirmDelete.id,{method:'DELETE'});
-      showToast(L('Report deleted','Rapport supprimé'));
+      showToast('Report deleted');
       setConfirmDelete(null); load();
     } catch(e) { showToast(e.message||'Error','error'); }
     finally { setDeleting(false); }

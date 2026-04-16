@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 
 const GRID_CONTEXT = [
   { code: 'CI', country: 'Côte d\'Ivoire', ef: 0.547, trend: '-0.8%/an', source: 'UNFCCC 2024' },
@@ -34,7 +34,7 @@ export default function BaselinePage() {
   }, []);
 
   const loadHistory = (id) => {
-    fetch(`${API}/baseline/${id}`, { headers: h() })
+    fetch(""+(API)+"/baseline/"+(id)+"", { headers: h() })
       .then(r => r.json()).then(d => setHistory(d.assessments || [])).catch(() => {});
   };
 
@@ -42,7 +42,7 @@ export default function BaselinePage() {
     if (!selected) return;
     setRunning(true); setResult(null);
     try {
-      const d = await fetch(`${API}/baseline/assess/${selected}`, { method: 'POST', headers: h() }).then(r => r.json());
+      const d = await fetch(""+(API)+"/baseline/assess/"+(selected)+"", { method: 'POST', headers: h() }).then(r => r.json());
       setResult(d);
       loadHistory(selected);
     } finally { setRunning(false); }

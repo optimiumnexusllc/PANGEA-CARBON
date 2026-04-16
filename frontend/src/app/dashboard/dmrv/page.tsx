@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n, d = 1) => n?.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) ?? '0';
 
 export default function DMRVPage() {
@@ -26,14 +26,14 @@ export default function DMRVPage() {
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    fetch(`${API}/dmrv/${selected}`, { headers: h() })
+    fetch(""+(API)+"/dmrv/"+(selected)+"", { headers: h() })
       .then(r => r.json()).then(setDmrv).catch(console.error).finally(() => setLoading(false));
   }, [selected]);
 
   const runVerification = async () => {
     setRunning(true);
-    await fetch(`${API}/dmrv/continuous-verify/${selected}`, { method: 'POST', headers: h() });
-    const d = await fetch(`${API}/dmrv/${selected}`, { headers: h() }).then(r => r.json());
+    await fetch(""+(API)+"/dmrv/continuous-verify/"+(selected)+"", { method: 'POST', headers: h() });
+    const d = await fetch(""+(API)+"/dmrv/"+(selected)+"", { headers: h() }).then(r => r.json());
     setDmrv(d);
     setRunning(false);
   };

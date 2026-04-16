@@ -3,7 +3,7 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 
 const FEATURE_ICONS = {
   pdf_reports: '📄', africa_map: '🗺️', mrv_calculator: '🧮', api_access: '🔌',
@@ -19,20 +19,20 @@ export default function AdminFeaturesPage() {
   const [saving, setSaving] = useState('');
 
   const load = () => {
-    fetch(`${API}/admin/features`, { headers: h() })
+    fetch(""+(API)+"/admin/features", { headers: h() })
       .then(r => r.json()).then(setFeatures).catch(console.error).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
 
   const toggle = async (key, enabled) => {
     setSaving(key);
-    await fetch(`${API}/admin/features/${key}`, { method: 'PATCH', headers: h(), body: JSON.stringify({ enabled }) });
+    await fetch(""+(API)+"/admin/features/"+(key)+"", { method: 'PATCH', headers: h(), body: JSON.stringify({ enabled }) });
     setSaving('');
     load();
   };
 
   const setRollout = async (key, pct) => {
-    await fetch(`${API}/admin/features/${key}`, { method: 'PATCH', headers: h(), body: JSON.stringify({ rolloutPct: pct }) });
+    await fetch(""+(API)+"/admin/features/"+(key)+"", { method: 'PATCH', headers: h(), body: JSON.stringify({ rolloutPct: pct }) });
     load();
   };
 

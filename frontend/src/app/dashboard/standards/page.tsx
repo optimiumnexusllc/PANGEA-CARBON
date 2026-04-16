@@ -3,7 +3,7 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const MODULES = [
@@ -21,7 +21,7 @@ export default function StandardsPage() {
   const [summary, setSummary] = useState(null);
 
   useEffect(() => {
-    fetch(`${API}/article6/projects`, { headers: h() })
+    fetch(""+(API)+"/article6/projects", { headers: h() })
       .then(r => r.json()).then(d => setSummary(d.summary)).catch(() => {});
   }, []);
 

@@ -222,14 +222,14 @@ export default function SellerPortal() {
         method: 'PUT',
         body: JSON.stringify({ ...gwData, preferredGateway: selectedGw }),
       });
-      showToast(L('Payment gateway saved successfully', 'Gateway de paiement enregistrée'));
+      showToast(lang==='fr'?'Gateway enregistre':'Payment gateway saved'ée'));
       await load();
     } catch(e: any) { showToast(e.message, 'error'); }
     finally { setSaving(false); }
   };
 
   const inp = {
-    background: CARD2, border: `1px solid ${BORDER}`, borderRadius: 8,
+    background: CARD2, border: "1px solid "+(BORDER)+"", borderRadius: 8,
     color: TEXT, padding: '10px 14px', fontSize: 13, outline: 'none',
     width: '100%', boxSizing: 'border-box' as const, fontFamily: 'Inter, sans-serif',
     transition: 'border-color .15s',
@@ -238,8 +238,8 @@ export default function SellerPortal() {
   const currentGw = GATEWAYS.find(g => g.id === selectedGw) || GATEWAYS[5];
 
   const statCard = (label: string, value: string, sub: string, color: string, icon: string) => (
-    <div style={{ background:CARD, border:`1px solid ${color}20`, borderRadius:14, padding:20, flex:1, minWidth:150, position:'relative', overflow:'hidden' }}>
-      <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:`linear-gradient(90deg,${color} 0%,transparent 100%)` }}/>
+    <div style={{ background:CARD, border:"1px solid "+(color)+"20", borderRadius:14, padding:20, flex:1, minWidth:150, position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,"+(color)+" 0%,transparent 100%)" }}/>
       <div style={{ fontSize:22, marginBottom:10 }}>{icon}</div>
       <div style={{ fontSize:22, fontWeight:800, color, fontFamily:'JetBrains Mono, monospace', lineHeight:1 }}>{value}</div>
       <div style={{ fontSize:11, color:TEXT, fontWeight:600, marginTop:6 }}>{label}</div>

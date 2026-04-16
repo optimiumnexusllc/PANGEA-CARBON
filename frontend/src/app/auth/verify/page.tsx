@@ -16,7 +16,7 @@ function VerifyEmailInner() {
   useEffect(() => {
     if (!token) { setStatus('error'); setMessage('Invalid link — missing token.'); return; }
 
-    fetch(`${API}/auth/verify?token=${token}`)
+    fetch(""+(API)+"/auth/verify?token="+(token)+"")
       .then(r => r.json())
       .then(data => {
         if (data.success && data.accessToken) {

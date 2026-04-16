@@ -482,7 +482,7 @@ export default function ApiKeysPage() {
     setConfirmDelete(null);
     try {
       await fetchAuth('/admin/apikeys/'+key.id+'?hard=true', { method: 'DELETE' });
-      showToast(L('Key permanently deleted','Clé supprimée définitivement'));
+      showToast(lang==='fr'?'Cle supprimee':'Key permanently deleted');
       load();
     } catch(e) { showToast(e.message,'error'); }
   };
@@ -493,7 +493,7 @@ export default function ApiKeysPage() {
     setConfirmRevoke(null);
     try {
       await fetchAuth('/admin/apikeys/'+id, { method: 'DELETE' });
-      showToast(L('Key revoked','Clé révoquée'));
+      showToast(lang==='fr'?'Cle revoquee':'Key revoked');
       load();
     } catch(e: any) { showToast(e.message,'error'); }
   };
@@ -502,7 +502,7 @@ export default function ApiKeysPage() {
     navigator.clipboard.writeText(val);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    showToast(L('Copied to clipboard!','Copié dans le presse-papiers !'));
+    showToast(lang==='fr'?'Copie !':'Copied!');
   };
 
   const activeKeys = keys.filter(k => k.isActive);

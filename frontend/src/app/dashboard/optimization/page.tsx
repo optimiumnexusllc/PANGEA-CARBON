@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 const EFFORT_STYLE = {
@@ -27,13 +27,13 @@ export default function OptimizationPage() {
 
   useEffect(() => {
     api.getProjects().then(d => { setProjects(d.projects || []); if (d.projects?.[0]) setSelected(d.projects[0].id); });
-    fetch(`${API}/optimization/portfolio/gap`, { headers: h() }).then(r => r.json()).then(setGap).catch(() => {});
+    fetch(""+(API)+"/optimization/portfolio/gap", { headers: h() }).then(r => r.json()).then(setGap).catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!selected) return;
     setLoading(true);
-    fetch(`${API}/optimization/${selected}`, { headers: h() })
+    fetch(""+(API)+"/optimization/"+(selected)+"", { headers: h() })
       .then(r => r.json()).then(setData).catch(console.error).finally(() => setLoading(false));
   }, [selected]);
 

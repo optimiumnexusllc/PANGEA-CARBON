@@ -4,7 +4,7 @@ import { fetchAuth } from '@/lib/fetch-auth';
 import { useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('accessToken') : ''}` });
+const h = () => ({ 'Content-Type': 'application/json', Authorization: "Bearer "+(typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '')+"" });
 const fmt = (n) => n?.toLocaleString('en-US', { maximumFractionDigits: 0 }) ?? '0';
 
 export default function Article6Page() {
@@ -21,7 +21,7 @@ export default function Article6Page() {
     ]).then(([d, b]) => { setData(d); setBuyers(b); }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>L('Loading...', 'Chargement...')</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#4A6278' }}>{lang==='fr'?'Chargement...':'Loading...'}</div>;
 
   const s = data?.summary || {};
 
