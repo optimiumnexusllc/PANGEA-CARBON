@@ -61,10 +61,10 @@ async function getUserPlanContext(userId) {
   // Les limites DB de l'org peuvent surpasser le plan (admins peuvent surclasser)
   const limits = {
     ...baseLimits,
-    maxProjects: org.maxProjects || baseLimits.maxProjects,
-    maxUsers:    org.maxUsers    || baseLimits.maxUsers,
-    maxMW:       org.maxMW       || baseLimits.maxMW,
-    maxApiKeys:  org.maxApiKeys  || baseLimits.maxApiKeys,
+    maxProjects: Math.max(org.maxProjects || 0, baseLimits.maxProjects),
+    maxUsers:    Math.max(org.maxUsers    || 0, baseLimits.maxUsers),
+    maxMW:       Math.max(org.maxMW       || 0, baseLimits.maxMW),
+    maxApiKeys:  Math.max(org.maxApiKeys  || 0, baseLimits.maxApiKeys),
   };
 
   return { plan, limits, hasOrg: true, orgId: org.id, orgStatus: org.status, userId };

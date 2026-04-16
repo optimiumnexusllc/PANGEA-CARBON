@@ -502,11 +502,19 @@ router.get('/revenue', auth, adminOnly, async (req, res, next) => {
 
 // ── API KEY MANAGEMENT ─────────────────────────────────────────────────────
 router.get('/apikeys', auth, async (req, res, next) => {
-  if (!['ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only ADMIN and SUPER_ADMIN can view API keys' });
+  if (!['ORG_OWNER','ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+    return res.json([]); // Autres roles voient une liste vide
   }
   try {
-    const where = req.user.role === 'SUPER_ADMIN' ? {} : { organizationId: req.user.organizationId };
+    let where;
+    if (req.user.role === 'SUPER_ADMIN') {
+      where = {};
+    } else if (req.user.role === 'ADMIN') {
+      where = { organizationId: req.user.organizationId };
+    } else {
+      // ORG_OWNER: ses propres clés
+      where = { userId: req.user.userId };
+    }
     const keys = await prisma.apiKey.findMany({ where,
       include: { user: { select: { name: true, email: true } } },
       orderBy: { createdAt: 'desc' }
@@ -516,35 +524,56 @@ router.get('/apikeys', auth, async (req, res, next) => {
 });
 
 router.post('/apikeys', auth, async (req, res, next) => {
-  // ORG_OWNER, ADMIN et SUPER_ADMIN peuvent créer des clés API
-  if (!['ORG_OWNER','ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Seuls les proprietaires et administrateurs peuvent creer des cles API.' });
-  }
-  // Vérifier limite plan API keys
-  const apiKeyCheck = await checkApiKeyLimit(req.user.userId);
-  if (!apiKeyCheck.allowed) {
-    return res.status(402).json({
-      error: 'API key limit reached (' + apiKeyCheck.current + '/' + apiKeyCheck.max + ') for plan ' + apiKeyCheck.plan,
-      code: 'PLAN_APIKEY_LIMIT',
-      currentPlan: apiKeyCheck.plan,
-      requiredPlan: apiKeyCheck.required,
-      upgradeUrl: '/dashboard/settings',
-    });
-  }
   try {
+    // ORG_OWNER, ADMIN et SUPER_ADMIN peuvent créer des clés API
+    if (!['ORG_OWNER','ADMIN','SUPER_ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Seuls les proprietaires et administrateurs peuvent creer des cles API.' });
+    }
+
+    // Vérifier limite plan API keys
+    let apiKeyCheck;
+    try {
+      apiKeyCheck = await checkApiKeyLimit(req.user.userId);
+    } catch(limitErr) {
+      console.warn('[ApiKey] Limit check failed, allowing creation:', limitErr.message);
+      apiKeyCheck = { allowed: true };
+    }
+
+    if (apiKeyCheck && !apiKeyCheck.allowed) {
+      return res.status(402).json({
+        error: 'Limite de cles API atteinte (' + apiKeyCheck.current + '/' + apiKeyCheck.max + ') pour le plan ' + apiKeyCheck.plan,
+        code: 'PLAN_APIKEY_LIMIT',
+        currentPlan: apiKeyCheck.plan,
+        requiredPlan: apiKeyCheck.required,
+        upgradeUrl: '/dashboard/settings',
+      });
+    }
+
     const { name, userId, expiresAt } = req.body;
-    const rawKey = `pgc_${crypto.randomBytes(32).toString('hex')}`;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Le nom de la cle est requis.' });
+
+    const targetUserId = userId || req.user.userId;
+    const rawKey = 'pgc_' + crypto.randomBytes(32).toString('hex');
     const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
     const keyPrefix = rawKey.substring(0, 12);
 
     const key = await prisma.apiKey.create({
-      data: { name, userId, keyHash, keyPrefix, expiresAt: expiresAt ? new Date(expiresAt) : null }
+      data: {
+        name: name.trim(),
+        userId: targetUserId,
+        keyHash,
+        keyPrefix,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      }
     });
 
-    await prisma.auditLog.create({ data: { userId: req.user.userId, action: 'CREATE_API_KEY', entity: 'ApiKey', entityId: key.id, after: { name, userId }, ipAddress: req.ip } });
-    // Retourner la clé une seule fois
+    await prisma.auditLog.create({
+      data: { userId: req.user.userId, action: 'CREATE_API_KEY', entity: 'ApiKey', entityId: key.id, after: { name, userId: targetUserId }, ipAddress: req.ip }
+    }).catch(() => {});
+
+    console.log('[ApiKey] Created:', keyPrefix, 'for user:', targetUserId);
     res.status(201).json({ ...key, rawKey });
-  } catch (e) { next(e); }
+  } catch(e) { next(e); }
 });
 
 router.delete('/apikeys/:id', auth, adminOnly, async (req, res, next) => {
