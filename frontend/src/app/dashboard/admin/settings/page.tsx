@@ -269,9 +269,9 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
         {/* Action button */}
         {!editing && (
           <button onClick={() => { setEditing(true); setFeedback(null); }}
-            style={{ background: 'transparent', border: `1px solid ${hasValue ? '#1E2D3D' : 'rgba(0,255,148,0.25)'}`, borderRadius: 7, color: hasValue ? '#4A6278' : '#00CC77', padding: '7px 13px', cursor: 'pointer', fontSize: 12, whiteSpace: 'nowrap', flexShrink: 0, transition: 'all 0.15s' }}
+            style={{ background: 'transparent', border: '1px solid ' + (hasValue ? '#1E2D3D' : 'rgba(0,255,148,0.25)'), borderRadius: 7, color: hasValue ? '#4A6278' : '#00CC77', padding: '7px 13px', cursor: 'pointer', fontSize: 12, whiteSpace: 'nowrap', flexShrink: 0, transition: 'all 0.15s' }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = '#4A6278')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = hasValue ? '#1E2D3D' : 'rgba(0,255,148,0.25)')}>
+            onMouseLeave={e => { e.currentTarget.style.borderColor = hasValue ? '#1E2D3D' : 'rgba(0,255,148,0.25)'; }}>
             {hasValue ? '✏️ Edit' : '+ Configurer'}
           </button>
         )}
@@ -320,7 +320,7 @@ export default function AdminSettingsPage() {
 
   const saveSetting = async (key, value) => {
     try {
-      const res = await fetchAuth(`/admin/settings/${key}`, {
+      const res = await fetchAuth('/admin/settings/' + key, {
         method: 'PUT',
         body: JSON.stringify({ value }),
       });
