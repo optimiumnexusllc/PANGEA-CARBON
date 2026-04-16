@@ -229,7 +229,7 @@ function SettingRow({ def, hasValue, displayValue, onSave, onSuccess }: {
 
           {/* Value or edit form */}
           {!editing ? (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, padding: '5px 10px', background: hasValue ? 'rgba(0,255,148,0.06)' : '#0D1117', borderRadius: 6, border: `1px solid ${hasValue ? 'rgba(0,255,148,0.15)' : '#1E2D3D'}`, maxWidth: '100%', overflow: 'hidden' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, padding: '5px 10px', background: hasValue ? 'rgba(0,255,148,0.06)' : '#0D1117', borderRadius: 6, border: '1px solid ' + (hasValue ? 'rgba(0,255,148,0.15)' : '#1E2D3D'), maxWidth: '100%', overflow: 'hidden' }}>
               {hasValue ? (
                 <><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF94', flexShrink: 0 }}/><span style={{ color: '#8FA3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayValue || '••••••••••••••••'}</span></>
               ) : (
@@ -397,7 +397,7 @@ export default function AdminSettingsPage() {
           const active = activeTab === cat.id;
           return (
             <button key={cat.id} onClick={() => setActiveTab(cat.id)}
-              style={{ padding: '11px 8px', borderRadius: 9, border: `1px solid ${active ? cat.color + '40' : '#1E2D3D'}`, background: active ? `${cat.color}08` : '#0D1117', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s' }}>
+              style={{ padding: '11px 8px', borderRadius: 9, border: '1px solid ' + (active ? cat.color + '40' : '#1E2D3D'), background: active ? cat.color + '08' : '#0D1117', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s' }}>
               <div style={{ fontSize: 18, marginBottom: 4 }}>{cat.icon}</div>
               <div style={{ fontSize: 11, color: active ? '#E8EFF6' : '#4A6278', fontWeight: active ? 600 : 400, marginBottom: 4 }}>{cat.label}</div>
               <div style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', color: configured === total ? '#00FF94' : configured > 0 ? '#FCD34D' : '#2A3F55' }}>
