@@ -988,7 +988,7 @@ model WebhookEndpoint {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   url            String
   secret         String    // HMAC secret
-  events         String    @default('["*"]') // JSON array of event names
+  events         String    @default("*") // JSON array of event names (stored as JSON)
   active         Boolean   @default(true)
   description    String?
   createdAt      DateTime  @default(now())

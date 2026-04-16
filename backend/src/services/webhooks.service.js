@@ -130,8 +130,12 @@ async function dispatch(event, payload, orgId = null) {
     const endpoints = await prisma.webhookEndpoint.findMany({ where });
     
     for (const endpoint of endpoints) {
-      const events = JSON.parse(endpoint.events || '[]');
-      if (events.includes('*') || events.includes(event)) {
+      // events: "*" (tous) ou JSON array ["credit.issued","audit.validated"]
+      let events;
+      try { events = JSON.parse(endpoint.events); } catch(e) { events = endpoint.events || '*'; }
+      const matchesAll = events === '*' || events === ['*'] || (Array.isArray(events) && events.includes('*'));
+      const matchesEvent = Array.isArray(events) && events.includes(event);
+      if (matchesAll || matchesEvent) {
         // Async non-bloquant
         deliverWebhook(endpoint, event, {
           event,
