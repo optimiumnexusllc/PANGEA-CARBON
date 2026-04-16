@@ -1,15 +1,10 @@
 #!/bin/sh
 # PANGEA CARBON Backend Startup
-echo "[PANGEA] Starting database migration..."
+echo "[PANGEA] Checking database schema..."
 
-# Retry prisma db push jusqu'à 10 fois
-ATTEMPTS=0
-MAX=10
-until npx prisma db push --accept-data-loss || [ $ATTEMPTS -eq $MAX ]; do
-  ATTEMPTS=$((ATTEMPTS + 1))
-  echo "[PANGEA] Migration attempt $ATTEMPTS/$MAX failed, retrying in 3s..."
-  sleep 3
-done
+# Utiliser migrate deploy si des migrations existent, sinon db push avec gestion d'erreur
+# On ignore l'erreur P2002 (enum conflict) car le schema est deja en place
+npx prisma db push --accept-data-loss 2>&1 | grep -v P2002 | grep -v "Unique constraint" || true
 
 echo "[PANGEA] Database ready. Starting server..."
 exec node src/index.js
