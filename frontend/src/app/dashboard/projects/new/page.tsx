@@ -146,9 +146,9 @@ export default function NewProjectPage() {
                   const regionCountries = countries.filter(x => x.region === region);
                   if (!regionCountries.length) return null;
                   const regionLabel = {
-                    WEST:'Afrique de l\'Ouest', CENTRAL:'Afrique Centrale',
-                    EAST:'Afrique de l\'Est', SOUTH:'Afrique Australe',
-                    NORTH:'Afrique du Nord', INDIAN:'Océan Indien',
+                    WEST:'Afrique de l Ouest', CENTRAL:'Afrique Centrale',
+                    EAST:'Afrique de l Est', SOUTH:'Afrique Australe',
+                    NORTH:'Afrique du Nord', INDIAN:'Ocean Indien',
                   }[region] || region;
                   return (
                     <optgroup key={region} label={regionLabel}>
