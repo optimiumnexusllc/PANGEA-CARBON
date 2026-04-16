@@ -9,9 +9,12 @@ const { sendVerificationEmail, sendAdminNotification, sendWelcomeEmail } = requi
 const prisma = new PrismaClient();
 
 const generateTokens = (user) => {
+  const secret = process.env.JWT_SECRET;
+  const refreshSecret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET not configured');
   const payload = { userId: user.id, email: user.email, role: user.role, organizationId: user.organizationId || null };
-  const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  const accessToken = jwt.sign(payload, secret, { expiresIn: '15m' });
+  const refreshToken = jwt.sign({ userId: user.id }, refreshSecret, { expiresIn: '7d' });
   return { accessToken, refreshToken };
 };
 
@@ -251,7 +254,7 @@ router.post('/login', [
     if (!smtpConfigured && !hasTOTPActive) {
       console.warn('[Login] SMTP not configured — bypassing MFA for', user.email);
       const { accessToken, refreshToken } = generateTokens(user);
-      await prisma.user.update({ where: { id: user.id }, data: { lastLogin: new Date(), loginCount: { increment: 1 } } });
+      await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date(), loginCount: { increment: 1 } } }).catch(() => {});
       return res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, organizationId: user.organizationId }, accessToken, refreshToken, mfaBypassed: true });
     }
     const preAuthToken = jwt.sign(

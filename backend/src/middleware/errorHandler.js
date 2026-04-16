@@ -8,7 +8,7 @@ const errorHandler = (err, req, res, next) => {
   }
   const status = err.status || 500;
   res.status(status).json({
-    error: process.env.NODE_ENV === 'production' ? 'Erreur serveur interne' : err.message,
+    error: err.message || 'Erreur serveur interne',
   });
 };
 
