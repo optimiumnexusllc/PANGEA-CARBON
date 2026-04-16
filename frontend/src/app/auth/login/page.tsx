@@ -49,7 +49,7 @@ export default function LoginPage() {
   // ── Étape 1: valider identifiants → recevoir OTP ────────────
   const handleLogin = async () => {
     if (!email.trim() || !password) {
-      setError(L('Email and password are required.', 'Email et mot de passe requis.'));
+      setError(lang === 'fr' ? 'Email et mot de passe requis.' : 'Email and password are required.');
       return;
     }
     setLoading(true); setError('');
@@ -68,7 +68,7 @@ export default function LoginPage() {
             'Impossible d envoyer le code OTP. SMTP non configure. Contactez votre administrateur.'
           ));
         } else {
-          setError(data.error || L('Invalid credentials.', 'Identifiants invalides.'));
+          setError(data.error || lang === 'fr' ? 'Identifiants invalides.' : 'Invalid credentials.');
         }
         return;
       }
@@ -88,20 +88,20 @@ export default function LoginPage() {
         setMasked(data.maskedEmail || data.user?.email || email);
         setExpires(data.expiresInMinutes || 10);
         setStep('otp');
-        setSuccess(L('Code sent!', 'Code envoye !'));
+        setSuccess(lang === 'fr' ? 'Code envoye !' : 'Code sent!');
         return;
       }
 
-      setError(L('Unexpected response.', 'Reponse inattendue.'));
+      setError(lang === 'fr' ? 'Reponse inattendue.' : 'Unexpected response.');
     } catch {
-      setError(L('Connection error. Check your network.', 'Erreur de connexion reseau.'));
+      setError(lang === 'fr' ? 'Erreur de connexion reseau.' : 'Connection error. Check your network.');
     } finally { setLoading(false); }
   };
 
   // ── Étape 2: vérifier le code OTP ───────────────────────────
   const handleVerify = async () => {
     if (!otp || otp.length < 6) {
-      setError(L('Enter the 6-digit code.', 'Entrez le code a 6 chiffres.'));
+      setError(lang === 'fr' ? 'Entrez le code a 6 chiffres.' : 'Enter the 6-digit code.');
       return;
     }
     setVerifying(true); setError('');
@@ -114,7 +114,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || L('Invalid or expired code.', 'Code invalide ou expire.'));
+        setError(data.error || lang === 'fr' ? 'Code invalide ou expire.' : 'Invalid or expired code.');
         return;
       }
 
@@ -123,7 +123,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard');
     } catch {
-      setError(L('Connection error.', 'Erreur de connexion.'));
+      setError(lang === 'fr' ? 'Erreur de connexion.' : 'Connection error.');
     } finally { setVerifying(false); }
   };
 
@@ -140,12 +140,12 @@ export default function LoginPage() {
       if (res.ok && data.preAuthToken) {
         setPreAuth(data.preAuthToken);
         setMasked(data.maskedEmail || maskedEmail);
-        setSuccess(L('New code sent!', 'Nouveau code envoye !'));
+        setSuccess(lang === 'fr' ? 'Nouveau code envoye !' : 'New code sent!');
       } else {
-        setError(data.error || L('Could not resend code.', 'Impossible de renvoyer le code.'));
+        setError(data.error || lang === 'fr' ? 'Impossible de renvoyer le code.' : 'Could not resend code.');
       }
     } catch {
-      setError(L('Connection error.', 'Erreur de connexion.'));
+      setError(lang === 'fr' ? 'Erreur de connexion.' : 'Connection error.');
     } finally { setResending(false); }
   };
 
@@ -173,7 +173,7 @@ export default function LoginPage() {
             <span style={{ fontFamily:'Syne, sans-serif', fontWeight:900, fontSize:21, color:C.text, letterSpacing:'0.04em' }}>PANGEA CARBON</span>
           </div>
           <div style={{ fontSize:10, color:C.muted, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.12em' }}>
-            {L('AFRICA MRV PLATFORM · SECURE ACCESS', 'PLATEFORME MRV AFRIQUE · ACCES SECURISE')}
+            {lang === 'fr' ? 'PLATEFORME MRV AFRIQUE · ACCES SECURISE' : 'AFRICA MRV PLATFORM · SECURE ACCESS'}
           </div>
         </div>
 
@@ -187,10 +187,10 @@ export default function LoginPage() {
             {step === 'credentials' && (
               <>
                 <h1 style={{ fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:20, color:C.text, margin:'0 0 4px' }}>
-                  {L('Sign in', 'Connexion')}
+                  {lang === 'fr' ? 'Connexion' : 'Sign in'}
                 </h1>
                 <p style={{ fontSize:13, color:C.muted, marginBottom:24 }}>
-                  {L('A verification code will be sent to your email.', 'Un code de verification sera envoye a votre email.')}
+                  {lang === 'fr' ? 'Un code de verification sera envoye a votre email.' : 'A verification code will be sent to your email.'}
                 </p>
 
                 {error && (
@@ -201,10 +201,10 @@ export default function LoginPage() {
 
                 <div style={{ marginBottom:16 }}>
                   <label style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.10em', display:'block', marginBottom:7 }}>
-                    {L('EMAIL ADDRESS', 'ADRESSE EMAIL')}
+                    {lang === 'fr' ? 'ADRESSE EMAIL' : 'EMAIL ADDRESS'}
                   </label>
                   <input type="email" value={email}
-                    placeholder={L('you@company.com', 'vous@societe.com')}
+                    placeholder={lang === 'fr' ? 'vous@societe.com' : 'you@company.com'}
                     onChange={e => setEmail(e.target.value)}
                     onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
                     onKeyDown={e => e.key === 'Enter' && handleLogin()}
@@ -214,10 +214,10 @@ export default function LoginPage() {
                 <div style={{ marginBottom:24 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:7 }}>
                     <label style={{ fontSize:9, color:C.muted, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.10em' }}>
-                      {L('PASSWORD', 'MOT DE PASSE')}
+                      {lang === 'fr' ? 'MOT DE PASSE' : 'PASSWORD'}
                     </label>
                     <Link href="/auth/forgot-password" style={{ fontSize:11, color:C.blue, textDecoration:'none' }}>
-                      {L('Forgot password?', 'Mot de passe oublie ?')}
+                      {lang === 'fr' ? 'Mot de passe oublie ?' : 'Forgot password?'}
                     </Link>
                   </div>
                   <div style={{ position:'relative' }}>
@@ -237,15 +237,15 @@ export default function LoginPage() {
                 <button onClick={handleLogin} disabled={loading}
                   style={{ width:'100%', background:'linear-gradient(135deg,'+C.green+',#00CC77)', color:'#080B0F', border:'none', borderRadius:10, padding:'13px 0', fontWeight:800, fontSize:15, cursor:loading?'not-allowed':'pointer', fontFamily:'Syne, sans-serif', opacity:loading?0.7:1 }}>
                   {loading
-                    ? L('Sending code...', 'Envoi du code...')
-                    : L('Continue', 'Continuer →')}
+                    ? lang === 'fr' ? 'Envoi du code...' : 'Sending code...'
+                    : lang === 'fr' ? 'Continuer →' : 'Continue'}
                 </button>
 
                 <div style={{ textAlign:'center', marginTop:18, fontSize:13, color:C.muted }}>
                   {L("Don't have an account?", "Pas de compte ?")}
                   {' '}
                   <Link href="/signup" style={{ color:C.green, textDecoration:'none', fontWeight:600 }}>
-                    {L('Get started', 'Commencer')}
+                    {lang === 'fr' ? 'Commencer' : 'Get started'}
                   </Link>
                 </div>
               </>
@@ -261,18 +261,18 @@ export default function LoginPage() {
                     📧
                   </div>
                   <h2 style={{ fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:19, color:C.text, margin:'0 0 8px' }}>
-                    {L('Check your email', 'Verifiez votre email')}
+                    {lang === 'fr' ? 'Verifiez votre email' : 'Check your email'}
                   </h2>
                   <p style={{ fontSize:13, color:C.muted, lineHeight:1.5 }}>
-                    {L('We sent a 6-digit code to', 'Nous avons envoye un code a 6 chiffres a')}
+                    {lang === 'fr' ? 'Nous avons envoye un code a 6 chiffres a' : 'We sent a 6-digit code to'}
                   </p>
                   <div style={{ fontFamily:'JetBrains Mono, monospace', fontSize:14, color:C.text, fontWeight:700, marginTop:4 }}>
                     {maskedEmail}
                   </div>
                   <div style={{ fontSize:11, color:C.muted, marginTop:6, fontFamily:'JetBrains Mono, monospace' }}>
-                    {L('Valid for', 'Valide')} {expiresIn} {L('minutes', 'minutes')}
+                    {lang === 'fr' ? 'Valide' : 'Valid for'} {expiresIn} {lang === 'fr' ? 'minutes' : 'minutes'}
                     {' · '}
-                    {L('Check spam folder', 'Verifiez vos spams')}
+                    {lang === 'fr' ? 'Verifiez vos spams' : 'Check spam folder'}
                   </div>
                 </div>
 
@@ -307,19 +307,19 @@ export default function LoginPage() {
                 <button onClick={handleVerify} disabled={verifying || otp.length < 6}
                   style={{ width:'100%', background:'linear-gradient(135deg,'+C.green+',#00CC77)', color:'#080B0F', border:'none', borderRadius:10, padding:'14px 0', fontWeight:800, fontSize:15, cursor:(verifying||otp.length<6)?'not-allowed':'pointer', fontFamily:'Syne, sans-serif', opacity:(verifying||otp.length<6)?0.6:1, marginBottom:10 }}>
                   {verifying
-                    ? L('Verifying...', 'Verification en cours...')
-                    : L('Verify code', 'Verifier le code')}
+                    ? lang === 'fr' ? 'Verification en cours...' : 'Verifying...'
+                    : lang === 'fr' ? 'Verifier le code' : 'Verify code'}
                 </button>
 
                 {/* Renvoyer le code */}
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                   <button onClick={handleResend} disabled={resending}
                     style={{ background:'transparent', border:'none', color:resending?C.muted:C.blue, cursor:resending?'not-allowed':'pointer', fontSize:13, padding:'8px 0' }}>
-                    {resending ? L('Sending...', 'Envoi...') : L('Resend code', 'Renvoyer le code')}
+                    {resending ? lang === 'fr' ? 'Envoi...' : 'Sending...' : lang === 'fr' ? 'Renvoyer le code' : 'Resend code'}
                   </button>
                   <button onClick={() => { setStep('credentials'); setOtp(''); setError(''); setSuccess(''); }}
                     style={{ background:'transparent', border:'none', color:C.muted, cursor:'pointer', fontSize:13, padding:'8px 0' }}>
-                    ← {L('Change email', 'Changer d email')}
+                    ← {lang === 'fr' ? 'Changer d email' : 'Change email'}
                   </button>
                 </div>
               </>
@@ -329,7 +329,7 @@ export default function LoginPage() {
         </div>
 
         <div style={{ textAlign:'center', marginTop:16, fontSize:10, color:C.muted, fontFamily:'JetBrains Mono, monospace', letterSpacing:'0.08em' }}>
-          PANGEA CARBON · {L('AFRICAN MRV PLATFORM', 'PLATEFORME MRV AFRICAINE')} · {new Date().getFullYear()}
+          PANGEA CARBON · {lang === 'fr' ? 'PLATEFORME MRV AFRICAINE' : 'AFRICAN MRV PLATFORM'} · {new Date().getFullYear()}
         </div>
       </div>
     </div>
