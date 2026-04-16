@@ -163,7 +163,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+    restart: on-failure:3
     networks: [pangea_net]
     deploy:
       resources:
@@ -185,7 +185,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
-    restart: unless-stopped
+    restart: on-failure:3
     networks: [pangea_net]
     deploy:
       resources:
