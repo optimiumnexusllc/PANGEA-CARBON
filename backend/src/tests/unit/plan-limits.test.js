@@ -42,11 +42,11 @@ describe('Plan Limits — Project limits per plan', () => {
 
 describe('Plan Limits — MW limits per plan', () => {
   test.each([
-    ['FREE',          10],
-    ['TRIAL',         50],
-    ['STARTER',       50],
+    ['FREE',         500],
+    ['TRIAL',        500],
+    ['STARTER',     1000],
     ['PRO',        99999],
-    ['GROWTH',      5000],
+    ['GROWTH',     10000],
     ['ENTERPRISE', 99999],
   ])('%s: maxMW=%d', (plan, max) => {
     expect(PLAN_LIMITS[plan].maxMW).toBe(max);
@@ -86,7 +86,7 @@ describe('Plan Limits — FREE plan (no org)', () => {
     const free = PLAN_LIMITS.FREE;
     expect(free.maxProjects).toBe(1);
     expect(free.maxUsers).toBe(1);
-    expect(free.maxMW).toBe(10);
+    expect(free.maxMW).toBe(500);
     expect(free.maxApiKeys).toBe(0);
     expect(free.canSell).toBe(false);
     expect(free.hasPDF).toBe(false);

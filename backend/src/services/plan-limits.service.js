@@ -5,12 +5,13 @@
  */
 
 // ─── DÉFINITION DES LIMITES PAR PLAN ─────────────────────────────────────────
+// Limites ajustées pour le marché africain (projets solaires 50-500 MW typiques)
 const PLAN_LIMITS = {
-  FREE:       { maxProjects:1,   maxUsers:1,  maxMW:10,    maxApiKeys:0,  canSell:false, canBuy:true,  hasPDF:false, hasAI:false },
-  TRIAL:      { maxProjects:3,   maxUsers:2,  maxMW:50,    maxApiKeys:1,  canSell:false, canBuy:true,  hasPDF:false, hasAI:false },
-  STARTER:    { maxProjects:5,   maxUsers:2,  maxMW:50,    maxApiKeys:3,  canSell:true,  canBuy:true,  hasPDF:true,  hasAI:false },
+  FREE:       { maxProjects:1,   maxUsers:1,  maxMW:500,   maxApiKeys:0,  canSell:false, canBuy:true,  hasPDF:false, hasAI:false },
+  TRIAL:      { maxProjects:3,   maxUsers:2,  maxMW:500,   maxApiKeys:1,  canSell:false, canBuy:true,  hasPDF:false, hasAI:false },
+  STARTER:    { maxProjects:5,   maxUsers:2,  maxMW:1000,  maxApiKeys:3,  canSell:true,  canBuy:true,  hasPDF:true,  hasAI:false },
   PRO:        { maxProjects:999, maxUsers:10, maxMW:99999, maxApiKeys:20, canSell:true,  canBuy:true,  hasPDF:true,  hasAI:true  },
-  GROWTH:     { maxProjects:50,  maxUsers:20, maxMW:5000,  maxApiKeys:10, canSell:true,  canBuy:true,  hasPDF:true,  hasAI:false },
+  GROWTH:     { maxProjects:50,  maxUsers:20, maxMW:10000, maxApiKeys:10, canSell:true,  canBuy:true,  hasPDF:true,  hasAI:false },
   ENTERPRISE: { maxProjects:999, maxUsers:999,maxMW:99999, maxApiKeys:999,canSell:true,  canBuy:true,  hasPDF:true,  hasAI:true  },
   CUSTOM:     { maxProjects:999, maxUsers:999,maxMW:99999, maxApiKeys:999,canSell:true,  canBuy:true,  hasPDF:true,  hasAI:true  },
 };

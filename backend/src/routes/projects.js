@@ -82,9 +82,9 @@ router.post('/', auth, requirePermission('projects.create'), [
     if (!['SUPER_ADMIN', 'ADMIN'].includes(req.user.role)) {
       const uid = req.user.userId;
       const LIMITS = {
-        FREE:{ mp:1, mw:10 }, TRIAL:{ mp:3, mw:50 },
-        STARTER:{ mp:5, mw:50 }, PRO:{ mp:999, mw:99999 },
-        GROWTH:{ mp:50, mw:5000 }, ENTERPRISE:{ mp:999, mw:99999 }, CUSTOM:{ mp:999, mw:99999 },
+        FREE:{ mp:1, mw:500 }, TRIAL:{ mp:3, mw:500 },
+        STARTER:{ mp:5, mw:1000 }, PRO:{ mp:999, mw:99999 },
+        GROWTH:{ mp:50, mw:10000 }, ENTERPRISE:{ mp:999, mw:99999 }, CUSTOM:{ mp:999, mw:99999 },
       };
       const NEXT = { FREE:'TRIAL', TRIAL:'STARTER', STARTER:'PRO', PRO:'ENTERPRISE', GROWTH:'PRO', ENTERPRISE:'ENTERPRISE' };
 
