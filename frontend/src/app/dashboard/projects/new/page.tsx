@@ -4,6 +4,7 @@ import { useLang } from '@/lib/lang-context';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { AFRICAN_COUNTRIES } from '@/lib/african-countries';
 
 const STEPS = ['Informations', 'Localisation', 'Paramètres MRV', 'Confirmation'];
 
@@ -12,7 +13,7 @@ export default function NewProjectPage() {
   const L = (en, fr) => lang === 'fr' ? fr : en;
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [countries, setCountries] = useState([]);
+  const [countries, setCountries] = useState(AFRICAN_COUNTRIES); // Static fallback
   const [loading, setLoading] = useState(false);
   const [planLimitError, setPlanLimitError] = useState(null);
   const [error, setError] = useState('');
@@ -24,7 +25,11 @@ export default function NewProjectPage() {
   });
 
   useEffect(() => {
-    api.getCountries().then(setCountries).catch(console.error);
+    // Charger depuis l'API en arrière-plan (enrichissement, maj EF)
+    // La liste statique est déjà disponible immédiatement
+    api.getCountries()
+      .then(data => { if (Array.isArray(data) && data.length > 0) setCountries(data); })
+      .catch(() => { /* Utiliser la liste statique AFRICAN_COUNTRIES */ });
   }, []);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -136,14 +141,29 @@ export default function NewProjectPage() {
             <div>
               <Label>Country *</Label>
               <select className="input-dark" value={form.countryCode} onChange={e => selectCountry(e.target.value)}>
-                <option value="">Sélectionner un pays</option>
-                {countries.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name} — EF: {c.ef} tCO₂/MWh</option>
-                ))}
+                <option value="">{countries.length === 0 ? 'Chargement...' : 'Sélectionner un pays africain'}</option>
+                {['WEST','CENTRAL','EAST','SOUTH','NORTH','INDIAN'].map(region => {
+                  const regionCountries = countries.filter(x => x.region === region);
+                  if (!regionCountries.length) return null;
+                  const regionLabel = {
+                    WEST:'Afrique de l\'Ouest', CENTRAL:'Afrique Centrale',
+                    EAST:'Afrique de l\'Est', SOUTH:'Afrique Australe',
+                    NORTH:'Afrique du Nord', INDIAN:'Océan Indien',
+                  }[region] || region;
+                  return (
+                    <optgroup key={region} label={regionLabel}>
+                      {regionCountries.map(country => (
+                        <option key={country.code} value={country.code}>
+                          {country.name} — {country.ef} tCO₂/MWh ({country.source})
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
               </select>
               {form.countryCode && (
                 <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(0,255,148,0.05)', borderRadius: 6, border: '1px solid rgba(0,255,148,0.1)', fontSize: 12, color: '#00FF94' }}>
-                  ✓ Facteur d'émission réseau automatiquement défini à {form.baselineEF} tCO₂e/MWh
+                  ✓ Emission Factor: {form.baselineEF} tCO₂e/MWh — Source: {countries.find(x => x.code === form.countryCode)?.source || 'UNFCCC 2024'}
                 </div>
               )}
             </div>

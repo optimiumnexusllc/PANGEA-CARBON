@@ -48,7 +48,7 @@ router.get('/', auth, async (req, res, next) => {
 });
 
 // GET /api/projects/countries/supported
-router.get('/meta/countries', auth, (req, res) => {
+router.get('/meta/countries', (req, res) => { // Public — liste statique pays africains
   const countries = Object.entries(AFRICAN_GRID_EMISSION_FACTORS).map(([code, data]) => ({
     code, ...data,
   }));
