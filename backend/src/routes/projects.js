@@ -204,8 +204,6 @@ router.get('/meta/countries', auth, (req, res) => {
   res.json(countries);
 });
 
-module.exports = router;
-
 // DELETE /api/projects/:id — Supprimer un projet (cascade)
 router.delete('/:id', auth, requirePermission('projects.delete'), async (req, res, next) => {
   try {
@@ -339,3 +337,5 @@ router.get('/meta/geocode/:countryCode', auth, (req, res) => {
   if (!coords) return res.status(404).json({ error: 'Pays non référencé' });
   res.json(coords);
 });
+
+module.exports = router;
