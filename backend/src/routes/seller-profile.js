@@ -3,6 +3,7 @@
  * Chaque vendeur configure sa gateway de réception de fonds
  */
 const router = require('express').Router();
+const { dispatchPayout } = require('../services/payout.service');
 const auth = require('../middleware/auth');
 const { requirePermission, requirePlan } = require('../services/rbac.service');
 const { PrismaClient } = require('@prisma/client');
@@ -203,10 +204,14 @@ router.post('/request-payout', auth, requirePermission('seller.request_payout'),
       status: 'PENDING',
     }});
 
-    // Notifier l'admin PANGEA (email/Slack webhook)
-    // TODO: trigger notification
-    
-    res.json({ success: true, payout });
+    // Déclencher le payout automatiquement
+    dispatchPayout(payout.id).then(result => {
+      console.log('[SellerPayout] Auto-dispatched:', payout.id, result.status);
+    }).catch(err => {
+      console.error('[SellerPayout] Auto-dispatch error:', err.message);
+    });
+
+    res.json({ success: true, payout, message: 'Payout initiated — funds will be transferred to your configured gateway' });
   } catch(e) { next(e); }
 });
 

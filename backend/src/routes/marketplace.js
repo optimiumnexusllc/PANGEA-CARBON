@@ -16,6 +16,7 @@
  */
 
 const router = require('express').Router();
+const { executePayout, confirmPayoutWebhook, retryStalePayouts, getPayoutStatus } = require('../services/payout.service');
 const { calculateScore } = require('../services/carbon-score.service');
 const { PrismaClient } = require('@prisma/client');
 const auth = require('../middleware/auth');
@@ -787,8 +788,21 @@ router.post('/webhook/stripe', async (req, res) => {
           where: { id: orderId },
           data: { status: 'PAID', paidAt: new Date(), stripeReceiptUrl: s.receipt_url || null }
         }).catch(() => {});
-        // Settle: réduit la quantité issuance + payout vendeur
+        // Déclencher le payout vendeur automatiquement
+        try {
+          await executePayout(order.id);
+          console.log('[Webhook] Payout initiated for order', order.id);
+        } catch(pe) {
+          console.error('[Webhook] Payout failed (will retry):', pe.message);
+        }
+        // Settle: réduit la quantité issuance
         await settleOrder(orderId, { stripeReceiptUrl: s.receipt_url || null });
+        // ⚡ Déclencher automatiquement le payout vendeur
+        dispatchPayoutForOrder(orderId).then(result => {
+          console.log('[Marketplace] Payout dispatched for order', orderId, result);
+        }).catch(err => {
+          console.error('[Marketplace] Payout dispatch failed for order', orderId, err.message);
+        });
       }
       break;
     }
@@ -958,6 +972,210 @@ router.get('/score/:issuanceId', auth, async (req, res, next) => {
       where: { issuanceId: req.params.issuanceId }
     });
     res.json(score || { score: null, grade: 'UNRATED' });
+  } catch(e) { next(e); }
+});
+
+
+
+// ─── PAYOUT ROUTES ────────────────────────────────────────────────────────────
+
+// GET /api/marketplace/orders/:id/payout — Statut du payout
+router.get('/orders/:id/payout', auth, async (req, res, next) => {
+  try {
+    const result = await getPayoutStatus(req.params.id);
+    res.json(result);
+  } catch(e) { next(e); }
+});
+
+// POST /api/marketplace/orders/:id/payout/retry — Forcer un retry (ADMIN)
+router.post('/orders/:id/payout/retry', auth, async (req, res, next) => {
+  try {
+    if (!['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Admin only' });
+    }
+    const result = await executePayout(req.params.id, {
+      force: true,
+      retryGateway: req.body.gateway,
+    });
+    res.json({ success: true, payout: result });
+  } catch(e) { next(e); }
+});
+
+// POST /api/marketplace/payout/sweep — Retry tous les payouts échoués (SUPER_ADMIN)
+router.post('/payout/sweep', auth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Super admin only' });
+    const result = await retryStalePayouts();
+    res.json(result);
+  } catch(e) { next(e); }
+});
+
+// POST /api/marketplace/webhook/flutterwave — Confirmation payout Flutterwave
+router.post('/webhook/flutterwave', async (req, res) => {
+  try {
+    const hash = req.headers['verif-hash'];
+    const fwHash = process.env.FLUTTERWAVE_WEBHOOK_HASH;
+    if (fwHash && hash !== fwHash) return res.status(401).json({ error: 'Invalid hash' });
+
+    const event = req.body;
+    if (event.event === 'transfer.completed' || event['event.type'] === 'Transfer') {
+      const transfer = event.data || event;
+      await confirmPayoutWebhook(
+        String(transfer.id || transfer.reference),
+        transfer.status,
+        'FLUTTERWAVE'
+      );
+    }
+    res.json({ status: 'ok' });
+  } catch(e) {
+    console.error('[FW Webhook]', e.message);
+    res.json({ status: 'ok' }); // Toujours 200 pour éviter retry Flutterwave
+  }
+});
+
+// POST /api/marketplace/webhook/cinetpay — Confirmation payout CinetPay
+router.post('/webhook/cinetpay', async (req, res) => {
+  try {
+    const { cpm_lot, cpm_result, cpm_trans_id } = req.body;
+    const status = cpm_result === '00' ? 'SUCCESS' : 'FAILED';
+    await confirmPayoutWebhook(cpm_lot || cpm_trans_id, status, 'CINETPAY');
+    res.json({ status: 'ok' });
+  } catch(e) {
+    res.json({ status: 'ok' });
+  }
+});
+
+// POST /api/marketplace/webhook/orange — Confirmation payout Orange Money
+router.post('/webhook/orange', async (req, res) => {
+  try {
+    const { reference, status, txnid } = req.body;
+    await confirmPayoutWebhook(reference || txnid, status, 'ORANGE_MONEY');
+    res.json({ status: 'ok' });
+  } catch(e) {
+    res.json({ status: 'ok' });
+  }
+});
+
+// GET /api/marketplace/seller/payouts — Historique des payouts du vendeur connecté
+router.get('/seller/payouts', auth, async (req, res, next) => {
+  try {
+    const orgId = req.user.organizationId;
+    if (!orgId) return res.json({ payouts: [], stats: { total: 0, paid: 0, pending: 0, failed: 0 } });
+
+    const payouts = await prisma.sellerPayout.findMany({
+      where: { organizationId: orgId },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    const stats = {
+      total: payouts.reduce((s, p) => s + p.amount, 0),
+      paid: payouts.filter(p => p.status === 'PAID').reduce((s, p) => s + p.amount, 0),
+      pending: payouts.filter(p => ['PENDING','PROCESSING'].includes(p.status)).reduce((s, p) => s + p.amount, 0),
+      failed: payouts.filter(p => p.status === 'FAILED').reduce((s, p) => s + p.amount, 0),
+      count: payouts.length,
+      paidCount: payouts.filter(p => p.status === 'PAID').length,
+    };
+
+    res.json({ payouts, stats });
+  } catch(e) { next(e); }
+});
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/marketplace/webhook/flutterwave-payout — Webhook Flutterwave Transfer
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/webhook/flutterwave-payout', async (req, res) => {
+  try {
+    // Vérifier signature Flutterwave
+    const secretHash = process.env.FLUTTERWAVE_SECRET_HASH || '';
+    const signature  = req.headers['verif-hash'];
+    if (secretHash && signature !== secretHash) {
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+    const result = await handleGatewayWebhook('flutterwave', req.body);
+    res.json({ received: true, ...result });
+  } catch(e) {
+    console.error('[Webhook FLW Payout]', e.message);
+    res.json({ received: true });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/marketplace/webhook/cinetpay-payout — Webhook CinetPay Transfer
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/webhook/cinetpay-payout', async (req, res) => {
+  try {
+    const result = await handleGatewayWebhook('cinetpay', req.body);
+    res.json({ received: true, ...result });
+  } catch(e) {
+    console.error('[Webhook CinetPay Payout]', e.message);
+    res.json({ received: true });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/marketplace/admin/payout/:payoutId/retry — Admin: relancer un payout
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/admin/payout/:payoutId/retry', auth, async (req, res, next) => {
+  try {
+    if (!['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Admin required' });
+    }
+    const { dispatchPayout } = require('../services/payout.service');
+    const result = await dispatchPayout(req.params.payoutId);
+    res.json(result);
+  } catch(e) { next(e); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/marketplace/admin/payout/:payoutId/mark-paid — Admin: marquer PAID (Wire)
+// ─────────────────────────────────────────────────────────────────────────────
+router.patch('/admin/payout/:payoutId/mark-paid', auth, async (req, res, next) => {
+  try {
+    if (!['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Admin required' });
+    }
+    const { reference, notes } = req.body;
+    const payout = await prisma.sellerPayout.update({
+      where: { id: req.params.payoutId },
+      data:  { status: 'PAID', paidAt: new Date(), gatewayRef: reference || null, notes: notes || 'Marked as paid by admin' }
+    });
+    // Mettre à jour l'ordre parent
+    await prisma.marketplaceOrder.updateMany({
+      where: { id: payout.orderId },
+      data:  { sellerPaidAt: new Date(), payoutId: payout.id, status: 'SETTLED' }
+    }).catch(() => {});
+    await prisma.auditLog.create({ data: {
+      userId: req.user.userId, action: 'PAYOUT_MANUALLY_CONFIRMED',
+      entity: 'SellerPayout', entityId: payout.id,
+      after: { reference, notes }
+    }}).catch(() => {});
+    res.json({ success: true, payout });
+  } catch(e) { next(e); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/marketplace/admin/payouts — Admin: liste tous les payouts
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/admin/payouts', auth, async (req, res, next) => {
+  try {
+    if (!['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Admin required' });
+    }
+    const { status, page = 1 } = req.query;
+    const where = status ? { status } : {};
+    const payouts = await prisma.sellerPayout.findMany({
+      where, orderBy: { createdAt: 'desc' },
+      skip: (parseInt(page) - 1) * 50, take: 50,
+      include: { organization: { select: { name: true, plan: true } } }
+    });
+    const total = await prisma.sellerPayout.count({ where });
+    const stats = await prisma.sellerPayout.groupBy({
+      by: ['status'], _sum: { amount: true }, _count: true,
+    });
+    res.json({ payouts, total, stats });
   } catch(e) { next(e); }
 });
 

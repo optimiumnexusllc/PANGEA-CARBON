@@ -302,4 +302,51 @@ async function sendEmailOTP({ to, name, code, expiresInMinutes, lang }) {
   return { success: true, info };
 }
 
-module.exports = { sendVerificationEmail, sendAdminNotification, sendWelcomeEmail, sendEmail, sendEmailOTP };
+
+/**
+ * Envoie les instructions de virement Wire aux ops PANGEA
+ */
+async function sendWireInstructions({ to, payoutId, amount, currency, instructions, orderId }) {
+  const transporter = await getTransporter();
+  if (!transporter) {
+    console.warn('[Email] SMTP not configured — wire instructions not sent');
+    return;
+  }
+  const from = transporter._pangea_from || ('"PANGEA CARBON" <contact@pangea-carbon.com>');
+
+  const fields = [
+    ['Payout ID',      payoutId],
+    ['Order ID',       orderId],
+    ['Amount',         `${amount} ${currency}`],
+    ['Beneficiary',    instructions.beneficiary || '—'],
+    ['IBAN / Account', instructions.iban || '—'],
+    ['SWIFT/BIC',      instructions.swift || '—'],
+    ['Bank Name',      instructions.bankName || '—'],
+    ['Bank City',      instructions.bankCity || '—'],
+    ['Bank Country',   instructions.bankCountry || '—'],
+    ['Intermediary',   instructions.bankIntermediary || '—'],
+    ['Reference',      instructions.reference],
+    ['Note',           instructions.note],
+  ].map(([k,v]) => `<tr><td style="padding:6px 12px;font-weight:700;color:#4A6278;width:180px">${k}</td><td style="padding:6px 12px;color:#E8EFF6;font-family:'JetBrains Mono',monospace">${v}</td></tr>`).join('');
+
+  const html = baseTemplate(`
+    <h2 style="color:#00FF94;font-family:sans-serif;margin:0 0 16px">🏦 Wire Transfer Required</h2>
+    <p style="color:#8FA3B8;margin:0 0 20px">A wire transfer payout needs to be processed for the following seller:</p>
+    <table style="width:100%;border-collapse:collapse;background:#0D1117;border:1px solid #1E2D3D;border-radius:8px">
+      ${fields}
+    </table>
+    <div style="margin-top:20px;padding:14px;background:rgba(0,255,148,0.06);border:1px solid rgba(0,255,148,0.2);border-radius:8px">
+      <p style="margin:0;color:#00FF94;font-size:13px">⚡ Action required: Process this wire transfer and mark the payout as PAID in the PANGEA Admin Console.</p>
+    </div>
+  `);
+
+  await transporter.sendMail({
+    from,
+    to,
+    subject: `[PANGEA CARBON] Wire Payout Required — $${amount} — Order ${orderId}`,
+    html,
+  });
+}
+
+module.exports = {
+  sendWireInstructions, sendVerificationEmail, sendAdminNotification, sendWelcomeEmail, sendEmail, sendEmailOTP };

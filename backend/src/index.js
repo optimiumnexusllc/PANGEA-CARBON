@@ -140,6 +140,18 @@ app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
+// ─── Cron: Retry des payouts échoués toutes les 30min ───────────────────────
+const PAYOUT_RETRY_INTERVAL = 30 * 60 * 1000; // 30 minutes
+setInterval(async () => {
+  try {
+    const { retryStalePayouts } = require('./services/payout.service');
+    const result = await retryStalePayouts();
+    if (result.swept > 0) logger.info(`[Payout Cron] Swept ${result.swept}, retried ${result.retried}`);
+  } catch(e) {
+    logger.warn('[Payout Cron] Error:', e.message);
+  }
+}, PAYOUT_RETRY_INTERVAL);
+
 app.listen(PORT, () => {
   logger.info(`PANGEA CARBON API running on port ${PORT}`);
 });
