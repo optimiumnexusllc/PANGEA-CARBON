@@ -142,7 +142,7 @@ export default function OptimizationPage() {
         <div style={{ background: '#0D1117', border: '1px solid #1E2D3D', borderRadius: 12, padding: 48, textAlign: 'center', color: '#4A6278' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
           <div style={{ fontSize: 15, color: '#E8EFF6', marginBottom: 6 }}>Aucune recommandation dans cette catégorie</div>
-          <div>Sélectionnez un projet avec des données MRV pour l'analyse</div>
+          <div>Selectionnez un projet avec des donnees MRV pour analyse</div>
         </div>
       )}
     </div>

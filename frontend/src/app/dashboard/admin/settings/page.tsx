@@ -482,7 +482,7 @@ export default function AdminSettingsPage() {
 
           {activeTab === 'integrations' && (
             <div style={{ marginTop: 12, padding: '10px 14px', background: '#0D1117', borderRadius: 8, border: '1px solid #1E2D3D', fontSize: 12, color: '#4A6278', lineHeight: 1.6 }}>
-              💡 <strong style={{ color: '#A78BFA' }}>Priorité :</strong> Configurez d'abord <strong style={{ color: '#E8EFF6' }}>Claude AI</strong> pour activer l'AI Assistant et l'AI Baseline Setter. Mapbox est optionnel (carte déjà fonctionnelle sans).
+              💡 <strong style={{ color: '#A78BFA' }}>Priorite :</strong> Configurez Claude AI en premier pour activer AI Assistant et AI Baseline. Mapbox est optionnel.
             </div>
           )}
         </div>

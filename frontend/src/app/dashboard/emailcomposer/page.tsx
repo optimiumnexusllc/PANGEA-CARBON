@@ -528,7 +528,7 @@ export default function EmailComposerPage() {
 
             <div style={{ background:'rgba(249,115,22,0.06)', border:'1px solid rgba(249,115,22,0.2)', borderRadius:12, padding:'16px 20px' }}>
               <div style={{ fontSize:11, color:C.orange, marginBottom:12, lineHeight:1.7 }}>
-                ⚠ Cette action va envoyer l'email à <strong>{recipients.length}</strong> destinataire{recipients.length>1?'s':''}. Vérifiez le contenu avant d'envoyer.
+                ⚠ Cette action va envoyer cet email a <strong>{recipients.length}</strong> destinataire{recipients.length>1?'s':''}. Vérifiez le contenu avant d'envoyer.
               </div>
               <button onClick={()=>{ setBulkMode(true); sendEmail(); }}
                 disabled={sending || recipients.length === 0}

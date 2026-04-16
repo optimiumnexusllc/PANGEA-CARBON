@@ -94,26 +94,26 @@ export default function LandingPage() {
   const prices = { free: 0, starter: annual ? 249 : 299, pro: annual ? 649 : 799, esg: annual ? 149 : 199 };
 
   const STATS = [
-    { value:697, suffix:'K+', label:L('tCO₂e certified','tCO₂e certifiés'), sub:'Verra ACM0002' },
-    { value:7.7, suffix:'M$', label:L('carbon revenue','revenus carbone'), sub:L('Active portfolio','Portfolio actif') },
-    { value:18,  suffix:'',   label:L('African countries','pays africains'), sub:L('UNFCCC official EFs','EF UNFCCC officiels') },
-    { value:6,   suffix:'',   label:L('live projects','projets actifs'), sub:'Solar · Wind · Hydro' },
+    { value:697, suffix:'K+', label:(lang==='fr'?'tCO₂e certifiés':'tCO₂e certified'), sub:'Verra ACM0002' },
+    { value:7.7, suffix:'M$', label:(lang==='fr'?'revenus carbone':'carbon revenue'), sub:(lang==='fr'?'Portfolio actif':'Active portfolio') },
+    { value:18,  suffix:'',   label:(lang==='fr'?'pays africains':'African countries'), sub:(lang==='fr'?'EF UNFCCC officiels':'UNFCCC official EFs') },
+    { value:6,   suffix:'',   label:(lang==='fr'?'projets actifs':'live projects'), sub:'Solar · Wind · Hydro' },
   ];
 
   const FEATURES = [
-    { icon:'⚡', title:L('Native Equipment API','API Équipements Native'), desc:L('SMA, Huawei, SolarEdge, Fronius. REST or webhook. MRV calculated automatically at each reading.','SMA, Huawei, SolarEdge, Fronius. REST ou webhook. MRV calculé automatiquement à chaque lecture.'), tag:'API REST' },
-    { icon:'🧮', title:L('Certifiable MRV ACM0002','MRV ACM0002 Certifiable'), desc:L('Verra v19.0 methodology. 18 African countries. Calculation in milliseconds. Audit-ready PDF report.','Méthodologie Verra v19.0. 18 pays africains. Calcul en millisecondes. Rapport PDF audit-ready.'), tag:'Verra · Gold Standard' },
-    { icon:'⬡',  title:'ESG Intelligence Engine', desc:L('Full E+S+G assessment. GRI, CSRD/ESRS, SASB, IFRS S2, King IV. ESG Certificate in EN+FR. PANGEA is the first African E+S+G platform.','Évaluation E+S+G complète. GRI, CSRD/ESRS, SASB, IFRS S2, King IV. Certificat ESG EN+FR. PANGEA est la première plateforme africaine E+S+G.'), tag:'CSRD · GRI · ESG' },
-    { icon:'🏛️', title:L('Article 6 ITMO','Article 6 ITMO'), desc:L('Sovereign carbon markets. Price $35–55/tCO₂e. State-to-state Paris Agreement transactions.','Marchés carbone souverains. Prix $35–55/tCO₂e. Transactions état-à-état Accord de Paris.'), tag:'×3–5 vs Verra' },
-    { icon:'🛰️', title:L('dMRV Satellite + IoT','dMRV Satellite + IoT'), desc:L("Sentinel-2 + IoT sensors. Continuous verification. No annual auditor required. Live dMRV score.","Sentinel-2 + capteurs IoT. Vérification continue. Plus d'auditeur annuel requis. Score dMRV live."), tag:"Continuous MRV" },
-    { icon:'🤖', title:L('AI Carbon Assistant','Assistant IA Carbone'), desc:L('Claude (Anthropic) with African carbon context. Analyzes your portfolio, answers ACM0002 questions in EN/FR.','Claude (Anthropic) avec contexte carbone africain. Analyse votre portfolio, répond aux questions ACM0002 en FR/EN.'), tag:'Claude · Anthropic' },
+    { icon:'⚡', title:(lang==='fr'?'API Équipements Native':'Native Equipment API'), desc:(lang==='fr'?'SMA, Huawei, SolarEdge, Fronius. REST ou webhook. MRV calculé automatiquement à chaque lecture.':'SMA, Huawei, SolarEdge, Fronius. REST or webhook. MRV calculated automatically at each reading.'), tag:'API REST' },
+    { icon:'🧮', title:(lang==='fr'?'MRV ACM0002 Certifiable':'Certifiable MRV ACM0002'), desc:(lang==='fr'?'Méthodologie Verra v19.0. 18 pays africains. Calcul en millisecondes. Rapport PDF audit-ready.':'Verra v19.0 methodology. 18 African countries. Calculation in milliseconds. Audit-ready PDF report.'), tag:'Verra · Gold Standard' },
+    { icon:'⬡',  title:'ESG Intelligence Engine', desc:(lang==='fr'?'Évaluation E+S+G complète. GRI, CSRD/ESRS, SASB, IFRS S2, King IV. Certificat ESG EN+FR. PANGEA est la première plateforme africaine E+S+G.':'Full E+S+G assessment. GRI, CSRD/ESRS, SASB, IFRS S2, King IV. ESG Certificate in EN+FR. PANGEA is the first African E+S+G platform.'), tag:'CSRD · GRI · ESG' },
+    { icon:'🏛️', title:(lang==='fr'?'Article 6 ITMO':'Article 6 ITMO'), desc:(lang==='fr'?'Marchés carbone souverains. Prix $35–55/tCO₂e. Transactions état-à-état Accord de Paris.':'Sovereign carbon markets. Price $35–55/tCO₂e. State-to-state Paris Agreement transactions.'), tag:'×3–5 vs Verra' },
+    { icon:'🛰️', title:(lang==='fr'?'dMRV Satellite + IoT':'dMRV Satellite + IoT'), desc:(lang==='fr'?"Sentinel-2 + capteurs IoT. Vérification continue. Plus d'auditeur annuel requis. Score dMRV live.":"Sentinel-2 + IoT sensors. Continuous verification. No annual auditor required. Live dMRV score."), tag:"Continuous MRV" },
+    { icon:'🤖', title:(lang==='fr'?'Assistant IA Carbone':'AI Carbon Assistant'), desc:(lang==='fr'?'Claude (Anthropic) avec contexte carbone africain. Analyse votre portfolio, répond aux questions ACM0002 en FR/EN.':'Claude (Anthropic) with African carbon context. Analyzes your portfolio, answers ACM0002 questions in EN/FR.'), tag:'Claude · Anthropic' },
   ];
 
   const FLOW = [
-    { n:'01', title:L('Create a project','Créer un projet'), desc:L('Register your plant in 2 min. Emission factor set automatically by UNFCCC country.',"Enregistrez votre parc en 2 min. Facteur d'émission défini automatiquement par pays UNFCCC.") },
-    { n:'02', title:L('Connect equipment','Connecter les équipements'), desc:L('REST API for SMA, Huawei, SolarEdge. Or import CSV. Real-time data.','API REST pour SMA, Huawei, SolarEdge. Ou import CSV. Données en temps réel.') },
-    { n:'03', title:L('Automatic MRV','MRV Automatique'), desc:L('Every reading triggers calculation. Credits, revenue, equivalents. All tracked and certifiable.','Chaque lecture déclenche le calcul. Crédits, revenus, équivalents. Tout tracé et certifiable.') },
-    { n:'04', title:L('Download & sell','Télécharger & vendre'), desc:L('Certifiable PDF in 1 click. Submit to VVB. Sell on our marketplace. ESG certificate included.','PDF certifiable en 1 clic. Soumettez au VVB. Vendez sur notre marketplace. Certificat ESG inclus.') },
+    { n:'01', title:(lang==='fr'?'Créer un projet':'Create a project'), desc:L('Register your plant in 2 min. Emission factor set automatically by UNFCCC country.',"Enregistrez votre parc en 2 min. Facteur d'émission défini automatiquement par pays UNFCCC.") },
+    { n:'02', title:(lang==='fr'?'Connecter les équipements':'Connect equipment'), desc:(lang==='fr'?'API REST pour SMA, Huawei, SolarEdge. Ou import CSV. Données en temps réel.':'REST API for SMA, Huawei, SolarEdge. Or import CSV. Real-time data.') },
+    { n:'03', title:(lang==='fr'?'MRV Automatique':'Automatic MRV'), desc:(lang==='fr'?'Chaque lecture déclenche le calcul. Crédits, revenus, équivalents. Tout tracé et certifiable.':'Every reading triggers calculation. Credits, revenue, equivalents. All tracked and certifiable.') },
+    { n:'04', title:(lang==='fr'?'Télécharger & vendre':'Download & sell'), desc:(lang==='fr'?'PDF certifiable en 1 clic. Soumettez au VVB. Vendez sur notre marketplace. Certificat ESG inclus.':'Certifiable PDF in 1 click. Submit to VVB. Sell on our marketplace. ESG certificate included.') },
   ];
 
 
