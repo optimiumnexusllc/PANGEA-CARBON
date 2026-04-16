@@ -13,7 +13,7 @@ export default function NewProjectPage() {
   const L = (en, fr) => lang === 'fr' ? fr : en;
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [countries, setCountries] = useState(AFRICAN_COUNTRIES); // Static fallback
+  const [countries, setCountries] = useState(AFRICAN_COUNTRIES);
   const [loading, setLoading] = useState(false);
   const [planLimitError, setPlanLimitError] = useState(null);
   const [error, setError] = useState('');
@@ -25,11 +25,7 @@ export default function NewProjectPage() {
   });
 
   useEffect(() => {
-    // Charger depuis l'API en arrière-plan (enrichissement, maj EF)
-    // La liste statique est déjà disponible immédiatement
-    api.getCountries()
-      .then(data => { if (Array.isArray(data) && data.length > 0) setCountries(data); })
-      .catch(() => { /* Utiliser la liste statique AFRICAN_COUNTRIES */ });
+    api.getCountries().then(data => { if (Array.isArray(data) && data.length > 0) setCountries(data); }).catch(() => null);
   }, []);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -141,20 +137,16 @@ export default function NewProjectPage() {
             <div>
               <Label>Country *</Label>
               <select className="input-dark" value={form.countryCode} onChange={e => selectCountry(e.target.value)}>
-                <option value="">{countries.length === 0 ? 'Chargement...' : 'Sélectionner un pays africain'}</option>
-                {['WEST','CENTRAL','EAST','SOUTH','NORTH','INDIAN'].map(region => {
-                  const regionCountries = countries.filter(x => x.region === region);
-                  if (!regionCountries.length) return null;
-                  const regionLabel = {
-                    WEST:'Afrique de l Ouest', CENTRAL:'Afrique Centrale',
-                    EAST:'Afrique de l Est', SOUTH:'Afrique Australe',
-                    NORTH:'Afrique du Nord', INDIAN:'Ocean Indien',
-                  }[region] || region;
+                <option value="">{countries.length === 0 ? 'Loading...' : 'Select African country'}</option>
+                {['WEST','CENTRAL','EAST','SOUTH','NORTH'].map(region => {
+                  const rc = countries.filter(x => x.region === region);
+                  if (!rc.length) return null;
+                  const rLabel = { WEST:'West Africa', CENTRAL:'Central Africa', EAST:'East Africa', SOUTH:'Southern Africa', NORTH:'North Africa' }[region] || region;
                   return (
-                    <optgroup key={region} label={regionLabel}>
-                      {regionCountries.map(country => (
+                    <optgroup key={region} label={rLabel}>
+                      {rc.map(country => (
                         <option key={country.code} value={country.code}>
-                          {country.name} — {country.ef} tCO₂/MWh ({country.source})
+                          {country.name} — {country.ef} tCO2/MWh
                         </option>
                       ))}
                     </optgroup>
@@ -163,7 +155,7 @@ export default function NewProjectPage() {
               </select>
               {form.countryCode && (
                 <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(0,255,148,0.05)', borderRadius: 6, border: '1px solid rgba(0,255,148,0.1)', fontSize: 12, color: '#00FF94' }}>
-                  ✓ Emission Factor: {form.baselineEF} tCO₂e/MWh — Source: {countries.find(x => x.code === form.countryCode)?.source || 'UNFCCC 2024'}
+                  ✓ Emission Factor: {form.baselineEF} tCO2e/MWh — Source: UNFCCC 2024
                 </div>
               )}
             </div>
@@ -175,8 +167,8 @@ export default function NewProjectPage() {
                   {form.countryCode && (
                     <button type="button" onClick={async () => {
                       try {
-                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/meta/geocode/${form.countryCode), {
-                          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')) }
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/meta/geocode/${form.countryCode}`, {
+                          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
                         });
                         if (res.ok) { const d = await res.json(); set('latitude', d.lat); set('longitude', d.lng); }
                       } catch(_e) {}
